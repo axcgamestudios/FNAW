@@ -5,7 +5,7 @@
  */
 import * as THREE from 'three';
 import type { AnimatronicDef, NoiseEvent } from '../core/types';
-import { buildAnimatronic, type CharacterRig } from '../characters/models';
+import { buildAnimatronic, setSolLunaMode, type CharacterRig } from '../characters/models';
 import { Assets, type GltfRig } from '../world/assets';
 import { RigAnimator, type AnimCtx } from '../characters/animation';
 import type { NavGraph } from './navgraph';
@@ -116,6 +116,9 @@ export class Animatronic {
   crawling = false;
   stuckTimer = 0;
   animator!: RigAnimator;
+  private charRig: CharacterRig | null = null;
+  /** retirado: el guardián Sol/Luna dejó de cazar para siempre */
+  retired = false;
 
   constructor(def: AnimatronicDef, host: AIHost) {
     this.def = def;
@@ -172,7 +175,8 @@ export class Animatronic {
     const char = buildAnimatronic(
       def.kind === 'freddy' || def.kind === 'golden' ? 'bear'
         : def.kind === 'bonnie' ? 'rabbit'
-        : def.kind === 'chica' ? 'chicken' : 'fox',
+        : def.kind === 'chica' ? 'chicken'
+        : def.kind === 'luna' ? 'solluna' : 'fox',
       def.eyeColor
     );
     const rig: ARig = {
@@ -183,12 +187,14 @@ export class Animatronic {
       eyeGlow: char.eyeGlow ?? null,
       height: char.height,
     };
+    this.charRig = char;
     return rig;
   }
 
   reset() {
     this.state = 'dormant';
     this.active = false;
+    this.retired = false;
     const room = this.host.world.rooms.get(this.def.startRoom);
     const [ox, oz] = this.def.startOffset ?? [0, 0];
     this.pos.set((room ? room.center.x : 0) + ox, 0, (room ? room.center.z : 0) + oz);
@@ -210,6 +216,7 @@ export class Animatronic {
 
   wake() {
     if (this.active) return;
+    if (this.retired) return; // Sol permanente: jamás despierta de nuevo
     this.active = true;
     this.state = 'patrol';
     this.stateTimer = 0;
@@ -218,6 +225,7 @@ export class Animatronic {
 
   /** activación guionizada (p. ej. Freddy Dorado al coger la cinta) */
   scriptWake() {
+    if (this.retired) return;
     this.scriptedAwake = true;
     this.wake();
     this.state = this.def.persistent ? 'hunt' : 'chase';
@@ -246,12 +254,38 @@ export class Animatronic {
     this.lastSeenAt = this.host.time;
   }
 
+  /** ir a investigar un punto sin perseguir (sustos guionizados) */
+  investigateAt(target: THREE.Vector3) {
+    if (!this.active) this.wake();
+    if (this.state === 'chase' || this.state === 'attack') return;
+    this.state = 'investigate';
+    this.stateTimer = 0;
+    this.investigatePoint = target.clone();
+    this.path = [];
+  }
+
   /** calmar y devolver a patrulla (pruebas) */
   calmDown() {
     this.state = 'patrol';
     this.stateTimer = 0;
     this.path = [];
     this.lastKnown = null;
+  }
+
+  /** transformación Sol/Luna (guardián de la alberca) */
+  setDayNight(mode: 'sun' | 'moon') {
+    if (this.def.kind !== 'luna') return;
+    if (this.charRig) setSolLunaMode(this.charRig, mode);
+  }
+
+  /** se retira para siempre (prueba superada): ni caza ni despierta */
+  retire() {
+    this.retired = true;
+    this.active = false;
+    this.state = 'dormant';
+    this.path = [];
+    this.currentSpeed = 0;
+    this.stateTimer = 0;
   }
 
   get eyeColor(): number {
@@ -266,6 +300,12 @@ export class Animatronic {
     this.vocalTimer -= dt;
 
     if (!this.active) {
+      // retirado: ni caza ni despierta (Sol permanente)
+      if (this.retired) {
+        this.currentSpeed = 0;
+        this.updateAnimator(dt, player, 'dormant');
+        return;
+      }
       // despertar por temporizador del capítulo
       const delay = this.wakeDelayForChapter();
       if (delay < 900 && this.host.chapterTime >= delay) {

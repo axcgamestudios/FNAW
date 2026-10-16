@@ -665,6 +665,283 @@ function buildPuppet(eyeColor: number): CharacterRig {
   };
 }
 
+/* ================= SOL Y LUNA (guardián de la alberca) ================= */
+
+export type SolLunaMode = 'sun' | 'moon';
+
+interface SolLunaUD {
+  solluna: true;
+  sunHead: THREE.Group;
+  moonHead: THREE.Group;
+  sunJaw: THREE.Group;
+  moonJaw: THREE.Group;
+  suitMat: THREE.MeshStandardMaterial;
+  trimMat: THREE.MeshStandardMaterial;
+  pupils: THREE.Mesh[];
+  glowMat: THREE.MeshBasicMaterial;
+  stars: THREE.Mesh[];
+  rays: THREE.Group;
+}
+
+/** Cara del SOL: sonrisa gigante, mejillas rojas (canvas) */
+function sunFaceCanvas(): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 256;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#f2ecd0';
+  g.fillRect(0, 0, 256, 256);
+  // cejas arqueadas
+  g.strokeStyle = '#4a3510';
+  g.lineWidth = 10;
+  g.beginPath(); g.arc(86, 96, 30, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
+  g.beginPath(); g.arc(170, 96, 30, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
+  // ojos: huecos oscuros
+  g.fillStyle = '#1a1408';
+  g.beginPath(); g.ellipse(86, 116, 21, 26, 0, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.ellipse(170, 116, 21, 26, 0, 0, Math.PI * 2); g.fill();
+  // mejillas rojas
+  g.fillStyle = '#d84430';
+  g.beginPath(); g.ellipse(50, 158, 20, 12, 0, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.ellipse(206, 158, 20, 12, 0, 0, Math.PI * 2); g.fill();
+  // SONRISA gigante
+  g.fillStyle = '#5a1410';
+  g.beginPath(); g.arc(128, 138, 62, 0.25, Math.PI - 0.25); g.closePath(); g.fill();
+  g.fillStyle = '#f5f0dc';
+  g.fillRect(70, 150, 116, 14);
+  g.strokeStyle = '#3a0e08';
+  g.lineWidth = 7;
+  g.beginPath(); g.arc(128, 138, 62, 0.25, Math.PI - 0.25); g.stroke();
+  return new THREE.CanvasTexture(c);
+}
+
+/** Cara de la LUNA: media luna, ojos entrecerrados, sonrisa de agujas (canvas) */
+function moonFaceCanvas(): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 256;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#161d3e';
+  g.fillRect(0, 0, 256, 256);
+  // banda pálida de media luna (lado izquierdo)
+  g.fillStyle = '#3a4680';
+  g.beginPath(); g.arc(128, 128, 118, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#161d3e';
+  g.beginPath(); g.arc(178, 100, 96, 0, Math.PI * 2); g.fill();
+  // ojos entrecerrados (parpados caídos)
+  g.strokeStyle = '#101530';
+  g.fillStyle = '#101530';
+  g.lineWidth = 12;
+  g.beginPath(); g.arc(92, 108, 26, Math.PI * 0.1, Math.PI * 0.9); g.stroke();
+  g.beginPath(); g.arc(168, 108, 26, Math.PI * 0.1, Math.PI * 0.9); g.stroke();
+  // pupilas rojas pintadas
+  g.fillStyle = '#ff3838';
+  g.beginPath(); g.arc(92, 118, 8, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.arc(168, 118, 8, 0, Math.PI * 2); g.fill();
+  // nariz pálida
+  g.fillStyle = '#8a93c8';
+  g.beginPath(); g.moveTo(126, 138); g.lineTo(142, 138); g.lineTo(134, 152); g.closePath(); g.fill();
+  // sonrisa de AGUJAS
+  g.strokeStyle = '#e8e4d0';
+  g.lineWidth = 5;
+  g.beginPath(); g.arc(130, 158, 46, 0.2, Math.PI - 0.3); g.stroke();
+  g.lineWidth = 3;
+  for (let i = 0; i <= 8; i++) {
+    const a = 0.25 + (Math.PI - 0.65) * (i / 8);
+    const x1 = 130 + Math.cos(a) * 40;
+    const y1 = 158 + Math.sin(a) * 40;
+    const x2 = 130 + Math.cos(a) * 54;
+    const y2 = 158 + Math.sin(a) * 54;
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+  }
+  return new THREE.CanvasTexture(c);
+}
+
+function buildSolLuna(eyeColor: number): CharacterRig {
+  // traje de bufón: material mutable (amarillo sol / índigo luna)
+  const suitMat = new THREE.MeshStandardMaterial({ color: 0x232a52, roughness: 0.62 });
+  const trimMat = new THREE.MeshStandardMaterial({ color: 0x8a93d8, roughness: 0.5 });
+  const bellMat = new THREE.MeshStandardMaterial({ color: 0xd8b83a, roughness: 0.3, metalness: 0.7 });
+
+  const root = new THREE.Group();
+  const pelvis = pivot(root, 0, 1.02, 0);
+  joint(pelvis, 0.1);
+
+  const torso = pivot(pelvis, 0, 0, 0);
+  // cuerpo de bufón: cápsula holgada
+  const chest = mesh(torso, new THREE.CapsuleGeometry(0.26, 0.3, 8, 14), suitMat, 0, 0.34, 0);
+  chest.scale.set(1.05, 1, 0.85);
+  const belly = mesh(torso, new THREE.SphereGeometry(0.27, 14, 14), suitMat, 0, 0.16, 0);
+  belly.scale.set(1.02, 1, 0.88);
+  // cinturones del traje
+  for (const ry of [0.52, 0.3, 0.1]) {
+    mesh(torso, new THREE.TorusGeometry(0.24, 0.022, 8, 20), trimMat, 0, ry, 0).rotation.x = Math.PI / 2;
+  }
+  // botones-cascabel
+  for (const by of [0.4, 0.24]) {
+    mesh(torso, new THREE.SphereGeometry(0.035, 10, 10), bellMat, 0, by, 0.2);
+  }
+  // cuello de bufón (conos radiales)
+  const collar = new THREE.Group();
+  for (let i = 0; i < 9; i++) {
+    const a = (i / 9) * Math.PI * 2;
+    const petal = mesh(collar, new THREE.ConeGeometry(0.05, 0.16, 6), trimMat, Math.cos(a) * 0.19, 0.62, Math.sin(a) * 0.19);
+    petal.rotation.set(Math.sin(a) * 0.8, 0, -Math.cos(a) * 0.8);
+  }
+  torso.add(collar);
+  // estrellas del traje lunar (visibles solo de noche)
+  const stars: THREE.Mesh[] = [];
+  const starMat = new THREE.MeshBasicMaterial({ color: 0xd8dcff, toneMapped: false });
+  const starSpots: Array<[number, number, number]> = [
+    [-0.16, 0.42, 0.21], [0.14, 0.28, 0.22], [0.1, 0.46, 0.21], [-0.09, 0.16, 0.23], [0.2, 0.36, 0.15],
+  ];
+  for (const [sx, sy, sz] of starSpots) {
+    const st = mesh(torso, new THREE.SphereGeometry(0.018, 6, 6), starMat, sx, sy, sz);
+    stars.push(st);
+  }
+
+  /* ---- CABEZA (compartida) ---- */
+  const head = pivot(torso, 0, 0.72, 0);
+  mesh(head, new THREE.CylinderGeometry(0.05, 0.06, 0.14, 8), endoMat, 0, -0.05, 0);
+
+  // grupo SOL: cráneo claro + rayos
+  const sunHead = new THREE.Group();
+  const sunSkull = mesh(sunHead, new THREE.SphereGeometry(0.235, 18, 18), new THREE.MeshStandardMaterial({ map: sunFaceCanvas(), roughness: 0.35 }), 0, 0.18, 0);
+  sunSkull.scale.set(1, 0.95, 0.92);
+  const rays = new THREE.Group();
+  const rayMat = new THREE.MeshStandardMaterial({ color: 0xf2c93a, roughness: 0.4 });
+  const rayTipMat = new THREE.MeshStandardMaterial({ color: 0xd84430, roughness: 0.4 });
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const ray = mesh(rays, new THREE.ConeGeometry(0.05, 0.2, 5), i % 2 ? rayMat : rayTipMat, Math.cos(a) * 0.27, 0.18, Math.sin(a) * 0.27);
+    ray.rotation.set(Math.sin(a) * 1.1, 0, -Math.cos(a) * 1.1);
+  }
+  sunHead.add(rays);
+  head.add(sunHead);
+
+  // grupo LUNA: cráneo índigo + gorro de dormir con cascabel
+  const moonHead = new THREE.Group();
+  const moonSkull = mesh(moonHead, new THREE.SphereGeometry(0.235, 18, 18), new THREE.MeshStandardMaterial({ map: moonFaceCanvas(), roughness: 0.4 }), 0, 0.18, 0);
+  moonSkull.scale.set(1, 0.95, 0.92);
+  const capMat = new THREE.MeshStandardMaterial({ color: 0x2a3468, roughness: 0.7 });
+  const cap = mesh(moonHead, new THREE.ConeGeometry(0.16, 0.34, 10), capMat, 0.05, 0.42, -0.04);
+  cap.rotation.z = -0.45;
+  mesh(moonHead, new THREE.SphereGeometry(0.05, 10, 10), bellMat, 0.16, 0.56, -0.04);
+  // cuernitos de luna creciente
+  for (const sx of [-1, 1]) {
+    const horn = mesh(moonHead, new THREE.ConeGeometry(0.05, 0.14, 6), new THREE.MeshStandardMaterial({ color: 0xd8dcf0, roughness: 0.35 }), sx * 0.2, 0.3, -0.02);
+    horn.rotation.z = sx * -0.8;
+  }
+  head.add(moonHead);
+
+  /* ---- mandíbulas (una por modo, dentro del hueso compartido) ---- */
+  const jaw = pivot(head, 0, 0.04, 0.07);
+  const sunJaw = new THREE.Group();
+  const sj = mesh(sunJaw, new THREE.SphereGeometry(0.1, 12, 10), new THREE.MeshStandardMaterial({ color: 0x8a2418, roughness: 0.45 }), 0, -0.03, 0.05);
+  sj.scale.set(1.1, 0.5, 1);
+  teethRow(sunJaw, 0, 0.06, 0.11, 6, true);
+  jaw.add(sunJaw);
+  const moonJaw = new THREE.Group();
+  const mj = mesh(moonJaw, new THREE.SphereGeometry(0.1, 12, 10), new THREE.MeshStandardMaterial({ color: 0x232a52, roughness: 0.5 }), 0, -0.03, 0.05);
+  mj.scale.set(1.1, 0.5, 1);
+  teethRow(moonJaw, 0, 0.06, 0.11, 8, true);
+  jaw.add(moonJaw);
+
+  // ojos emisivos (compartidos; color/intensidad cambian con el modo)
+  const eyeM: THREE.Mesh[] = [];
+  for (const sx of [-1, 1]) {
+    const socketShade = mesh(head, new THREE.SphereGeometry(0.062, 10, 10), new THREE.MeshStandardMaterial({ color: 0x0a0a12, roughness: 0.6 }), sx * 0.095, 0.2, 0.155);
+    const pupil = mesh(
+      socketShade,
+      new THREE.SphereGeometry(0.038, 8, 8),
+      new THREE.MeshStandardMaterial({ color: 0x1a1a1a, emissive: 0xff3030, emissiveIntensity: 2.4 }),
+      0, 0, 0.03
+    );
+    pupil.name = 'pupil';
+    eyeM.push(pupil);
+  }
+
+  /* ---- brazos largos de bufón ---- */
+  const armL = limb(torso, 0.4, 0.062, suitMat, -0.31, 0.52, 0);
+  const armR = limb(torso, 0.4, 0.062, suitMat, 0.31, 0.52, 0);
+  joint(armL, 0.08); joint(armR, 0.08);
+  const forearmL = limb(armL, 0.36, 0.05, suitMat, 0, -0.4, 0);
+  const forearmR = limb(armR, 0.36, 0.05, suitMat, 0, -0.4, 0);
+  joint(forearmL, 0.06); joint(forearmR, 0.06);
+  // puños acampanados + cascabel en la muñeca
+  for (const [f, sx] of [[forearmL, -1], [forearmR, 1]] as Array<[THREE.Object3D, number]>) {
+    mesh(f, new THREE.TorusGeometry(0.07, 0.018, 8, 14), trimMat, 0, -0.32, 0).rotation.x = Math.PI / 2;
+    const hand = pivot(f, 0, -0.38, 0);
+    mesh(hand, new THREE.SphereGeometry(0.085, 10, 10), suitMat, 0, -0.05, 0);
+    mesh(hand, new THREE.SphereGeometry(0.028, 8, 8), bellMat, 0, -0.13, 0.03);
+    mesh(hand, new THREE.CapsuleGeometry(0.02, 0.05, 4, 8), suitMat, sx * -0.06, -0.01, 0.02).rotation.z = sx * 0.7;
+  }
+
+  /* ---- piernas con zapatitos de punta rizada ---- */
+  const legL = limb(pelvis, 0.5, 0.085, suitMat, -0.14, 0, 0);
+  const legR = limb(pelvis, 0.5, 0.085, suitMat, 0.14, 0, 0);
+  joint(legL, 0.09); joint(legR, 0.09);
+  const shinL = limb(legL, 0.46, 0.068, suitMat, 0, -0.5, 0);
+  const shinR = limb(legR, 0.46, 0.068, suitMat, 0, -0.5, 0);
+  joint(shinL, 0.07); joint(shinR, 0.07);
+  for (const [sh, sx] of [[shinL, -1], [shinR, 1]] as Array<[THREE.Object3D, number]>) {
+    mesh(sh, new THREE.TorusGeometry(0.075, 0.02, 8, 14), trimMat, 0, -0.38, 0).rotation.x = Math.PI / 2;
+    const foot = pivot(sh, 0, -0.48, 0);
+    mesh(foot, new THREE.BoxGeometry(0.13, 0.08, 0.22), suitMat, 0, -0.03, 0.05);
+    // punta rizada
+    const toe = mesh(foot, new THREE.SphereGeometry(0.055, 8, 8), trimMat, 0, 0.01, 0.19);
+    toe.scale.set(1, 0.6, 1.35);
+  }
+
+  const glowMat = new THREE.MeshBasicMaterial({
+    color: eyeColor, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false,
+  });
+  const glow = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), glowMat);
+  glow.position.set(0, 2.02, 0.22);
+  root.add(glow);
+
+  // registro de partes mutables para la transformación día/noche
+  const ud: SolLunaUD = {
+    solluna: true, sunHead, moonHead, sunJaw, moonJaw, suitMat, trimMat,
+    pupils: eyeM, glowMat, stars, rays,
+  };
+  (root as unknown as { userData: SolLunaUD }).userData = ud;
+
+  const rig: CharacterRig = {
+    root,
+    bones: { pelvis, torso, head, jaw, armL, armR, forearmL, forearmR, legL, legR, shinL, shinR },
+    eyes: eyeM,
+    eyeGlow: glow,
+    height: 2.38,
+    kind: 'solluna',
+  };
+  setSolLunaMode(rig, 'moon');
+  return rig;
+}
+
+/** Transformación día/noche del guardián de la alberca.
+ *  moon = cazador en la oscuridad · sun = modo amable con las luces encendidas */
+export function setSolLunaMode(rig: CharacterRig, mode: SolLunaMode) {
+  const ud = (rig.root as unknown as { userData: SolLunaUD }).userData;
+  if (!ud || !ud.solluna) return;
+  const sun = mode === 'sun';
+  ud.sunHead.visible = sun;
+  ud.moonHead.visible = !sun;
+  ud.sunJaw.visible = sun;
+  ud.moonJaw.visible = !sun;
+  ud.stars.forEach((s) => { s.visible = !sun; });
+  ud.rays.visible = sun;
+  // traje: amarillo/rojo de día — índigo/lavanda de noche
+  ud.suitMat.color.setHex(sun ? 0xf0c93a : 0x232a52);
+  ud.trimMat.color.setHex(sun ? 0xd84430 : 0x8a93d8);
+  // ojos: cálidos de día — rojos de noche
+  for (const p of ud.pupils) {
+    const m = p.material as THREE.MeshStandardMaterial;
+    m.emissive.setHex(sun ? 0x3a2a08 : 0xff3030);
+    m.emissiveIntensity = sun ? 0.8 : 2.4;
+  }
+  ud.glowMat.color.setHex(sun ? 0xffe9a8 : 0xff4040);
+}
+
 /* ================= FÁBRICA ================= */
 
 export function buildAnimatronic(kind: string, eyeColor: number): CharacterRig {
@@ -674,6 +951,7 @@ export function buildAnimatronic(kind: string, eyeColor: number): CharacterRig {
     case 'chicken': return buildGina(eyeColor);
     case 'fox': return buildRen(eyeColor);
     case 'puppet': return buildPuppet(eyeColor);
+    case 'solluna': return buildSolLuna(eyeColor);
     default: return buildBruno(eyeColor);
   }
 }

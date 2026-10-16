@@ -441,6 +441,31 @@ export class Game {
     this.trials.reset(n);
     this.buildInteractables();
     this.trialInteractables = [];
+
+    // === ARRANQUE EN LA ALBERCA (cap 1) ===
+    const luna = this.animatronics.find((a) => a.def.id === 'luna');
+    if (luna) {
+      // cap 1: LUNA vela la guardería oscura · cap 2+: ya la superaste → SOL inofensivo
+      luna.setDayNight(n === 1 ? 'moon' : 'sun');
+      if (n > 1) luna.retire();
+      // reposición: luna despierta en su esquina
+      luna.teleportTo(-18, 10.5, 0.8);
+    }
+    if (n === 1) {
+      // escondido en la alberca: agachado y sin linterna
+      this.player.crouching = true;
+      this.player.flashlightOn = false;
+      this.player.flashlightBattery = Math.max(this.player.flashlightBattery, 55);
+    } else {
+      // cap 2+: se aparece en la Oficina de Seguridad (hub del turno)
+      this.player.pos.set(-37.5, 0, 26.5);
+      this.player.yaw = 0;
+      // la guardería ya fue superada — sus rejas quedan abiertas
+      for (const gid of ['gate_daycare_n', 'gate_daycare_e', 'gate_daycare_s', 'gate_daycare_w']) {
+        this.forceUnlockDoor(gid);
+      }
+    }
+
     this.callQueue = [];
     this.callLineIdx = 0;
     this.callLineTimer = 0;
@@ -553,6 +578,7 @@ export class Game {
         this.trialInteractables = [];
       },
       addNoise: (x: number, z: number, r: number) => this.addNoise(x, z, r),
+      unlockDoor: (id: string) => this.forceUnlockDoor(id),
       onTrialSuccess: () => {
         // el Freddy Dorado despierta al superar la prueba de generadores
         if (this.chapter === 5) {
@@ -576,8 +602,21 @@ export class Game {
         powerUp: () => this.audio.powerUp(),
         switchClick: () => this.audio.switchClick(),
         respawn: () => this.audio.respawn(),
+        moonScream: (pos: THREE.Vector3) => this.audio.moonScream(pos),
+        lullaby: (pos: THREE.Vector3) => this.audio.lullaby(pos),
       },
     };
+  }
+
+  /** desbloquear y abrir una puerta/reja desde el sistema de pruebas */
+  private forceUnlockDoor(id: string) {
+    const door = this.world.doors.get(id);
+    if (!door || !door.locked) return;
+    door.locked = false;
+    this.nav.setDoorBlocked(id, false);
+    door.open = true;
+    door.targetAngle = door.group.rotation.y + (door.def.axis === 'x' ? 1.9 : -1.9);
+    this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
   }
 
   /* ============ CINEMÁTICAS ============ */
@@ -833,20 +872,20 @@ export class Game {
       });
     }
 
-    // recogida de linterna y tableta
-    const torch = world.anchors.get('desk_torch');
+    // recogida de linterna — cap 1: torre de juegos de la guardería
+    const torch = world.anchors.get('daycare_torch') ?? world.anchors.get('desk_torch');
     if (torch) {
       this.interactables.push({
         id: 'pickup_torch',
         label: 'Coger la linterna',
         pos: { x: torch.pos.x, y: torch.pos.y, z: torch.pos.z },
-        radius: 1.7,
+        radius: 1.9,
         enabled: () => !this.missions.hasFlashlight,
         action: () => {
           this.missions.hasFlashlight = true;
           torch.mesh!.visible = false;
           this.audio.pickup();
-          this.missions.completeObjective('c1_gear');
+          this.missions.completeObjective('c1_torch');
           this.notify('Linterna equipada [F]');
           if (this.flashlightModel) this.flashlightModel.visible = true;
           if (this.guardArms) this.guardArms.visible = true;
@@ -865,7 +904,7 @@ export class Game {
           this.missions.hasTablet = true;
           tabletA.mesh!.visible = false;
           this.audio.pickup();
-          this.missions.completeObjective('c1_gear');
+          this.missions.completeObjective('c2_tablet');
           this.notify('Tableta equipada [C]');
         },
       });
@@ -1448,7 +1487,6 @@ export class Game {
         .filter((o) => o.def.id !== excludeId && !o.def.optional && o.def.type !== 'survive')
         .every((o) => o.done);
     const gotoChecks: Array<[string, string, boolean]> = [
-      ['c1_atrium', 'atrium', false],
       ['c3_cove', 'pirateCove', true],
     ];
     for (const [objId, roomId, requireOthers] of gotoChecks) {
@@ -1464,6 +1502,20 @@ export class Game {
             this.notify('ALGO SE MUEVE TRAS EL TELÓN DE LA CALA...');
           }
         }
+      }
+    }
+
+    // objetivos de ZONA del cap 1: salir de la alberca y salir de la guardería
+    if (this.chapter === 1) {
+      const oSneak = this.missions.objectives.find((x) => x.def.id === 'c1_sneak');
+      if (oSneak && !oSneak.done && !this.player.inBallPit) {
+        this.missions.completeObjective('c1_sneak');
+        this.notify('FUERA DE LA ALBERCA — NO TE LEVANTES TODAVÍA [Ctrl]');
+      }
+      const oExit = this.missions.objectives.find((x) => x.def.id === 'c1_exit');
+      if (oExit && !oExit.done && room !== 'daycare') {
+        this.missions.completeObjective('c1_exit');
+        this.notify('EL MEGAPLEX SE ABRE ANTE TI — SIGUE LA VOZ DE RULO');
       }
     }
 

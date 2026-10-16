@@ -159,7 +159,9 @@ export type TrialScare =
   | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'fakeSteps'; msg?: string }
   | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'childLaugh'; msg?: string }
   | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'hunterChase'; msg?: string }
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'ventBang'; msg?: string };
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'ventBang'; msg?: string }
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'moonScream'; msg?: string }
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'lullaby'; msg?: string };
 
 export interface TrialDef {
   id: string;
@@ -175,8 +177,16 @@ export interface TrialDef {
   respawnYaw: number;
   /** sala donde se recoloca el cazador al respawn */
   hunterResetRoom: string;
+  /** posición exacta de recolocación del cazador (anula hunterResetRoom) */
+  hunterResetPos?: [number, number];
   /** mult. de agresión del cazador durante la prueba */
   aggression: number;
+  /** la sala está a oscuras desde el inicio de la prueba (Sol y Luna) */
+  darkFromStart?: boolean;
+  /** al superarla, el cazador se transforma en modo amable y se retira */
+  sunnyTransform?: boolean;
+  /** objetivos que deben completarse antes de armar la prueba */
+  requiresObjectives?: string[];
   introMsg: string;
   tasks: TrialTaskDef[];
   scares: TrialScare[];

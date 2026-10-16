@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import type { WorldBuilder } from '../world/worldbuilder';
 import { mapData } from '../ai/mapdata';
+import { BALL_PIT } from '../world/props';
 export interface PlayerHost {
   world: WorldBuilder;
   addNoise(x: number, z: number, radius: number): void;
@@ -44,6 +45,8 @@ export class Player {
   hiddenLookYaw = 0;
   lookDir = new THREE.Vector3(0, 0, 1);
   inVent = false;
+  /** dentro de la alberca de pelotas: vaivén lento y MUCHO ruido */
+  inBallPit = false;
 
   keys: Record<string, boolean> = {};
   private eyeH = STAND_EYE;
@@ -81,6 +84,11 @@ export class Player {
     if (this.crouching) return 1.55;
     if (this.running && !this.staminaLock) return 5.35;
     return 3.15;
+  }
+
+  /** vadeando entre pelotas: 45% más lento y sin sprint real */
+  private get pitFactor(): number {
+    return this.inBallPit ? 0.55 : 1;
   }
 
   onMouseMove(dx: number, dy: number, sensitivity: number, invertY: boolean) {
@@ -163,7 +171,7 @@ export class Player {
         0,
         -cy * fwd - sy * strafe
       );
-      target.normalize().multiplyScalar(this.speedMax);
+      target.normalize().multiplyScalar(this.speedMax * this.pitFactor);
     }
     // aceleración suave
     const accel = moving ? 11 : 13;
@@ -186,6 +194,11 @@ export class Player {
         break;
       }
     }
+
+    // zona de la ALBERCA DE PELOTAS (ruido ×2.5 y vaivén)
+    this.inBallPit =
+      this.pos.x > BALL_PIT.x1 && this.pos.x < BALL_PIT.x2 &&
+      this.pos.z > BALL_PIT.z1 && this.pos.z < BALL_PIT.z2;
 
     // movimiento con colisión
     this.moveWithCollisions(dt);
@@ -210,9 +223,11 @@ export class Player {
       this.footT -= dt * (this.running ? 1.55 : 1);
       if (this.footT <= 0) {
         this.footT = this.crouching ? 0.72 : 0.52;
-        const surface = this.inVent ? 'metal' : this.surfaceAt();
+        const surface = this.inVent ? 'metal' : this.inBallPit ? 'balls' : this.surfaceAt();
         this.host.sfx.footstep(this.pos, surface, this.running, false);
-        const noiseR = this.crouching ? 1.2 : this.running ? 9.5 : 3.6;
+        // en la alberca TODO se oye el doble y medio: las pelotas traicionan
+        const base = this.crouching ? 1.2 : this.running ? 9.5 : 3.6;
+        const noiseR = base * (this.inBallPit ? 2.5 : 1);
         this.host.addNoise(this.pos.x, this.pos.z, noiseR);
       }
     }

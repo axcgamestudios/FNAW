@@ -7,440 +7,2153 @@
     "wallHeight": 4.2,
     "wallThickness": 0.3
   },
-  "playerSpawn": { "x": -37.5, "z": 26.5, "yaw": 0 },
+  "playerSpawn": {
+    "x": -22.5,
+    "z": 6.5,
+    "yaw": 0
+  },
   "rooms": [
     {
       "id": "workshop",
       "name": "Taller de Piezas",
-      "rect": [-44, -34, -30, -24],
+      "rect": [
+        -44,
+        -34,
+        -30,
+        -24
+      ],
       "floor": "concrete",
       "wall": "concrete",
       "height": 4.2,
-      "ambientLight": { "intensity": 0.3, "flicker": 0.55 }
+      "ambientLight": {
+        "intensity": 0.3,
+        "flicker": 0.55
+      }
     },
     {
       "id": "kitchen",
       "name": "Cocina Industrial",
-      "rect": [-30, -34, -14, -24],
+      "rect": [
+        -30,
+        -34,
+        -14,
+        -24
+      ],
       "floor": "tile",
       "wall": "tile",
       "height": 4.2,
-      "ambientLight": { "intensity": 0.4, "flicker": 0.35 }
+      "ambientLight": {
+        "intensity": 0.4,
+        "flicker": 0.35
+      }
     },
     {
       "id": "storageN",
       "name": "Almacén Norte",
-      "rect": [-14, -34, 2, -24],
+      "rect": [
+        -14,
+        -34,
+        2,
+        -24
+      ],
       "floor": "concrete",
       "wall": "metal",
       "height": 4.2,
-      "ambientLight": { "intensity": 0.25, "flicker": 0.6 }
+      "ambientLight": {
+        "intensity": 0.25,
+        "flicker": 0.6
+      }
     },
     {
       "id": "loading",
       "name": "Muelle de Carga",
-      "rect": [2, -34, 16, -24],
+      "rect": [
+        2,
+        -34,
+        16,
+        -24
+      ],
       "floor": "concrete",
       "wall": "concrete",
       "height": 4.2,
-      "ambientLight": { "intensity": 0.3, "flicker": 0.5 }
+      "ambientLight": {
+        "intensity": 0.3,
+        "flicker": 0.5
+      }
     },
     {
       "id": "electrical",
       "name": "Cuarto Eléctrico",
-      "rect": [16, -34, 30, -24],
+      "rect": [
+        16,
+        -34,
+        30,
+        -24
+      ],
       "floor": "concrete",
       "wall": "concrete",
       "height": 4.0,
-      "ambientLight": { "intensity": 0.35, "flicker": 0.3 }
+      "ambientLight": {
+        "intensity": 0.35,
+        "flicker": 0.3
+      }
     },
     {
       "id": "freezers",
       "name": "Cámaras Frías",
-      "rect": [30, -34, 44, -24],
+      "rect": [
+        30,
+        -34,
+        44,
+        -24
+      ],
       "floor": "concrete",
       "wall": "metal",
       "height": 4.0,
-      "ambientLight": { "intensity": 0.28, "color": 788442, "flicker": 0.65 }
+      "ambientLight": {
+        "intensity": 0.28,
+        "color": 788442,
+        "flicker": 0.65
+      }
     },
     {
       "id": "techHall",
       "name": "Pasillo Técnico",
-      "rect": [-44, -24, 44, -17],
+      "rect": [
+        -44,
+        -24,
+        44,
+        -17
+      ],
       "floor": "metal",
       "wall": "metal",
       "height": 3.4,
-      "ambientLight": { "intensity": 0.2, "flicker": 0.7 }
+      "ambientLight": {
+        "intensity": 0.2,
+        "flicker": 0.7
+      }
     },
     {
       "id": "rockstar",
       "name": "Galería Estelar",
-      "rect": [-44, -17, -30, -9],
+      "rect": [
+        -44,
+        -17,
+        -30,
+        -9
+      ],
       "floor": "carpet",
       "wall": "wallpaper",
       "height": 4.5,
-      "ambientLight": { "intensity": 0.4, "color": 14246954, "flicker": 0.3 }
+      "ambientLight": {
+        "intensity": 0.4,
+        "color": 14246954,
+        "flicker": 0.3
+      }
     },
     {
       "id": "theater",
       "name": "Teatro Bruno",
-      "rect": [-30, -17, -16, -9],
+      "rect": [
+        -30,
+        -17,
+        -16,
+        -9
+      ],
       "floor": "carpet",
       "wall": "wallpaper",
       "height": 5.5,
-      "ambientLight": { "intensity": 0.28, "color": 8917300, "flicker": 0.4 }
+      "ambientLight": {
+        "intensity": 0.28,
+        "color": 8917300,
+        "flicker": 0.4
+      }
     },
     {
       "id": "arcade",
       "name": "Salón Recreativo",
-      "rect": [-16, -17, -2, -9],
+      "rect": [
+        -16,
+        -17,
+        -2,
+        -9
+      ],
       "floor": "checker",
       "wall": "wallpaper",
       "height": 4.5,
-      "ambientLight": { "intensity": 0.42, "color": 4492092, "flicker": 0.8 }
+      "ambientLight": {
+        "intensity": 0.42,
+        "color": 4492092,
+        "flicker": 0.8
+      }
     },
     {
       "id": "bowling",
       "name": "Bolera Bruno",
-      "rect": [-2, -17, 12, -9],
+      "rect": [
+        -2,
+        -17,
+        12,
+        -9
+      ],
       "floor": "wood",
       "wall": "wallpaper",
       "height": 5.0,
-      "ambientLight": { "intensity": 0.32, "flicker": 0.45 }
+      "ambientLight": {
+        "intensity": 0.32,
+        "flicker": 0.45
+      }
     },
     {
       "id": "prize",
       "name": "Rincón de Premios",
-      "rect": [12, -17, 26, -9],
+      "rect": [
+        12,
+        -17,
+        26,
+        -9
+      ],
       "floor": "carpet",
       "wall": "wallpaper",
       "height": 4.2,
-      "ambientLight": { "intensity": 0.4, "color": 15976000, "flicker": 0.3 }
+      "ambientLight": {
+        "intensity": 0.4,
+        "color": 15976000,
+        "flicker": 0.3
+      }
     },
     {
       "id": "golf",
       "name": "Golf del Caimán",
-      "rect": [26, -17, 44, -9],
+      "rect": [
+        26,
+        -17,
+        44,
+        -9
+      ],
       "floor": "carpet",
       "wall": "wallpaper",
       "height": 4.5,
-      "ambientLight": { "intensity": 0.3, "color": 5226220, "flicker": 0.5 }
+      "ambientLight": {
+        "intensity": 0.3,
+        "color": 5226220,
+        "flicker": 0.5
+      }
     },
     {
       "id": "westPromN",
       "name": "Paseo Oeste",
-      "rect": [-44, -9, -16, -3],
+      "rect": [
+        -44,
+        -9,
+        -16,
+        -3
+      ],
       "floor": "polished",
       "wall": "wallpaper",
       "height": 4.0,
-      "ambientLight": { "intensity": 0.34, "flicker": 0.4 }
+      "ambientLight": {
+        "intensity": 0.34,
+        "flicker": 0.4
+      }
     },
     {
       "id": "atrium",
       "name": "Atrio Central",
-      "rect": [-16, -9, 16, 13],
+      "rect": [
+        -16,
+        -9,
+        16,
+        13
+      ],
       "floor": "polished",
       "wall": "wallpaper",
       "height": 9.0,
-      "ambientLight": { "intensity": 0.45, "flicker": 0.3 }
+      "ambientLight": {
+        "intensity": 0.45,
+        "flicker": 0.3
+      }
     },
     {
       "id": "eastPromN",
       "name": "Paseo Este",
-      "rect": [16, -9, 44, -3],
+      "rect": [
+        16,
+        -9,
+        44,
+        -3
+      ],
       "floor": "polished",
       "wall": "wallpaper",
       "height": 4.0,
-      "ambientLight": { "intensity": 0.34, "flicker": 0.4 }
+      "ambientLight": {
+        "intensity": 0.34,
+        "flicker": 0.4
+      }
     },
     {
       "id": "pirateCove",
       "name": "Cala del Pirata",
-      "rect": [-44, -3, -29, 13],
+      "rect": [
+        -44,
+        -3,
+        -29,
+        13
+      ],
       "floor": "carpet",
       "wall": "wallpaper",
       "height": 5.0,
-      "ambientLight": { "intensity": 0.3, "color": 7820650, "flicker": 0.5 }
+      "ambientLight": {
+        "intensity": 0.3,
+        "color": 7820650,
+        "flicker": 0.5
+      }
     },
     {
       "id": "daycare",
       "name": "Guardería",
-      "rect": [-29, -3, -16, 13],
+      "rect": [
+        -29,
+        -3,
+        -16,
+        13
+      ],
       "floor": "carpet",
       "wall": "wallpaper",
       "height": 4.5,
-      "ambientLight": { "intensity": 0.4, "color": 16770440, "flicker": 0.35 }
+      "ambientLight": {
+        "intensity": 0.16,
+        "color": 4358188,
+        "flicker": 0.5
+      }
     },
     {
       "id": "foodcourt",
       "name": "Plaza de Comida",
-      "rect": [16, -3, 31, 13],
+      "rect": [
+        16,
+        -3,
+        31,
+        13
+      ],
       "floor": "tile",
       "wall": "tile",
       "height": 4.5,
-      "ambientLight": { "intensity": 0.38, "flicker": 0.3 }
+      "ambientLight": {
+        "intensity": 0.38,
+        "flicker": 0.3
+      }
     },
     {
       "id": "restrooms",
       "name": "Baños",
-      "rect": [31, -3, 44, 13],
+      "rect": [
+        31,
+        -3,
+        44,
+        13
+      ],
       "floor": "tile",
       "wall": "tile",
       "height": 3.6,
-      "ambientLight": { "intensity": 0.32, "flicker": 0.5 }
+      "ambientLight": {
+        "intensity": 0.32,
+        "flicker": 0.5
+      }
     },
     {
       "id": "promS",
       "name": "Paseo Sur",
-      "rect": [-44, 13, 44, 19],
+      "rect": [
+        -44,
+        13,
+        44,
+        19
+      ],
       "floor": "polished",
       "wall": "wallpaper",
       "height": 4.0,
-      "ambientLight": { "intensity": 0.34, "flicker": 0.4 }
+      "ambientLight": {
+        "intensity": 0.34,
+        "flicker": 0.4
+      }
     },
     {
       "id": "office",
       "name": "Oficina de Seguridad",
-      "rect": [-44, 19, -31, 29],
+      "rect": [
+        -44,
+        19,
+        -31,
+        29
+      ],
       "floor": "polished",
       "wall": "concrete",
       "height": 3.4,
-      "ambientLight": { "intensity": 0.5, "color": 15761536, "flicker": 0.25 }
+      "ambientLight": {
+        "intensity": 0.5,
+        "color": 15761536,
+        "flicker": 0.25
+      }
     },
     {
       "id": "techS",
       "name": "Sala Técnica Sur",
-      "rect": [-44, 29, -31, 34],
+      "rect": [
+        -44,
+        29,
+        -31,
+        34
+      ],
       "floor": "metal",
       "wall": "metal",
       "height": 3.2,
-      "ambientLight": { "intensity": 0.16, "flicker": 0.75 }
+      "ambientLight": {
+        "intensity": 0.16,
+        "flicker": 0.75
+      }
     },
     {
       "id": "lobby",
       "name": "Vestíbulo Principal",
-      "rect": [-31, 19, 20, 34],
+      "rect": [
+        -31,
+        19,
+        20,
+        34
+      ],
       "floor": "polished",
       "wall": "wallpaper",
       "height": 6.0,
-      "ambientLight": { "intensity": 0.4, "flicker": 0.35 }
+      "ambientLight": {
+        "intensity": 0.4,
+        "flicker": 0.35
+      }
     },
     {
       "id": "generator",
       "name": "Sala de Generadores",
-      "rect": [20, 19, 31, 34],
+      "rect": [
+        20,
+        19,
+        31,
+        34
+      ],
       "floor": "concrete",
       "wall": "concrete",
       "height": 4.5,
-      "ambientLight": { "intensity": 0.22, "flicker": 0.6 }
+      "ambientLight": {
+        "intensity": 0.22,
+        "flicker": 0.6
+      }
     },
     {
       "id": "storageS",
       "name": "Almacén Sur",
-      "rect": [31, 19, 44, 27],
+      "rect": [
+        31,
+        19,
+        44,
+        27
+      ],
       "floor": "concrete",
       "wall": "metal",
       "height": 4.0,
-      "ambientLight": { "intensity": 0.24, "flicker": 0.6 }
+      "ambientLight": {
+        "intensity": 0.24,
+        "flicker": 0.6
+      }
     },
     {
       "id": "pumpRoom",
       "name": "Sala de Bombas",
-      "rect": [31, 27, 44, 34],
+      "rect": [
+        31,
+        27,
+        44,
+        34
+      ],
       "floor": "metal",
       "wall": "metal",
       "height": 3.8,
-      "ambientLight": { "intensity": 0.2, "flicker": 0.7 }
+      "ambientLight": {
+        "intensity": 0.2,
+        "flicker": 0.7
+      }
     }
   ],
   "openings": [],
   "walls": [
-    { "x1": -44, "z1": -34, "x2": 44, "z2": -34, "wallType": "concrete", "h": 4.2 },
-    { "x1": -44, "z1": 34, "x2": -31, "z2": 34, "wallType": "concrete", "h": 3.4 },
-    { "x1": -31, "z1": 34, "x2": 20, "z2": 34, "wallType": "wallpaper", "h": 6.0, "openings": [{ "at": -5.5, "width": 3.0, "height": 2.6 }] },
-    { "x1": 20, "z1": 34, "x2": 31, "z2": 34, "wallType": "concrete", "h": 4.5 },
-    { "x1": 31, "z1": 34, "x2": 44, "z2": 34, "wallType": "metal", "h": 3.8 },
-    { "x1": -44, "z1": -34, "x2": -44, "z2": 34, "wallType": "concrete", "h": 4.5 },
-    { "x1": 44, "z1": -34, "x2": 44, "z2": 34, "wallType": "concrete", "h": 4.5 },
-    { "x1": -44, "z1": -24, "x2": -30, "z2": -24, "wallType": "concrete", "h": 4.2, "openings": [{ "at": -37, "width": 1.6, "height": 2.15 }] },
-    { "x1": -30, "z1": -24, "x2": -14, "z2": -24, "wallType": "tile", "h": 4.2, "openings": [{ "at": -24, "width": 1.8, "height": 2.15 }] },
-    { "x1": -14, "z1": -24, "x2": 2, "z2": -24, "wallType": "metal", "h": 4.2, "openings": [{ "at": -8, "width": 1.6, "height": 2.15 }] },
-    { "x1": 2, "z1": -24, "x2": 16, "z2": -24, "wallType": "concrete", "h": 4.2, "openings": [{ "at": 9, "width": 2.0, "height": 2.15 }] },
-    { "x1": 16, "z1": -24, "x2": 30, "z2": -24, "wallType": "concrete", "h": 4.2, "openings": [{ "at": 23, "width": 1.6, "height": 2.15 }] },
-    { "x1": 30, "z1": -24, "x2": 44, "z2": -24, "wallType": "metal", "h": 4.2, "openings": [{ "at": 37, "width": 1.6, "height": 2.15 }] },
-    { "x1": -30, "z1": -34, "x2": -30, "z2": -24, "wallType": "concrete", "h": 4.2 },
-    { "x1": -14, "z1": -34, "x2": -14, "z2": -24, "wallType": "concrete", "h": 4.2 },
-    { "x1": 2, "z1": -34, "x2": 2, "z2": -24, "wallType": "concrete", "h": 4.2 },
-    { "x1": 16, "z1": -34, "x2": 16, "z2": -24, "wallType": "concrete", "h": 4.2 },
-    { "x1": 30, "z1": -34, "x2": 30, "z2": -24, "wallType": "concrete", "h": 4.2 },
-    { "x1": -44, "z1": -17, "x2": -30, "z2": -17, "wallType": "concrete", "h": 4.5, "openings": [{ "at": -37, "width": 3.2, "height": 3.0 }] },
-    { "x1": -30, "z1": -17, "x2": -16, "z2": -17, "wallType": "wallpaper", "h": 5.5, "openings": [{ "at": -23, "width": 3.0, "height": 3.2 }] },
-    { "x1": -16, "z1": -17, "x2": -2, "z2": -17, "wallType": "wallpaper", "h": 4.5, "openings": [{ "at": -9, "width": 3.2, "height": 3.0 }] },
-    { "x1": -2, "z1": -17, "x2": 12, "z2": -17, "wallType": "wallpaper", "h": 5.0, "openings": [{ "at": 5, "width": 3.0, "height": 3.0 }] },
-    { "x1": 12, "z1": -17, "x2": 26, "z2": -17, "wallType": "wallpaper", "h": 4.2, "openings": [{ "at": 19, "width": 2.8, "height": 3.0 }] },
-    { "x1": 26, "z1": -17, "x2": 44, "z2": -17, "wallType": "wallpaper", "h": 4.5, "openings": [{ "at": 35, "width": 3.2, "height": 3.0 }] },
-    { "x1": -30, "z1": -17, "x2": -30, "z2": -9, "wallType": "wallpaper", "h": 5.5, "openings": [{ "at": -13, "width": 2.0, "height": 2.6 }] },
-    { "x1": -16, "z1": -17, "x2": -16, "z2": -9, "wallType": "wallpaper", "h": 5.5, "openings": [{ "at": -13, "width": 2.4, "height": 2.8 }] },
-    { "x1": -2, "z1": -17, "x2": -2, "z2": -9, "wallType": "wallpaper", "h": 5.0, "openings": [{ "at": -13, "width": 2.6, "height": 2.8 }] },
-    { "x1": 12, "z1": -17, "x2": 12, "z2": -9, "wallType": "wallpaper", "h": 5.0, "openings": [{ "at": -13, "width": 2.0, "height": 2.6 }] },
-    { "x1": 26, "z1": -17, "x2": 26, "z2": -9, "wallType": "wallpaper", "h": 4.5, "openings": [{ "at": -13, "width": 2.4, "height": 2.6 }] },
-    { "x1": -44, "z1": -9, "x2": -30, "z2": -9, "wallType": "wallpaper", "h": 4.5, "openings": [{ "at": -37, "width": 2.8, "height": 2.9 }] },
-    { "x1": -30, "z1": -9, "x2": -16, "z2": -9, "wallType": "wallpaper", "h": 5.5, "openings": [{ "at": -23, "width": 2.8, "height": 2.9 }] },
-    { "x1": -16, "z1": -9, "x2": -7, "z2": -9, "wallType": "wallpaper", "h": 9.0, "openings": [{ "at": -11.5, "width": 3.6, "height": 3.4 }] },
-    { "x1": -7, "z1": -9, "x2": 7, "z2": -9, "wallType": "wallpaper", "h": 9.0 },
-    { "x1": 7, "z1": -9, "x2": 12, "z2": -9, "wallType": "wallpaper", "h": 9.0, "openings": [{ "at": 9.5, "width": 3.0, "height": 3.4 }] },
-    { "x1": 12, "z1": -9, "x2": 16, "z2": -9, "wallType": "wallpaper", "h": 9.0, "openings": [{ "at": 13.7, "width": 2.2, "height": 3.2 }] },
-    { "x1": 16, "z1": -9, "x2": 26, "z2": -9, "wallType": "wallpaper", "h": 4.2, "openings": [{ "at": 21, "width": 2.8, "height": 2.9 }] },
-    { "x1": 26, "z1": -9, "x2": 44, "z2": -9, "wallType": "wallpaper", "h": 4.5, "openings": [{ "at": 35, "width": 3.2, "height": 2.9 }] },
-    { "x1": -44, "z1": -3, "x2": -29, "z2": -3, "wallType": "wallpaper", "h": 5.0, "openings": [{ "at": -36, "width": 3.4, "height": 3.4 }] },
-    { "x1": -29, "z1": -3, "x2": -16, "z2": -3, "wallType": "wallpaper", "h": 4.5, "openings": [{ "at": -22, "width": 3.4, "height": 3.4 }] },
-    { "x1": 16, "z1": -3, "x2": 31, "z2": -3, "wallType": "tile", "h": 4.5, "openings": [{ "at": 23, "width": 3.2, "height": 3.4 }] },
-    { "x1": 31, "z1": -3, "x2": 44, "z2": -3, "wallType": "tile", "h": 3.6, "openings": [{ "at": 37, "width": 1.4, "height": 2.15 }] },
-    { "x1": -16, "z1": -9, "x2": -16, "z2": -3, "wallType": "wallpaper", "h": 9.0, "openings": [{ "at": -6, "width": 3.0, "height": 3.4 }] },
-    { "x1": -16, "z1": -3, "x2": -16, "z2": 13, "wallType": "wallpaper", "h": 9.0, "openings": [{ "at": 4, "width": 3.2, "height": 3.4 }] },
-    { "x1": 16, "z1": -9, "x2": 16, "z2": -3, "wallType": "wallpaper", "h": 9.0, "openings": [{ "at": -6, "width": 3.0, "height": 3.4 }] },
-    { "x1": 16, "z1": -3, "x2": 16, "z2": 13, "wallType": "tile", "h": 9.0, "openings": [{ "at": 4, "width": 3.2, "height": 3.4 }] },
-    { "x1": -16, "z1": 13, "x2": -5.5, "z2": 13, "wallType": "wallpaper", "h": 9.0 },
-    { "x1": -5.5, "z1": 13, "x2": 5.5, "z2": 13, "wallType": "wallpaper", "h": 9.0, "openings": [{ "at": 0, "width": 11.0, "height": 4.6 }] },
-    { "x1": 5.5, "z1": 13, "x2": 16, "z2": 13, "wallType": "wallpaper", "h": 9.0 },
-    { "x1": -29, "z1": -3, "x2": -29, "z2": 13, "wallType": "wallpaper", "h": 5.0, "openings": [{ "at": 5, "width": 2.4, "height": 2.8 }] },
-    { "x1": 31, "z1": -3, "x2": 31, "z2": 13, "wallType": "tile", "h": 4.5, "openings": [{ "at": 5, "width": 1.4, "height": 2.15 }] },
-    { "x1": -44, "z1": 13, "x2": -29, "z2": 13, "wallType": "wallpaper", "h": 5.0, "openings": [{ "at": -36, "width": 3.0, "height": 3.2 }] },
-    { "x1": -29, "z1": 13, "x2": -16, "z2": 13, "wallType": "wallpaper", "h": 4.5, "openings": [{ "at": -22, "width": 3.2, "height": 3.2 }] },
-    { "x1": 16, "z1": 13, "x2": 31, "z2": 13, "wallType": "tile", "h": 4.5, "openings": [{ "at": 23, "width": 3.2, "height": 3.2 }] },
-    { "x1": 31, "z1": 13, "x2": 44, "z2": 13, "wallType": "tile", "h": 3.6 },
-    { "x1": -44, "z1": 19, "x2": -31, "z2": 19, "wallType": "concrete", "h": 4.0, "openings": [{ "at": -37.5, "width": 1.6, "height": 2.15 }] },
-    { "x1": -31, "z1": 19, "x2": 20, "z2": 19, "wallType": "wallpaper", "h": 6.0, "openings": [
-      { "at": -14, "width": 5.0, "height": 4.2 },
-      { "at": 0, "width": 5.0, "height": 4.2 },
-      { "at": 14, "width": 5.0, "height": 4.2 }
-    ] },
-    { "x1": 20, "z1": 19, "x2": 31, "z2": 19, "wallType": "concrete", "h": 4.5, "openings": [{ "at": 25.5, "width": 1.8, "height": 2.15 }] },
-    { "x1": 31, "z1": 19, "x2": 44, "z2": 19, "wallType": "metal", "h": 4.0, "openings": [{ "at": 37, "width": 1.8, "height": 2.15 }] },
-    { "x1": -44, "z1": 29, "x2": -31, "z2": 29, "wallType": "concrete", "h": 3.4, "openings": [{ "at": -40, "width": 1.4, "height": 2.05 }] },
-    { "x1": -31, "z1": 29, "x2": -31, "z2": 34, "wallType": "concrete", "h": 3.4 },
-    { "x1": 20, "z1": 19, "x2": 20, "z2": 34, "wallType": "concrete", "h": 6.0, "openings": [{ "at": 26, "width": 1.8, "height": 2.15 }] },
-    { "x1": 31, "z1": 19, "x2": 31, "z2": 34, "wallType": "concrete", "h": 4.5 },
-    { "x1": 31, "z1": 27, "x2": 44, "z2": 27, "wallType": "metal", "h": 4.0, "openings": [{ "at": 37, "width": 1.6, "height": 2.05 }] },
-    { "x1": -31, "z1": 19, "x2": -31, "z2": 29, "wallType": "wallpaper", "h": 6.0 }
+    {
+      "x1": -44,
+      "z1": -34,
+      "x2": 44,
+      "z2": -34,
+      "wallType": "concrete",
+      "h": 4.2
+    },
+    {
+      "x1": -44,
+      "z1": 34,
+      "x2": -31,
+      "z2": 34,
+      "wallType": "concrete",
+      "h": 3.4
+    },
+    {
+      "x1": -31,
+      "z1": 34,
+      "x2": 20,
+      "z2": 34,
+      "wallType": "wallpaper",
+      "h": 6.0,
+      "openings": [
+        {
+          "at": -5.5,
+          "width": 3.0,
+          "height": 2.6
+        }
+      ]
+    },
+    {
+      "x1": 20,
+      "z1": 34,
+      "x2": 31,
+      "z2": 34,
+      "wallType": "concrete",
+      "h": 4.5
+    },
+    {
+      "x1": 31,
+      "z1": 34,
+      "x2": 44,
+      "z2": 34,
+      "wallType": "metal",
+      "h": 3.8
+    },
+    {
+      "x1": -44,
+      "z1": -34,
+      "x2": -44,
+      "z2": 34,
+      "wallType": "concrete",
+      "h": 4.5
+    },
+    {
+      "x1": 44,
+      "z1": -34,
+      "x2": 44,
+      "z2": 34,
+      "wallType": "concrete",
+      "h": 4.5
+    },
+    {
+      "x1": -44,
+      "z1": -24,
+      "x2": -30,
+      "z2": -24,
+      "wallType": "concrete",
+      "h": 4.2,
+      "openings": [
+        {
+          "at": -37,
+          "width": 1.6,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": -30,
+      "z1": -24,
+      "x2": -14,
+      "z2": -24,
+      "wallType": "tile",
+      "h": 4.2,
+      "openings": [
+        {
+          "at": -24,
+          "width": 1.8,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": -14,
+      "z1": -24,
+      "x2": 2,
+      "z2": -24,
+      "wallType": "metal",
+      "h": 4.2,
+      "openings": [
+        {
+          "at": -8,
+          "width": 1.6,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": 2,
+      "z1": -24,
+      "x2": 16,
+      "z2": -24,
+      "wallType": "concrete",
+      "h": 4.2,
+      "openings": [
+        {
+          "at": 9,
+          "width": 2.0,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": 16,
+      "z1": -24,
+      "x2": 30,
+      "z2": -24,
+      "wallType": "concrete",
+      "h": 4.2,
+      "openings": [
+        {
+          "at": 23,
+          "width": 1.6,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": 30,
+      "z1": -24,
+      "x2": 44,
+      "z2": -24,
+      "wallType": "metal",
+      "h": 4.2,
+      "openings": [
+        {
+          "at": 37,
+          "width": 1.6,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": -30,
+      "z1": -34,
+      "x2": -30,
+      "z2": -24,
+      "wallType": "concrete",
+      "h": 4.2
+    },
+    {
+      "x1": -14,
+      "z1": -34,
+      "x2": -14,
+      "z2": -24,
+      "wallType": "concrete",
+      "h": 4.2
+    },
+    {
+      "x1": 2,
+      "z1": -34,
+      "x2": 2,
+      "z2": -24,
+      "wallType": "concrete",
+      "h": 4.2
+    },
+    {
+      "x1": 16,
+      "z1": -34,
+      "x2": 16,
+      "z2": -24,
+      "wallType": "concrete",
+      "h": 4.2
+    },
+    {
+      "x1": 30,
+      "z1": -34,
+      "x2": 30,
+      "z2": -24,
+      "wallType": "concrete",
+      "h": 4.2
+    },
+    {
+      "x1": -44,
+      "z1": -17,
+      "x2": -30,
+      "z2": -17,
+      "wallType": "concrete",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": -37,
+          "width": 3.2,
+          "height": 3.0
+        }
+      ]
+    },
+    {
+      "x1": -30,
+      "z1": -17,
+      "x2": -16,
+      "z2": -17,
+      "wallType": "wallpaper",
+      "h": 5.5,
+      "openings": [
+        {
+          "at": -23,
+          "width": 3.0,
+          "height": 3.2
+        }
+      ]
+    },
+    {
+      "x1": -16,
+      "z1": -17,
+      "x2": -2,
+      "z2": -17,
+      "wallType": "wallpaper",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": -9,
+          "width": 3.2,
+          "height": 3.0
+        }
+      ]
+    },
+    {
+      "x1": -2,
+      "z1": -17,
+      "x2": 12,
+      "z2": -17,
+      "wallType": "wallpaper",
+      "h": 5.0,
+      "openings": [
+        {
+          "at": 5,
+          "width": 3.0,
+          "height": 3.0
+        }
+      ]
+    },
+    {
+      "x1": 12,
+      "z1": -17,
+      "x2": 26,
+      "z2": -17,
+      "wallType": "wallpaper",
+      "h": 4.2,
+      "openings": [
+        {
+          "at": 19,
+          "width": 2.8,
+          "height": 3.0
+        }
+      ]
+    },
+    {
+      "x1": 26,
+      "z1": -17,
+      "x2": 44,
+      "z2": -17,
+      "wallType": "wallpaper",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": 35,
+          "width": 3.2,
+          "height": 3.0
+        }
+      ]
+    },
+    {
+      "x1": -30,
+      "z1": -17,
+      "x2": -30,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 5.5,
+      "openings": [
+        {
+          "at": -13,
+          "width": 2.0,
+          "height": 2.6
+        }
+      ]
+    },
+    {
+      "x1": -16,
+      "z1": -17,
+      "x2": -16,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 5.5,
+      "openings": [
+        {
+          "at": -13,
+          "width": 2.4,
+          "height": 2.8
+        }
+      ]
+    },
+    {
+      "x1": -2,
+      "z1": -17,
+      "x2": -2,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 5.0,
+      "openings": [
+        {
+          "at": -13,
+          "width": 2.6,
+          "height": 2.8
+        }
+      ]
+    },
+    {
+      "x1": 12,
+      "z1": -17,
+      "x2": 12,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 5.0,
+      "openings": [
+        {
+          "at": -13,
+          "width": 2.0,
+          "height": 2.6
+        }
+      ]
+    },
+    {
+      "x1": 26,
+      "z1": -17,
+      "x2": 26,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": -13,
+          "width": 2.4,
+          "height": 2.6
+        }
+      ]
+    },
+    {
+      "x1": -44,
+      "z1": -9,
+      "x2": -30,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": -37,
+          "width": 2.8,
+          "height": 2.9
+        }
+      ]
+    },
+    {
+      "x1": -30,
+      "z1": -9,
+      "x2": -16,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 5.5,
+      "openings": [
+        {
+          "at": -23,
+          "width": 2.8,
+          "height": 2.9
+        }
+      ]
+    },
+    {
+      "x1": -16,
+      "z1": -9,
+      "x2": -7,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 9.0,
+      "openings": [
+        {
+          "at": -11.5,
+          "width": 3.6,
+          "height": 3.4
+        }
+      ]
+    },
+    {
+      "x1": -7,
+      "z1": -9,
+      "x2": 7,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 9.0
+    },
+    {
+      "x1": 7,
+      "z1": -9,
+      "x2": 12,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 9.0,
+      "openings": [
+        {
+          "at": 9.5,
+          "width": 3.0,
+          "height": 3.4
+        }
+      ]
+    },
+    {
+      "x1": 12,
+      "z1": -9,
+      "x2": 16,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 9.0,
+      "openings": [
+        {
+          "at": 13.7,
+          "width": 2.2,
+          "height": 3.2
+        }
+      ]
+    },
+    {
+      "x1": 16,
+      "z1": -9,
+      "x2": 26,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 4.2,
+      "openings": [
+        {
+          "at": 21,
+          "width": 2.8,
+          "height": 2.9
+        }
+      ]
+    },
+    {
+      "x1": 26,
+      "z1": -9,
+      "x2": 44,
+      "z2": -9,
+      "wallType": "wallpaper",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": 35,
+          "width": 3.2,
+          "height": 2.9
+        }
+      ]
+    },
+    {
+      "x1": -44,
+      "z1": -3,
+      "x2": -29,
+      "z2": -3,
+      "wallType": "wallpaper",
+      "h": 5.0,
+      "openings": [
+        {
+          "at": -36,
+          "width": 3.4,
+          "height": 3.4
+        }
+      ]
+    },
+    {
+      "x1": -29,
+      "z1": -3,
+      "x2": -16,
+      "z2": -3,
+      "wallType": "wallpaper",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": -22,
+          "width": 3.4,
+          "height": 3.4
+        }
+      ]
+    },
+    {
+      "x1": 16,
+      "z1": -3,
+      "x2": 31,
+      "z2": -3,
+      "wallType": "tile",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": 23,
+          "width": 3.2,
+          "height": 3.4
+        }
+      ]
+    },
+    {
+      "x1": 31,
+      "z1": -3,
+      "x2": 44,
+      "z2": -3,
+      "wallType": "tile",
+      "h": 3.6,
+      "openings": [
+        {
+          "at": 37,
+          "width": 1.4,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": -16,
+      "z1": -9,
+      "x2": -16,
+      "z2": -3,
+      "wallType": "wallpaper",
+      "h": 9.0,
+      "openings": [
+        {
+          "at": -6,
+          "width": 3.0,
+          "height": 3.4
+        }
+      ]
+    },
+    {
+      "x1": -16,
+      "z1": -3,
+      "x2": -16,
+      "z2": 13,
+      "wallType": "wallpaper",
+      "h": 9.0,
+      "openings": [
+        {
+          "at": 4,
+          "width": 3.2,
+          "height": 3.4
+        }
+      ]
+    },
+    {
+      "x1": 16,
+      "z1": -9,
+      "x2": 16,
+      "z2": -3,
+      "wallType": "wallpaper",
+      "h": 9.0,
+      "openings": [
+        {
+          "at": -6,
+          "width": 3.0,
+          "height": 3.4
+        }
+      ]
+    },
+    {
+      "x1": 16,
+      "z1": -3,
+      "x2": 16,
+      "z2": 13,
+      "wallType": "tile",
+      "h": 9.0,
+      "openings": [
+        {
+          "at": 4,
+          "width": 3.2,
+          "height": 3.4
+        }
+      ]
+    },
+    {
+      "x1": -16,
+      "z1": 13,
+      "x2": -5.5,
+      "z2": 13,
+      "wallType": "wallpaper",
+      "h": 9.0
+    },
+    {
+      "x1": -5.5,
+      "z1": 13,
+      "x2": 5.5,
+      "z2": 13,
+      "wallType": "wallpaper",
+      "h": 9.0,
+      "openings": [
+        {
+          "at": 0,
+          "width": 11.0,
+          "height": 4.6
+        }
+      ]
+    },
+    {
+      "x1": 5.5,
+      "z1": 13,
+      "x2": 16,
+      "z2": 13,
+      "wallType": "wallpaper",
+      "h": 9.0
+    },
+    {
+      "x1": -29,
+      "z1": -3,
+      "x2": -29,
+      "z2": 13,
+      "wallType": "wallpaper",
+      "h": 5.0,
+      "openings": [
+        {
+          "at": 5,
+          "width": 2.4,
+          "height": 2.8
+        }
+      ]
+    },
+    {
+      "x1": 31,
+      "z1": -3,
+      "x2": 31,
+      "z2": 13,
+      "wallType": "tile",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": 5,
+          "width": 1.4,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": -44,
+      "z1": 13,
+      "x2": -29,
+      "z2": 13,
+      "wallType": "wallpaper",
+      "h": 5.0,
+      "openings": [
+        {
+          "at": -36,
+          "width": 3.0,
+          "height": 3.2
+        }
+      ]
+    },
+    {
+      "x1": -29,
+      "z1": 13,
+      "x2": -16,
+      "z2": 13,
+      "wallType": "wallpaper",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": -22,
+          "width": 3.2,
+          "height": 3.2
+        }
+      ]
+    },
+    {
+      "x1": 16,
+      "z1": 13,
+      "x2": 31,
+      "z2": 13,
+      "wallType": "tile",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": 23,
+          "width": 3.2,
+          "height": 3.2
+        }
+      ]
+    },
+    {
+      "x1": 31,
+      "z1": 13,
+      "x2": 44,
+      "z2": 13,
+      "wallType": "tile",
+      "h": 3.6
+    },
+    {
+      "x1": -44,
+      "z1": 19,
+      "x2": -31,
+      "z2": 19,
+      "wallType": "concrete",
+      "h": 4.0,
+      "openings": [
+        {
+          "at": -37.5,
+          "width": 1.6,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": -31,
+      "z1": 19,
+      "x2": 20,
+      "z2": 19,
+      "wallType": "wallpaper",
+      "h": 6.0,
+      "openings": [
+        {
+          "at": -14,
+          "width": 5.0,
+          "height": 4.2
+        },
+        {
+          "at": 0,
+          "width": 5.0,
+          "height": 4.2
+        },
+        {
+          "at": 14,
+          "width": 5.0,
+          "height": 4.2
+        }
+      ]
+    },
+    {
+      "x1": 20,
+      "z1": 19,
+      "x2": 31,
+      "z2": 19,
+      "wallType": "concrete",
+      "h": 4.5,
+      "openings": [
+        {
+          "at": 25.5,
+          "width": 1.8,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": 31,
+      "z1": 19,
+      "x2": 44,
+      "z2": 19,
+      "wallType": "metal",
+      "h": 4.0,
+      "openings": [
+        {
+          "at": 37,
+          "width": 1.8,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": -44,
+      "z1": 29,
+      "x2": -31,
+      "z2": 29,
+      "wallType": "concrete",
+      "h": 3.4,
+      "openings": [
+        {
+          "at": -40,
+          "width": 1.4,
+          "height": 2.05
+        }
+      ]
+    },
+    {
+      "x1": -31,
+      "z1": 29,
+      "x2": -31,
+      "z2": 34,
+      "wallType": "concrete",
+      "h": 3.4
+    },
+    {
+      "x1": 20,
+      "z1": 19,
+      "x2": 20,
+      "z2": 34,
+      "wallType": "concrete",
+      "h": 6.0,
+      "openings": [
+        {
+          "at": 26,
+          "width": 1.8,
+          "height": 2.15
+        }
+      ]
+    },
+    {
+      "x1": 31,
+      "z1": 19,
+      "x2": 31,
+      "z2": 34,
+      "wallType": "concrete",
+      "h": 4.5
+    },
+    {
+      "x1": 31,
+      "z1": 27,
+      "x2": 44,
+      "z2": 27,
+      "wallType": "metal",
+      "h": 4.0,
+      "openings": [
+        {
+          "at": 37,
+          "width": 1.6,
+          "height": 2.05
+        }
+      ]
+    },
+    {
+      "x1": -31,
+      "z1": 19,
+      "x2": -31,
+      "z2": 29,
+      "wallType": "wallpaper",
+      "h": 6.0
+    }
   ],
   "doors": [
-    { "id": "door_workshop", "x": -37, "z": -24, "axis": "x", "width": 1.6, "roomA": "techHall", "roomB": "workshop" },
-    { "id": "door_kitchen", "x": -24, "z": -24, "axis": "x", "width": 1.8, "roomA": "techHall", "roomB": "kitchen" },
-    { "id": "door_storageN", "x": -8, "z": -24, "axis": "x", "width": 1.6, "roomA": "techHall", "roomB": "storageN" },
-    { "id": "door_loading", "x": 9, "z": -24, "axis": "x", "width": 2.0, "roomA": "techHall", "roomB": "loading" },
-    { "id": "door_electrical", "x": 23, "z": -24, "axis": "x", "width": 1.6, "roomA": "techHall", "roomB": "electrical" },
-    { "id": "door_freezers", "x": 37, "z": -24, "axis": "x", "width": 1.6, "roomA": "techHall", "roomB": "freezers" },
-    { "id": "door_office", "x": -37.5, "z": 19, "axis": "x", "width": 1.6, "roomA": "promS", "roomB": "office" },
-    { "id": "door_restrooms", "x": 37, "z": -3, "axis": "x", "width": 1.4, "roomA": "eastPromN", "roomB": "restrooms" },
-    { "id": "door_restrooms2", "x": 31, "z": 5, "axis": "z", "width": 1.4, "roomA": "foodcourt", "roomB": "restrooms" },
-    { "id": "door_techS", "x": -40, "z": 29, "axis": "x", "width": 1.4, "roomA": "office", "roomB": "techS", "secret": true },
-    { "id": "door_generator", "x": 25.5, "z": 19, "axis": "x", "width": 1.8, "roomA": "promS", "roomB": "generator", "locked": true, "lockedMsg": "Acceso restringido — sala de generadores" },
-    { "id": "door_generator2", "x": 20, "z": 26, "axis": "z", "width": 1.8, "roomA": "lobby", "roomB": "generator", "locked": true, "lockedMsg": "Cerrado con llave de servicio" },
-    { "id": "door_storageS", "x": 37, "z": 19, "axis": "x", "width": 1.8, "roomA": "promS", "roomB": "storageS" },
-    { "id": "door_pump", "x": 37, "z": 27, "axis": "x", "width": 1.6, "roomA": "storageS", "roomB": "pumpRoom" },
-    { "id": "door_exit", "x": -5.5, "z": 34, "axis": "x", "width": 3.0, "roomA": "lobby", "roomB": "outside", "locked": true, "lockedMsg": "SALIDA DE EMERGENCIA — cerrada hasta el amanecer" }
+    {
+      "id": "door_workshop",
+      "x": -37,
+      "z": -24,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "techHall",
+      "roomB": "workshop"
+    },
+    {
+      "id": "door_kitchen",
+      "x": -24,
+      "z": -24,
+      "axis": "x",
+      "width": 1.8,
+      "roomA": "techHall",
+      "roomB": "kitchen"
+    },
+    {
+      "id": "door_storageN",
+      "x": -8,
+      "z": -24,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "techHall",
+      "roomB": "storageN"
+    },
+    {
+      "id": "door_loading",
+      "x": 9,
+      "z": -24,
+      "axis": "x",
+      "width": 2.0,
+      "roomA": "techHall",
+      "roomB": "loading"
+    },
+    {
+      "id": "door_electrical",
+      "x": 23,
+      "z": -24,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "techHall",
+      "roomB": "electrical"
+    },
+    {
+      "id": "door_freezers",
+      "x": 37,
+      "z": -24,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "techHall",
+      "roomB": "freezers"
+    },
+    {
+      "id": "door_office",
+      "x": -37.5,
+      "z": 19,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "promS",
+      "roomB": "office"
+    },
+    {
+      "id": "door_restrooms",
+      "x": 37,
+      "z": -3,
+      "axis": "x",
+      "width": 1.4,
+      "roomA": "eastPromN",
+      "roomB": "restrooms"
+    },
+    {
+      "id": "door_restrooms2",
+      "x": 31,
+      "z": 5,
+      "axis": "z",
+      "width": 1.4,
+      "roomA": "foodcourt",
+      "roomB": "restrooms"
+    },
+    {
+      "id": "door_techS",
+      "x": -40,
+      "z": 29,
+      "axis": "x",
+      "width": 1.4,
+      "roomA": "office",
+      "roomB": "techS",
+      "secret": true
+    },
+    {
+      "id": "door_generator",
+      "x": 25.5,
+      "z": 19,
+      "axis": "x",
+      "width": 1.8,
+      "roomA": "promS",
+      "roomB": "generator",
+      "locked": true,
+      "lockedMsg": "Acceso restringido — sala de generadores"
+    },
+    {
+      "id": "door_generator2",
+      "x": 20,
+      "z": 26,
+      "axis": "z",
+      "width": 1.8,
+      "roomA": "lobby",
+      "roomB": "generator",
+      "locked": true,
+      "lockedMsg": "Cerrado con llave de servicio"
+    },
+    {
+      "id": "door_storageS",
+      "x": 37,
+      "z": 19,
+      "axis": "x",
+      "width": 1.8,
+      "roomA": "promS",
+      "roomB": "storageS"
+    },
+    {
+      "id": "door_pump",
+      "x": 37,
+      "z": 27,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "storageS",
+      "roomB": "pumpRoom"
+    },
+    {
+      "id": "door_exit",
+      "x": -5.5,
+      "z": 34,
+      "axis": "x",
+      "width": 3.0,
+      "roomA": "lobby",
+      "roomB": "outside",
+      "locked": true,
+      "lockedMsg": "SALIDA DE EMERGENCIA — cerrada hasta el amanecer"
+    },
+    {
+      "id": "gate_daycare_n",
+      "x": -22,
+      "z": -3,
+      "axis": "x",
+      "width": 3.4,
+      "roomA": "daycare",
+      "roomB": "westPromN",
+      "locked": true,
+      "lockedMsg": "REJA DE SEGURIDAD — ARRANCA LOS 5 GENERADORES"
+    },
+    {
+      "id": "gate_daycare_e",
+      "x": -16,
+      "z": 4,
+      "axis": "z",
+      "width": 3.2,
+      "roomA": "daycare",
+      "roomB": "atrium",
+      "locked": true,
+      "lockedMsg": "REJA DE SEGURIDAD — ARRANCA LOS 5 GENERADORES"
+    },
+    {
+      "id": "gate_daycare_s",
+      "x": -22,
+      "z": 13,
+      "axis": "x",
+      "width": 3.2,
+      "roomA": "daycare",
+      "roomB": "promS",
+      "locked": true,
+      "lockedMsg": "REJA DE SEGURIDAD — ARRANCA LOS 5 GENERADORES"
+    },
+    {
+      "id": "gate_daycare_w",
+      "x": -29,
+      "z": 5,
+      "axis": "z",
+      "width": 2.4,
+      "roomA": "daycare",
+      "roomB": "pirateCove",
+      "locked": true,
+      "lockedMsg": "REJA DE SEGURIDAD — ARRANCA LOS 5 GENERADORES"
+    }
   ],
   "vents": [
     {
       "id": "vent_kitchen_tech",
       "from": "kitchen",
       "to": "techHall",
-      "a": [-26, -25.6],
-      "b": [-26, -22.9],
-      "segments": [[-26, -25.6, -26, -22.9]]
+      "a": [
+        -26,
+        -25.6
+      ],
+      "b": [
+        -26,
+        -22.9
+      ],
+      "segments": [
+        [
+          -26,
+          -25.6,
+          -26,
+          -22.9
+        ]
+      ]
     },
     {
       "id": "vent_freezer_tech",
       "from": "freezers",
       "to": "techHall",
-      "a": [37, -25.6],
-      "b": [37, -22.9],
-      "segments": [[37, -25.6, 37, -22.9]]
+      "a": [
+        37,
+        -25.6
+      ],
+      "b": [
+        37,
+        -22.9
+      ],
+      "segments": [
+        [
+          37,
+          -25.6,
+          37,
+          -22.9
+        ]
+      ]
     },
     {
       "id": "vent_office_techS",
       "from": "office",
       "to": "techS",
-      "a": [-42, 28.6],
-      "b": [-42, 30.6],
-      "segments": [[-42, 28.6, -42, 30.6]]
+      "a": [
+        -42,
+        28.6
+      ],
+      "b": [
+        -42,
+        30.6
+      ],
+      "segments": [
+        [
+          -42,
+          28.6,
+          -42,
+          30.6
+        ]
+      ]
     },
     {
       "id": "vent_generator_storageS",
       "from": "generator",
       "to": "storageS",
-      "a": [30.2, 22],
-      "b": [32.4, 22],
-      "segments": [[30.2, 22, 32.4, 22]]
+      "a": [
+        30.2,
+        22
+      ],
+      "b": [
+        32.4,
+        22
+      ],
+      "segments": [
+        [
+          30.2,
+          22,
+          32.4,
+          22
+        ]
+      ]
     },
     {
       "id": "vent_theater_promN",
       "from": "theater",
       "to": "westPromN",
-      "a": [-20, -10.3],
-      "b": [-20, -7.7],
-      "segments": [[-20, -10.3, -20, -7.7]]
+      "a": [
+        -20,
+        -10.3
+      ],
+      "b": [
+        -20,
+        -7.7
+      ],
+      "segments": [
+        [
+          -20,
+          -10.3,
+          -20,
+          -7.7
+        ]
+      ]
     },
     {
       "id": "vent_daycare_cove",
       "from": "daycare",
       "to": "pirateCove",
-      "a": [-28.2, 9],
-      "b": [-30.3, 9],
-      "segments": [[-28.2, 9, -30.3, 9]]
+      "a": [
+        -28.2,
+        9
+      ],
+      "b": [
+        -30.3,
+        9
+      ],
+      "segments": [
+        [
+          -28.2,
+          9,
+          -30.3,
+          9
+        ]
+      ]
     },
     {
       "id": "vent_lobby_techS",
       "from": "lobby",
       "to": "techS",
-      "a": [-30.2, 31.5],
-      "b": [-31.8, 31.5],
-      "segments": [[-30.2, 31.5, -31.8, 31.5]]
+      "a": [
+        -30.2,
+        31.5
+      ],
+      "b": [
+        -31.8,
+        31.5
+      ],
+      "segments": [
+        [
+          -30.2,
+          31.5,
+          -31.8,
+          31.5
+        ]
+      ]
     },
     {
       "id": "vent_arcade_theater",
       "from": "arcade",
       "to": "theater",
-      "a": [-15.3, -11],
-      "b": [-16.7, -11],
-      "segments": [[-15.3, -11, -16.7, -11]]
+      "a": [
+        -15.3,
+        -11
+      ],
+      "b": [
+        -16.7,
+        -11
+      ],
+      "segments": [
+        [
+          -15.3,
+          -11,
+          -16.7,
+          -11
+        ]
+      ]
     }
   ],
   "cams": [
-    { "index": 1, "name": "CAM 01 — Atrio Norte", "room": "atrium", "pos": [-9, 7.4, -7.6], "look": [0, 2, -4] },
-    { "index": 2, "name": "CAM 02 — Atrio Sur", "room": "atrium", "pos": [9, 7.4, 11.5], "look": [0, 1.5, 2] },
-    { "index": 3, "name": "CAM 03 — Paseo Oeste", "room": "westPromN", "pos": [-42, 3.2, -4.3], "look": [-18, 1.5, -6] },
-    { "index": 4, "name": "CAM 04 — Paseo Este", "room": "eastPromN", "pos": [42, 3.2, -4.3], "look": [18, 1.5, -6] },
-    { "index": 5, "name": "CAM 05 — Paseo Sur", "room": "promS", "pos": [0, 3.3, 17.6], "look": [-30, 1.5, 14] },
-    { "index": 6, "name": "CAM 06 — Pasillo Técnico", "room": "techHall", "pos": [0, 2.7, -20.4], "look": [34, 1.4, -21] },
-    { "index": 7, "name": "CAM 07 — Recreativo", "room": "arcade", "pos": [-14.2, 3.5, -10.4], "look": [-6, 1.4, -13] },
-    { "index": 8, "name": "CAM 08 — Cocina", "room": "kitchen", "pos": [-16, 3.2, -25], "look": [-24, 1.4, -29], "audioOnly": true },
-    { "index": 9, "name": "CAM 09 — Bolera", "room": "bowling", "pos": [10.4, 4.2, -10.2], "look": [0, 1.2, -13.5] },
-    { "index": 10, "name": "CAM 10 — Guardería", "room": "daycare", "pos": [-18, 3.4, -1.6], "look": [-25, 1.2, 6] },
-    { "index": 11, "name": "CAM 11 — Cala Pirata", "room": "pirateCove", "pos": [-31, 3.8, 11], "look": [-38, 1.6, 4] },
-    { "index": 12, "name": "CAM 12 — Galería Estelar", "room": "rockstar", "pos": [-42, 3.4, -10.2], "look": [-34, 1.4, -14] },
-    { "index": 13, "name": "CAM 13 — Teatro", "room": "theater", "pos": [-17.8, 4.4, -10.2], "look": [-26, 2.0, -13] },
-    { "index": 14, "name": "CAM 14 — Vestíbulo", "room": "lobby", "pos": [-28.6, 5.2, 21.4], "look": [-10, 1.8, 26] }
+    {
+      "index": 1,
+      "name": "CAM 01 — Atrio Norte",
+      "room": "atrium",
+      "pos": [
+        -9,
+        7.4,
+        -7.6
+      ],
+      "look": [
+        0,
+        2,
+        -4
+      ]
+    },
+    {
+      "index": 2,
+      "name": "CAM 02 — Atrio Sur",
+      "room": "atrium",
+      "pos": [
+        9,
+        7.4,
+        11.5
+      ],
+      "look": [
+        0,
+        1.5,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "name": "CAM 03 — Paseo Oeste",
+      "room": "westPromN",
+      "pos": [
+        -42,
+        3.2,
+        -4.3
+      ],
+      "look": [
+        -18,
+        1.5,
+        -6
+      ]
+    },
+    {
+      "index": 4,
+      "name": "CAM 04 — Paseo Este",
+      "room": "eastPromN",
+      "pos": [
+        42,
+        3.2,
+        -4.3
+      ],
+      "look": [
+        18,
+        1.5,
+        -6
+      ]
+    },
+    {
+      "index": 5,
+      "name": "CAM 05 — Paseo Sur",
+      "room": "promS",
+      "pos": [
+        0,
+        3.3,
+        17.6
+      ],
+      "look": [
+        -30,
+        1.5,
+        14
+      ]
+    },
+    {
+      "index": 6,
+      "name": "CAM 06 — Pasillo Técnico",
+      "room": "techHall",
+      "pos": [
+        0,
+        2.7,
+        -20.4
+      ],
+      "look": [
+        34,
+        1.4,
+        -21
+      ]
+    },
+    {
+      "index": 7,
+      "name": "CAM 07 — Recreativo",
+      "room": "arcade",
+      "pos": [
+        -14.2,
+        3.5,
+        -10.4
+      ],
+      "look": [
+        -6,
+        1.4,
+        -13
+      ]
+    },
+    {
+      "index": 8,
+      "name": "CAM 08 — Cocina",
+      "room": "kitchen",
+      "pos": [
+        -16,
+        3.2,
+        -25
+      ],
+      "look": [
+        -24,
+        1.4,
+        -29
+      ],
+      "audioOnly": true
+    },
+    {
+      "index": 9,
+      "name": "CAM 09 — Bolera",
+      "room": "bowling",
+      "pos": [
+        10.4,
+        4.2,
+        -10.2
+      ],
+      "look": [
+        0,
+        1.2,
+        -13.5
+      ]
+    },
+    {
+      "index": 10,
+      "name": "CAM 10 — Guardería",
+      "room": "daycare",
+      "pos": [
+        -18,
+        3.4,
+        -1.6
+      ],
+      "look": [
+        -25,
+        1.2,
+        6
+      ]
+    },
+    {
+      "index": 11,
+      "name": "CAM 11 — Cala Pirata",
+      "room": "pirateCove",
+      "pos": [
+        -31,
+        3.8,
+        11
+      ],
+      "look": [
+        -38,
+        1.6,
+        4
+      ]
+    },
+    {
+      "index": 12,
+      "name": "CAM 12 — Galería Estelar",
+      "room": "rockstar",
+      "pos": [
+        -42,
+        3.4,
+        -10.2
+      ],
+      "look": [
+        -34,
+        1.4,
+        -14
+      ]
+    },
+    {
+      "index": 13,
+      "name": "CAM 13 — Teatro",
+      "room": "theater",
+      "pos": [
+        -17.8,
+        4.4,
+        -10.2
+      ],
+      "look": [
+        -26,
+        2.0,
+        -13
+      ]
+    },
+    {
+      "index": 14,
+      "name": "CAM 14 — Vestíbulo",
+      "room": "lobby",
+      "pos": [
+        -28.6,
+        5.2,
+        21.4
+      ],
+      "look": [
+        -10,
+        1.8,
+        26
+      ]
+    }
   ],
   "hidingSpots": [
-    { "id": "locker_tech_w", "room": "techHall", "pos": [-32, -20.6], "type": "locker", "look": [-32, -24] },
-    { "id": "locker_tech_c", "room": "techHall", "pos": [-6, -20.6], "type": "locker", "look": [-6, -24] },
-    { "id": "locker_tech_e", "room": "techHall", "pos": [20, -20.6], "type": "locker", "look": [20, -24] },
-    { "id": "locker_promS_w", "room": "promS", "pos": [-41, 16.2], "type": "locker", "look": [-41, 13] },
-    { "id": "locker_promS_e", "room": "promS", "pos": [41, 16.2], "type": "locker", "look": [41, 13] },
-    { "id": "booth_arcade", "room": "arcade", "pos": [-13.4, -15.6], "type": "booth", "look": [-13.4, -12] },
-    { "id": "chest_daycare", "room": "daycare", "pos": [-26.5, 7.5], "type": "chest", "look": [-26.5, 4] },
-    { "id": "stall_restrooms", "room": "restrooms", "pos": [34.5, 1.5], "type": "stall", "look": [34.5, -2] },
-    { "id": "rack_storageS", "room": "storageS", "pos": [41.5, 22.5], "type": "rack", "look": [41.5, 19] },
-    { "id": "locker_techS", "room": "techS", "pos": [-42.5, 32.5], "type": "locker", "look": [-42.5, 29] },
-    { "id": "crate_loading", "room": "loading", "pos": [13.5, -31.5], "type": "crate", "look": [13.5, -34] },
-    { "id": "rack_storageN", "room": "storageN", "pos": [-11.5, -31.5], "type": "rack", "look": [-11.5, -34] }
+    {
+      "id": "locker_tech_w",
+      "room": "techHall",
+      "pos": [
+        -32,
+        -20.6
+      ],
+      "type": "locker",
+      "look": [
+        -32,
+        -24
+      ]
+    },
+    {
+      "id": "locker_tech_c",
+      "room": "techHall",
+      "pos": [
+        -6,
+        -20.6
+      ],
+      "type": "locker",
+      "look": [
+        -6,
+        -24
+      ]
+    },
+    {
+      "id": "locker_tech_e",
+      "room": "techHall",
+      "pos": [
+        20,
+        -20.6
+      ],
+      "type": "locker",
+      "look": [
+        20,
+        -24
+      ]
+    },
+    {
+      "id": "locker_promS_w",
+      "room": "promS",
+      "pos": [
+        -41,
+        16.2
+      ],
+      "type": "locker",
+      "look": [
+        -41,
+        13
+      ]
+    },
+    {
+      "id": "locker_promS_e",
+      "room": "promS",
+      "pos": [
+        41,
+        16.2
+      ],
+      "type": "locker",
+      "look": [
+        41,
+        13
+      ]
+    },
+    {
+      "id": "booth_arcade",
+      "room": "arcade",
+      "pos": [
+        -13.4,
+        -15.6
+      ],
+      "type": "booth",
+      "look": [
+        -13.4,
+        -12
+      ]
+    },
+    {
+      "id": "chest_daycare",
+      "room": "daycare",
+      "pos": [
+        -26.5,
+        7.5
+      ],
+      "type": "chest",
+      "look": [
+        -26.5,
+        4
+      ]
+    },
+    {
+      "id": "stall_restrooms",
+      "room": "restrooms",
+      "pos": [
+        34.5,
+        1.5
+      ],
+      "type": "stall",
+      "look": [
+        34.5,
+        -2
+      ]
+    },
+    {
+      "id": "rack_storageS",
+      "room": "storageS",
+      "pos": [
+        41.5,
+        22.5
+      ],
+      "type": "rack",
+      "look": [
+        41.5,
+        19
+      ]
+    },
+    {
+      "id": "locker_techS",
+      "room": "techS",
+      "pos": [
+        -42.5,
+        32.5
+      ],
+      "type": "locker",
+      "look": [
+        -42.5,
+        29
+      ]
+    },
+    {
+      "id": "crate_loading",
+      "room": "loading",
+      "pos": [
+        13.5,
+        -31.5
+      ],
+      "type": "crate",
+      "look": [
+        13.5,
+        -34
+      ]
+    },
+    {
+      "id": "rack_storageN",
+      "room": "storageN",
+      "pos": [
+        -11.5,
+        -31.5
+      ],
+      "type": "rack",
+      "look": [
+        -11.5,
+        -34
+      ]
+    }
   ],
   "batterySpots": [
-    [-38, 22], [-34.5, 27.5], [-22, -20.5], [4, -20.5], [30, -20.5],
-    [-42, -6], [-40, 10], [42, -6], [40, 10], [-36, -11], [-20, -13],
-    [2, -13], [20, -12], [-25, 5], [22, 5], [36, 5], [-12, 15], [12, 15],
-    [-20, 24], [-5, 28], [8, 24], [25, 25], [40, 22], [-40, 31]
+    [
+      -38,
+      22
+    ],
+    [
+      -34.5,
+      27.5
+    ],
+    [
+      -22,
+      -20.5
+    ],
+    [
+      4,
+      -20.5
+    ],
+    [
+      30,
+      -20.5
+    ],
+    [
+      -42,
+      -6
+    ],
+    [
+      -40,
+      10
+    ],
+    [
+      42,
+      -6
+    ],
+    [
+      40,
+      10
+    ],
+    [
+      -36,
+      -11
+    ],
+    [
+      -20,
+      -13
+    ],
+    [
+      2,
+      -13
+    ],
+    [
+      20,
+      -12
+    ],
+    [
+      -25,
+      5
+    ],
+    [
+      22,
+      5
+    ],
+    [
+      36,
+      5
+    ],
+    [
+      -12,
+      15
+    ],
+    [
+      12,
+      15
+    ],
+    [
+      -20,
+      24
+    ],
+    [
+      -5,
+      28
+    ],
+    [
+      8,
+      24
+    ],
+    [
+      25,
+      25
+    ],
+    [
+      40,
+      22
+    ],
+    [
+      -40,
+      31
+    ]
   ]
 }

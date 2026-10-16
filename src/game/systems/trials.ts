@@ -30,6 +30,8 @@ export interface TrialHost {
   clearTrialInteractables(): void;
   addNoise(x: number, z: number, r: number): void;
   onTrialSuccess(trial: TrialDef): void;
+  /** desbloquear y abrir una puerta/reja (maneja nav + colliders) */
+  unlockDoor(id: string): void;
   sfx: {
     stinger(): void;
     roar(pos: THREE.Vector3, voice: string): void;
@@ -40,6 +42,8 @@ export interface TrialHost {
     powerUp(): void;
     switchClick(): void;
     respawn(): void;
+    moonScream(pos: THREE.Vector3): void;
+    lullaby(pos: THREE.Vector3): void;
   };
 }
 
@@ -70,10 +74,11 @@ export class TrialSystem {
     return this.host.animatronics.find((a) => a.def.id === this.active!.hunter) ?? null;
   }
 
-  /** ¿el objetivo de prueba del capítulo ya está completado? */
+  /** ¿el objetivo de prueba del capítulo ya está completado? (activa o no) */
   objectiveComplete(): boolean {
-    if (!this.active) return false;
-    return this.host.objectiveDone(`c${this.active.chapter}_trial`);
+    const t = this.active ?? this.trialForChapter(this.chapter);
+    if (!t) return false;
+    return this.host.objectiveDone(`c${t.chapter}_trial`);
   }
 
   syncHud() {
@@ -98,7 +103,10 @@ export class TrialSystem {
       // ¿entrar en la sala de la prueba del capítulo?
       const t = this.trialForChapter(this.chapter);
       if (t && roomId === t.room && !this.objectiveComplete()) {
-        this.begin(t);
+        // gate de objetivos previos (p. ej. sigilo + linterna antes de Sol y Luna)
+        const reqs = (t as TrialDef & { requiresObjectives?: string[] }).requiresObjectives;
+        const gated = reqs?.some((r) => !this.host.objectiveDone(r)) ?? false;
+        if (!gated) this.begin(t);
       }
       return;
     }
@@ -132,10 +140,37 @@ export class TrialSystem {
     this.host.notify(t.introMsg);
     this.host.sfx.stinger();
     this.host.player.setShake(0.5);
-    // luces de la sala de la prueba encendidas (para empezar)
-    this.host.world.setRoomLight(t.room, true);
+    // luces de la sala: encendidas al empezar... salvo pruebas que nacen a oscuras (Sol y Luna)
+    const dark = !!(t as TrialDef & { darkFromStart?: boolean }).darkFromStart;
+    this.host.world.setRoomLight(t.room, !dark);
+    if (dark) this.host.sfx.powerDown();
+    this.resetGeneratorLights(t);
     this.fireScares('start');
     this.syncHud();
+  }
+
+  /** luces de estado de los generadores de la guardería: todas a rojo */
+  private resetGeneratorLights(t: TrialDef) {
+    for (const task of t.tasks) {
+      const a = this.host.world.anchors.get(`dcgen_${task.id}`);
+      if (a?.mesh) {
+        const m = (a.mesh as THREE.Mesh).material as THREE.MeshStandardMaterial;
+        m.emissive.setHex(0xff2020);
+        m.color.setHex(0x5a0808);
+        m.emissiveIntensity = 2.2;
+      }
+    }
+  }
+
+  /** generador arrancado: luz a verde fija */
+  private setGeneratorDone(taskId: string) {
+    const a = this.host.world.anchors.get(`dcgen_${taskId}`);
+    if (a?.mesh) {
+      const m = (a.mesh as THREE.Mesh).material as THREE.MeshStandardMaterial;
+      m.emissive.setHex(0x2aff5a);
+      m.color.setHex(0x0a3a18);
+      m.emissiveIntensity = 2.6;
+    }
   }
 
   private registerTasks() {
@@ -173,6 +208,7 @@ export class TrialSystem {
     if (!this.active || this.tasksDone.includes(taskId)) return;
     this.tasksDone.push(taskId);
     this.host.sfx.switchClick();
+    this.setGeneratorDone(taskId);
     const idx = this.tasksDone.length;
     if (this.active.tasks.length > 1) {
       this.host.notify(`TAREA ${idx}/${this.active.tasks.length} — ${this.nextTask()?.label ?? ''}`);
@@ -190,13 +226,25 @@ export class TrialSystem {
   private succeed() {
     if (!this.active) return;
     const t = this.active;
+    const sunny = !!(t as TrialDef & { sunnyTransform?: boolean }).sunnyTransform;
     this.host.sfx.powerUp();
-    // el cazador se retira
     const hunter = this.hunter;
-    if (hunter) {
-      const resetRoom = this.host.world.rooms.get(t.hunterResetRoom);
-      if (resetRoom) hunter.teleportTo(resetRoom.center.x, resetRoom.center.z);
-      hunter.calmDown();
+    if (sunny && hunter) {
+      // SOL Y LUNA: la luz lo cambia — se vuelve amable y se retira para siempre
+      hunter.setDayNight('sun');
+      hunter.retire();
+      hunter.teleportTo(-20.5, 3.0, 0); // junto al borde norte de la alberca, sonriendo
+      // rejas de la guardería abiertas de nuevo
+      for (const gid of ['gate_daycare_n', 'gate_daycare_e', 'gate_daycare_s', 'gate_daycare_w']) {
+        this.host.unlockDoor(gid);
+      }
+    } else {
+      // el cazador se retira
+      if (hunter) {
+        const resetRoom = this.host.world.rooms.get(t.hunterResetRoom);
+        if (resetRoom) hunter.teleportTo(resetRoom.center.x, resetRoom.center.z);
+        hunter.calmDown();
+      }
     }
     this.host.world.setRoomLight(t.room, true);
     this.host.completeObjective(`c${t.chapter}_trial`);
@@ -222,11 +270,17 @@ export class TrialSystem {
     // el cazador se recoloca lejos
     const hunter = this.hunter;
     if (hunter) {
-      const resetRoom = this.host.world.rooms.get(t.hunterResetRoom);
-      if (resetRoom) hunter.teleportTo(resetRoom.center.x, resetRoom.center.z);
+      const resetPos = (t as TrialDef & { hunterResetPos?: [number, number] }).hunterResetPos;
+      if (resetPos) {
+        hunter.teleportTo(resetPos[0], resetPos[1]);
+      } else {
+        const resetRoom = this.host.world.rooms.get(t.hunterResetRoom);
+        if (resetRoom) hunter.teleportTo(resetRoom.center.x, resetRoom.center.z);
+      }
       hunter.calmDown();
     }
     this.registerTasks();
+    this.resetGeneratorLights(t);
     this.syncHud();
     return { trial: t, attempts: this.attempts };
   }
@@ -235,6 +289,7 @@ export class TrialSystem {
   respawnPlayer() {
     if (!this.active) return;
     const t = this.active;
+    const dark = !!(t as TrialDef & { darkFromStart?: boolean }).darkFromStart;
     this.host.player.pos.set(t.respawnPos[0], 0, t.respawnPos[1]);
     this.host.player.vel.set(0, 0, 0);
     this.host.player.yaw = t.respawnYaw;
@@ -243,8 +298,13 @@ export class TrialSystem {
     this.host.player.staminaLock = false;
     this.host.player.hidden = false;
     this.host.player.hiddenSpotId = null;
-    this.host.world.setAllLights(false, [t.room]);
-    this.host.world.setRoomLight(t.room, true);
+    if (dark) {
+      // la prueba nació a oscuras: SIGUE a oscuras tras el respawn
+      this.host.world.setAllLights(false);
+    } else {
+      this.host.world.setAllLights(false, [t.room]);
+      this.host.world.setRoomLight(t.room, true);
+    }
     this.host.sfx.respawn();
     this.syncHud();
   }
@@ -320,6 +380,22 @@ export class TrialSystem {
       case 'ventBang': {
         this.host.sfx.ventBang(player.pos);
         player.setShake(0.3);
+        break;
+      }
+      case 'moonScream': {
+        const room = this.active ? this.host.world.rooms.get(this.active.room) : null;
+        const c = room ? room.center : player.pos;
+        this.host.sfx.moonScream(c);
+        player.setShake(1.0);
+        // acude a mirar dónde estabas (sin perseguir aún)
+        if (hunter) hunter.investigateAt(new THREE.Vector3(player.pos.x, 0, player.pos.z));
+        break;
+      }
+      case 'lullaby': {
+        const room = this.active ? this.host.world.rooms.get(this.active.room) : null;
+        const c = room ? room.center : player.pos;
+        this.host.sfx.lullaby(c);
+        player.setShake(0.25);
         break;
       }
     }

@@ -314,31 +314,67 @@ export class WorldBuilder {
 
   private buildDoor(d: DoorDef) {
     const g = new THREE.Group();
-    const isMetal = d.id.includes('electrical') || d.id.includes('generator') || d.id.includes('exit') ||
+    const isGate = d.id.startsWith('gate_');
+    const isMetal = !isGate && (
+      d.id.includes('electrical') || d.id.includes('generator') || d.id.includes('exit') ||
       d.id.includes('workshop') || d.id.includes('loading') || d.id.includes('freezers') || d.id.includes('pump') ||
-      d.id.includes('storageN') || d.id.includes('storageS') || d.id.includes('techS');
-    const leafMat = isMetal ? metalMaterial([0.6, 1]) : this.woodDoorMat();
+      d.id.includes('storageN') || d.id.includes('storageS') || d.id.includes('techS')
+    );
     const w = d.width - 0.08;
-    const leaf = new THREE.Mesh(new THREE.BoxGeometry(w, 2.05, 0.07), leafMat);
-    leaf.position.set(w / 2, 1.02, 0);
-    leaf.castShadow = true;
-    g.add(leaf);
-    // Ventanilla en puertas de madera
-    if (!isMetal && !d.secret) {
-      const glass = new THREE.Mesh(
-        new THREE.BoxGeometry(w * 0.4, 0.5, 0.02),
-        new THREE.MeshPhysicalMaterial({ color: 0x181a1c, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.85 })
+
+    if (isGate) {
+      // REJA DE SEGURIDAD de la guardería: barras verticales + marco
+      const barMat = metalMaterial([0.55, 1]);
+      const nBars = Math.max(6, Math.round(w / 0.24));
+      for (let i = 0; i < nBars; i++) {
+        const bx = (w / nBars) * (i + 0.5);
+        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.6, 8), barMat);
+        bar.position.set(bx, 1.3, 0);
+        bar.castShadow = true;
+        g.add(bar);
+      }
+      // travesaños horizontales
+      for (const hy of [0.45, 1.3, 2.15]) {
+        const cross = new THREE.Mesh(new THREE.BoxGeometry(w, 0.07, 0.07), barMat);
+        cross.position.set(w / 2, hy, 0);
+        g.add(cross);
+      }
+      // marco lateral
+      for (const sx of [0.02, w - 0.02]) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.09, 2.8, 0.11), darkMetalMaterial());
+        post.position.set(sx, 1.4, 0);
+        g.add(post);
+      }
+      // señalización de seguridad arriba
+      const sign = new THREE.Mesh(
+        new THREE.BoxGeometry(0.62, 0.17, 0.05),
+        new THREE.MeshStandardMaterial({ color: 0x3a1414, emissive: 0xd84830, emissiveIntensity: 0.8 })
       );
-      glass.position.set(w / 2, 1.6, 0.04);
-      g.add(glass);
-      const frame = new THREE.Mesh(new THREE.BoxGeometry(w * 0.4 + 0.08, 0.58, 0.03), darkMetalMaterial());
-      frame.position.set(w / 2, 1.6, 0.02);
-      g.add(frame);
+      sign.position.set(w / 2, 2.42, 0.05);
+      g.add(sign);
+    } else {
+      const leafMat = isMetal ? metalMaterial([0.6, 1]) : this.woodDoorMat();
+      const leaf = new THREE.Mesh(new THREE.BoxGeometry(w, 2.05, 0.07), leafMat);
+      leaf.position.set(w / 2, 1.02, 0);
+      leaf.castShadow = true;
+      g.add(leaf);
+      // Ventanilla en puertas de madera
+      if (!isMetal && !d.secret) {
+        const glass = new THREE.Mesh(
+          new THREE.BoxGeometry(w * 0.4, 0.5, 0.02),
+          new THREE.MeshPhysicalMaterial({ color: 0x181a1c, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.85 })
+        );
+        glass.position.set(w / 2, 1.6, 0.04);
+        g.add(glass);
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(w * 0.4 + 0.08, 0.58, 0.03), darkMetalMaterial());
+        frame.position.set(w / 2, 1.6, 0.02);
+        g.add(frame);
+      }
+      // Manilla
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.05, 0.05), darkMetalMaterial());
+      handle.position.set(w - 0.22, 1.02, 0.07);
+      g.add(handle);
     }
-    // Manilla
-    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.05, 0.05), darkMetalMaterial());
-    handle.position.set(w - 0.22, 1.02, 0.07);
-    g.add(handle);
     if (d.secret) {
       this.dressAsShelf(g, w);
     }

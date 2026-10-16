@@ -429,28 +429,7 @@ function buildOffice(world: WorldBuilder) {
   world.root.add(fan);
   world.propAnims.push({ update: (dt) => { blades.rotation.z += dt * 16; } });
 
-  // Prop de linterna (modelo GLB real) + tableta (recogibles capítulo 1)
-  const torch = new THREE.Group();
-  const glbTorch = Assets.rigs.get('flashlight');
-  if (glbTorch) {
-    const torchModel = glbTorch.root.clone(true);
-    torchModel.rotation.z = Math.PI / 2;
-    torchModel.rotation.y = 0.4;
-    torchModel.position.y = 0.1;
-    torch.add(torchModel);
-  } else {
-    const torchBody = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.24, 10), metalMaterial([0.4, 0.4]));
-    torchBody.rotation.z = Math.PI / 2;
-    const torchLens = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.045, 0.04, 10), new THREE.MeshStandardMaterial({ color: 0xfff8dd, emissive: 0xfff0c0, emissiveIntensity: 0.35 }));
-    torchLens.rotation.z = Math.PI / 2;
-    torchLens.position.x = 0.13;
-    torch.add(torchBody, torchLens);
-  }
-  torch.position.set(CX + 1.6, 0.86, 22.05);
-  torch.rotation.y = 0.4;
-  world.root.add(torch);
-  world.anchors.set('desk_torch', { pos: new THREE.Vector3(CX + 1.6, 0.86, 22.05), mesh: torch });
-
+  // Tableta de vigilancia (recogible capítulo 2 — ya no hay linterna aquí)
   const tablet = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.02, 0.22), plasticMaterial(0x1a1e22, 0.4));
   const tabletScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.16), new THREE.MeshStandardMaterial({ color: 0x0a0f0a, emissive: 0x33ff55, emissiveIntensity: 0.12 }));
   tabletScreen.rotation.x = -Math.PI / 2;
@@ -1376,40 +1355,276 @@ function buildPirateCove(world: WorldBuilder) {
   world.anchors.set('tape_cove', { pos: new THREE.Vector3(-33, 1.0, 10.5) });
 }
 
-/* ============ GUARDERÍA ============ */
+/* ============ GUARDERÍA (SUPER GUARDERÍA BRUNO — arranque en la alberca) ============ */
+
+/** rectángulo de la ALBERCA DE PELOTAS gigante (para zona de ruido/sigilo) */
+export const BALL_PIT = { x1: -27, z1: 3, x2: -18, z2: 10 };
+
+/** generadores Sol y Luna (posiciones deben coincidir con trials.json) */
+export const DAYCARE_GEN_SPOTS: Array<[number, number, number]> = [
+  // [x, z, rotY] — repartidos por la guardería
+  [-26.2, 9.3, Math.PI / 2],   // g1: dentro de la alberca (oeste)
+  [-26.2, 0.9, Math.PI / 2],   // g2: suroeste (juguetería)
+  [-26.4, 11.6, 0],            // g3: noroeste (piano)
+  [-17.9, 11.9, Math.PI],      // g4: noreste (torre)
+  [-17.4, 5.2, Math.PI],       // g5: este (bajo el arcoíris)
+];
 
 function buildDaycare(world: WorldBuilder) {
   // Sala: x[-29,-16] z[-3,13], h 4.5
-  // foso de bolas circular
+
+  /* ---- ALBERCA DE PELOTAS GIGANTE (9 × 7 m) ---- */
   const pit = new THREE.Group();
-  const rim = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, 0.35, 24), plasticMaterial(0x3a6ac8, 0.5, 0.4));
-  rim.position.y = 0.175;
-  const balls = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.55, 1.55, 0.28, 24),
-    new THREE.MeshStandardMaterial({ color: 0x2a4aa8, roughness: 0.6 })
-  );
-  balls.position.y = 0.3;
-  pit.add(rim, balls);
-  pit.position.set(-25, 0, 7);
-  world.root.add(pit);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-25, 0.3, 7), new THREE.Vector3(3.4, 0.5, 3.4)), 'ballpit');
-  // bolas de colores sobre la superficie
-  const ballColors = [0xd84a4a, 0x4ad84a, 0xd8d84a, 0x4a8fd8, 0xd84ad8];
-  for (let i = 0; i < 26; i++) {
-    const b = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), plasticMaterial(ballColors[i % 5], 0.3, 0.4));
+  // base acolchada
+  const padMat = plasticMaterial(0x2a4aa8, 0.8, 0.3);
+  const pad = new THREE.Mesh(new THREE.BoxGeometry(9.4, 0.12, 7.4), padMat);
+  pad.position.set(-22.5, 0.06, 6.5);
+  pad.receiveShadow = true;
+  pit.add(pad);
+  // borde acolchado de colores (bajo, SIN colisionador: el jugador vadea dentro)
+  const rimColors = [0xd84a4a, 0x4ad84a, 0xd8d84a, 0x4a8fd8, 0xd84ad8, 0xd8842a];
+  const rimH = 0.3;
+  for (let i = 0; i < 10; i++) {
+    const rx = -27 + (i / 9) * 9;
+    const seg = new THREE.Mesh(new THREE.BoxGeometry(0.98, rimH, 0.28), plasticMaterial(rimColors[i % 6], 0.85, 0.25));
+    seg.position.set(rx, 0.15, 2.95);
+    pit.add(seg);
+    const seg2 = seg.clone();
+    seg2.position.z = 10.05;
+    seg2.material = plasticMaterial(rimColors[(i + 3) % 6], 0.85, 0.25);
+    pit.add(seg2);
+  }
+  for (let i = 0; i < 7; i++) {
+    const rz = 3 + (i / 6) * 7;
+    const seg = new THREE.Mesh(new THREE.BoxGeometry(0.28, rimH, 0.98), plasticMaterial(rimColors[(i + 2) % 6], 0.85, 0.25));
+    seg.position.set(-27.05, 0.15, rz);
+    pit.add(seg);
+    const seg2 = seg.clone();
+    seg2.position.x = -17.95;
+    seg2.material = plasticMaterial(rimColors[(i + 5) % 6], 0.85, 0.25);
+    pit.add(seg2);
+  }
+  // mar de bolas: InstancedMesh (≈700 bolas en un solo draw call)
+  const BALL_N = 700;
+  const ballGeo = new THREE.SphereGeometry(0.105, 10, 8);
+  const ballMat = new THREE.MeshStandardMaterial({ roughness: 0.32, metalness: 0.05 });
+  const ballsIM = new THREE.InstancedMesh(ballGeo, ballMat, BALL_N);
+  ballsIM.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const ballColors = [0xd84a4a, 0x4ad84a, 0xd8d84a, 0x4a8fd8, 0xd84ad8, 0xe8e2d2, 0xd8842a];
+  const dummy = new THREE.Object3D();
+  const col = new THREE.Color();
+  for (let i = 0; i < BALL_N; i++) {
+    // densidad alta en el centro, más rala en bordes; 2-3 capas
+    const layer = i / BALL_N;
+    const rad = Math.sqrt(Math.random()) * 0.94;
     const ang = Math.random() * Math.PI * 2;
-    const rad = Math.random() * 1.4;
-    b.position.set(-25 + Math.cos(ang) * rad, 0.42 + Math.random() * 0.04, 7 + Math.sin(ang) * rad);
-    world.root.add(b);
+    dummy.position.set(
+      -22.5 + Math.cos(ang) * rad * 4.35,
+      0.14 + Math.floor(layer * 3) * 0.105 + Math.random() * 0.03,
+      6.5 + Math.sin(ang) * rad * 3.35
+    );
+    dummy.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+    dummy.updateMatrix();
+    ballsIM.setMatrixAt(i, dummy.matrix);
+    ballsIM.setColorAt(i, col.setHex(ballColors[i % ballColors.length]));
+  }
+  ballsIM.castShadow = false;
+  ballsIM.receiveShadow = false;
+  pit.add(ballsIM);
+  world.root.add(pit);
+  // vaivén sutil del mar de bolas (respiración)
+  world.propAnims.push({ update: (_dt, t) => { ballsIM.position.y = Math.sin(t * 0.6) * 0.012; } });
+
+  /* ---- TORRE DE JUEGOS con tobogán (este) — la linterna brilla arriba ---- */
+  const tower = new THREE.Group();
+  const structMat = plasticMaterial(0x3a6ac8, 0.55, 0.4);
+  // patas
+  for (const [lx, lz] of [[-0.9, -0.9], [0.9, -0.9], [-0.9, 0.9], [0.9, 0.9]] as Array<[number, number]>) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 2.6, 10), metalMaterial([0.5, 1]));
+    leg.position.set(lx, 1.3, lz);
+    tower.add(leg);
+  }
+  // plataforma
+  const plat = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.14, 2.2), structMat);
+  plat.position.set(0, 1.35, 0);
+  plat.castShadow = true;
+  tower.add(plat);
+  // barandilla de tubos
+  for (const side of [-1, 1]) {
+    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.0, 8), plasticMaterial(0xd8d84a, 0.4));
+    rail.rotation.z = Math.PI / 2;
+    rail.position.set(0, 1.85, side * 1.06);
+    tower.add(rail);
+    const rail2 = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.0, 8), plasticMaterial(0xd84a4a, 0.4));
+    rail2.rotation.z = Math.PI / 2;
+    rail2.position.set(side * 1.06, 1.85, 0);
+    tower.add(rail2);
+  }
+  // escalera de mano
+  for (let i = 0; i < 5; i++) {
+    const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.8, 8), metalMaterial([0.6, 1]));
+    rung.rotation.z = Math.PI / 2;
+    rung.position.set(0, 0.3 + i * 0.27, -1.28);
+    tower.add(rung);
+  }
+  // tobogán (rampa curva)
+  const slideMat = plasticMaterial(0xd84a4a, 0.25, 0.5);
+  const slide = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 2.8), slideMat);
+  slide.position.set(0.15, 0.62, 1.8);
+  slide.rotation.x = -0.42;
+  slide.castShadow = true;
+  tower.add(slide);
+  for (const sx of [-0.36, 0.36]) {
+    const lip = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.26, 2.8), plasticMaterial(0xd8d84a, 0.3));
+    lip.position.set(0.15 + sx, 0.72, 1.8);
+    lip.rotation.x = -0.42;
+    tower.add(lip);
+  }
+  tower.position.set(-17.6, 0, 8.6);
+  world.root.add(tower);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-17.6, 1.3, 8.6), new THREE.Vector3(2.4, 2.7, 2.4)), 'playtower');
+
+  /* ---- LINTERNA perdida en la torre (anclaje cap 1) ---- */
+  const torchG = new THREE.Group();
+  const glbTorch = Assets.rigs.get('flashlight');
+  if (glbTorch) {
+    const torchModel = glbTorch.root.clone(true);
+    torchModel.rotation.z = Math.PI / 2;
+    torchModel.rotation.y = 0.5;
+    torchModel.position.y = 0.1;
+    torchG.add(torchModel);
+  } else {
+    const torchBody = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.24, 10), metalMaterial([0.35, 0.9]));
+    torchBody.rotation.z = Math.PI / 2.3;
+    torchG.add(torchBody);
+  }
+  const torchLens = new THREE.Mesh(
+    new THREE.SphereGeometry(0.045, 10, 8),
+    new THREE.MeshStandardMaterial({ color: 0x88aaff, emissive: 0x66ccff, emissiveIntensity: 2.2 })
+  );
+  torchLens.position.set(0.14, 0.02, 0);
+  torchG.add(torchLens);
+  torchG.position.set(-17.6, 1.52, 8.2);
+  torchG.rotation.y = 0.6;
+  world.root.add(torchG);
+  // parpadeo suave de "alguien la perdió aquí"
+  const lensMat = torchLens.material as THREE.MeshStandardMaterial;
+  world.propAnims.push({ update: (_dt, t) => { lensMat.emissiveIntensity = 1.6 + Math.sin(t * 2.4) * 0.9; } });
+  world.anchors.set('daycare_torch', { pos: new THREE.Vector3(-17.6, 1.5, 8.2), mesh: torchG });
+
+  /* ---- 5 GENERADORES SOL Y LUNA ---- */
+  DAYCARE_GEN_SPOTS.forEach(([gx, gz, gry], i) => {
+    const gen = new THREE.Group();
+    // cuerpo con franjas de peligro
+    const bodyMat = plasticMaterial(0xd8b13a, 0.45, 0.5);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.15, 0.55), bodyMat);
+    body.position.y = 0.58;
+    body.castShadow = true;
+    gen.add(body);
+    const stripeMat = plasticMaterial(0x1a1a1a, 0.5, 0.4);
+    for (let s = 0; s < 3; s++) {
+      const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.12, 0.57), stripeMat);
+      stripe.position.y = 0.3 + s * 0.34;
+      gen.add(stripe);
+    }
+    // panel superior
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.34, 0.08), metalMaterial([0.4, 1]));
+    panel.position.set(0, 1.3, 0.14);
+    gen.add(panel);
+    // palanca
+    const lever = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.26, 8), plasticMaterial(0xd84a4a, 0.4));
+    lever.position.set(0, 1.32, 0.2);
+    lever.rotation.x = -0.5;
+    gen.add(lever);
+    // LUZ DE ESTADO (roja → verde al arrancar)
+    const status = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 12, 10),
+      new THREE.MeshStandardMaterial({ color: 0x5a0808, emissive: 0xff2020, emissiveIntensity: 2.6 })
+    );
+    status.position.set(0, 1.62, 0);
+    gen.add(status);
+    world.propAnims.push({
+      update: (_dt, t) => {
+        const m = status.material as THREE.MeshStandardMaterial;
+        if (m.emissive.getHex() === 0xff2020) m.emissiveIntensity = 1.8 + Math.sin(t * 5 + i * 1.7) * 0.9;
+      },
+    });
+    // rejilla de ventilación
+    for (let v = 0; v < 3; v++) {
+      const vent = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.03, 0.4), metalMaterial([0.3, 1]));
+      vent.position.set(0, 0.22 + v * 0.09, 0);
+      gen.add(vent);
+    }
+    gen.position.set(gx, 0, gz);
+    gen.rotation.y = gry;
+    world.root.add(gen);
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(gx, 0.7, gz), new THREE.Vector3(0.95, 1.5, 0.75)), `dcgen_${i}`);
+    world.anchors.set(`dcgen_g${i + 1}`, { pos: new THREE.Vector3(gx, 1.1, gz), mesh: status });
+  });
+
+  /* ---- lunas de noche decorativas (emisivas, coste 0) ---- */
+  const moonLampMat = new THREE.MeshStandardMaterial({ color: 0x8a93d8, emissive: 0x4a5ac8, emissiveIntensity: 1.2 });
+  for (const [mx, mz, mry] of [[-28.85, 4, Math.PI / 2], [-16.15, 9, -Math.PI / 2], [-22.5, 12.85, Math.PI], [-24, -2.82, 0]] as Array<[number, number, number]>) {
+    const lamp = new THREE.Group();
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.05, 16), moonLampMat);
+    disc.rotation.x = Math.PI / 2;
+    lamp.add(disc);
+    // creciente
+    const bite = new THREE.Mesh(new THREE.SphereGeometry(0.19, 12, 10), plasticMaterial(0x1a1a2e, 0.6));
+    bite.position.set(-0.09, 0.07, 0.045);
+    lamp.add(bite);
+    lamp.position.set(mx, 2.8, mz);
+    lamp.rotation.y = mry;
+    world.root.add(lamp);
   }
 
-  // jugueterías
+  /* ---- estrellas del techo (Points baratísimas) ---- */
+  const starGeo = new THREE.BufferGeometry();
+  const starPos: number[] = [];
+  for (let i = 0; i < 90; i++) {
+    starPos.push(-28.5 + Math.random() * 12, 4.25 + Math.random() * 0.2, -2.5 + Math.random() * 15);
+  }
+  starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xbcd0ff, size: 0.05, transparent: true, opacity: 0.85 }));
+  world.root.add(stars);
+
+  /* ---- carteles de cara SOL / LUNA en las paredes ---- */
+  const faceDisc = (x: number, z: number, ry: number, sun: boolean) => {
+    const g = new THREE.Group();
+    const disc = new THREE.Mesh(
+      new THREE.CircleGeometry(0.42, 24),
+      plasticMaterial(sun ? 0xf2c93a : 0x232a52, 0.4, 0.4)
+    );
+    g.add(disc);
+    const smile = new THREE.Mesh(
+      new THREE.TorusGeometry(0.2, 0.035, 8, 16, Math.PI),
+      plasticMaterial(sun ? 0x5a1410 : 0xe8e4d0, 0.5)
+    );
+    smile.position.y = -0.08;
+    smile.rotation.z = Math.PI; // arco sonriente hacia abajo
+    g.add(smile);
+    for (const sx of [-0.16, 0.16]) {
+      const eye = new THREE.Mesh(
+        new THREE.SphereGeometry(0.05, 8, 8),
+        new THREE.MeshStandardMaterial({ color: 0x0a0a12, emissive: sun ? 0x3a2a08 : 0xff3030, emissiveIntensity: sun ? 0.4 : 1.6 })
+      );
+      eye.position.set(sx, 0.12, 0.03);
+      g.add(eye);
+    }
+    g.position.set(x, 2.5, z);
+    g.rotation.y = ry;
+    world.root.add(g);
+  };
+  faceDisc(-28.8, 7.5, Math.PI / 2, false); // LUNA junto a la alberca
+  faceDisc(-16.2, 3.2, -Math.PI / 2, true); // SOL junto al arcoíris
+
+  /* ---- mobiliario clásico de guardería ---- */
   shelfUnit(world, -27.8, 1.5, Math.PI / 2, 2.6, 5);
-  // mesas pequeñas con sillas
+  // mesas pequeñas con sillas (sur de la alberca)
   const tableColors = [0xd8b13a, 0x4a8fd8, 0xd84a8a];
   for (let i = 0; i < 3; i++) {
-    const tx = -24 + i * 3.5;
-    const tz = 2;
+    const tx = -24 + i * 3.2;
+    const tz = 1.2;
     const table = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.45, 0.5, 12), plasticMaterial(tableColors[i], 0.5, 0.4));
     table.position.set(tx, 0.25, tz);
     table.castShadow = true;
@@ -1443,22 +1658,24 @@ function buildDaycare(world: WorldBuilder) {
   const hRock = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.06, 0.14), woodMaterial([0.6, 0.4]));
   hRock.position.y = -0.32;
   horse.add(hBody, hHead, hRock);
-  horse.position.set(-20, 0.55, 4.5);
+  horse.position.set(-20.5, 0.55, 11.9);
   horse.rotation.y = 0.8;
   world.root.add(horse);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-20, 0.5, 4.5), new THREE.Vector3(1.2, 1.0, 0.5)), 'horse');
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-20.5, 0.5, 11.9), new THREE.Vector3(1.2, 1.0, 0.5)), 'horse');
   world.propAnims.push({ update: (_dt, t) => { horse.rotation.z = Math.sin(t * 0.9) * 0.12; } });
 
   // dibujos infantiles por todas las paredes
   addDrawing(world, 0, -28.85, 1.5, 1, Math.PI / 2);
   addDrawing(world, 1, -28.85, 1.5, 4, Math.PI / 2);
-  addDrawing(world, 2, -28.85, 1.5, 7, Math.PI / 2);
+  addDrawing(world, 2, -28.85, 1.5, 9.5, Math.PI / 2);
   addDrawing(world, 3, -20, 1.5, -2.82, 0);
   addDrawing(world, 4, -24, 1.5, -2.82, 0);
   addDrawing(world, 5, -22, 2.2, 12.85, Math.PI);
 
-  neonSign(world, 'GUARDERÍA', 0xffd070, -22.5, 3.7, -2.7, 0, 2.4, 0.5);
-  // juguete de piano enorme (tarea de la prueba)
+  neonSign(world, 'SUPER GUARDERÍA', 0xffd070, -22.5, 3.9, -2.7, 0, 3.4, 0.5);
+  neonSign(world, 'ALBERCA DE PELOTAS', 0x70d0ff, -22.5, 1.9, 2.75, 0, 3.2, 0.42);
+
+  // juguete de piano enorme
   const piano = new THREE.Group();
   const pBody2 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.55, 0.8), plasticMaterial(0xd83a3a, 0.4, 0.6));
   pBody2.position.y = 0.4;
@@ -1468,10 +1685,10 @@ function buildDaycare(world: WorldBuilder) {
     key.position.set(-0.63 + i * 0.18, 0.7, 0.2);
     piano.add(key);
   }
-  piano.position.set(-27.5, 0, 10);
+  piano.position.set(-26.2, 0, 10.2);
   piano.rotation.y = 0.4;
   world.root.add(piano);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-27.5, 0.5, 10), new THREE.Vector3(1.7, 1.0, 0.9)), 'piano');
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-26.2, 0.5, 10.2), new THREE.Vector3(1.7, 1.0, 0.9)), 'piano');
   world.anchors.set('tape_daycare', { pos: new THREE.Vector3(-27.8, 1.1, 1.5) });
 }
 

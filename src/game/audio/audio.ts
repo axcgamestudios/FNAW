@@ -186,13 +186,22 @@ export class AudioEngine {
       case 'carpet': f = 420; break;
       case 'concrete': f = 700; break;
       case 'metal': f = 1500; break;
+      case 'balls': f = 850; break;
       default: f = 950;
     }
-    bp.type = surface === 'carpet' ? 'lowpass' : 'bandpass';
+    bp.type = surface === 'carpet' || surface === 'balls' ? 'lowpass' : 'bandpass';
     bp.frequency.value = f * (0.9 + Math.random() * 0.25);
     bp.Q.value = 1.6;
     const g = ctx.createGain();
-    this.env(g, t, 0.004, vol * (surface === 'carpet' ? 0.5 : 0.8), 0.13);
+    if (surface === 'balls') {
+      // vaivén entre pelotas: susurro plástico más largo + chasquidos
+      this.env(g, t, 0.01, vol * 0.55, 0.26);
+      for (let b = 0; b < 3; b++) {
+        this.osc('sine', 1700 + Math.random() * 900, 1400, 0.03, 0.05 * vol, pan);
+      }
+    } else {
+      this.env(g, t, 0.004, vol * (surface === 'carpet' ? 0.5 : 0.8), 0.13);
+    }
     s.connect(bp);
     bp.connect(g);
     g.connect(pan);
@@ -515,6 +524,64 @@ export class AudioEngine {
         o.detune.value = Math.random() * 30;
       }, i * 190);
     }
+  }
+
+  /** CHILLIDO LUNAR: aullido mecánico con vibrato de pánico (Luna al cazar) */
+  moonScream(pos: Vec) {
+    if (!this.ready || !this.ctx) return;
+    const ctx = this.ctx;
+    const t = ctx.currentTime;
+    const pan = this.panner(pos);
+    pan.connect(this.sfxBus);
+    // par de sierras desafinadas con barrido 500→1600 Hz
+    for (const det of [-18, 14]) {
+      const o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(500, t);
+      o.frequency.exponentialRampToValueAtTime(1600, t + 0.5);
+      o.frequency.exponentialRampToValueAtTime(900, t + 1.15);
+      o.detune.value = det;
+      // vibrato de pánico 9 Hz
+      const lfo = ctx.createOscillator();
+      lfo.frequency.value = 9;
+      const lfoG = ctx.createGain();
+      lfoG.gain.value = 42;
+      lfo.connect(lfoG);
+      lfoG.connect(o.frequency);
+      lfo.start(t);
+      lfo.stop(t + 1.3);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.5, t + 0.06);
+      g.gain.setValueAtTime(0.5, t + 0.85);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.25);
+      o.connect(g);
+      g.connect(pan);
+      o.start(t);
+      o.stop(t + 1.3);
+    }
+    // sub-caída 120→38
+    this.osc('sine', 120, 38, 1.1, 0.5, pan);
+    // estática rasposa
+    this.noiseBurst(pan, 1.0, 2100, 0.12, 'bandpass');
+  }
+
+  /** NANA rota: cajita musical desafinada desde el techo de la guardería */
+  lullaby(pos: Vec) {
+    if (!this.ready) return;
+    const pan = this.panner(pos);
+    pan.connect(this.sfxBus);
+    // melodía menor lenta y dulce... equivocada
+    const notes = [659, 587, 523, 587, 659, 880, 659, 523, 440, 0, 523, 440, 392, 330];
+    notes.forEach((nf, i) => {
+      setTimeout(() => {
+        if (nf === 0) return;
+        const det = -35 + Math.random() * 70;
+        this.osc('sine', nf, nf, 0.5, 0.11, pan, det);
+        this.osc('triangle', nf * 2, nf * 2, 0.32, 0.035, pan, det);
+        this.osc('sine', nf / 2, nf / 2, 0.55, 0.05, pan, det);
+      }, i * 430);
+    });
   }
 
   radioBurst(pos: Vec) {

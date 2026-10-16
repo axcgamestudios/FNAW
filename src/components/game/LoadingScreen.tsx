@@ -7,16 +7,16 @@
 import { useHud } from '@/game/core/state';
 
 const TIPS = [
+  'Empiezas escondido en la alberca de pelotas. LUNA casi no ve... pero lo oye TODO.',
+  'Cada paso dentro de la alberca suena al doble y medio. Agáchate con [Ctrl] y camina.',
+  'Arranca los 5 generadores de la guardería y LUNA se convertirá en SOL. Las rejas se abren.',
+  'La nana que suena en el techo no es amistosa. Tampoco lo es el niño que la canta.',
   'La bolera de Bruno es su territorio. Si las luces se funden, no estás solo en el carril.',
-  'En la guardería nunca apagues la linterna: los ojos amarillos siguen el haz.',
   'El telón de la Cala del Pirata se mueve solo. Cuenta las veces. Tres es mal número.',
-  'Los generadores arrancan en orden 3 · 1 · 4 · 2. Dorado despierta al tercero.',
+  'Los generadores maestros arrancan en orden 3 · 1 · 4 · 2. Dorado despierta al tercero.',
   'Correr hace ruido. El ruido los atrae. A veces es mejor quedarse quieto.',
   'Si te atrapan durante una prueba, reapareces: las tareas se reinician, el miedo no.',
-  'Las luces rojas de emergencia marcan el camino cuando todo lo demás muere.',
   'Necesitas 3 tarjetas para abrir la puerta sur. La galería, el teatro y la plaza guardan una cada uno.',
-  'La tableta gasta energía, pero ver a Bonnie en el recreativo vale la pena.',
-  'El estrobo del pasillo técnico parpadea antes de fallar. Ten un plan B.',
 ];
 
 export default function LoadingScreen({ error }: { error: string | null }) {

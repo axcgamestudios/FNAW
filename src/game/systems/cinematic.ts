@@ -74,7 +74,7 @@ export class CinematicPlayer {
 
   private placeActor(a: ActorDef): THREE.Object3D | null {
     // animatrónico activo en juego: moverlo (se restaura al terminar)
-    if (['freddy', 'bonnie', 'chica', 'foxy', 'golden'].includes(a.id)) {
+    if (['freddy', 'bonnie', 'chica', 'foxy', 'golden', 'luna'].includes(a.id)) {
       for (const child of this.world.scene.children) {
         const meta = (child as unknown as { userData?: { animatronicId?: string } }).userData;
         if (meta?.animatronicId === a.id) {

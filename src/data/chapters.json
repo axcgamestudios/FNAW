@@ -3,101 +3,175 @@
     {
       "chapter": 1,
       "id": "cap1",
-      "title": "Turno de Cierre",
-      "enemies": ["freddy"],
+      "title": "La Alberca de Pelotas",
+      "enemies": [
+        "luna",
+        "freddy"
+      ],
       "aggression": 0.5,
       "eventRate": 0.6,
       "startPower": 100,
-      "introCinematic": "cine_arrival",
-      "outroCinematic": "cine_sighting",
+      "introCinematic": "cine_ballpit",
+      "outroCinematic": "cine_sunrise",
       "lines": [
-        "Complejo Bruno MEGAPLEX — 11:47 PM.",
-        "El mayor centro de ocio del estado. Cuatro plantas de risas de día.",
-        "De noche, la energía se apaga y algo camina por los paseos.",
-        "Aprende el terreno. Enciende los breakers. Y aguanta."
+        "Complejo Bruno MEGAPLEX — 11:58 PM.",
+        "Te colaste a medianoche. Mal idea.",
+        "Ahora las luces mueren, las rejas bajan...",
+        "y LUNA escucha cada pelota que se mueve."
       ],
       "radio": {
-        "atMinute": 0.3,
+        "atMinute": 0.25,
         "lines": [
-          "*clic* — ¿Hola? ¿Hola? Bienvenido al MEGAPLEX, chico.",
-          "Soy Rulo, el técnico del turno anterior. Sí, el que dejó el puesto. Ya sabes por qué.",
-          "Primero: recoge la linterna y la tableta de tu escritorio. Sin linterna, este sitio es una tumba.",
-          "Segundo: dos breakers fundidos en el Cuarto Eléctrico, al fondo del Pasillo Técnico Norte. Sostén E sobre ellos para rearrancarlos.",
-          "Tercero: date una vuelta por el Atrio. Mira las cámaras con C. Aprende los pasillos antes de que ellos aprendan los tuyos.",
-          "Y si algo grande y peludo te mira desde el escenario... no le des la espalda. Corre."
+          "*clic* — ¿Hola? ¿Hay alguien...? ¡Un crío! ¿Cómo demonios entraste?",
+          "Soy Rulo, del turno anterior. Escucha bien: estás en la SUPER GUARDERÍA, escondido en la alberca de pelotas.",
+          "LUNA patrulla ahí dentro. Casi no ve... pero lo oye TODO. En las pelotas, cada paso tuyo suena al doble y medio.",
+          "Primero: sal de la alberca AGACHADO [Ctrl] y sin correr. Cuando pases, no mires atrás.",
+          "Segundo: alguien perdió una LINTERNA en la torre de juegos, al fondo. Súbete a por ella. Sin luz, esta guardería es una tumba.",
+          "Tercero: hay CINCO generadores en la sala. Arráncalos TODOS y vuelve la luz... y LUNA se convierte en SOL. Inofensivo. Casi.",
+          "Si te atrapa, despertarás de nuevo en la alberca. Lo he visto antes. Y otra vez. Y otra vez.",
+          "Ve. Ahora. Mientras cante la nana."
         ]
       },
       "objectives": [
-        { "id": "c1_gear", "title": "Recoge la linterna y la tableta", "hint": "Escritorio de la Oficina de Seguridad (Paseo Sur)", "type": "interact", "room": "office", "target": "desk_pickup" },
-        { "id": "c1_cams", "title": "Comprueba las cámaras (14 en total)", "hint": "Abre la tableta con C", "type": "system", "target": "tablet_used" },
-        { "id": "c1_b1", "title": "Rearranca el breaker 1", "hint": "Cuarto Eléctrico — mantén E", "type": "hold", "room": "electrical", "target": "breaker_1" },
-        { "id": "c1_b2", "title": "Rearranca el breaker 2", "hint": "Cuarto Eléctrico — mantén E", "type": "hold", "room": "electrical", "target": "breaker_2" },
-        { "id": "c1_atrium", "title": "Explora el Atrio Central", "hint": "La gran sala con la fuente", "type": "goto", "room": "atrium" }
+        {
+          "id": "c1_sneak",
+          "title": "Sal de la alberca sin despertar a LUNA",
+          "hint": "Agachado [Ctrl], sin correr",
+          "type": "system",
+          "target": "pit_escaped"
+        },
+        {
+          "id": "c1_torch",
+          "title": "Recupera la linterna de la torre de juegos",
+          "hint": "Al fondo de la guardería [E]",
+          "type": "interact",
+          "room": "daycare",
+          "target": "daycare_torch"
+        },
+        {
+          "id": "c1_trial",
+          "title": "SUPERA LA PRUEBA: Sol y Luna",
+          "hint": "Arranca los 5 generadores de la guardería",
+          "type": "trial",
+          "target": "sunmoon"
+        },
+        {
+          "id": "c1_exit",
+          "title": "Sal de la Guardería",
+          "hint": "Cualquiera de las rejas abiertas",
+          "type": "system",
+          "target": "daycare_escaped"
+        }
       ]
     },
     {
       "chapter": 2,
       "id": "cap2",
       "title": "La Bolera",
-      "enemies": ["freddy", "bonnie"],
+      "enemies": [
+        "freddy",
+        "bonnie"
+      ],
       "aggression": 0.8,
       "eventRate": 1.0,
       "startPower": 85,
       "introCinematic": "cine_cap2",
       "outroCinematic": "cine_camstare",
       "lines": [
-        "Primera prueba de la noche: la Bolera.",
-        "Las máquinas de chapa llevan días muertas. Mala señal.",
+        "La guardería quedó atrás. El MEGAPLEX entero sigue a oscuras.",
+        "La Bolera tiene las máquinas de chapa fundidas.",
         "Y la coneja del recreativo ha aprendido a usar los conductos."
       ],
       "radio": {
         "atMinute": 0.3,
         "lines": [
-          "Escucha, la Bolera tiene los pinsetters fundidos. Tres. El jefe quiere la bolera viva para el evento de mañana.",
+          "¿Sigues vivo? Bien. Escucha: en la OFICINA DE SEGURIDAD del Paseo Sur dejé una tableta con las cámaras. Con ella los ves venir. Cógela.",
+          "La Bolera tiene los pinsetters fundidos. Tres. El jefe quiere la bolera viva para el evento de mañana.",
           "Y sí: es una PRUEBA. Las luces morirán, ella vendrá. Si te atrapa, despiertas en el paseo. Inténtalo otra vez.",
           "Bonnie — la coneja — sale del Salón Recreativo. La linterna la congela si le das de lleno en la cara.",
-          "Antes de entrar, recoge 3 fichas doradas del recreativo. Las necesitarás para las máquinas. Y para tu nerviosismo."
+          "Antes de entrar, recoge 3 fichas doradas del recreativo. Las necesitarás para las máquinas."
         ]
       },
       "objectives": [
-        { "id": "c2_tokens", "title": "Reúne 3 fichas doradas", "hint": "Caídas por el Salón Recreativo", "type": "collect", "count": 3 },
-        { "id": "c2_trial", "title": "SUPERA LA PRUEBA: Bolera", "hint": "Entra en la Bolera y reinicia las 3 máquinas de chapa", "type": "trial", "target": "bowling" }
+        {
+          "id": "c2_tablet",
+          "title": "Recoge la tableta de vigilancia",
+          "hint": "Oficina de Seguridad — Paseo Sur [C]",
+          "type": "interact",
+          "room": "office",
+          "target": "desk_tablet"
+        },
+        {
+          "id": "c2_tokens",
+          "title": "Reúne 3 fichas doradas",
+          "hint": "Caídas por el Salón Recreativo",
+          "type": "collect",
+          "count": 3
+        },
+        {
+          "id": "c2_trial",
+          "title": "SUPERA LA PRUEBA: Bolera",
+          "hint": "Entra en la Bolera y reinicia las 3 máquinas de chapa",
+          "type": "trial",
+          "target": "bowling"
+        }
       ]
     },
     {
       "chapter": 3,
       "id": "cap3",
-      "title": "La Guardería",
-      "enemies": ["freddy", "bonnie", "chica"],
+      "title": "La Plaza de Comida",
+      "enemies": [
+        "freddy",
+        "bonnie",
+        "chica"
+      ],
       "aggression": 0.95,
       "eventRate": 1.2,
       "startPower": 75,
       "introCinematic": "cine_cap3",
       "outroCinematic": "cine_golden",
       "lines": [
-        "La caja musical de la Guardería se rompió.",
-        "Sin su melodía, la de la gallina no duerme.",
-        "Encuentra los 3 mecanismos. Y reza para que la música la calme."
+        "La Bolera canta. La night sigue.",
+        "La Plaza de Comida debe abrir mañana con los tres puestos vivos.",
+        "La gallina ya ronda las mesas. Y huele el horno."
       ],
       "radio": {
         "atMinute": 0.3,
         "lines": [
-          "La caja musical de la Guardería perdió sus 3 mecanismos. Piano, foso de bolas, juguetería. Sin la melodía, Chica vaga toda la noche.",
-          "Es la PRUEBA más ruidosa: risas, pasos pequeños, luces muertas. No te flaquees.",
+          "Chica — la gallina — caza en la Plaza de Comida desde esta night. Le precede el olor a pizza quemada... y a pluma.",
+          "Tres puestos fundidos: PIZZA, PATATAS y HELADOS. Rearranca los tres. Las notas de servicio dicen que se reactivan solos... casi.",
           "Chica no esquiva la linterna. La oye TODO. Camina agachado con Ctrl y no corras dentro.",
           "Cuando la pases, pásate por la Cala del Pirata. Alguien dejó un cartel ahí... y algo se mueve tras el telón."
         ]
       },
       "objectives": [
-        { "id": "c3_trial", "title": "SUPERA LA PRUEBA: Guardería", "hint": "Recupera los 3 mecanismos de la caja musical", "type": "trial", "target": "daycare" },
-        { "id": "c3_cove", "title": "Investiga la Cala del Pirata", "hint": "Oeste del Paseo Oeste", "type": "goto", "room": "pirateCove" }
+        {
+          "id": "c3_trial",
+          "title": "SUPERA LA PRUEBA: Plaza de Comida",
+          "hint": "Rearranca los 3 puestos de comida",
+          "type": "trial",
+          "target": "foodcourt"
+        },
+        {
+          "id": "c3_cove",
+          "title": "Investiga la Cala del Pirata",
+          "hint": "Oeste del Paseo Oeste",
+          "type": "goto",
+          "room": "pirateCove"
+        }
       ]
     },
     {
       "chapter": 4,
       "id": "cap4",
       "title": "La Cala del Pirata",
-      "enemies": ["freddy", "bonnie", "chica", "foxy"],
+      "enemies": [
+        "freddy",
+        "bonnie",
+        "chica",
+        "foxy"
+      ],
       "aggression": 1.1,
       "eventRate": 1.4,
       "startPower": 70,
@@ -118,15 +192,33 @@
         ]
       },
       "objectives": [
-        { "id": "c4_trial", "title": "SUPERA LA PRUEBA: Cala del Pirata", "hint": "3 interruptores de la atracción, en orden", "type": "trial", "target": "cove" },
-        { "id": "c4_tape", "title": "Recupera la cinta del barco", "hint": "Cerca del barco pirata de la Cala", "type": "collect", "count": 1, "optional": true }
+        {
+          "id": "c4_trial",
+          "title": "SUPERA LA PRUEBA: Cala del Pirata",
+          "hint": "3 interruptores de la atracción, en orden",
+          "type": "trial",
+          "target": "cove"
+        },
+        {
+          "id": "c4_tape",
+          "title": "Recupera la cinta del barco",
+          "hint": "Cerca del barco pirata de la Cala",
+          "type": "collect",
+          "count": 1,
+          "optional": true
+        }
       ]
     },
     {
       "chapter": 5,
       "id": "cap5",
       "title": "Los Generadores",
-      "enemies": ["freddy", "bonnie", "chica", "foxy"],
+      "enemies": [
+        "freddy",
+        "bonnie",
+        "chica",
+        "foxy"
+      ],
       "aggression": 1.3,
       "eventRate": 1.6,
       "startPower": 60,
@@ -147,14 +239,26 @@
         ]
       },
       "objectives": [
-        { "id": "c5_trial", "title": "SUPERA LA PRUEBA: Generadores (3·1·4·2)", "hint": "Sala de Generadores, panel maestro", "type": "trial", "target": "generators" }
+        {
+          "id": "c5_trial",
+          "title": "SUPERA LA PRUEBA: Generadores (3·1·4·2)",
+          "hint": "Sala de Generadores, panel maestro",
+          "type": "trial",
+          "target": "generators"
+        }
       ]
     },
     {
       "chapter": 6,
       "id": "cap6",
       "title": "La Fuga",
-      "enemies": ["freddy", "bonnie", "chica", "foxy", "golden"],
+      "enemies": [
+        "freddy",
+        "bonnie",
+        "chica",
+        "foxy",
+        "golden"
+      ],
       "aggression": 1.5,
       "eventRate": 1.8,
       "startPower": 55,
@@ -176,10 +280,38 @@
         ]
       },
       "objectives": [
-        { "id": "c6_key1", "title": "Tarjeta de acceso — Galería Estelar", "hint": "Sobre el pedestal de la estatua", "type": "interact", "room": "rockstar", "target": "key_rockstar" },
-        { "id": "c6_key2", "title": "Tarjeta de acceso — Teatro Bruno", "hint": "En la primera fila de butacas", "type": "interact", "room": "theater", "target": "key_theater" },
-        { "id": "c6_key3", "title": "Tarjeta de acceso — Plaza de Comida", "hint": "En una mesa central", "type": "interact", "room": "foodcourt", "target": "key_foodcourt" },
-        { "id": "c6_escape", "title": "ESCAPA por los tornos del vestíbulo", "hint": "Puerta doble del vestíbulo sur", "type": "interact", "room": "lobby", "target": "exit_door" }
+        {
+          "id": "c6_key1",
+          "title": "Tarjeta de acceso — Galería Estelar",
+          "hint": "Sobre el pedestal de la estatua",
+          "type": "interact",
+          "room": "rockstar",
+          "target": "key_rockstar"
+        },
+        {
+          "id": "c6_key2",
+          "title": "Tarjeta de acceso — Teatro Bruno",
+          "hint": "En la primera fila de butacas",
+          "type": "interact",
+          "room": "theater",
+          "target": "key_theater"
+        },
+        {
+          "id": "c6_key3",
+          "title": "Tarjeta de acceso — Plaza de Comida",
+          "hint": "En una mesa central",
+          "type": "interact",
+          "room": "foodcourt",
+          "target": "key_foodcourt"
+        },
+        {
+          "id": "c6_escape",
+          "title": "ESCAPA por los tornos del vestíbulo",
+          "hint": "Puerta doble del vestíbulo sur",
+          "type": "interact",
+          "room": "lobby",
+          "target": "exit_door"
+        }
       ]
     }
   ]

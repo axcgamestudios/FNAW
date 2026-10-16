@@ -14,7 +14,15 @@ export default function ChapterCompleteScreen() {
   const unlockedChapter = useHud((s) => s.unlockedChapter);
   const game = getGame();
   const doneCount = objectives.filter((o) => o.done).length;
-  const hasNext = chapter < 4 && unlockedChapter > chapter;
+  const hasNext = chapter < 6 && unlockedChapter > chapter;
+  const CHAPTER_WORDS: Record<number, string> = {
+    1: 'AMANECE',
+    2: 'STRIKE',
+    3: 'CON HAMBRE',
+    4: 'A BORDO',
+    5: 'ENERGÍA',
+    6: 'LIBRE',
+  };
 
   const nextChapter = () => {
     const next = chapter + 1;
@@ -31,7 +39,7 @@ export default function ChapterCompleteScreen() {
       <div className="scanlines absolute inset-0 pointer-events-none" />
       <p className="text-[10px] tracking-[0.6em] text-[#5a564c] mb-4">CAPÍTULO {String(chapter).padStart(2, '0')} SUPERADO</p>
       <h2 className="text-4xl font-bold tracking-[0.2em] text-[#d8c8a0] mb-10" style={{ textShadow: '0 0 40px rgba(216,177,58,0.4)' }}>
-        AMANECE
+        {CHAPTER_WORDS[chapter] ?? 'SUPERADO'}
       </h2>
 
       <div className="mb-10 text-center">
