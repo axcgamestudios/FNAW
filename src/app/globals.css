@@ -437,62 +437,105 @@
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* Jumpscare */
+/* Jumpscare — BRUTAL estilo FNAF */
 .jumpscare-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  animation: js-shake 0.07s linear infinite;
+  animation: js-shake 0.055s steps(3) infinite;
   background:
-    radial-gradient(circle at 50% 38%, transparent 18%, rgba(0,0,0,0.92) 60%),
-    rgba(20, 0, 0, 0.25);
+    radial-gradient(circle at 50% 40%, transparent 14%, rgba(0,0,0,0.88) 55%),
+    rgba(26, 0, 0, 0.3);
 }
 @keyframes js-shake {
-  0% { transform: translate(0, 0) scale(1.02); }
-  25% { transform: translate(-8px, 5px) scale(1.04); }
-  50% { transform: translate(6px, -7px) scale(1.03); }
-  75% { transform: translate(-5px, -4px) scale(1.05); }
-  100% { transform: translate(7px, 6px) scale(1.02); }
+  0% { transform: translate(0, 0) scale(1.04) rotate(0deg); }
+  20% { transform: translate(-12px, 8px) scale(1.07) rotate(-0.8deg); }
+  40% { transform: translate(10px, -11px) scale(1.05) rotate(0.7deg); }
+  60% { transform: translate(-8px, -6px) scale(1.08) rotate(-0.5deg); }
+  80% { transform: translate(11px, 9px) scale(1.05) rotate(0.9deg); }
+  100% { transform: translate(-6px, 4px) scale(1.06) rotate(0deg); }
 }
-.js-eye {
-  position: absolute;
-  top: 30%;
-  width: 110px;
-  height: 60px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fff 20%, var(--eye, #4dff88) 45%, rgba(0,0,0,0.95) 75%);
-  filter: blur(1px);
-  animation: js-eye-pulse 0.12s linear infinite;
-}
-@keyframes js-eye-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.75; transform: scale(1.12); }
-}
-.js-mouth {
-  position: absolute;
-  top: 52%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 260px;
-  height: 120px;
-  background: #050505;
-  border: 3px solid #1a1a1a;
-  border-radius: 0 0 130px 130px / 0 0 110px 110px;
-  overflow: hidden;
-}
-.js-mouth::after {
-  content: '';
+/* estrobo rojo/blanco a ~18 Hz */
+.js-strobe {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    #d8d2ba 0px, #d8d2ba 16px, transparent 16px, transparent 30px
-  );
-  animation: js-teeth 0.09s steps(2) infinite;
+  mix-blend-mode: hard-light;
+  animation: js-strobe 0.11s steps(2) infinite;
+  background: #ff1020;
 }
-@keyframes js-teeth {
-  from { transform: translateY(0); }
-  to { transform: translateY(-14px); }
+@keyframes js-strobe {
+  0% { opacity: 0.34; }
+  50% { opacity: 0; }
+  100% { opacity: 0.34; }
+}
+/* destello blanco intermitente */
+.js-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  mix-blend-mode: screen;
+  animation: js-flash 0.23s steps(3) infinite;
+}
+@keyframes js-flash {
+  0% { opacity: 0.65; }
+  33% { opacity: 0; }
+  66% { opacity: 0.4; }
+  100% { opacity: 0.65; }
+}
+/* desgarros de señal horizontal */
+.js-tear {
+  position: absolute;
+  left: -4%;
+  width: 108%;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.16);
+  mix-blend-mode: screen;
+  filter: blur(0.5px);
+  animation: js-tear 0.09s steps(2) infinite;
+}
+@keyframes js-tear {
+  0% { transform: translateX(-42px) scaleY(1); }
+  50% { transform: translateX(48px) scaleY(1.7); }
+  100% { transform: translateX(-36px) scaleY(0.8); }
+}
+/* aberración cromática (bandas roja/azul desplazadas) */
+.js-rgb {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  opacity: 0.2;
+}
+.js-rgb-r {
+  background: linear-gradient(90deg, rgba(255,0,40,0.5), transparent 22%);
+  animation: js-rgb 0.07s steps(2) infinite;
+}
+.js-rgb-b {
+  background: linear-gradient(-90deg, rgba(0,60,255,0.5), transparent 22%);
+  animation: js-rgb 0.09s steps(2) infinite reverse;
+}
+@keyframes js-rgb {
+  0% { transform: translateX(-18px); opacity: 0.26; }
+  100% { transform: translateX(16px); opacity: 0.12; }
+}
+
+/* Panel de prueba activa (HUD) */
+.trial-panel {
+  padding: 10px 14px;
+  border: 1px solid rgba(200, 40, 30, 0.4);
+  background: linear-gradient(180deg, rgba(20, 4, 2, 0.72), rgba(10, 2, 0, 0.62));
+  animation: trial-pulse 1.6s ease-in-out infinite;
+}
+@keyframes trial-pulse {
+  0%, 100% { border-color: rgba(200, 40, 30, 0.4); }
+  50% { border-color: rgba(255, 80, 60, 0.85); }
+}
+.trial-task {
+  font-size: 15px;
+  color: #7a7568;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+.trial-task.done {
+  color: #6fcf7a;
 }
 
 /* Máscara puesta (bordes que cierran) */

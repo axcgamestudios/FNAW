@@ -2,560 +2,238 @@
   "cine_arrival": {
     "letterbox": true,
     "actors": [
-      {
-        "id": "jeremy",
-        "pos": [
-          20.6,
-          0,
-          12.6
-        ],
-        "yaw": 2.6
-      }
+      { "id": "jeremy", "pos": [-5.5, 0, 26.5], "yaw": 3.4 }
     ],
     "shots": [
       {
-        "pos": [
-          15.5,
-          3.1,
-          8.2
-        ],
-        "look": [
-          21.5,
-          1.2,
-          13.5
-        ],
+        "pos": [-5.5, 1.7, 31.5],
+        "look": [-5.5, 3.2, 27],
         "dur": 4.5,
-        "text": "Pizzería Estelar Bruno. 11:47 PM."
+        "text": "Complejo Bruno MEGAPLEX. 11:47 PM."
       },
       {
-        "pos": [
-          14.5,
-          2.6,
-          7.0
-        ],
-        "look": [
-          21.0,
-          1.3,
-          13.8
-        ],
+        "pos": [-13, 2.4, 24],
+        "look": [-5, 3.5, 27],
         "dur": 4,
-        "text": "El último guardia nocturno no volvió a casa."
+        "text": "El mayor centro de ocio del estado. 6000 metros cuadrados."
       },
       {
-        "pos": [
-          -6,
-          2.4,
-          -4.5
-        ],
-        "look": [
-          10,
-          1.2,
-          -7
-        ],
+        "pos": [0, 2.2, 15.5],
+        "look": [0, 5, -8],
         "dur": 4.5,
-        "text": "Un edificio de quinientos metros cuadrados. Un contrato de cinco noches."
+        "text": "De día, cuatro plantas de risas. De noche, un solo guardia."
       },
       {
-        "pos": [
-          8.5,
-          2.0,
-          -8.0
-        ],
-        "look": [
-          8.5,
-          1.4,
-          -13.2
-        ],
+        "pos": [-2, 1.9, 6],
+        "look": [0, 2.2, -6.5],
         "dur": 5,
         "text": "Ellos se apagan al terminar el turno... se supone."
       },
       {
-        "pos": [
-          8,
-          1.9,
-          -11.2
-        ],
-        "look": [
-          8,
-          2.0,
-          -12.6
-        ],
-        "dur": 3.2,
-        "text": "Freddy no está apagado."
-      },
-      {
-        "pos": [
-          0,
-          1.5,
-          11.6
-        ],
-        "look": [
-          0.4,
-          0.9,
-          13.8
-        ],
+        "pos": [-40, 1.8, 22],
+        "look": [-37.5, 1.4, 21.8],
         "dur": 4,
-        "text": "Tu puesto: la oficina de seguridad. Tu herramienta: una linterna."
-      },
-      {
-        "pos": [
-          0,
-          1.6,
-          12.8
-        ],
-        "look": [
-          -3.75,
-          1.4,
-          9
-        ],
-        "dur": 3.8,
-        "text": "Sobrevive. Averigua qué pasó aquí. Y no confíes en la oscuridad."
+        "text": "Tu oficina. Tu escritorio. Tu única luz."
       }
     ]
   },
   "cine_sighting": {
     "letterbox": true,
     "actors": [
-      {
-        "id": "freddy",
-        "pos": [
-          13,
-          0,
-          -6.5
-        ],
-        "yaw": 3.5
-      }
+      { "id": "freddy", "pos": [0, 0.7, -6.2], "yaw": 3.1 }
     ],
     "shots": [
       {
-        "pos": [
-          2,
-          1.8,
-          5.5
-        ],
-        "look": [
-          13,
-          1.3,
-          -6.5
-        ],
-        "dur": 3.5,
-        "text": "Algo se mueve al fondo del pasillo principal."
+        "pos": [3, 1.8, 2],
+        "look": [0, 2.4, -6],
+        "dur": 4,
+        "text": "Con la energía de vuelta, el Atrio respira."
       },
       {
-        "pos": [
-          9,
-          1.7,
-          -2.5
-        ],
-        "look": [
-          13,
-          1.5,
-          -6.5
-        ],
-        "dur": 3.6,
-        "text": "Freddy: «¿Quién... anda... ahí?»"
+        "pos": [0.6, 1.5, -2.5],
+        "look": [0, 2.6, -6.2],
+        "dur": 4.5,
+        "text": "Freddy permanece en el escenario. Moviéndose. Mírandote."
       },
       {
-        "pos": [
-          11.5,
-          1.65,
-          -4.5
-        ],
-        "look": [
-          13,
-          1.6,
-          -6.5
-        ],
-        "dur": 2.8,
-        "text": "Te ha visto."
-      },
-      {
-        "pos": [
-          2,
-          1.8,
-          5.5
-        ],
-        "look": [
-          13,
-          1.3,
-          -6.5
-        ],
-        "dur": 2.5,
-        "text": "Vuelve a la oficina. El turno no ha terminado."
+        "pos": [-4, 1.9, 1],
+        "look": [0, 2.8, -6.5],
+        "dur": 4,
+        "text": "Algo le ha gustado de tu turno de esta noche."
       }
     ]
   },
   "cine_cap2": {
     "letterbox": true,
+    "actors": [
+      { "id": "bonnie", "pos": [10.5, 0, -15.5], "yaw": 2.4 }
+    ],
     "shots": [
       {
-        "pos": [
-          1.5,
-          2.2,
-          4.2
-        ],
-        "look": [
-          -8,
-          1.0,
-          0.5
-        ],
-        "dur": 4,
-        "text": "El comedor huele a óxido y a fiesta de hace treinta años."
+        "pos": [5, 2.6, -10],
+        "look": [5, 1.2, -15.5],
+        "dur": 4.5,
+        "text": "La Bolera. Cuatro carriles. Tres máquinas muertas."
       },
       {
-        "pos": [
-          -18,
-          2.2,
-          -10.5
-        ],
-        "look": [
-          -20.5,
-          1.2,
-          -15.5
-        ],
+        "pos": [9.8, 1.6, -12.5],
+        "look": [10.5, 1.8, -15.5],
         "dur": 4,
-        "text": "La cocina lleva semanas haciendo ruidos propios."
-      },
-      {
-        "pos": [
-          17,
-          2.2,
-          4.2
-        ],
-        "look": [
-          15,
-          1.2,
-          -2.5
-        ],
-        "dur": 4,
-        "text": "Dos cámaras muertas. Algo no quiere que veas."
-      },
-      {
-        "pos": [
-          6.5,
-          1.9,
-          -8.0
-        ],
-        "look": [
-          5.2,
-          1.4,
-          -12.8
-        ],
-        "dur": 3.5,
-        "text": "El escenario está... distinto. Falta una."
+        "text": "Bonnie ya ha aprendido el camino desde el recreativo."
       }
     ]
   },
   "cine_camstare": {
     "letterbox": true,
     "actors": [
-      {
-        "id": "freddy",
-        "pos": [
-          8.5,
-          0.45,
-          -12.4
-        ],
-        "yaw": 0.2
-      }
+      { "id": "bonnie", "pos": [10.4, 0, -10.2], "yaw": 3.6 }
     ],
     "shots": [
       {
-        "pos": [
-          8.6,
-          2.5,
-          -8.6
-        ],
-        "look": [
-          8.5,
-          1.6,
-          -12.4
-        ],
+        "pos": [10.4, 2.4, -10.4],
+        "look": [10.4, 1.9, -10.1],
         "dur": 4,
-        "text": "CAM 01 — 05:58 AM"
+        "text": "CAM 09 — las máquinas cantan de nuevo."
       },
       {
-        "pos": [
-          8.6,
-          2.3,
-          -9.6
-        ],
-        "look": [
-          8.5,
-          1.9,
-          -12.2
-        ],
-        "dur": 3.5,
-        "text": "Se ha girado. Mira directamente a la lente."
-      },
-      {
-        "pos": [
-          8.5,
-          1.8,
-          -10.6
-        ],
-        "look": [
-          8.5,
-          2.0,
-          -12.3
-        ],
-        "dur": 3,
-        "text": "Sabe que lo estás viendo."
+        "pos": [10.4, 2.4, -10.35],
+        "look": [10.4, 1.95, -10.15],
+        "dur": 4.5,
+        "text": "La cámara enfoca. La coneja se gira. Siempre supo dónde estaba la cámara."
       }
     ]
   },
   "cine_cap3": {
     "letterbox": true,
+    "actors": [
+      { "id": "chica", "pos": [-25, 0, 7], "yaw": 1.2 }
+    ],
     "shots": [
       {
-        "pos": [
-          8,
-          2.2,
-          4.4
-        ],
-        "look": [
-          6,
-          0.8,
-          0.5
-        ],
+        "pos": [-18, 2.6, -1.5],
+        "look": [-25, 1.4, 7],
+        "dur": 4.5,
+        "text": "La Guardería duerme cuando suena la caja musical."
+      },
+      {
+        "pos": [-22, 1.7, 4],
+        "look": [-25, 1.8, 7],
         "dur": 4,
-        "text": "El rincón infantil. El foso de bolas. Los dibujos."
-      },
-      {
-        "pos": [
-          5.5,
-          1.6,
-          1.5
-        ],
-        "look": [
-          8.6,
-          1.2,
-          -0.8
-        ],
-        "dur": 3.5,
-        "text": "Algo ha estado durmiendo aquí. Y ya no está."
-      },
-      {
-        "pos": [
-          -10,
-          1.8,
-          6.5
-        ],
-        "look": [
-          -10,
-          1.4,
-          9.6
-        ],
-        "dur": 4,
-        "text": "El almacén sur. El cerrojo no estaba ahí la semana pasada."
-      },
-      {
-        "pos": [
-          -10,
-          1.5,
-          11.8
-        ],
-        "look": [
-          -10,
-          1.3,
-          13.3
-        ],
-        "dur": 3.5,
-        "text": "La estantería del fondo cruje cuando te acercas."
+        "text": "Chica espera dentro del foso de bolas. Espera que nadie la despierte."
       }
     ]
   },
   "cine_golden": {
     "letterbox": true,
-    "actors": [
-      {
-        "id": "golden",
-        "pos": [
-          -10,
-          0,
-          15.2
-        ],
-        "yaw": 3.3
-      }
-    ],
+    "actors": [],
     "shots": [
       {
-        "pos": [
-          -10,
-          1.4,
-          11.5
-        ],
-        "look": [
-          -10,
-          1.7,
-          15.0
-        ],
-        "dur": 3.5,
-        "text": "La estantería se cierra a tus espaldas."
+        "pos": [-36, 1.6, 31.5],
+        "look": [-33, 1.5, 33],
+        "dur": 4,
+        "text": "Sala Técnica Sur. El traje dorado de Spring Bruno."
       },
       {
-        "pos": [
-          -10.3,
-          1.55,
-          13.4
-        ],
-        "look": [
-          -10,
-          1.85,
-          15.1
-        ],
-        "dur": 3.2,
-        "text": "El traje dorado se levanta solo."
+        "pos": [-34.5, 1.5, 32],
+        "look": [-33, 1.7, 33],
+        "dur": 4,
+        "text": "Vacío por dentro. Todavía lo está."
       },
       {
-        "pos": [
-          -10.2,
-          1.7,
-          13.0
-        ],
-        "look": [
-          -10,
-          2.0,
-          15.0
-        ],
-        "dur": 2.6,
-        "text": "Dorado: «TÚ... LO ENCONTRASTE.»"
-      },
-      {
-        "pos": [
-          -9.6,
-          1.5,
-          11.2
-        ],
-        "look": [
-          -10,
-          1.8,
-          15.0
-        ],
-        "dur": 2.4,
-        "text": "CORRE."
+        "pos": [-33.2, 1.4, 31.8],
+        "look": [-33, 1.8, 33],
+        "dur": 4.5,
+        "text": "¿Verdad?"
       }
     ]
   },
   "cine_cap4": {
     "letterbox": true,
+    "actors": [
+      { "id": "foxy", "pos": [-42.5, 0, 5], "yaw": 1.6 }
+    ],
     "shots": [
       {
-        "pos": [
-          0,
-          1.7,
-          12.8
-        ],
-        "look": [
-          0,
-          1.0,
-          13.8
-        ],
-        "dur": 4,
-        "text": "El fusible maestro ha muerto. El edificio entero lo nota."
+        "pos": [-36, 2.2, 5],
+        "look": [-42.5, 1.6, 5],
+        "dur": 4.5,
+        "text": "La Cala del Pirata. Fuera de servicio desde hace años."
       },
       {
-        "pos": [
-          -2,
-          1.9,
-          6.5
-        ],
-        "look": [
-          -20,
-          1.2,
-          6.5
-        ],
+        "pos": [-41, 1.7, 7.5],
+        "look": [-42.5, 1.8, 5],
         "dur": 4,
-        "text": "Los pasillos están más oscuros. Y más ocupados."
+        "text": "Detrás del telón: el zorro roto. El rápido."
+      }
+    ]
+  },
+  "cine_cap5": {
+    "letterbox": true,
+    "actors": [],
+    "shots": [
+      {
+        "pos": [25.5, 2.2, 24],
+        "look": [25.5, 1.9, 19.6],
+        "dur": 4,
+        "text": "La atracción ruge de nuevo en la Cala."
       },
       {
-        "pos": [
-          18.5,
-          1.8,
-          11.5
-        ],
-        "look": [
-          18.5,
-          1.3,
-          16.6
-        ],
-        "dur": 4,
-        "text": "La salida de emergencia. Un cerrojo. Una llave escondida."
+        "pos": [23, 2.4, 21.5],
+        "look": [25.5, 2, 19.5],
+        "dur": 4.5,
+        "text": "Pero el fusible maestro sigue fundido. Y algo lo está comiendo."
       },
       {
-        "pos": [
-          8,
-          1.9,
-          -11.2
-        ],
-        "look": [
-          8,
-          2.0,
-          -12.6
-        ],
-        "dur": 3.4,
-        "text": "Todos despiertos. Todos hambrientos. Una sola noche."
+        "pos": [-38, 1.6, 30],
+        "look": [-33, 1.6, 33],
+        "dur": 4,
+        "text": "En la Sala Técnica, el traje dorado ha cambiado de pared."
+      }
+    ]
+  },
+  "cine_cap6": {
+    "letterbox": true,
+    "actors": [
+      { "id": "jeremy", "pos": [25.5, 0, 15.5], "yaw": 3.1 }
+    ],
+    "shots": [
+      {
+        "pos": [25.5, 1.8, 12],
+        "look": [25.5, 1.5, 15.5],
+        "dur": 4.5,
+        "text": "La red vive. La salida espera. Solo faltan tres llaves."
+      },
+      {
+        "pos": [5, 2.6, 16],
+        "look": [-5, 3.6, 27],
+        "dur": 4.5,
+        "text": "Y ellos lo saben. El complejo entero caza esta noche."
       }
     ]
   },
   "cine_ending": {
     "letterbox": true,
+    "actors": [
+      { "id": "jeremy", "pos": [-5.5, 0, 31.8], "yaw": 3.1 }
+    ],
     "shots": [
       {
-        "pos": [
-          18.5,
-          1.9,
-          12.5
-        ],
-        "look": [
-          18.5,
-          1.2,
-          16.6
-        ],
+        "pos": [-5.5, 1.9, 28],
+        "look": [-5.5, 1.6, 33],
         "dur": 4,
-        "text": "La puerta cede. El aire frío huele a amanecer."
+        "text": "Los tornos giran. El aire de la noche entra."
       },
       {
-        "pos": [
-          17.5,
-          2.2,
-          10.5
-        ],
-        "look": [
-          20,
-          1.4,
-          14.5
-        ],
+        "pos": [-2, 2.2, 25],
+        "look": [-5.5, 1.5, 33],
         "dur": 4.5,
-        "text": "No miras atrás. Nadie te sigue. Nadie te sigue... ¿verdad?"
+        "text": "No mires atrás. Tú nunca miras atrás."
       },
       {
-        "pos": [
-          21,
-          2.5,
-          8.5
-        ],
-        "look": [
-          23.5,
-          1.0,
-          12
-        ],
-        "dur": 4,
-        "text": "6:00 AM. El primer sol entra por las rendijas."
-      },
-      {
-        "pos": [
-          20,
-          1.7,
-          9.5
-        ],
-        "look": [
-          18.5,
-          1.3,
-          16.6
-        ],
-        "dur": 3.5,
-        "text": "Dentro, algo canta la última nota de una canción vieja."
+        "pos": [-5.5, 1.6, 33.4],
+        "look": [-5.5, 2, 20],
+        "dur": 5,
+        "text": "El Complejo Bruno queda a oscuras. Como si nunca hubiera estado despierto."
       }
     ]
   }

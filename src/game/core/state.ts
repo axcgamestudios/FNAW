@@ -43,6 +43,11 @@ export interface HudState {
   chapterComplete: boolean;
   ending: 'normal' | 'secret' | null;
   jumpscare: string | null;
+  trialActive: boolean;
+  trialName: string | null;
+  trialAttempts: number;
+  trialTasks: number;
+  trialTasksDone: number;
   cinematic: boolean;
   cinematicText: string | null;
   cinematicSkip: boolean;
@@ -103,6 +108,11 @@ export const useHud = create<HudState>()((set) => ({
   chapterComplete: false,
   ending: null,
   jumpscare: null,
+  trialActive: false,
+  trialName: null,
+  trialAttempts: 0,
+  trialTasks: 0,
+  trialTasksDone: 0,
   cinematic: false,
   cinematicText: null,
   cinematicSkip: false,

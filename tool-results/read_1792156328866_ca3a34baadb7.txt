@@ -1,0 +1,686 @@
+     1→/**
+     2→ * Constructor del mundo: plan de planta completo de la Pizzería Estelar Bruno.
+     3→ * Paredes con huecos, puertas con bisagra, conductos de ventilación,
+     4→ * colisiones AABB, registro de salas y luces con parpadeo.
+     5→ */
+     6→import * as THREE from 'three';
+     7→import mapData from '@/data/map.json';
+     8→import type { RoomDef, DoorDef, VentDef, Interactable } from '../core/types';
+     9→import { floorMaterials, wallMaterials, ceilingMaterial, darkMetalMaterial, metalMaterial, woodMaterial } from './materials';
+    10→import { buildProps, type AnchorMap, type PropAnim } from './props';
+    11→
+    12→export interface WallOpening {
+    13→  at: number;
+    14→  width: number;
+    15→  height?: number; // altura del hueco; por encima se construye dintel
+    16→}
+    17→
+    18→interface WallSpec {
+    19→  x1: number;
+    20→  z1: number;
+    21→  x2: number;
+    22→  z2: number;
+    23→  wallType: RoomDef['wall'];
+    24→  openings?: WallOpening[];
+    25→}
+    26→
+    27→export interface Collider {
+    28→  box: THREE.Box3;
+    29→  active: boolean;
+    30→  id?: string;
+    31→  tall: boolean; // true = colisión total (no saltable)
+    32→}
+    33→
+    34→export interface DoorRT {
+    35→  def: DoorDef;
+    36→  group: THREE.Group;
+    37→  open: boolean;
+    38→  targetAngle: number;
+    39→  angle: number;
+    40→  collider: Collider;
+    41→  locked: boolean;
+    42→  code?: string;
+    43→  isSecret: boolean;
+    44→  opening: boolean;
+    45→  lastToggle: number;
+    46→}
+    47→
+    48→export interface VentRT {
+    49→  def: VentDef;
+    50→  coverMesh?: THREE.Mesh;
+    51→  coverClosed: boolean;
+    52→  coverTimer: number; // tiempo restante de bloqueo antes de que Clara la tumbe
+    53→  coverCollider?: Collider;
+    54→  blocked: boolean;
+    55→  bangTimer: number;
+    56→}
+    57→
+    58→export interface RoomRT {
+    59→  def: RoomDef;
+    60→  center: THREE.Vector3;
+    61→  light: THREE.PointLight | null;
+    62→  lightBase: number;
+    63→  flicker: number;
+    64→  lightOn: boolean;
+    65→  fixture: THREE.Mesh | null;
+    66→  blackoutTimer: number;
+    67→}
+    68→
+    69→const WALL_H = 3.2;
+    70→const WALL_T = 0.28;
+    71→const DOOR_H = 2.15;
+    72→
+    73→/** salas con luz encendida al empezar la noche (el resto: fundida) */
+    74→const LIGHTS_ON_DEFAULT = new Set(['office']);
+    75→
+    76→type MapData = typeof mapData;
+    77→
+    78→export class WorldBuilder {
+    79→  scene: THREE.Scene;
+    80→  root = new THREE.Group();
+    81→  rooms = new Map<string, RoomRT>();
+    82→  doors = new Map<string, DoorRT>();
+    83→  vents = new Map<string, VentRT>();
+    84→  colliders: Collider[] = [];
+    85→  interactables: Interactable[] = [];
+    86→  anchors: AnchorMap = new Map();
+    87→  propAnims: PropAnim[] = [];
+    88→  emergencyLights: THREE.PointLight[] = [];
+    89→  stageSpots: THREE.SpotLight[] = [];
+    90→  /** modo visión de cámara: la sala del feed recibe un impulso de luz tenue */
+    91→  camView = false;
+    92→  private roomLights: RoomRT[] = [];
+    93→  private clock = 0;
+    94→  private power = 1;
+    95→
+    96→  constructor(scene: THREE.Scene) {
+    97→    this.scene = scene;
+    98→    scene.add(this.root);
+    99→  }
+   100→
+   101→  get map(): MapData {
+   102→    return mapData as unknown as MapData;
+   103→  }
+   104→
+   105→  roomAt(x: number, z: number): RoomRT | null {
+   106→    for (const r of this.rooms.values()) {
+   107→      const [x1, z1, x2, z2] = r.def.rect;
+   108→      if (x >= x1 - 0.3 && x <= x2 + 0.3 && z >= z1 - 0.3 && z <= z2 + 0.3) return r;
+   109→    }
+   110→    return null;
+   111→  }
+   112→
+   113→  roomIdAt(x: number, z: number): string {
+   114→    return this.roomAt(x, z)?.def.id ?? '';
+   115→  }
+   116→
+   117→  /** Altura del suelo en un punto (tarima del escenario con rampa suave) */
+   118→  floorHeightAt(x: number, z: number): number {
+   119→    // Tarima del escenario: x [3.6, 13.4], z [-17, -12.6], borde suave de 0.45
+   120→    if (x > 3.0 && x < 14.0 && z > -17.0 && z < -12.4) {
+   121→      let f = 1;
+   122→      if (z > -13.0) f = Math.max(0, (-13.0 - z) / 0.6 + 1); // rampa frontal
+   123→      if (z > -12.4) f = 0;
+   124→      return 0.45 * Math.min(1, Math.max(0, f));
+   125→    }
+   126→    return 0;
+   127→  }
+   128→
+   129→  addCollider(box: THREE.Box3, id?: string, tall = true): Collider {
+   130→    const c: Collider = { box, active: true, id, tall };
+   131→    this.colliders.push(c);
+   132→    return c;
+   133→  }
+   134→
+   135→  buildAll(onProgress: (frac: number, label: string) => void) {
+   136→    onProgress(0.1, 'Cimentando la pizzería...');
+   137→    this.buildFloorsAndCeilings();
+   138→    onProgress(0.3, 'Levantando paredes...');
+   139→    this.buildWalls();
+   140→    onProgress(0.5, 'Colgando puertas...');
+   141→    this.buildDoors();
+   142→    onProgress(0.65, 'Instalando conductos...');
+   143→    this.buildVents();
+   144→    onProgress(0.8, 'Amueblando las salas...');
+   145→    buildProps(this);
+   146→    onProgress(1, 'Encendiendo las luces...');
+   147→    this.buildLights();
+   148→  }
+   149→
+   150→  /* ================= SUELOS Y TECHOS ================= */
+   151→
+   152→  private buildFloorsAndCeilings() {
+   153→    for (const r of this.map.rooms as RoomDef[]) {
+   154→      const [x1, z1, x2, z2] = r.rect;
+   155→      const w = x2 - x1;
+   156→      const d = z2 - z1;
+   157→      const mat = floorMaterials[r.floor]([Math.max(1, w / 2.6), Math.max(1, d / 2.6)]);
+   158→      const floor = new THREE.Mesh(new THREE.BoxGeometry(w, 0.1, d), mat);
+   159→      floor.position.set((x1 + x2) / 2, -0.05, (z1 + z2) / 2);
+   160→      floor.receiveShadow = true;
+   161→      floor.name = `floor_${r.id}`;
+   162→      this.root.add(floor);
+   163→
+   164→      this.rooms.set(r.id, {
+   165→        def: r,
+   166→        center: new THREE.Vector3((x1 + x2) / 2, 0, (z1 + z2) / 2),
+   167→        light: null,
+   168→        lightBase: r.ambientLight?.intensity ?? 0.45,
+   169→        flicker: r.ambientLight?.flicker ?? 0.08,
+   170→        lightOn: true,
+   171→        fixture: null,
+   172→        blackoutTimer: 0,
+   173→      });
+   174→    }
+   175→    // Techo continuo
+   176→    const ceil = new THREE.Mesh(
+   177→      new THREE.PlaneGeometry(48, 34),
+   178→      ceilingMaterial([48 / 2.2, 34 / 2.2])
+   179→    );
+   180→    ceil.rotation.x = Math.PI / 2;
+   181→    ceil.position.y = WALL_H;
+   182→    this.root.add(ceil);
+   183→  }
+   184→
+   185→  /* ================= PAREDES ================= */
+   186→
+   187→  private wallSpecs(): WallSpec[] {
+   188→    return [
+   189→      // Perímetro
+   190→      { x1: -24, z1: -17, x2: 24, z2: -17, wallType: 'wallpaper' },
+   191→      { x1: -24, z1: 17, x2: 24, z2: 17, wallType: 'wallpaper' },
+   192→      { x1: -24, z1: -17, x2: -24, z2: 17, wallType: 'concrete' },
+   193→      { x1: 24, z1: -17, x2: 24, z2: 17, wallType: 'wallpaper' },
+   194→      // Separadores banda norte
+   195→      { x1: -13, z1: -17, x2: -13, z2: -9, wallType: 'concrete' },
+   196→      { x1: -6, z1: -17, x2: -6, z2: -9, wallType: 'concrete' },
+   197→      { x1: 2, z1: -17, x2: 2, z2: -9, wallType: 'wallpaper' },
+   198→      { x1: 15, z1: -17, x2: 15, z2: -9, wallType: 'tile' },
+   199→      // Muro sur banda norte | pasillo principal
+   200→      { x1: -24, z1: -9, x2: -13, z2: -9, wallType: 'tile', openings: [
+   201→        { at: -23.3, width: 1.0, height: 1.15 },
+   202→        { at: -18.5, width: 1.6, height: DOOR_H },
+   203→      ] },
+   204→      { x1: -13, z1: -9, x2: -6, z2: -9, wallType: 'concrete', openings: [{ at: -9.5, width: 1.4, height: DOOR_H }] },
+   205→      { x1: -6, z1: -9, x2: 2, z2: -9, wallType: 'wallpaper', openings: [
+   206→        { at: -4.5, width: 1.0, height: 1.15 },
+   207→        { at: -2, width: 2.4, height: 2.6 },
+   208→      ] },
+   209→      { x1: 2, z1: -9, x2: 15, z2: -9, wallType: 'wallpaper', openings: [{ at: 8.5, width: 9, height: 2.6 }] },
+   210→      { x1: 15, z1: -9, x2: 24, z2: -9, wallType: 'tile', openings: [{ at: 19.5, width: 1.4, height: DOOR_H }] },
+   211→      // Muro sur pasillo principal | banda central
+   212→      { x1: -24, z1: -3.5, x2: -13.5, z2: -3.5, wallType: 'concrete', openings: [
+   213→        { at: -23.3, width: 1.0, height: 1.15 },
+   214→        { at: -19, width: 1.8, height: DOOR_H },
+   215→      ] },
+   216→      { x1: -13.5, z1: -3.5, x2: 3, z2: -3.5, wallType: 'wallpaper', openings: [{ at: -6.5, width: 7, height: 2.6 }] },
+   217→      { x1: 3, z1: -3.5, x2: 13, z2: -3.5, wallType: 'wallpaper', openings: [{ at: 8, width: 1.8, height: DOOR_H }] },
+   218→      { x1: 13, z1: -3.5, x2: 24, z2: -3.5, wallType: 'tile', openings: [{ at: 18.5, width: 1.8, height: DOOR_H }] },
+   219→      // Separadores banda central
+   220→      { x1: -13.5, z1: -3.5, x2: -13.5, z2: 5, wallType: 'concrete', openings: [{ at: 0.75, width: 1.6, height: DOOR_H }] },
+   221→      { x1: 3, z1: -3.5, x2: 3, z2: 5, wallType: 'wallpaper', openings: [{ at: 0.75, width: 1.6, height: DOOR_H }] },
+   222→      { x1: 13, z1: -3.5, x2: 13, z2: 5, wallType: 'tile', openings: [
+   223→        { at: 0.75, width: 1.6, height: DOOR_H },
+   224→        { at: 3.5, width: 1.0, height: 1.15 },
+   225→      ] },
+   226→      // Muro sur banda central | pasillos sur
+   227→      { x1: -24, z1: 5, x2: -13.5, z2: 5, wallType: 'concrete', openings: [
+   228→        { at: -19, width: 1.6, height: DOOR_H },
+   229→        { at: -15.5, width: 1.0, height: 1.15 },
+   230→      ] },
+   231→      { x1: -13.5, z1: 5, x2: 3, z2: 5, wallType: 'wallpaper', openings: [{ at: -7, width: 1.6, height: DOOR_H }] },
+   232→      { x1: 3, z1: 5, x2: 13, z2: 5, wallType: 'wallpaper', openings: [{ at: 5, width: 1.6, height: DOOR_H }] },
+   233→      { x1: 13, z1: 5, x2: 24, z2: 5, wallType: 'tile', openings: [{ at: 18, width: 1.6, height: DOOR_H }] },
+   234→      // Muro sur pasillos | banda sur
+   235→      { x1: -24, z1: 9, x2: -14, z2: 9, wallType: 'concrete', openings: [{ at: -19, width: 1.6, height: DOOR_H }] },
+   236→      { x1: -14, z1: 9, x2: -6, z2: 9, wallType: 'concrete', openings: [{ at: -10, width: 1.6, height: DOOR_H }] },
+   237→      { x1: -6, z1: 9, x2: 6, z2: 9, wallType: 'tile', openings: [
+   238→        { at: -3.75, width: 1.6, height: 2.3 },
+   239→        { at: 0, width: 1.0, height: 1.15 },
+   240→        { at: 3.75, width: 1.6, height: 2.3 },
+   241→      ] },
+   242→      { x1: 6, z1: 9, x2: 13, z2: 9, wallType: 'metal', openings: [
+   243→        { at: 9.5, width: 1.6, height: DOOR_H },
+   244→        { at: 12, width: 1.0, height: 1.15 },
+   245→      ] },
+   246→      { x1: 13, z1: 9, x2: 24, z2: 9, wallType: 'wallpaper', openings: [{ at: 18.5, width: 1.8, height: DOOR_H }] },
+   247→      // Separadores banda sur
+   248→      { x1: -14, z1: 9, x2: -14, z2: 17, wallType: 'concrete' },
+   249→      { x1: -6, z1: 9, x2: -6, z2: 17, wallType: 'concrete' },
+   250→      { x1: 6, z1: 9, x2: 6, z2: 17, wallType: 'metal' },
+   251→      { x1: 13, z1: 9, x2: 13, z2: 17, wallType: 'metal' },
+   252→      // Muro almacén sur | sala oculta
+   253→      { x1: -14, z1: 13.2, x2: -6, z2: 13.2, wallType: 'concrete', openings: [{ at: -10, width: 1.4, height: 2.1 }] },
+   254→    ];
+   255→  }
+   256→
+   257→  private buildWalls() {
+   258→    for (const spec of this.wallSpecs()) {
+   259→      this.buildWall(spec);
+   260→    }
+   261→    // Relleno junto al conducto largo oeste (evita quedar atrapado en la esquina)
+   262→    this.addCollider(new THREE.Box3(new THREE.Vector3(-24, 0, -8.9), new THREE.Vector3(-23.75, 3, -3.7)), 'duct_fill_w', false);
+   263→  }
+   264→
+   265→  private buildWall(spec: WallSpec) {
+   266→    const alongX = Math.abs(spec.z2 - spec.z1) < 0.001;
+   267→    const a = alongX ? Math.min(spec.x1, spec.x2) : Math.min(spec.z1, spec.z2);
+   268→    const b = alongX ? Math.max(spec.x1, spec.x2) : Math.max(spec.z1, spec.z2);
+   269→    const fixed = alongX ? spec.z1 : spec.x1;
+   270→    const openings = (spec.openings ?? []).slice().sort((o1, o2) => o1.at - o2.at);
+   271→
+   272→    const mat = wallMaterials[spec.wallType]([Math.max(0.5, (b - a) / 2.4), WALL_H / 2.4]);
+   273→
+   274→    const solid = (from: number, to: number) => {
+   275→      if (to - from < 0.05) return;
+   276→      const len = to - from;
+   277→      const cx = alongX ? (from + to) / 2 : fixed;
+   278→      const cz = alongX ? fixed : (from + to) / 2;
+   279→      const geo = new THREE.BoxGeometry(alongX ? len : WALL_T, WALL_H, alongX ? WALL_T : len);
+   280→      const mesh = new THREE.Mesh(geo, mat);
+   281→      mesh.position.set(cx, WALL_H / 2, cz);
+   282→      mesh.castShadow = false;
+   283→      mesh.receiveShadow = true;
+   284→      this.root.add(mesh);
+   285→      this.addCollider(
+   286→        new THREE.Box3(
+   287→          new THREE.Vector3(cx - (alongX ? len / 2 : WALL_T / 2 + 0.02), 0, cz - (alongX ? WALL_T / 2 + 0.02 : len / 2)),
+   288→          new THREE.Vector3(cx + (alongX ? len / 2 : WALL_T / 2 + 0.02), WALL_H, cz + (alongX ? WALL_T / 2 + 0.02 : len / 2))
+   289→        ),
+   290→        undefined,
+   291→        true
+   292→      );
+   293→    };
+   294→
+   295→    const lintel = (from: number, to: number, h: number) => {
+   296→      if (WALL_H - h < 0.1) return;
+   297→      const len = to - from;
+   298→      const cx = alongX ? (from + to) / 2 : fixed;
+   299→      const cz = alongX ? fixed : (from + to) / 2;
+   300→      const geo = new THREE.BoxGeometry(alongX ? len : WALL_T, WALL_H - h, alongX ? WALL_T : len);
+   301→      const mesh = new THREE.Mesh(geo, mat);
+   302→      mesh.position.set(cx, h + (WALL_H - h) / 2, cz);
+   303→      mesh.receiveShadow = true;
+   304→      this.root.add(mesh);
+   305→    };
+   306→
+   307→    let cursor = a;
+   308→    for (const op of openings) {
+   309→      const oStart = op.at - op.width / 2;
+   310→      const oEnd = op.at + op.width / 2;
+   311→      if (oStart > cursor + 0.02) solid(cursor, oStart);
+   312→      lintel(oStart, oEnd, op.height ?? DOOR_H);
+   313→      cursor = oEnd;
+   314→    }
+   315→    if (cursor < b - 0.02) solid(cursor, b);
+   316→  }
+   317→
+   318→  /* ================= PUERTAS ================= */
+   319→
+   320→  private buildDoors() {
+   321→    for (const d of this.map.doors as DoorDef[]) {
+   322→      this.buildDoor(d);
+   323→    }
+   324→    // Arcadas sin puerta (escenario / comedor / entradas de oficina): ya creadas como huecos
+   325→  }
+   326→
+   327→  private buildDoor(d: DoorDef) {
+   328→    const g = new THREE.Group();
+   329→    const isMetal = d.id.includes('electrical') || d.id.includes('machinery') || d.id.includes('exit');
+   330→    const leafMat = isMetal ? metalMaterial([0.6, 1]) : this.woodDoorMat();
+   331→    const w = d.width - 0.08;
+   332→    const leaf = new THREE.Mesh(new THREE.BoxGeometry(w, 2.05, 0.07), leafMat);
+   333→    leaf.position.set(w / 2, 1.02, 0);
+   334→    leaf.castShadow = true;
+   335→    g.add(leaf);
+   336→    // Ventanilla en puertas de madera
+   337→    if (!isMetal && !d.secret) {
+   338→      const glass = new THREE.Mesh(
+   339→        new THREE.BoxGeometry(w * 0.4, 0.5, 0.02),
+   340→        new THREE.MeshPhysicalMaterial({ color: 0x181a1c, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.85 })
+   341→      );
+   342→      glass.position.set(w / 2, 1.6, 0.04);
+   343→      g.add(glass);
+   344→      // Marco de la ventanilla
+   345→      const frame = new THREE.Mesh(new THREE.BoxGeometry(w * 0.4 + 0.08, 0.58, 0.03), darkMetalMaterial());
+   346→      frame.position.set(w / 2, 1.6, 0.02);
+   347→      g.add(frame);
+   348→    }
+   349→    // Manilla
+   350→    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.05, 0.05), darkMetalMaterial());
+   351→    handle.position.set(w - 0.22, 1.02, 0.07);
+   352→    g.add(handle);
+   353→    if (d.secret) {
+   354→      // Estantería falsa: cajas y tablas sobre la puerta
+   355→      this.dressAsShelf(g, w);
+   356→    }
+   357→    if (d.id === 'door_exit') {
+   358→      // Barra antipánico
+   359→      const bar = new THREE.Mesh(new THREE.BoxGeometry(w * 0.8, 0.08, 0.1), metalMaterial([0.5, 0.2]));
+   360→      bar.position.set(w / 2, 1.05, 0.09);
+   361→      g.add(bar);
+   362→      // Cartel SALIDA
+   363→      const sign = new THREE.Mesh(
+   364→        new THREE.BoxGeometry(0.5, 0.18, 0.06),
+   365→        new THREE.MeshStandardMaterial({ color: 0x113311, emissive: 0x22ff44, emissiveIntensity: 0.9 })
+   366→      );
+   367→      sign.position.set(w / 2, 2.2, 0.06);
+   368→      g.add(sign);
+   369→    }
+   370→
+   371→    const alongX = d.axis === 'x'; // hueco en muro que corre en X
+   372→    // bisagra en el extremo negativo del hueco
+   373→    const hx = alongX ? d.x - d.width / 2 + 0.04 : d.x;
+   374→    const hz = alongX ? d.z : d.z - d.width / 2 + 0.04;
+   375→    if (alongX) {
+   376→      g.position.set(hx, 0, d.z);
+   377→    } else {
+   378→      g.position.set(d.x, 0, hz);
+   379→      g.rotation.y = Math.PI / 2;
+   380→    }
+   381→    // dirección de apertura (hacia roomB)
+   382→    let openDir = 1;
+   383→    if (alongX) {
+   384→      const rb = this.rooms.get(d.roomB);
+   385→      openDir = rb && rb.def.rect[1] < d.z ? 1 : -1; // abre hacia el sur si roomB está al sur
+   386→    } else {
+   387→      const rb = this.rooms.get(d.roomB);
+   388→      openDir = rb && rb.def.rect[0] < d.x ? 1 : -1;
+   389→    }
+   390→
+   391→    this.root.add(g);
+   392→
+   393→    const cx = alongX ? d.x : d.x;
+   394→    const cz = alongX ? d.z : d.z;
+   395→    const collider = this.addCollider(
+   396→      new THREE.Box3(
+   397→        new THREE.Vector3(cx - (alongX ? d.width / 2 : 0.1), 0, cz - (alongX ? 0.1 : d.width / 2)),
+   398→        new THREE.Vector3(cx + (alongX ? d.width / 2 : 0.1), 2.1, cz + (alongX ? 0.1 : d.width / 2))
+   399→      ),
+   400→      `door_${d.id}`
+   401→    );
+   402→
+   403→    const door: DoorRT = {
+   404→      def: d,
+   405→      group: g,
+   406→      open: false,
+   407→      targetAngle: 0,
+   408→      angle: 0,
+   409→      collider,
+   410→      locked: !!d.locked,
+   411→      code: d.code,
+   412→      isSecret: !!d.secret,
+   413→      opening: false,
+   414→      lastToggle: 0,
+   415→    };
+   416→    (g as unknown as { userData: { door?: DoorRT } }).userData.door = door;
+   417→    this.doors.set(d.id, door);
+   418→  }
+   419→
+   420→  private woodDoorMat(): THREE.MeshStandardMaterial {
+   421→    return woodMaterial([0.8, 1]);
+   422→  }
+   423→
+   424→  private dressAsShelf(g: THREE.Group, w: number) {
+   425→    const shelfMat = woodDoorMatShelf();
+   426→    for (let i = 0; i < 3; i++) {
+   427→      const board = new THREE.Mesh(new THREE.BoxGeometry(w * 0.96, 0.05, 0.34), shelfMat);
+   428→      board.position.set(w / 2, 0.5 + i * 0.62, 0.12);
+   429→      g.add(board);
+   430→      // cajas encima
+   431→      for (let b = 0; b < 3; b++) {
+   432→        const bw = 0.22 + Math.random() * 0.12;
+   433→        const box = new THREE.Mesh(
+   434→          new THREE.BoxGeometry(bw, 0.3 + Math.random() * 0.16, 0.22),
+   435→          new THREE.MeshStandardMaterial({ color: 0x6b5a3e, roughness: 0.85 })
+   436→        );
+   437→        box.position.set(w * 0.18 + b * 0.3 + Math.random() * 0.06, 0.68 + i * 0.62, 0.12);
+   438→        box.rotation.y = (Math.random() - 0.5) * 0.4;
+   439→        g.add(box);
+   440→      }
+   441→    }
+   442→  }
+   443→
+   444→  /* ================= CONDUCTOS ================= */
+   445→
+   446→  private buildVents() {
+   447→    for (const v of this.map.vents as VentDef[]) {
+   448→      const rt: VentRT = { def: v, coverClosed: false, coverTimer: 0, blocked: false, bangTimer: 0 };
+   449→      // El conducto largo oeste se construye de extremo a extremo
+   450→      const ax = v.a[0];
+   451→      const az = v.a[1];
+   452→      const bx = v.b[0];
+   453→      const bz = v.b[1];
+   454→      const dx = bx - ax;
+   455→      const dz = bz - az;
+   456→      const len = Math.hypot(dx, dz);
+   457→      const alongX = Math.abs(dx) > Math.abs(dz);
+   458→      const cx = (ax + bx) / 2;
+   459→      const cz = (az + bz) / 2;
+   460→      const ductMat = metalMaterial([Math.max(1, len / 1.2), 1]);
+   461→
+   462→      // Interior hueco: suelo, laterales y techo
+   463→      const ductLen = len + 0.5;
+   464→      const floor = new THREE.Mesh(new THREE.BoxGeometry(alongX ? ductLen : 1.0, 0.04, alongX ? 1.0 : ductLen), ductMat);
+   465→      floor.position.set(cx, 0.03, cz);
+   466→      this.root.add(floor);
+   467→      const sideA = new THREE.Mesh(new THREE.BoxGeometry(alongX ? ductLen : 0.08, 1.15, alongX ? 0.08 : ductLen), ductMat);
+   468→      sideA.position.set(cx + (alongX ? 0 : 0.52), 0.575, cz + (alongX ? 0.52 : 0));
+   469→      this.root.add(sideA);
+   470→      const sideB = new THREE.Mesh(new THREE.BoxGeometry(alongX ? ductLen : 0.08, 1.15, alongX ? 0.08 : ductLen), ductMat);
+   471→      sideB.position.set(cx - (alongX ? 0 : 0.52), 0.575, cz - (alongX ? 0.52 : 0));
+   472→      this.root.add(sideB);
+   473→      const top = new THREE.Mesh(new THREE.BoxGeometry(alongX ? ductLen : 1.0, 0.06, alongX ? 1.0 : ductLen), ductMat);
+   474→      top.position.set(cx, 1.18, cz);
+   475→      this.root.add(top);
+   476→      // Colliders de los laterales
+   477→      this.addCollider(
+   478→        new THREE.Box3().setFromCenterAndSize(sideA.position.clone().setY(0.6), new THREE.Vector3(alongX ? ductLen : 0.14, 1.2, alongX ? 0.14 : ductLen)),
+   479→        `vent_side_${v.id}_a`
+   480→      );
+   481→      this.addCollider(
+   482→        new THREE.Box3().setFromCenterAndSize(sideB.position.clone().setY(0.6), new THREE.Vector3(alongX ? ductLen : 0.14, 1.2, alongX ? 0.14 : ductLen)),
+   483→        `vent_side_${v.id}_b`
+   484→      );
+   485→      if (len > 2.5) {
+   486→        // relleno lateral para el conducto largo (impide caminar junto a él dentro del pasillo)
+   487→        this.addCollider(
+   488→          new THREE.Box3().setFromCenterAndSize(
+   489→            new THREE.Vector3(cx + (alongX ? 0 : 1.0), 1.6, cz + (alongX ? 1.0 : 0)),
+   490→            new THREE.Vector3(alongX ? ductLen : 0.6, 3.2, alongX ? 0.6 : ductLen)
+   491→          ),
+   492→          `vent_fill_${v.id}`
+   493→        );
+   494→        this.addCollider(
+   495→          new THREE.Box3().setFromCenterAndSize(
+   496→            new THREE.Vector3(cx - (alongX ? 0 : 1.0), 1.6, cz - (alongX ? 1.0 : 0)),
+   497→            new THREE.Vector3(alongX ? ductLen : 0.6, 3.2, alongX ? 0.6 : ductLen)
+   498→          ),
+   499→          `vent_fill2_${v.id}`
+   500→        );
+   501→      }
+   502→
+   503→      // Rejillas en ambos extremos (barras)
+   504→      this.buildGrate(ax, az, alongX);
+   505→      this.buildGrate(bx, bz, alongX);
+   506→
+   507→      // Tapa si procede
+   508→      if (v.coverAt) {
+   509→        const px = v.coverAt === 'a' ? ax : bx;
+   510→        const pz = v.coverAt === 'a' ? az : bz;
+   511→        const cover = new THREE.Mesh(
+   512→          new THREE.BoxGeometry(alongX ? 1.0 : 0.08, 1.15, alongX ? 0.08 : 1.0),
+   513→          new THREE.MeshStandardMaterial({ color: 0x565e66, roughness: 0.4, metalness: 0.85 })
+   514→        );
+   515→        cover.position.set(px + (alongX ? 0 : 0.2), 0.6, pz + (alongX ? 0.2 : 0));
+   516→        cover.visible = false;
+   517→        this.root.add(cover);
+   518→        rt.coverMesh = cover;
+   519→        rt.coverCollider = this.addCollider(
+   520→          new THREE.Box3().setFromCenterAndSize(cover.position.clone(), new THREE.Vector3(alongX ? 1.0 : 0.2, 1.2, alongX ? 0.2 : 1.0)),
+   521→          `vent_cover_${v.id}`
+   522→        );
+   523→        rt.coverCollider.active = false;
+   524→      }
+   525→      this.vents.set(v.id, rt);
+   526→    }
+   527→  }
+   528→
+   529→  private buildGrate(x: number, z: number, alongX: boolean) {
+   530→    const g = new THREE.Group();
+   531→    const barMat = darkMetalMaterial();
+   532→    const n = 6;
+   533→    for (let i = 0; i < n; i++) {
+   534→      const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.1, 6), barMat);
+   535→      const off = -0.42 + (i / (n - 1)) * 0.84;
+   536→      bar.position.set(alongX ? 0 : off, 0.55, alongX ? off : 0);
+   537→      g.add(bar);
+   538→    }
+   539→    const frame = new THREE.Mesh(new THREE.BoxGeometry(alongX ? 0.06 : 0.98, 1.2, alongX ? 0.98 : 0.06), barMat);
+   540→    frame.position.set(0, 0.6, 0);
+   541→    g.add(frame);
+   542→    g.position.set(x, 0, z);
+   543→    this.root.add(g);
+   544→  }
+   545→
+   546→  /* ================= LUCES ================= */
+   547→
+   548→  private buildLights() {
+   549→    // Multiplicador de unidades físicas de Three.js r155+ (candelas)
+   550→    const LM = 42;
+   551→    for (const rt of this.rooms.values()) {
+   552→      const amb = rt.def.ambientLight;
+   553→      const color = amb?.color ?? 0xffd9a8;
+   554→      // noche cerrada: la instalación está fundida en su mayoría; solo la
+   555→      // oficina conserva luz tenue. Las salas "reparadas" encienden tenues.
+   556→      const dimFactor = rt.def.id === 'office' ? 0.6 : 0.17;
+   557→      const base = (amb?.intensity ?? 0.45) * LM * dimFactor;
+   558→      const light = new THREE.PointLight(color, base, 15, 1.7);
+   559→      light.position.set(rt.center.x, 2.85, rt.center.z);
+   560→      this.root.add(light);
+   561→      rt.light = light;
+   562→      rt.lightBase = base;
+   563→      rt.lightOn = LIGHTS_ON_DEFAULT.has(rt.def.id);
+   564→      this.roomLights.push(rt);
+   565→      // Luminaria empotrada
+   566→      const fixture = new THREE.Mesh(
+   567→        new THREE.BoxGeometry(1.1, 0.08, 0.4),
+   568→        new THREE.MeshStandardMaterial({ color: 0x9a9482, emissive: new THREE.Color(color), emissiveIntensity: 1.4 })
+   569→      );
+   570→      fixture.position.set(rt.center.x, WALL_H - 0.06, rt.center.z);
+   571→      this.root.add(fixture);
+   572→      rt.fixture = fixture;
+   573→    }
+   574→
+   575→    // Focos del escenario: solo queda un azul moribundo (siluetas)
+   576→    const spotColors = [0xff5544, 0x44ff88, 0x5588ff];
+   577→    const spotX = [5.5, 8.5, 11.5];
+   578→    for (let i = 0; i < 3; i++) {
+   579→      const spot = new THREE.SpotLight(spotColors[i], i === 2 ? 7 : 0, 18, 0.5, 0.45, 1.2);
+   580→      spot.position.set(spotX[i], 3.0, -9.5);
+   581→      spot.target.position.set(spotX[i], 1.2, -13.5);
+   582→      spot.castShadow = i === 2;
+   583→      this.root.add(spot);
+   584→      this.root.add(spot.target);
+   585→      this.stageSpots.push(spot);
+   586→    }
+   587→
+   588→    // Luces de emergencia (rojas) — siempre encendidas, tenues
+   589→    const emPos: Array<[number, number]> = [
+   590→      [-19, 15], [18.5, 15.5], [0, 12.5], [-8.5, 1.5],
+   591→    ];
+   592→    for (const [x, z] of emPos) {
+   593→      const l = new THREE.PointLight(0xff2211, 6, 9, 1.9);
+   594→      l.position.set(x, 2.9, z);
+   595→      this.root.add(l);
+   596→      this.emergencyLights.push(l);
+   597→    }
+   598→  }
+   599→
+   600→  setPowerFactor(p: number) {
+   601→    this.power = p;
+   602→  }
+   603→
+   604→  /** Parpadeo, culling de luces cercanas y animaciones de props.
+   605→   * focus = posición de interés (jugador o cámara de seguridad activa) */
+   606→  update(dt: number, focusPos: THREE.Vector3) {
+   607→    this.clock += dt;
+   608→    // Culling: solo las 11 luces más cercanas al foco
+   609→    const sorted = this.roomLights
+   610→      .map((r) => ({ r, d: r.center.distanceToSquared(focusPos) }))
+   611→      .sort((a, b) => a.d - b.d);
+   612→    for (let i = 0; i < sorted.length; i++) {
+   613→      const { r } = sorted[i];
+   614→      const enable = i < 11;
+   615→      if (r.light) {
+   616→        let intensity = 0;
+   617→        if (enable && r.lightOn) {
+   618→          intensity = r.lightBase * this.power;
+   619→          // parpadeo
+   620→          if (r.flicker > 0.02) {
+   621→            const t = this.clock;
+   622→            const f =
+   623→              0.72 +
+   624→              0.28 * Math.sin(t * 7.3 + r.center.x) * Math.sin(t * 3.1 + r.center.z) +
+   625→              (Math.random() < 0.004 * r.flicker * 60 ? -0.8 : 0);
+   626→            intensity *= Math.max(0.05, f);
+   627→          }
+   628→        }
+   629→        r.light.intensity = intensity;
+   630→        if (r.fixture) {
+   631→          const fm = r.fixture.material as THREE.MeshStandardMaterial;
+   632→          fm.emissiveIntensity = intensity > 2 ? Math.min(3, 0.8 + intensity / 26) : 0.02;
+   633→        }
+   634→      }
+   635→    }
+   636→    // modo tableta: la sala del feed recibe luz tenue aunque esté fundida
+   637→    // (sensores de la cámara; solo afecta al render del feed)
+   638→    if (this.camView) {
+   639→      const r = this.roomAt(focusPos.x, focusPos.z);
+   640→      if (r && r.light) {
+   641→        const boost = r.lightBase * 0.55;
+   642→        if (r.light.intensity < boost) r.light.intensity = boost;
+   643→        if (r.fixture) {
+   644→          const fm = r.fixture.material as THREE.MeshStandardMaterial;
+   645→          fm.emissiveIntensity = 0.6;
+   646→        }
+   647→      }
+   648→    }
+   649→    // Animaciones de props (ventiladores, cortinas, pantallas)
+   650→    for (const a of this.propAnims) {
+   651→      a.update(dt, this.clock);
+   652→    }
+   653→  }
+   654→
+   655→  reset() {
+   656→    // Puertas cerradas, tapas fuera, luces on
+   657→    for (const d of this.doors.values()) {
+   658→      d.open = false;
+   659→      d.targetAngle = 0;
+   660→      d.angle = 0;
+   661→      d.group.rotation.y = d.def.axis === 'x' ? 0 : Math.PI / 2;
+   662→      d.collider.active = true;
+   663→      d.locked = !!d.def.locked;
+   664→      d.opening = false;
+   665→    }
+   666→    for (const v of this.vents.values()) {
+   667→      v.coverClosed = false;
+   668→      v.coverTimer = 0;
+   669→      v.blocked = false;
+   670→      if (v.coverMesh) v.coverMesh.visible = false;
+   671→      if (v.coverCollider) v.coverCollider.active = false;
+   672→    }
+   673→    for (const r of this.rooms.values()) {
+   674→      r.lightOn = LIGHTS_ON_DEFAULT.has(r.def.id);
+   675→      r.blackoutTimer = 0;
+   676→    }
+   677→    for (const c of this.colliders) {
+   678→      if (c.id?.startsWith('item_')) c.active = false;
+   679→    }
+   680→  }
+   681→}
+   682→
+   683→function woodDoorMatShelf(): THREE.MeshStandardMaterial {
+   684→  return new THREE.MeshStandardMaterial({ color: 0x7a5a34, roughness: 0.8 });
+   685→}
+   686→

@@ -4,107 +4,88 @@
       "id": "tape_w1",
       "title": "Cinta de mantenimiento #1",
       "location": "workshop",
-      "text": "12/03/1985 — Registro del técnico. Los tres del escenario se activan solos por la noche. El propietario dice que son 'modos de deambulación'. Los deambuladores no se quedan mirando fijamente a la cámara durante veinte minutos. He desconectado el modo nocturno del oso. Sigue moviéndose."
+      "text": "09/01/1993 — Registro del técnico. El MEGAPLEX ya no es nuevo y los animatrónicos de la Banda Bruno se activan solos tras el cierre. Dirección lo llama 'modo de deambulación nocturna'. Los deambuladores no se quedan veinte minutos mirando fijamente la cámara del Atrio. He desconectado el modo nocturno del oso. Sigue moviéndose."
     },
     {
       "id": "tape_w2",
       "title": "Cinta de mantenimiento #2",
-      "location": "storageB",
-      "text": "05/11/1985 — La coneja ya no responde a los comandos de apagado. Se mete en los conductos. Encontré huellas de aceite en las rejillas, seis habitaciones más allá de donde la dejé. El oso tiene olor a... no sé. Cadáver viejo y desinfectante. La empresa dice que es el material del traje. Seguro."
+      "location": "tech",
+      "text": "15/03/1993 — La coneja no responde a los comandos de apagado. Aparece por los conductos de servicio. Encontré huellas de aceite en las rejillas del Pasillo Técnico, a sesenta metros de donde la dejé. El oso huele a... cadáver viejo y desinfectante. Dirección dice que es el material de los trajes. Seguro. Claro que sí."
     },
     {
       "id": "tape_w3",
       "title": "Cinta de mantenimiento #3",
-      "location": "arcade",
-      "text": "22/06/1986 — El zorro del rincón infantil lo destrozaron unos niños. Le faltan media cara y el brazo. He pedido piezas. No llegarán. El propietario lo quiere 'en exhibición, roto o no'. Dice que a los niños les encanta. A los niños no les encanta. Huyen de él."
+      "location": "cove",
+      "text": "02/07/1993 — Al zorro de la Cala del Pirata lo destropearon unos niños en la reinauguración. Le falta media cara y le tiembla el brazo. Pedí piezas. No llegarán. Dirección lo quiere 'en exhibición, roto o no'. Dice que a los niños les encanta. A los niños no les encanta. Huyen de él. Yo también."
     },
     {
       "id": "tape_w4",
       "title": "Cinta de mantenimiento #4",
-      "location": "prize",
-      "text": "14/10/1986 — La caja musical del Rincón de Premios se para sola a mitad de melodía. Cuando se para, la marioneta del dentro... no está dentro. La encontré junto a la puerta de la oficina, de pie, mirando la pared. La devolví. El mecanismo estaba intacto. La cuerda seguía dada."
+      "location": "daycare",
+      "text": "11/11/1993 — La caja musical de la Guardería se para sola a mitad de melodía. Cuando se para, la gallina se levanta del foso de bolas y camina. La encontré junto a la puerta, de pie, mirando la pared. La devolví. El mecanismo estaba intacto. La cuerda seguía dada. La melodía la calma. Mientras dure."
     },
     {
       "id": "tape_w5",
       "title": "Cinta de mantenimiento #5",
       "location": "kitchen",
-      "text": "02/02/1987 — La gallina abre la nevera. No hay comida dentro. Solo herramientas mías que había perdido. Están ordenadas. Mejor ordenadas de lo que las dejo yo. No se lo voy a comentar al propietario. Renuncia uno de estos días. Renuncio. Juro que renuncio."
+      "text": "27/02/1994 — La gallina abre la nevera de la Cocina Industrial. No hay comida dentro. Solo herramientas mías que había perdido. Están ordenadas. Mejor ordenadas de lo que las dejo yo. No pienso comentárselo a dirección. Renuncio uno de estos días. Renuncio. Juro que renuncio."
     },
     {
       "id": "tape_w6",
       "title": "Informe policial — fragmento",
       "location": "restrooms",
-      "text": "17/06/1987 — Cinco menores reportados como desaparecidos durante la celebración del 16 de junio en la Pizzería Estelar Bruno. Testigos describen a un adulto con traje dorado de 'Spring Bruno' acompañando a los menores hacia el área de mantenimiento. Sin cámaras en la zona. El traje no ha sido localizado. Investigación abierta."
+      "text": "18/06/1994 — Cuatro menores reportados desaparecidos durante el Festival de Verano del Complejo Bruno. Testigos describen a un adulto con el traje dorado 'Spring Bruno' acompañando a los menores hacia el Pasillo Técnico. Sin cámaras en la zona de servicio. El traje nunca fue localizado. Investigación archivada por falta de testigos. Todos los testigos dimitieron."
     },
     {
       "id": "tape_w7",
-      "title": "Nota del guardia anterior",
-      "location": "office",
-      "text": "A quien le toque este turno: 1) La máscara no funciona con el zorro ni con la cosa de la caja musical. 2) Si oyes la melodía detenerse, ve a darle cuerda aunque estés escondido. 3) El hueco de la pizarra bajo el escenario no existe. No lo busques. 4) Yo sobreviví 5 noches. La sexta no la tomé. Tú decide."
+      "title": "Cinta de seguridad #7",
+      "location": "rockstar",
+      "text": "04/04/1995 — El guardia nocturno anterior dejó este registro en la vitrina de la Galería. 'Si lees esto: las PRUEBAS no son tuyas. El complejo te pone a prueba. Bolera, Guardería, Cala, Generadores. Cuatro puertas, cuatro despertares. Cada prueba que superas los vuelve más listos. Ellos aprenden. Tú solo te cansas.'"
     },
     {
       "id": "tape_w8",
-      "title": "Cinta de mantenimiento #6",
-      "location": "electrical",
-      "text": "30/07/1987 — El propietario me pidió que instalara cerrojos con código en el almacén sur. Puso un 1987. Como el año. Como para no olvidarlo. Le pregunté qué guardaba ahí. Dijo 'equipo viejo'. La estantería del fondo no está atornillada a la pared. No pregunta por qué lo sé. Yo tampoco."
+      "title": "Cinta de mantenimiento #8",
+      "location": "generator",
+      "text": "22/09/1995 — El fusible maestro salta cada noche a la misma hora. Lo rearranco y amanece fundido otra vez. Algo alimenta la red con la energía de los generadores durante la noche. Algo que necesita MUCHA corriente. No quiero saber para qué. Cambio de turno. Se lo dejo al siguiente."
     },
     {
       "id": "tape_w9",
-      "title": "Cinta de mantenimiento #7",
-      "location": "machinery",
-      "text": "09/08/1987 — Último día. Bajé al hueco tras la estantería. Hay una sala que no está en el plano. Hay cinco trajes pequeños colgados. Vacíos. Y uno dorado, grande, en el rincón. Se mueve cuando nadie lo mira. He vendido la casa. Mañana estoy lejos de aquí. La caja musical está en el manual, en la página que arranqué y me llevo. Buena suerte."
-    },
-    {
-      "id": "tape_w10",
-      "title": "Cinta del técnico — FINAL",
-      "location": "secret",
-      "text": "Si encontraste esto, restauraste el fusible maestro y el edificio despertó del todo. Ellos recuerdan. Los cinco recuerdan. La música los mantiene soñando. Cuando la caja se para, dejan de soñar y empiezan a recordar lo que les hicieron entre las paredes de esta sala. No dejes que la melodía se pare. Nunca. — R."
+      "title": "Cinta del personal #9",
+      "location": "foodcourt",
+      "text": "30/12/1995 — Última reunión del personal, Plaza de Comida, tras el cierre. Dirección recorta el turno de seguridad a UN guardia. Uno. Para 6000 metros cuadrados. 'Los animatrónicos dan más confianza que las personas', dijo el gerente. Nadie se rió. Todos firmaron el nuevo convenio. Todos menos yo."
     },
     {
       "id": "tape_golden",
-      "title": "Cinta sin etiqueta",
-      "location": "secret",
-      "text": "*estática* ...la sala está sellada. Los cinco trajes pequeños cuelgan del techo. Uno grande, dorado, en el rincón. El dueño dice que es 'decoración antigua'. Los motores del traje dorado funcionan. Yo los he oído. Giran cuando nadie mira. Si encuentras esta cinta, ya has entrado donde no debías. CIÉRRALO TODO Y NO VUELVAS A BAJAR."
+      "title": "CINTA DORADA — Sesión de hipnoterapia",
+      "location": "golden",
+      "text": "??/??/???? — 'Repita conmigo: yo no vi nada en el Pasillo Técnico. Yo no oí risas en los conductos. El traje dorado está vacío. El traje dorado está vacío. El traje dorado ESTÁ vacío. — Paciente: y sin embargo... me está escuchando. Ahora. Detrás de la pared. Siempre detrás de la pared.'"
     }
   ],
   "notes": [
     {
-      "id": "note_code",
-      "title": "Nota arrugada",
-      "location": "storageA",
-      "text": "El código del almacén sur es 1987. Escríbelo en el teclado de la puerta. R."
-    },
-    {
       "id": "note_order",
-      "title": "Nota del electricista",
-      "location": "electrical",
-      "text": "SECTOR OESTE — ORDEN DE INTERRUPTORES: 2, 4, 1, 3. Si lo haces al revés, el diferencial salta y empiezas de nuevo. No preguntes por qué. El instalador era un sádico."
+      "title": "Nota arrugada — orden maestro",
+      "text": "El fusible maestro solo acepta su secuencia: 3 · 1 · 4 · 2. Si te equivocas, el diferencial salta y pierdes potencia. No lo preguntéis otra vez. — R."
     },
     {
       "id": "note_master",
-      "title": "Esquema del panel maestro",
-      "location": "office",
-      "text": "FUSIBLE MAESTRO — secuencia de rearranque: 3, 1, 4, 2. Grabada en la placa: 'LA SALIDA SE LIBERA CON LA LLAVE R. SALA TRAS ESTANTERÍA ALMACÉN SUR.'"
+      "title": "Nota de Rulo — última página",
+      "text": "Chico: si has llegado hasta aquí, ya sabes que no hay cinco noches. Hay una noche eterna y tú decides cuándo termina. Las tarjetas de servicio están donde la banda tocaba, donde proyectan las películas y donde la gente cena. Corre. No mires atrás. Yo no lo hice y por eso esta nota existe."
     }
   ],
   "endingNormal": [
-    "Las puertas de emergencia se abren con un golpe metálico.",
-    "El aire frío del exterior nunca supo tan dulce.",
-    "Detrás de ti, en la oscuridad del vestíbulo, algo canta la última nota de la melodía.",
-    "AMANECER — Has escapado.",
-    "La Pizzería Estelar Bruno cierra para siempre una semana después.",
-    "Los animatrónicos son desmontados. Ninguno contiene lo que las cintas describían.",
-    "Los trajes pequeños, tampoco."
+    "Los tornos giran por última vez.",
+    "El aire de la noche te golpea la cara con la llave del mundo entero.",
+    "Detrás, el Complejo Bruno queda a oscuras, en silencio, como si nunca hubiera estado despierto.",
+    "En tu bolsillo, la tableta emite un pitido. Un único mensaje del técnico ausente:",
+    "\"Bien hecho, chico. Yo salí por la puerta de carga. Tú... tú saliste por la puerta grande.\""
   ],
   "endingSecret": [
-    "Las puertas de emergencia se abren con un golpe metálico.",
-    "Pero no sales.",
-    "Has leído las diez cintas. Sabes lo que duerme en la sala oculta.",
-    "Vuelves sobre tus pasos, hacia el rincón de premios.",
-    "Le das cuerda a la caja musical hasta el tope, una última vez.",
-    "La melodía suena limpia, completa, por primera vez en años.",
-    "En el escenario, los tres te observan en silencio. Bruno inclina la cabeza.",
-    "Los cinco descansan.",
-    "AMANECER — FINAL SECRETO: 'La última cuerda'."
+    "Los tornos giran por última vez.",
+    "Pero al cruzar el umbral, el vestíbulo cambia: las luces se encienden TODAS.",
+    "La estatua de Freddy del vestíbulo ha girado la cabeza hacia ti.",
+    "El traje dorado está de pie junto a la fuente. Vacío por dentro. Todavía lo está.",
+    "\"Las diez cintas\", dice algo con tu propia voz. \"Ahora sabes lo que dejamos aquí abajo.\"",
+    "El complejo te deja salir. Esta vez. El complejo siempre deja salir a los que saben."
   ]
 }

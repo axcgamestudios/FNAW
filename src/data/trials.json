@@ -1,0 +1,105 @@
+{
+  "trials": [
+    {
+      "id": "bowling",
+      "name": "PRUEBA DE LA BOLERA",
+      "chapter": 2,
+      "room": "bowling",
+      "hunter": "bonnie",
+      "respawnRoom": "eastPromN",
+      "respawnPos": [9.5, -5.2],
+      "respawnYaw": 0,
+      "hunterResetRoom": "arcade",
+      "aggression": 1.35,
+      "introMsg": "PRUEBA INICIADA — Reinicia las 3 máquinas de chapa. Bonnie ya sabe que estás aquí.",
+      "tasks": [
+        { "id": "pin1", "label": "Reiniciar máquina de chapa — Carril 1", "at": [-0.2, -15.2], "hold": 4 },
+        { "id": "pin2", "label": "Reiniciar máquina de chapa — Carril 2", "at": [2.8, -15.2], "hold": 4 },
+        { "id": "pin3", "label": "Reiniciar máquina de chapa — Carril 3", "at": [5.8, -15.2], "hold": 4 }
+      ],
+      "scares": [
+        { "at": "start", "type": "stingerClose", "msg": "ALGO HA ENTRADO EN LA BOLERA CONTIGO" },
+        { "at": "task1", "type": "lightsOut", "dur": 6, "msg": "LUCES FUERA — SOLO TU LINTERNA" },
+        { "at": "task2", "type": "hunterAppear", "pos": [10.5, -15.5], "msg": "BONNIE TE MIRA DESDE EL FONDO DEL CARRIL 4" },
+        { "at": "task3", "type": "hunterChase", "msg": "¡BONNIE VIENE DIRECTO A POR TI — ENCIENDE TODO Y CORRE!" }
+      ],
+      "successMsg": "PRUEBA SUPERADA — Las máquinas cantan de nuevo. Bonnie se retira... por ahora."
+    },
+    {
+      "id": "daycare",
+      "name": "PRUEBA DE LA GUARDERÍA",
+      "chapter": 3,
+      "room": "daycare",
+      "hunter": "chica",
+      "respawnRoom": "westPromN",
+      "respawnPos": [-22, -4.6],
+      "respawnYaw": 3.14159,
+      "hunterResetRoom": "foodcourt",
+      "aggression": 1.45,
+      "introMsg": "PRUEBA INICIADA — Recupera los 3 mecanismos de la caja musical. Los niños ya se fueron... ella no.",
+      "tasks": [
+        { "id": "part1", "label": "Extraer mecanismo — Piano gigante", "at": [-27.5, 9.3], "hold": 3 },
+        { "id": "part2", "label": "Buscar mecanismo — Borde del foso de bolas", "at": [-25, 5.2], "hold": 3 },
+        { "id": "part3", "label": "Recuperar mecanismo — Juguetería", "at": [-27.8, 2.2], "hold": 3 }
+      ],
+      "scares": [
+        { "at": "start", "type": "childLaugh", "msg": "UNA RISA DE NIÑO RECORRE LA GUARDERÍA" },
+        { "at": "task1", "type": "fakeSteps", "msg": "PASOS PEQUEÑOS... RÁPIDOS... DETRÁS DE TI" },
+        { "at": "task2", "type": "hunterAppear", "pos": [-17.5, 10.5], "msg": "CHICA ESTÁ JUNTO AL ARCOÍRIS — NO PARPADEA" },
+        { "at": "task3", "type": "lightsOut", "dur": 8, "msg": "GUARDERÍA A OSCURAS — ELLA NO NECESITA LUZ" }
+      ],
+      "successMsg": "PRUEBA SUPERADA — La caja musical vuelve a latir. Chica escucha la melodía y se calma."
+    },
+    {
+      "id": "cove",
+      "name": "PRUEBA DE LA CALA DEL PIRATA",
+      "chapter": 4,
+      "room": "pirateCove",
+      "hunter": "foxy",
+      "respawnRoom": "westPromN",
+      "respawnPos": [-36, -4.6],
+      "respawnYaw": 3.14159,
+      "hunterResetRoom": "daycare",
+      "aggression": 1.55,
+      "introMsg": "PRUEBA INICIADA — Restaura la energía de la atracción (3 interruptores, en orden). Foxy es MUY rápido. No dejes de moverte.",
+      "tasks": [
+        { "id": "swA", "label": "Interruptor de la atracción I", "at": [-40.5, 12.2], "hold": 3 },
+        { "id": "swB", "label": "Interruptor de la atracción II", "at": [-37, 12.2], "hold": 3 },
+        { "id": "swC", "label": "Interruptor de la atracción III", "at": [-33.5, 12.2], "hold": 3 }
+      ],
+      "scares": [
+        { "at": "start", "type": "stingerClose", "msg": "EL TELÓN DE LA CALA SE MECE SIN VIENTO" },
+        { "at": "task1", "type": "hunterAppear", "pos": [-42.6, 5], "msg": "FOXY ASOMA ENTRE LAS CORTINAS — EL OJO DEL PARCHE BRILLA" },
+        { "at": "task2", "type": "lightsOut", "dur": 7, "msg": "LA CALA QUEDA A OSCURAS — SOLO SE OYE METAL" },
+        { "at": "task3", "type": "hunterChase", "msg": "¡FOXY CORRE! ¡LA LINTERNA LO FRENA UN INSTANTE — USA LA PUNTA DE TU VISTA!" }
+      ],
+      "successMsg": "PRUEBA SUPERADA — La atracción ruge con energía. Foxy regresa tras su telón, silbando."
+    },
+    {
+      "id": "generators",
+      "name": "PRUEBA DE LOS GENERADORES",
+      "chapter": 5,
+      "room": "generator",
+      "hunter": "freddy",
+      "respawnRoom": "promS",
+      "respawnPos": [25.5, 15.5],
+      "respawnYaw": 3.14159,
+      "hunterResetRoom": "lobby",
+      "aggression": 1.7,
+      "introMsg": "PRUEBA INICIADA — Fusible maestro: orden 3 · 1 · 4 · 2. TODOS los animatrónicos están despiertos. Y algo DORADO se ha levantado en la Sala Técnica.",
+      "tasks": [
+        { "id": "gsw3", "label": "Interruptor maestro 3", "at": [25.8, 19.9], "hold": 2.5 },
+        { "id": "gsw1", "label": "Interruptor maestro 1", "at": [24.6, 19.9], "hold": 2.5 },
+        { "id": "gsw4", "label": "Interruptor maestro 4", "at": [26.4, 19.9], "hold": 2.5 },
+        { "id": "gsw2", "label": "Interruptor maestro 2", "at": [25.2, 19.9], "hold": 2.5 }
+      ],
+      "scares": [
+        { "at": "start", "type": "lightsOut", "dur": 5, "msg": "LA SALA DE GENERADORES zumba a oscuras" },
+        { "at": "task1", "type": "stingerClose", "msg": "UNA SOMBRA PASA ENTRE LOS GENERADORES" },
+        { "at": "task2", "type": "hunterChase", "msg": "¡FREDDY TE HA VISTO — SEPARA LOS GENERADORES DE TU CAMINO!" },
+        { "at": "task3", "type": "hunterAppear", "pos": [29, 30], "msg": "EL DORADO BLOQUEA LA PUERTA SUR" }
+      ],
+      "successMsg": "PRUEBA SUPERADA — ENERGÍA RESTAURADA. El Complejo Bruno respira de nuevo. Ahora... a huir."
+    }
+  ]
+}

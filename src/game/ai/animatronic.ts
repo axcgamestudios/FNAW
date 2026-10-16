@@ -205,6 +205,35 @@ export class Animatronic {
     this.lastKnown = null;
   }
 
+  /** teletransporte (pruebas / sustos guionizados) */
+  teleportTo(x: number, z: number, yaw?: number) {
+    this.pos.set(x, 0, z);
+    this.rig.root.position.copy(this.pos);
+    if (yaw !== undefined) {
+      this.yaw = yaw;
+      this.rig.root.rotation.y = yaw;
+    }
+    this.path = [];
+    this.stateTimer = 0;
+  }
+
+  /** forzar persecución directa (pruebas) */
+  forceChase(target: THREE.Vector3) {
+    if (!this.active) this.wake();
+    this.state = 'chase';
+    this.stateTimer = 0;
+    this.lastKnown = target.clone();
+    this.lastSeenAt = this.host.time;
+  }
+
+  /** calmar y devolver a patrulla (pruebas) */
+  calmDown() {
+    this.state = 'patrol';
+    this.stateTimer = 0;
+    this.path = [];
+    this.lastKnown = null;
+  }
+
   get eyeColor(): number {
     return this.def.eyeColor;
   }

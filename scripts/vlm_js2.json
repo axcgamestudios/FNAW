@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the evaluation:\n\n**1) Does the bear fill most of the frame at very close range now?**\n**No.** The image is a **text-based \"Game Over\" or story screen**, not an action frame. There is no visible animatronic bear in the frame at all—only Spanish text (\"TE ENCONTRARON\" / \"They found you\") and menu buttons on a black background. The bear is implied to be present narratively, but not visually depicted.\n\n**2) Face visible with eyes/jaw?**\n**No.** No face, eyes, jaw, or any part of the animatronic is visible in this image.\n\n**3) Scare impact 1-10:**\n**2/10 (Atmospheric only).** While this screen carries **narrative tension** (indicating the player has been caught by Freddy Fazbear), it lacks the visual shock of a jumpscare. The impact comes entirely from the context of failure and the ominous text rather than a sudden visual lunge, strobe effects, or glitch aesthetics. It serves as a suspenseful pause rather than a startling moment.\n\n*Note: This appears to be a fan-made game (likely \"Five Nights at Freddy's: The Afton Family\" or similar) death/transition screen, not the actual jumpscare animation itself.*",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792160247,
+  "id": "20261016221722bf83aa8fe3f44201",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016221722bf83aa8fe3f44201",
+  "usage": {
+    "completion_tokens": 286,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 459,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 745
+  }
+}

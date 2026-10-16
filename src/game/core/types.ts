@@ -1,5 +1,5 @@
 /**
- * Tipos compartidos del juego — FNAF 2 Reimaginado
+ * Tipos compartidos del juego — Complejo Bruno MEGAPLEX
  */
 
 export type GameMode =
@@ -36,9 +36,29 @@ export interface RoomDef {
   rect: [number, number, number, number];
   floor: 'tile' | 'wood' | 'concrete' | 'carpet' | 'metal' | 'checker' | 'polished';
   wall: 'wallpaper' | 'concrete' | 'tile' | 'metal';
+  /** Altura de techo de la sala (por defecto 3.6) */
+  height?: number;
   ambientLight?: { intensity: number; color?: number; flicker?: number };
   camPos?: [number, number, number];
   camLook?: [number, number, number];
+}
+
+/** Muro explícito del plano (x1,z1)-(x2,z2) con huecos */
+export interface WallDef {
+  x1: number;
+  z1: number;
+  x2: number;
+  z2: number;
+  wallType: RoomDef['wall'];
+  /** altura del muro (por defecto la del edificio) */
+  h?: number;
+  openings?: WallOpening[];
+}
+
+export interface WallOpening {
+  at: number;
+  width: number;
+  height?: number;
 }
 
 export interface DoorDef {
@@ -114,12 +134,53 @@ export interface ObjectiveDef {
   id: string;
   title: string;
   hint: string;
-  type: 'goto' | 'collect' | 'interact' | 'hold' | 'sequence' | 'keypad' | 'survive' | 'system';
+  type: 'goto' | 'collect' | 'interact' | 'hold' | 'sequence' | 'keypad' | 'survive' | 'system' | 'trial';
   room?: string;
   target?: string;
   count?: number;
   minutes?: number;
   optional?: boolean;
+}
+
+/* ============ PRUEBAS (trials) ============ */
+
+export interface TrialTaskDef {
+  id: string;
+  label: string;
+  at: [number, number];
+  hold: number;
+  /** requerir mirar el objeto */
+}
+
+export type TrialScare =
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'stingerClose'; msg?: string }
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'hunterAppear'; pos: [number, number]; msg?: string }
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'lightsOut'; dur: number; msg?: string }
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'fakeSteps'; msg?: string }
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'childLaugh'; msg?: string }
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'hunterChase'; msg?: string }
+  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'ventBang'; msg?: string };
+
+export interface TrialDef {
+  id: string;
+  name: string;
+  chapter: number;
+  /** sala donde ocurre la prueba */
+  room: string;
+  /** enemigo que caza durante la prueba */
+  hunter: string;
+  /** sala de respawn del jugador al fallar */
+  respawnRoom: string;
+  respawnPos: [number, number];
+  respawnYaw: number;
+  /** sala donde se recoloca el cazador al respawn */
+  hunterResetRoom: string;
+  /** mult. de agresión del cazador durante la prueba */
+  aggression: number;
+  introMsg: string;
+  tasks: TrialTaskDef[];
+  scares: TrialScare[];
+  successMsg: string;
 }
 
 export interface NightDef {

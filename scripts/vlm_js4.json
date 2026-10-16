@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the evaluation of the FNAF-style jumpscare frame:\n\n1.  **Does the bear fill the frame at close range?**\n    **Yes.** The animatronic bear (resembling Freddy Fazbear) is positioned extremely close to the camera, occupying a significant portion of the lower and central frame, creating an intense sense of proximity.\n\n2.  **Is the face detailed (glowing eyes, open jaw)?**\n    **Partially/No.** While the model has the characteristic top hat and ear shape, the facial details are heavily obscured by the lighting and effects. The eyes do not appear to be glowing brightly, and the jaw does not look wide open in a scream; it appears relatively neutral or slightly obscured by shadow/glitching.\n\n3.  **Are strobe/glitch effects intense?**\n    **Yes.** The image features heavy horizontal \"glitch tears\" or scanlines that dominate the view. There is also a strong red color grading/tint over the entire scene, which contributes to the strobe-like atmosphere, along with some visible chromatic aberration around the edges of the model.\n\n4.  **Scare impact 1-10:**\n    **6/10.** The impact is moderate. The proximity of the model and the aggressive visual glitches/red tint successfully create a sense of alarm and chaos typical of the genre. However, the lack of a clearly aggressive expression (like glowing eyes or a screaming mouth) reduces the immediate \"shock\" factor compared to a fully realized jumpscare frame. It feels more like a \"static\" or \"interference\" moment than a peak jumpscare.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792160474,
+  "id": "20261016222108a78cd3ed550e4a5b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016222108a78cd3ed550e4a5b",
+  "usage": {
+    "completion_tokens": 346,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 487,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 833
+  }
+}

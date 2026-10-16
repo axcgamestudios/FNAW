@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**BRUTAL EVALUATION:**\n\n**1) Is the animatronic bear filling the frame close to the camera?**\n**NO.** The bear is pathetically small, centered in the middle of the frame with massive amounts of empty pink/red space surrounding it. It looks like it's standing 10 feet away from the camera, not lunging at it. A real FNAF jumpscare should have the animatronic's face/chest filling 80-90% of the screen, with parts potentially clipping through the camera plane. This looks like a \"jumpscare\" from a different zip code.\n\n**2) Is its face visible (eyes, mouth/jaw open)?**\n**BARELY/POORLY.** While you can vaguely make out eyes and a snout, the details are muddy and indistinct. There's no visible jaw unhinging, no rows of teeth, no glowing eyes—just a blurry brown blob with dark spots. The facial expression reads more \"confused teddy bear\" than \"murderous machine.\" The mouth appears closed or barely agape. Zero menace.\n\n**3) Are the strobe/glitch/RGB-split effects visible?**\n**YES, but they're doing all the heavy lifting (and failing).** You've got horizontal scanlines/strobe bands and a reddish color cast, plus some chromatic aberration/RGB splitting on the edges. **However**, these effects are so aggressive and opaque that they're obscuring the subject rather than enhancing it. It looks like you applied a \"horror filter\" over a boring image rather than integrating the glitch into a terrifying moment. The effects are visible but feel like cheap post-processing rather than diegetic terror.\n\n**4) Overall scare impact rating: 2/10**\n**What would make it scarier:**\n\n- **PROXIMITY:** Zoom in 300%. The bear's nose should be touching the lens. Fill the frame with fur texture and mechanical parts.\n- **FACIAL HORROR:** Open that jaw wide (unhinged like a snake), show sharp teeth, add glowing pinprick pupils or black voids for eyes, maybe some exposed endoskeleton wires.\n- **MOTION BLUR:** Add radial blur or speed lines emanating from center to simulate the lunge velocity.\n- **DYNAMIC LIGHTING:** Strobe should be harsh white/black flickering, not this soft pink wash. Use high contrast.\n- **AUDIO CUE (implied):** Visuals need to suggest the audio—a scream visualized as static distortion.\n- **VIGNETTE:** Darken the edges to create tunnel vision panic.\n\n**Verdict:** This looks like a loading screen error, not a jumpscare. It's \"FNAF if it was a fever dream about a Build-A-Bear Workshop.\"",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792160151,
+  "id": "20261016221542a3913bc8f5ff4d47",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016221542a3913bc8f5ff4d47",
+  "usage": {
+    "completion_tokens": 588,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 499,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1087
+  }
+}

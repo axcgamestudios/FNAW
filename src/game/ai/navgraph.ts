@@ -8,10 +8,14 @@ import type { WorldBuilder, Collider } from '../world/worldbuilder';
 import { mapData } from './mapdata';
 
 const CELL = 0.4;
-const MIN_X = -24.5;
-const MAX_X = 24.5;
-const MIN_Z = -17.5;
-const MAX_Z = 17.5;
+const MIN_X = mapData.building.minX - 0.5;
+const MAX_X = mapData.building.maxX + 0.5;
+const MIN_Z = mapData.building.minZ - 0.5;
+const MAX_Z = mapData.building.maxZ + 0.5;
+const IN_X = mapData.building.minX + 0.1;
+const IN_X2 = mapData.building.maxX - 0.1;
+const IN_Z = mapData.building.minZ + 0.1;
+const IN_Z2 = mapData.building.maxZ - 0.1;
 
 export const GRID_W = Math.ceil((MAX_X - MIN_X) / CELL);
 export const GRID_H = Math.ceil((MAX_Z - MIN_Z) / CELL);
@@ -35,7 +39,7 @@ export class NavGraph {
         const z = MIN_Z + (j + 0.5) * CELL;
         let v: number = 1;
         // fuera del edificio
-        if (x < -23.9 || x > 23.9 || z < -16.9 || z > 16.9) v = 0;
+        if (x < IN_X || x > IN_X2 || z < IN_Z || z > IN_Z2) v = 0;
         if (v === 1) {
           // colisión con muros / muebles (sin puertas ni tapas)
           v = this.freeAt(x, z, radius, staticCols) ? 1 : 0;
@@ -99,7 +103,7 @@ export class NavGraph {
     for (const c of cols) {
       if (!c.active) continue;
       if (c.id && (c.id.startsWith('door_') || c.id.startsWith('vent_cover_') || c.id.startsWith('vent_side_') || c.id.startsWith('vent_fill'))) continue;
-      if (c.id === 'duct_fill_w' || c.id === 'ballpit') { if (this.inBox(x, z, r, c)) return false; continue; }
+      if (c.id === 'ballpit') { if (this.inBox(x, z, r, c)) return false; continue; }
       if (this.inBox(x, z, r, c)) return false;
     }
     return true;

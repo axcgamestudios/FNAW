@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the evaluation:\n\n**1) Does the bear fill the frame at very close range?**\n**No.** The image does not contain a 3D model of a bear or any animatronic character. It is a **2D text-based \"Game Over\" or chapter failure screen** with a black background and red/white typography.\n\n**2) Is the face detailed (eyes, jaw, teeth)?**\n**No.** There is no face visible in this image. The only visual elements are text reading \"**TE ENCONTRARON**\" (They found you), a subtitle mentioning Freddy Fazbear, and two menu buttons (\"REINTENTAR CAPÍTULO\" and \"SALIR AL MENÚ\").\n\n**3) Are strobe/glitch effects visible and intense?**\n**Partially/Mildly.** While there is no strobe lighting or chromatic aberration on a 3D model, the red text does have a **subtle glitch/static texture** applied to it, and the overall aesthetic uses a horror-themed color palette (red on black). However, these are minimal compared to an actual jumpscare frame.\n\n**4) Scare impact: 1/10**\nThe image conveys tension through its ominous message (\"Freddy Fazbear reached you in the darkness\") and creepy atmosphere, but it lacks the sudden visual shock, proximity, and intensity of an actual FNAF-style jumpscare. It functions as a **narrative consequence screen** rather than a jumpscare moment.\n\n**Summary:** This appears to be a **death screen or chapter fail state** from a FNAF fangame or similar horror title, not the jumpscare frame itself. To evaluate the actual jumpscare, an image showing the animatronic model lunging at the camera would be required.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792160358,
+  "id": "202610162218552566978b8cfb42af",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610162218552566978b8cfb42af",
+  "usage": {
+    "completion_tokens": 385,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 499,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 884
+  }
+}

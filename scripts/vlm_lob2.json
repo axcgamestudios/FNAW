@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Yes, the giant bear statue (resembling Freddy Fazbear) is **clearly visible** in the center of the image. Here is a detailed description of what is visible:\n\n**Central Statue:**\n*   **The Bear:** A large, brown, stylized animatronic bear stands prominently on a circular pedestal. It has a rounded, somewhat cartoonish but eerie appearance.\n*   **Details:** It wears a black top hat. Its eyes appear to be glowing or reflecting light.\n*   **Position:** It dominates the right-center foreground of the view.\n\n**Surrounding Environment:**\n*   **Flooring:** The floor features a distinct black-and-white checkered pattern that extends into the background.\n*   **Walls:** The walls are made of dark, vertical corrugated metal panels, giving the space an industrial or utilitarian feel.\n*   **Lighting & Atmosphere:** It is nighttime or the area is unlit, creating a dark atmosphere. The flashlight is turned on (indicated by \"LINTERNA ON\" at the bottom left), casting light on the statue and the immediate floor area. There appears to be faint snow or particles falling in the air.\n*   **Background Elements:** To the left of the statue, there is a dark doorway or entrance with a red glow visible inside. Above and around, the ceiling is dark.\n\n**UI and Game Elements:**\n*   **Objective List:** On the top left, there is a list titled \"CAPÍTULO 01\" (Chapter 01) and \"TURNO DE CIERRE\" (Closing Shift). Objectives include collecting a flashlight and tablet, checking cameras, resetting breakers, and exploring the Central Atrium (\"Explora el Atrio Central\").\n*   **HUD:** The bottom left shows a compass (N), a yellow battery/flashlight bar labeled \"LINTERNA ON [F]\", and an energy bar. The bottom right shows controls for mask ([Q] MÁSCARA) and camera ([C] CÁMARA).\n\n**Regarding specific items mentioned:**\n*   **Turnstiles:** Not clearly visible in this specific frame; the view seems focused on the statue and the wall/doorway to the left.\n*   **Neon Signs:** Not visible in this shot; the lighting is too dark and the angle is focused on the statue rather than storefronts.\n*   **Plants:** No plants are visible in this particular view of the lobby.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792160747,
+  "id": "20261016222533d40cea9b31084646",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016222533d40cea9b31084646",
+  "usage": {
+    "completion_tokens": 509,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 443,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 952
+  }
+}

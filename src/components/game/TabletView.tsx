@@ -10,9 +10,9 @@ import { useHud } from '@/game/core/state';
 import { getGame } from '@/game/core/instance';
 
 const CAM_NAMES: Record<number, string> = {
-  1: 'ESCENARIO', 2: 'COMEDOR', 3: 'P. PRINCIPAL', 4: 'PREMIOS', 5: 'SALA JUEGOS',
-  6: 'CALA PIRATA', 7: 'TALLER', 8: 'COCINA', 9: 'P. OESTE', 10: 'P. ESTE',
-  11: 'ELÉCTRICO', 12: 'VESTÍBULO',
+  1: 'ATRIO NORTE', 2: 'ATRIO SUR', 3: 'PASEO OESTE', 4: 'PASEO ESTE', 5: 'PASEO SUR',
+  6: 'PASILLO TÉCNICO', 7: 'RECREATIVO', 8: 'COCINA', 9: 'BOLERA', 10: 'GUARDERÍA',
+  11: 'CALA PIRATA', 12: 'GALERÍA', 13: 'TEATRO', 14: 'VESTÍBULO',
 };
 
 export default function TabletView() {
@@ -72,7 +72,7 @@ export default function TabletView() {
 
         {/* mapa y selector de cámaras */}
         <div className="absolute bottom-3 right-3 z-10">
-          <svg width="230" height="170" viewBox="-25 -18.5 50 37" className="bg-[rgba(4,10,6,0.9)] border border-[#2a6636]">
+          <svg width={230 * 1.55} height={170 * 1.4} viewBox="-45.5 -35.5 91 71" className="bg-[rgba(4,10,6,0.9)] border border-[#2a6636]">
             {rooms.map((r) => {
               const [x1, z1, x2, z2] = r.rect;
               return (
@@ -108,7 +108,7 @@ export default function TabletView() {
               );
             })}
           </svg>
-          <div className="mt-2 grid grid-cols-4 gap-1">
+          <div className="mt-2 grid grid-cols-5 gap-1">
             {camButtons.map((c) => (
               <button
                 key={c.index}
@@ -122,7 +122,7 @@ export default function TabletView() {
         </div>
 
         <div className="absolute bottom-3 left-5 z-10 cam-sub">
-          [C] CERRAR · [A/D] CAMBIAR CÁMARA · [1-9] RÁPIDA
+          [C] CERRAR · [A/D] CAMBIAR CÁMARA · [1-9] RÁPIDA · 14 CÁMARAS
         </div>
       </div>
 

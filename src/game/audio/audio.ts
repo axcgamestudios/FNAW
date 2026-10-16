@@ -609,6 +609,146 @@ export class AudioEngine {
     this.noiseBurst(out, 1.0, 900, 0.5, 'bandpass');
   }
 
+  /* ============ GRITO FNAF MULTICAPA (super jumpscare) ============ */
+
+  /** Grito brutal estilo FNAF: clúster desafinado + chillido con formantes +
+   *  sub-caída + ruido saturado + retroalimentación. Duración ~1.4 s. */
+  superScream(voice: string) {
+    if (!this.ready) return;
+    const ctx = this.ctx!;
+    const t = ctx.currentTime;
+    const base = voice === 'deep' ? 92 : voice === 'screech' ? 150 : voice === 'clank' ? 118 : voice === 'rusty' ? 132 : 96;
+
+    // bus maestro con limitador suave
+    const out = ctx.createGain();
+    out.gain.value = 1.0;
+    out.connect(this.sfxBus);
+
+    // 1) GRITO: 4 osciladores desafinados con barrido de formantes (a-e-a)
+    const shaper = ctx.createWaveShaper();
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < 1024; i++) {
+      const x = (i / 512) - 1;
+      curve[i] = Math.tanh(x * 6.5);
+    }
+    shaper.curve = curve;
+    shaper.connect(out);
+    const screamGain = ctx.createGain();
+    screamGain.gain.setValueAtTime(0.0001, t);
+    screamGain.gain.exponentialRampToValueAtTime(1.05, t + 0.018);
+    screamGain.gain.setValueAtTime(1.05, t + 0.7);
+    screamGain.gain.exponentialRampToValueAtTime(0.0001, t + 1.38);
+    screamGain.connect(shaper);
+    const detunes = [1, 1.019, 0.983, 1.41];
+    for (let i = 0; i < 4; i++) {
+      const o = ctx.createOscillator();
+      o.type = i === 3 ? 'square' : 'sawtooth';
+      const f0 = base * detunes[i] * 7.2;
+      o.frequency.setValueAtTime(f0 * 1.35, t);
+      o.frequency.exponentialRampToValueAtTime(f0, t + 0.12);
+      o.frequency.exponentialRampToValueAtTime(f0 * 0.62, t + 1.25);
+      // vibrato de pánico (15 Hz)
+      const vib = ctx.createOscillator();
+      vib.frequency.value = 13 + i * 2;
+      const vibG = ctx.createGain();
+      vibG.gain.value = f0 * 0.06;
+      vib.connect(vibG);
+      vibG.connect(o.frequency);
+      vib.start(t); vib.stop(t + 1.4);
+      o.connect(screamGain);
+      o.start(t); o.stop(t + 1.4);
+    }
+
+    // 2) CHILLIDO agudo con ring-mod (diente de sierra 2-4 kHz)
+    const squeal = ctx.createOscillator();
+    squeal.type = 'sawtooth';
+    squeal.frequency.setValueAtTime(2600 + Math.random() * 900, t);
+    squeal.frequency.exponentialRampToValueAtTime(1500, t + 1.1);
+    const sqRing = ctx.createOscillator();
+    sqRing.frequency.value = 90 + Math.random() * 60;
+    const sqRingG = ctx.createGain();
+    sqRingG.gain.value = 1400;
+    sqRing.connect(sqRingG);
+    sqRingG.connect(squeal.frequency);
+    const sqGain = ctx.createGain();
+    sqGain.gain.setValueAtTime(0.0001, t);
+    sqGain.gain.exponentialRampToValueAtTime(0.4, t + 0.02);
+    sqGain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    squeal.connect(sqGain);
+    sqGain.connect(out);
+    squeal.start(t); squeal.stop(t + 1.25);
+    sqRing.start(t); sqRing.stop(t + 1.25);
+
+    // 3) SUB-CAÍDA: golpe grave 90→28 Hz (impacto físico)
+    const sub = ctx.createOscillator();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(96, t);
+    sub.frequency.exponentialRampToValueAtTime(27, t + 0.55);
+    const subG = ctx.createGain();
+    subG.gain.setValueAtTime(0.0001, t);
+    subG.gain.exponentialRampToValueAtTime(0.95, t + 0.015);
+    subG.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+    sub.connect(subG);
+    subG.connect(out);
+    sub.start(t); sub.stop(t + 0.9);
+
+    // 4) RUIDO saturado en banda media (aliento metálico)
+    this.noiseBurst(out, 1.35, 1600 + Math.random() * 600, 0.85, 'bandpass');
+    this.noiseBurst(out, 0.18, 3500, 0.6, 'highpass');
+
+    // 5) COLA: delay con retroalimentación (eco del grito por el complejo)
+    const delay = ctx.createDelay(0.5);
+    delay.delayTime.value = 0.14;
+    const fb = ctx.createGain();
+    fb.gain.value = 0.42;
+    const fbFilter = ctx.createBiquadFilter();
+    fbFilter.type = 'lowpass';
+    fbFilter.frequency.value = 2200;
+    delay.connect(fb);
+    fb.connect(fbFilter);
+    fbFilter.connect(delay);
+    delay.connect(out);
+    screamGain.connect(delay);
+
+    // 6) metralla de estática justo después
+    window.setTimeout(() => {
+      if (this.ready) this.setStatic(0.85);
+    }, 700);
+    window.setTimeout(() => {
+      if (this.ready) this.setStatic(0.45);
+    }, 1050);
+  }
+
+  /** reaparición: latido + tono ascendente amortiguado */
+  respawn() {
+    if (!this.ready) return;
+    const ctx = this.ctx!;
+    const t = ctx.currentTime;
+    for (let i = 0; i < 3; i++) {
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = 52 - i * 4;
+      const g = ctx.createGain();
+      this.env(g, t + i * 0.32, 0.02, 0.5, 0.24);
+      o.connect(g);
+      g.connect(this.sfxBus);
+      o.start(t + i * 0.32);
+      o.stop(t + i * 0.32 + 0.3);
+    }
+    const rise = ctx.createOscillator();
+    rise.type = 'triangle';
+    rise.frequency.setValueAtTime(110, t + 0.9);
+    rise.frequency.exponentialRampToValueAtTime(440, t + 1.6);
+    const rg = ctx.createGain();
+    rg.gain.setValueAtTime(0.0001, t + 0.9);
+    rg.gain.exponentialRampToValueAtTime(0.16, t + 1.05);
+    rg.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
+    rise.connect(rg);
+    rg.connect(this.musicBus);
+    rise.start(t + 0.9);
+    rise.stop(t + 1.85);
+  }
+
   victory() {
     if (!this.ready) return;
     const ctx = this.ctx!;

@@ -1,11 +1,12 @@
 /**
- * Constructor del mundo: plan de planta completo de la Pizzería Estelar Bruno.
- * Paredes con huecos, puertas con bisagra, conductos de ventilación,
- * colisiones AABB, registro de salas y luces con parpadeo.
+ * Constructor del mundo: MEGAPLEX Complejo Bruno (estilo Security Breach).
+ * Muros definidos en map.json (con huecos y alturas por tramo), techos por
+ * sala, atrio de 9 m, puertas con bisagra, conductos, colisiones AABB,
+ * registro de salas y luces con parpadeo.
  */
 import * as THREE from 'three';
 import mapData from '@/data/map.json';
-import type { RoomDef, DoorDef, VentDef, Interactable } from '../core/types';
+import type { RoomDef, DoorDef, VentDef, Interactable, WallDef } from '../core/types';
 import { floorMaterials, wallMaterials, ceilingMaterial, darkMetalMaterial, metalMaterial, woodMaterial } from './materials';
 import { buildProps, type AnchorMap, type PropAnim } from './props';
 
@@ -21,6 +22,7 @@ interface WallSpec {
   x2: number;
   z2: number;
   wallType: RoomDef['wall'];
+  h: number;
   openings?: WallOpening[];
 }
 
@@ -49,7 +51,7 @@ export interface VentRT {
   def: VentDef;
   coverMesh?: THREE.Mesh;
   coverClosed: boolean;
-  coverTimer: number; // tiempo restante de bloqueo antes de que Clara la tumbe
+  coverTimer: number;
   coverCollider?: Collider;
   blocked: boolean;
   bangTimer: number;
@@ -66,8 +68,7 @@ export interface RoomRT {
   blackoutTimer: number;
 }
 
-const WALL_H = 3.2;
-const WALL_T = 0.28;
+const WALL_T = 0.3;
 const DOOR_H = 2.15;
 
 /** salas con luz encendida al empezar la noche (el resto: fundida) */
@@ -114,14 +115,13 @@ export class WorldBuilder {
     return this.roomAt(x, z)?.def.id ?? '';
   }
 
-  /** Altura del suelo en un punto (tarima del escenario con rampa suave) */
+  /** Altura del suelo: tarima del escenario del atrio con rampa frontal */
   floorHeightAt(x: number, z: number): number {
-    // Tarima del escenario: x [3.6, 13.4], z [-17, -12.6], borde suave de 0.45
-    if (x > 3.0 && x < 14.0 && z > -17.0 && z < -12.4) {
-      let f = 1;
-      if (z > -13.0) f = Math.max(0, (-13.0 - z) / 0.6 + 1); // rampa frontal
-      if (z > -12.4) f = 0;
-      return 0.45 * Math.min(1, Math.max(0, f));
+    // escenario del atrio: x[-7,7] z[-9,-5], plataforma 0.7 con rampa z[-5,-4.2]
+    if (x > -7 && x < 7 && z > -9 && z < -4.2) {
+      if (z < -5) return 0.7;
+      const t = (-4.2 - z) / 0.8; // 0 en el borde sur, 1 al llegar a -5
+      return 0.7 * Math.max(0, Math.min(1, t));
     }
     return 0;
   }
@@ -133,7 +133,7 @@ export class WorldBuilder {
   }
 
   buildAll(onProgress: (frac: number, label: string) => void) {
-    onProgress(0.1, 'Cimentando la pizzería...');
+    onProgress(0.1, 'Cimentando el MEGAPLEX...');
     this.buildFloorsAndCeilings();
     onProgress(0.3, 'Levantando paredes...');
     this.buildWalls();
@@ -141,7 +141,7 @@ export class WorldBuilder {
     this.buildDoors();
     onProgress(0.65, 'Instalando conductos...');
     this.buildVents();
-    onProgress(0.8, 'Amueblando las salas...');
+    onProgress(0.8, 'Montando las atracciones...');
     buildProps(this);
     onProgress(1, 'Encendiendo las luces...');
     this.buildLights();
@@ -154,12 +154,23 @@ export class WorldBuilder {
       const [x1, z1, x2, z2] = r.rect;
       const w = x2 - x1;
       const d = z2 - z1;
+      const h = r.height ?? 3.6;
       const mat = floorMaterials[r.floor]([Math.max(1, w / 2.6), Math.max(1, d / 2.6)]);
       const floor = new THREE.Mesh(new THREE.BoxGeometry(w, 0.1, d), mat);
       floor.position.set((x1 + x2) / 2, -0.05, (z1 + z2) / 2);
       floor.receiveShadow = true;
       floor.name = `floor_${r.id}`;
       this.root.add(floor);
+
+      // techo por sala (a su altura)
+      const ceil = new THREE.Mesh(
+        new THREE.PlaneGeometry(w, d),
+        ceilingMaterial([Math.max(1, w / 2.2), Math.max(1, d / 2.2)])
+      );
+      ceil.rotation.x = Math.PI / 2;
+      ceil.position.set((x1 + x2) / 2, h, (z1 + z2) / 2);
+      ceil.receiveShadow = true;
+      this.root.add(ceil);
 
       this.rooms.set(r.id, {
         def: r,
@@ -172,94 +183,43 @@ export class WorldBuilder {
         blackoutTimer: 0,
       });
     }
-    // Techo continuo
-    const ceil = new THREE.Mesh(
-      new THREE.PlaneGeometry(48, 34),
-      ceilingMaterial([48 / 2.2, 34 / 2.2])
-    );
-    ceil.rotation.x = Math.PI / 2;
-    ceil.position.y = WALL_H;
-    this.root.add(ceil);
+    // Techo del hueco de la puerta de salida (último tramo sur, lóbulo del lobby)
+    // (el lobby ya tiene techo propio a 6 m)
   }
 
   /* ================= PAREDES ================= */
 
   private wallSpecs(): WallSpec[] {
-    return [
-      // Perímetro
-      { x1: -24, z1: -17, x2: 24, z2: -17, wallType: 'wallpaper' },
-      { x1: -24, z1: 17, x2: 24, z2: 17, wallType: 'wallpaper' },
-      { x1: -24, z1: -17, x2: -24, z2: 17, wallType: 'concrete' },
-      { x1: 24, z1: -17, x2: 24, z2: 17, wallType: 'wallpaper' },
-      // Separadores banda norte
-      { x1: -13, z1: -17, x2: -13, z2: -9, wallType: 'concrete' },
-      { x1: -6, z1: -17, x2: -6, z2: -9, wallType: 'concrete' },
-      { x1: 2, z1: -17, x2: 2, z2: -9, wallType: 'wallpaper' },
-      { x1: 15, z1: -17, x2: 15, z2: -9, wallType: 'tile' },
-      // Muro sur banda norte | pasillo principal
-      { x1: -24, z1: -9, x2: -13, z2: -9, wallType: 'tile', openings: [
-        { at: -23.3, width: 1.0, height: 1.15 },
-        { at: -18.5, width: 1.6, height: DOOR_H },
-      ] },
-      { x1: -13, z1: -9, x2: -6, z2: -9, wallType: 'concrete', openings: [{ at: -9.5, width: 1.4, height: DOOR_H }] },
-      { x1: -6, z1: -9, x2: 2, z2: -9, wallType: 'wallpaper', openings: [
-        { at: -4.5, width: 1.0, height: 1.15 },
-        { at: -2, width: 2.4, height: 2.6 },
-      ] },
-      { x1: 2, z1: -9, x2: 15, z2: -9, wallType: 'wallpaper', openings: [{ at: 8.5, width: 9, height: 2.6 }] },
-      { x1: 15, z1: -9, x2: 24, z2: -9, wallType: 'tile', openings: [{ at: 19.5, width: 1.4, height: DOOR_H }] },
-      // Muro sur pasillo principal | banda central
-      { x1: -24, z1: -3.5, x2: -13.5, z2: -3.5, wallType: 'concrete', openings: [
-        { at: -23.3, width: 1.0, height: 1.15 },
-        { at: -19, width: 1.8, height: DOOR_H },
-      ] },
-      { x1: -13.5, z1: -3.5, x2: 3, z2: -3.5, wallType: 'wallpaper', openings: [{ at: -6.5, width: 7, height: 2.6 }] },
-      { x1: 3, z1: -3.5, x2: 13, z2: -3.5, wallType: 'wallpaper', openings: [{ at: 8, width: 1.8, height: DOOR_H }] },
-      { x1: 13, z1: -3.5, x2: 24, z2: -3.5, wallType: 'tile', openings: [{ at: 18.5, width: 1.8, height: DOOR_H }] },
-      // Separadores banda central
-      { x1: -13.5, z1: -3.5, x2: -13.5, z2: 5, wallType: 'concrete', openings: [{ at: 0.75, width: 1.6, height: DOOR_H }] },
-      { x1: 3, z1: -3.5, x2: 3, z2: 5, wallType: 'wallpaper', openings: [{ at: 0.75, width: 1.6, height: DOOR_H }] },
-      { x1: 13, z1: -3.5, x2: 13, z2: 5, wallType: 'tile', openings: [
-        { at: 0.75, width: 1.6, height: DOOR_H },
-        { at: 3.5, width: 1.0, height: 1.15 },
-      ] },
-      // Muro sur banda central | pasillos sur
-      { x1: -24, z1: 5, x2: -13.5, z2: 5, wallType: 'concrete', openings: [
-        { at: -19, width: 1.6, height: DOOR_H },
-        { at: -15.5, width: 1.0, height: 1.15 },
-      ] },
-      { x1: -13.5, z1: 5, x2: 3, z2: 5, wallType: 'wallpaper', openings: [{ at: -7, width: 1.6, height: DOOR_H }] },
-      { x1: 3, z1: 5, x2: 13, z2: 5, wallType: 'wallpaper', openings: [{ at: 5, width: 1.6, height: DOOR_H }] },
-      { x1: 13, z1: 5, x2: 24, z2: 5, wallType: 'tile', openings: [{ at: 18, width: 1.6, height: DOOR_H }] },
-      // Muro sur pasillos | banda sur
-      { x1: -24, z1: 9, x2: -14, z2: 9, wallType: 'concrete', openings: [{ at: -19, width: 1.6, height: DOOR_H }] },
-      { x1: -14, z1: 9, x2: -6, z2: 9, wallType: 'concrete', openings: [{ at: -10, width: 1.6, height: DOOR_H }] },
-      { x1: -6, z1: 9, x2: 6, z2: 9, wallType: 'tile', openings: [
-        { at: -3.75, width: 1.6, height: 2.3 },
-        { at: 0, width: 1.0, height: 1.15 },
-        { at: 3.75, width: 1.6, height: 2.3 },
-      ] },
-      { x1: 6, z1: 9, x2: 13, z2: 9, wallType: 'metal', openings: [
-        { at: 9.5, width: 1.6, height: DOOR_H },
-        { at: 12, width: 1.0, height: 1.15 },
-      ] },
-      { x1: 13, z1: 9, x2: 24, z2: 9, wallType: 'wallpaper', openings: [{ at: 18.5, width: 1.8, height: DOOR_H }] },
-      // Separadores banda sur
-      { x1: -14, z1: 9, x2: -14, z2: 17, wallType: 'concrete' },
-      { x1: -6, z1: 9, x2: -6, z2: 17, wallType: 'concrete' },
-      { x1: 6, z1: 9, x2: 6, z2: 17, wallType: 'metal' },
-      { x1: 13, z1: 9, x2: 13, z2: 17, wallType: 'metal' },
-      // Muro almacén sur | sala oculta
-      { x1: -14, z1: 13.2, x2: -6, z2: 13.2, wallType: 'concrete', openings: [{ at: -10, width: 1.4, height: 2.1 }] },
-    ];
+    return (this.map.walls as WallDef[]).map((w) => ({
+      x1: w.x1,
+      z1: w.z1,
+      x2: w.x2,
+      z2: w.z2,
+      wallType: w.wallType,
+      h: w.h ?? (this.map.building.wallHeight || 4.2),
+      openings: (w.openings ?? []).map((o) => ({ at: o.at, width: o.width, height: o.height ?? DOOR_H })),
+    }));
   }
 
   private buildWalls() {
     for (const spec of this.wallSpecs()) {
       this.buildWall(spec);
     }
-    // Relleno junto al conducto largo oeste (evita quedar atrapado en la esquina)
-    this.addCollider(new THREE.Box3(new THREE.Vector3(-24, 0, -8.9), new THREE.Vector3(-23.75, 3, -3.7)), 'duct_fill_w', false);
+    // pilares del portal sur del atrio (junto a la gran arcada)
+    for (const px of [-5.5, 5.5]) {
+      const pillar = new THREE.Mesh(
+        new THREE.BoxGeometry(0.55, 9, 0.55),
+        wallMaterials.wallpaper([0.5, 3])
+      );
+      pillar.position.set(px, 4.5, 13);
+      pillar.castShadow = false;
+      pillar.receiveShadow = true;
+      this.root.add(pillar);
+      this.addCollider(
+        new THREE.Box3(new THREE.Vector3(px - 0.28, 0, 12.72), new THREE.Vector3(px + 0.28, 9, 13.28)),
+        `pillar_${px}`
+      );
+    }
   }
 
   private buildWall(spec: WallSpec) {
@@ -267,25 +227,26 @@ export class WorldBuilder {
     const a = alongX ? Math.min(spec.x1, spec.x2) : Math.min(spec.z1, spec.z2);
     const b = alongX ? Math.max(spec.x1, spec.x2) : Math.max(spec.z1, spec.z2);
     const fixed = alongX ? spec.z1 : spec.x1;
+    const H = spec.h;
     const openings = (spec.openings ?? []).slice().sort((o1, o2) => o1.at - o2.at);
 
-    const mat = wallMaterials[spec.wallType]([Math.max(0.5, (b - a) / 2.4), WALL_H / 2.4]);
+    const mat = wallMaterials[spec.wallType]([Math.max(0.5, (b - a) / 2.4), H / 2.4]);
 
     const solid = (from: number, to: number) => {
       if (to - from < 0.05) return;
       const len = to - from;
       const cx = alongX ? (from + to) / 2 : fixed;
       const cz = alongX ? fixed : (from + to) / 2;
-      const geo = new THREE.BoxGeometry(alongX ? len : WALL_T, WALL_H, alongX ? WALL_T : len);
+      const geo = new THREE.BoxGeometry(alongX ? len : WALL_T, H, alongX ? WALL_T : len);
       const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(cx, WALL_H / 2, cz);
+      mesh.position.set(cx, H / 2, cz);
       mesh.castShadow = false;
       mesh.receiveShadow = true;
       this.root.add(mesh);
       this.addCollider(
         new THREE.Box3(
           new THREE.Vector3(cx - (alongX ? len / 2 : WALL_T / 2 + 0.02), 0, cz - (alongX ? WALL_T / 2 + 0.02 : len / 2)),
-          new THREE.Vector3(cx + (alongX ? len / 2 : WALL_T / 2 + 0.02), WALL_H, cz + (alongX ? WALL_T / 2 + 0.02 : len / 2))
+          new THREE.Vector3(cx + (alongX ? len / 2 : WALL_T / 2 + 0.02), H, cz + (alongX ? WALL_T / 2 + 0.02 : len / 2))
         ),
         undefined,
         true
@@ -293,13 +254,13 @@ export class WorldBuilder {
     };
 
     const lintel = (from: number, to: number, h: number) => {
-      if (WALL_H - h < 0.1) return;
+      if (H - h < 0.1) return;
       const len = to - from;
       const cx = alongX ? (from + to) / 2 : fixed;
       const cz = alongX ? fixed : (from + to) / 2;
-      const geo = new THREE.BoxGeometry(alongX ? len : WALL_T, WALL_H - h, alongX ? WALL_T : len);
+      const geo = new THREE.BoxGeometry(alongX ? len : WALL_T, H - h, alongX ? WALL_T : len);
       const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(cx, h + (WALL_H - h) / 2, cz);
+      mesh.position.set(cx, h + (H - h) / 2, cz);
       mesh.receiveShadow = true;
       this.root.add(mesh);
     };
@@ -321,12 +282,13 @@ export class WorldBuilder {
     for (const d of this.map.doors as DoorDef[]) {
       this.buildDoor(d);
     }
-    // Arcadas sin puerta (escenario / comedor / entradas de oficina): ya creadas como huecos
   }
 
   private buildDoor(d: DoorDef) {
     const g = new THREE.Group();
-    const isMetal = d.id.includes('electrical') || d.id.includes('machinery') || d.id.includes('exit');
+    const isMetal = d.id.includes('electrical') || d.id.includes('generator') || d.id.includes('exit') ||
+      d.id.includes('workshop') || d.id.includes('loading') || d.id.includes('freezers') || d.id.includes('pump') ||
+      d.id.includes('storageN') || d.id.includes('storageS') || d.id.includes('techS');
     const leafMat = isMetal ? metalMaterial([0.6, 1]) : this.woodDoorMat();
     const w = d.width - 0.08;
     const leaf = new THREE.Mesh(new THREE.BoxGeometry(w, 2.05, 0.07), leafMat);
@@ -341,7 +303,6 @@ export class WorldBuilder {
       );
       glass.position.set(w / 2, 1.6, 0.04);
       g.add(glass);
-      // Marco de la ventanilla
       const frame = new THREE.Mesh(new THREE.BoxGeometry(w * 0.4 + 0.08, 0.58, 0.03), darkMetalMaterial());
       frame.position.set(w / 2, 1.6, 0.02);
       g.add(frame);
@@ -351,15 +312,12 @@ export class WorldBuilder {
     handle.position.set(w - 0.22, 1.02, 0.07);
     g.add(handle);
     if (d.secret) {
-      // Estantería falsa: cajas y tablas sobre la puerta
       this.dressAsShelf(g, w);
     }
     if (d.id === 'door_exit') {
-      // Barra antipánico
       const bar = new THREE.Mesh(new THREE.BoxGeometry(w * 0.8, 0.08, 0.1), metalMaterial([0.5, 0.2]));
       bar.position.set(w / 2, 1.05, 0.09);
       g.add(bar);
-      // Cartel SALIDA
       const sign = new THREE.Mesh(
         new THREE.BoxGeometry(0.5, 0.18, 0.06),
         new THREE.MeshStandardMaterial({ color: 0x113311, emissive: 0x22ff44, emissiveIntensity: 0.9 })
@@ -369,7 +327,6 @@ export class WorldBuilder {
     }
 
     const alongX = d.axis === 'x'; // hueco en muro que corre en X
-    // bisagra en el extremo negativo del hueco
     const hx = alongX ? d.x - d.width / 2 + 0.04 : d.x;
     const hz = alongX ? d.z : d.z - d.width / 2 + 0.04;
     if (alongX) {
@@ -378,11 +335,10 @@ export class WorldBuilder {
       g.position.set(d.x, 0, hz);
       g.rotation.y = Math.PI / 2;
     }
-    // dirección de apertura (hacia roomB)
     let openDir = 1;
     if (alongX) {
       const rb = this.rooms.get(d.roomB);
-      openDir = rb && rb.def.rect[1] < d.z ? 1 : -1; // abre hacia el sur si roomB está al sur
+      openDir = rb && rb.def.rect[1] < d.z ? 1 : -1;
     } else {
       const rb = this.rooms.get(d.roomB);
       openDir = rb && rb.def.rect[0] < d.x ? 1 : -1;
@@ -390,8 +346,8 @@ export class WorldBuilder {
 
     this.root.add(g);
 
-    const cx = alongX ? d.x : d.x;
-    const cz = alongX ? d.z : d.z;
+    const cx = d.x;
+    const cz = d.z;
     const collider = this.addCollider(
       new THREE.Box3(
         new THREE.Vector3(cx - (alongX ? d.width / 2 : 0.1), 0, cz - (alongX ? 0.1 : d.width / 2)),
@@ -427,7 +383,6 @@ export class WorldBuilder {
       const board = new THREE.Mesh(new THREE.BoxGeometry(w * 0.96, 0.05, 0.34), shelfMat);
       board.position.set(w / 2, 0.5 + i * 0.62, 0.12);
       g.add(board);
-      // cajas encima
       for (let b = 0; b < 3; b++) {
         const bw = 0.22 + Math.random() * 0.12;
         const box = new THREE.Mesh(
@@ -446,7 +401,6 @@ export class WorldBuilder {
   private buildVents() {
     for (const v of this.map.vents as VentDef[]) {
       const rt: VentRT = { def: v, coverClosed: false, coverTimer: 0, blocked: false, bangTimer: 0 };
-      // El conducto largo oeste se construye de extremo a extremo
       const ax = v.a[0];
       const az = v.a[1];
       const bx = v.b[0];
@@ -459,7 +413,6 @@ export class WorldBuilder {
       const cz = (az + bz) / 2;
       const ductMat = metalMaterial([Math.max(1, len / 1.2), 1]);
 
-      // Interior hueco: suelo, laterales y techo
       const ductLen = len + 0.5;
       const floor = new THREE.Mesh(new THREE.BoxGeometry(alongX ? ductLen : 1.0, 0.04, alongX ? 1.0 : ductLen), ductMat);
       floor.position.set(cx, 0.03, cz);
@@ -473,7 +426,6 @@ export class WorldBuilder {
       const top = new THREE.Mesh(new THREE.BoxGeometry(alongX ? ductLen : 1.0, 0.06, alongX ? 1.0 : ductLen), ductMat);
       top.position.set(cx, 1.18, cz);
       this.root.add(top);
-      // Colliders de los laterales
       this.addCollider(
         new THREE.Box3().setFromCenterAndSize(sideA.position.clone().setY(0.6), new THREE.Vector3(alongX ? ductLen : 0.14, 1.2, alongX ? 0.14 : ductLen)),
         `vent_side_${v.id}_a`
@@ -482,29 +434,10 @@ export class WorldBuilder {
         new THREE.Box3().setFromCenterAndSize(sideB.position.clone().setY(0.6), new THREE.Vector3(alongX ? ductLen : 0.14, 1.2, alongX ? 0.14 : ductLen)),
         `vent_side_${v.id}_b`
       );
-      if (len > 2.5) {
-        // relleno lateral para el conducto largo (impide caminar junto a él dentro del pasillo)
-        this.addCollider(
-          new THREE.Box3().setFromCenterAndSize(
-            new THREE.Vector3(cx + (alongX ? 0 : 1.0), 1.6, cz + (alongX ? 1.0 : 0)),
-            new THREE.Vector3(alongX ? ductLen : 0.6, 3.2, alongX ? 0.6 : ductLen)
-          ),
-          `vent_fill_${v.id}`
-        );
-        this.addCollider(
-          new THREE.Box3().setFromCenterAndSize(
-            new THREE.Vector3(cx - (alongX ? 0 : 1.0), 1.6, cz - (alongX ? 1.0 : 0)),
-            new THREE.Vector3(alongX ? ductLen : 0.6, 3.2, alongX ? 0.6 : ductLen)
-          ),
-          `vent_fill2_${v.id}`
-        );
-      }
 
-      // Rejillas en ambos extremos (barras)
       this.buildGrate(ax, az, alongX);
       this.buildGrate(bx, bz, alongX);
 
-      // Tapa si procede
       if (v.coverAt) {
         const px = v.coverAt === 'a' ? ax : bx;
         const pz = v.coverAt === 'a' ? az : bz;
@@ -546,39 +479,36 @@ export class WorldBuilder {
   /* ================= LUCES ================= */
 
   private buildLights() {
-    // Multiplicador de unidades físicas de Three.js r155+ (candelas)
     const LM = 42;
     for (const rt of this.rooms.values()) {
       const amb = rt.def.ambientLight;
       const color = amb?.color ?? 0xffd9a8;
-      // noche cerrada: la instalación está fundida en su mayoría; solo la
-      // oficina conserva luz tenue. Las salas "reparadas" encienden tenues.
+      const h = rt.def.height ?? 3.6;
       const dimFactor = rt.def.id === 'office' ? 0.6 : 0.17;
       const base = (amb?.intensity ?? 0.45) * LM * dimFactor;
       const light = new THREE.PointLight(color, base, 15, 1.7);
-      light.position.set(rt.center.x, 2.85, rt.center.z);
+      light.position.set(rt.center.x, h - 0.55, rt.center.z);
       this.root.add(light);
       rt.light = light;
       rt.lightBase = base;
       rt.lightOn = LIGHTS_ON_DEFAULT.has(rt.def.id);
       this.roomLights.push(rt);
-      // Luminaria empotrada
       const fixture = new THREE.Mesh(
         new THREE.BoxGeometry(1.1, 0.08, 0.4),
         new THREE.MeshStandardMaterial({ color: 0x9a9482, emissive: new THREE.Color(color), emissiveIntensity: 1.4 })
       );
-      fixture.position.set(rt.center.x, WALL_H - 0.06, rt.center.z);
+      fixture.position.set(rt.center.x, h - 0.06, rt.center.z);
       this.root.add(fixture);
       rt.fixture = fixture;
     }
 
-    // Focos del escenario: solo queda un azul moribundo (siluetas)
+    // Focos del escenario del atrio: un azul moribundo y dos apagados
     const spotColors = [0xff5544, 0x44ff88, 0x5588ff];
-    const spotX = [5.5, 8.5, 11.5];
+    const spotX = [-4.5, 0, 4.5];
     for (let i = 0; i < 3; i++) {
-      const spot = new THREE.SpotLight(spotColors[i], i === 2 ? 7 : 0, 18, 0.5, 0.45, 1.2);
-      spot.position.set(spotX[i], 3.0, -9.5);
-      spot.target.position.set(spotX[i], 1.2, -13.5);
+      const spot = new THREE.SpotLight(spotColors[i], i === 2 ? 9 : 0, 20, 0.5, 0.45, 1.2);
+      spot.position.set(spotX[i], 7.6, -8.2);
+      spot.target.position.set(spotX[i], 1.6, -6.2);
       spot.castShadow = i === 2;
       this.root.add(spot);
       this.root.add(spot.target);
@@ -587,11 +517,12 @@ export class WorldBuilder {
 
     // Luces de emergencia (rojas) — siempre encendidas, tenues
     const emPos: Array<[number, number]> = [
-      [-19, 15], [18.5, 15.5], [0, 12.5], [-8.5, 1.5],
+      [-37.5, 21.5], [0, 15.5], [-30, -20.5], [30, -20.5],
+      [0, 6], [-36, 5], [24, 26], [-25.5, 21],
     ];
     for (const [x, z] of emPos) {
-      const l = new THREE.PointLight(0xff2211, 6, 9, 1.9);
-      l.position.set(x, 2.9, z);
+      const l = new THREE.PointLight(0xff2211, 6, 10, 1.9);
+      l.position.set(x, 3.4, z);
       this.root.add(l);
       this.emergencyLights.push(l);
     }
@@ -601,22 +532,30 @@ export class WorldBuilder {
     this.power = p;
   }
 
-  /** Parpadeo, culling de luces cercanas y animaciones de props.
-   * focus = posición de interés (jugador o cámara de seguridad activa) */
+  setRoomLight(roomId: string, on: boolean) {
+    const r = this.rooms.get(roomId);
+    if (r) r.lightOn = on;
+  }
+
+  setAllLights(on: boolean, except: string[] = []) {
+    for (const r of this.rooms.values()) {
+      if (!except.includes(r.def.id)) r.lightOn = on;
+    }
+  }
+
   update(dt: number, focusPos: THREE.Vector3) {
     this.clock += dt;
-    // Culling: solo las 11 luces más cercanas al foco
+    // Culling: solo las 12 luces más cercanas al foco
     const sorted = this.roomLights
       .map((r) => ({ r, d: r.center.distanceToSquared(focusPos) }))
       .sort((a, b) => a.d - b.d);
     for (let i = 0; i < sorted.length; i++) {
       const { r } = sorted[i];
-      const enable = i < 11;
+      const enable = i < 12;
       if (r.light) {
         let intensity = 0;
         if (enable && r.lightOn) {
           intensity = r.lightBase * this.power;
-          // parpadeo
           if (r.flicker > 0.02) {
             const t = this.clock;
             const f =
@@ -633,8 +572,6 @@ export class WorldBuilder {
         }
       }
     }
-    // modo tableta: la sala del feed recibe luz tenue aunque esté fundida
-    // (sensores de la cámara; solo afecta al render del feed)
     if (this.camView) {
       const r = this.roomAt(focusPos.x, focusPos.z);
       if (r && r.light) {
@@ -646,14 +583,12 @@ export class WorldBuilder {
         }
       }
     }
-    // Animaciones de props (ventiladores, cortinas, pantallas)
     for (const a of this.propAnims) {
       a.update(dt, this.clock);
     }
   }
 
   reset() {
-    // Puertas cerradas, tapas fuera, luces on
     for (const d of this.doors.values()) {
       d.open = false;
       d.targetAngle = 0;

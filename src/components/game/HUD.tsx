@@ -52,6 +52,24 @@ export default function HUD() {
         ))}
       </div>
 
+      {/* panel de PRUEBA activa (arriba-derecha) */}
+      {s.trialActive && (
+        <div className="hud-corner top-5 right-6 text-right trial-panel">
+          <p className="text-[10px] tracking-[0.3em] fnaf-red">⚠ PRUEBA ACTIVA</p>
+          <p className="text-[12px] tracking-[0.16em] fnaf-gold mt-1">{s.trialName}</p>
+          <div className="mt-2 flex gap-1.5 justify-end">
+            {Array.from({ length: s.trialTasks }).map((_, i) => (
+              <div key={i} className={`trial-task ${i < s.trialTasksDone ? 'done' : ''}`}>
+                {i < s.trialTasksDone ? '■' : '□'}
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] tracking-[0.22em] fnaf-dim mt-1.5">
+            INTENTO #{Math.max(1, s.trialAttempts)} · ATRAPADO = REAPARECES
+          </p>
+        </div>
+      )}
+
       {/* recursos abajo-izquierda: linterna + energía del edificio */}
       <div className="hud-corner bottom-5 left-6 space-y-2.5 text-[11px] tracking-[0.14em]">
         <div className="battery-widget">

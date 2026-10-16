@@ -25,19 +25,19 @@ interface SpawnedItem {
   kind: string;
 }
 
-const FUSE_SPOTS: Record<number, string[]> = {
-  1: ['fuse_storageA', 'dining'],
-  2: ['fuse_storageA', 'fuse_storageB', 'fuse_workshop'],
-  3: [],
-  4: [],
+const TAPE_CHAPTER: Record<number, string[]> = {
+  1: ['tape_w1', 'tape_w7'],
+  2: ['tape_w2', 'tape_w3'],
+  3: ['tape_w4', 'tape_w9'],
+  4: ['tape_w6', 'tape_w5'],
+  5: ['tape_w8'],
+  6: ['tape_golden'],
 };
 
-const TAPE_CHAPTER: Record<number, string[]> = {
-  1: ['tape_w6', 'tape_w7'],
-  2: ['tape_w1', 'tape_w2', 'tape_w8'],
-  3: ['tape_golden', 'tape_w3', 'tape_w4'],
-  4: ['tape_w5', 'tape_w9', 'tape_w10'],
-};
+/** fichas doradas del recreativo (cap 2) */
+const TOKEN_SPOTS: Array<[number, number]> = [
+  [-12.6, -13.5], [-6.2, -14.2], [-4.5, -10.8],
+];
 
 export class MissionSystem {
   chapter: ChapterDef;
@@ -47,6 +47,8 @@ export class MissionSystem {
   items: SpawnedItem[] = [];
   fusesHeld = 0;
   coversHeld = 0;
+  keycards = 0;
+  tokensHeld = 0;
   hasKey = false;
   hasTablet = false;
   hasFlashlight = false;
@@ -64,19 +66,6 @@ export class MissionSystem {
     this.store = store;
     this.game = game;
     this.objectives = chapter.objectives.map((o) => ({ def: o, done: false, count: 0 }));
-    if (chapter.chapter === 3) {
-      // cerrojo con código en el almacén sur
-      const d = world.doors.get('door_storageB');
-      if (d) {
-        d.locked = true;
-        d.code = '1987';
-      }
-    }
-    if (chapter.chapter < 4) {
-      const exitD = world.doors.get('door_exit');
-      if (exitD) exitD.locked = true;
-    }
-    // la estantería secreta: empujable desde la noche 3 (tras encontrar la cinta) o siempre en la 5
     this.spawnItems();
     this.syncObjectives();
   }
@@ -85,22 +74,19 @@ export class MissionSystem {
 
   private spawnItems() {
     const n = this.chapter.chapter;
-    // fusibles
-    const fuseSpots = FUSE_SPOTS[n] ?? [];
-    fuseSpots.forEach((spotId, i) => {
-      this.spawnPickup(`fuse_${i}`, 'fuse', spotId);
-    });
     // cintas
     (TAPE_CHAPTER[n] ?? []).forEach((tapeId) => {
       const tape = (storyData.tapes as Array<{ id: string; title: string; location: string; text: string }>).find((t) => t.id === tapeId);
       if (tape) this.spawnPickup(tape.id, 'tape', `tape_${tape.location}`);
     });
-    // notas de lore: nota código en cap3+, nota maestra en cap4
-    if (n >= 3) this.spawnPickup('note_code_pick', 'note', 'note_code');
-    if (n >= 4) this.spawnPickup('note_master_pick', 'note', 'note_master');
-    // llave en la sala oculta (cap4)
-    if (n === 4) {
-      this.spawnPickup('exit_key', 'key', 'secret_key');
+    // notas de lore
+    if (n >= 1) this.spawnPickup('note_order_pick', 'note', 'note_order');
+    if (n >= 6) this.spawnPickup('note_master_pick', 'note', 'note_master');
+    // fichas doradas (cap2, para la bolera)
+    if (n === 2) {
+      TOKEN_SPOTS.forEach(([x, z], i) => {
+        this.spawnPickupAt(`token_${i}`, 'token', new THREE.Vector3(x, 0.08, z));
+      });
     }
     // baterías (todos los capítulos, 6 aleatorias)
     const spots = this.world.map.batterySpots.slice();
@@ -112,9 +98,6 @@ export class MissionSystem {
   }
 
   private anchorPos(anchorId: string): THREE.Vector3 | null {
-    if (anchorId === 'cover_prize') return new THREE.Vector3(-4.2, 1.0, -13.8);
-    if (anchorId === 'secret_key') return new THREE.Vector3(-11.5, 0.35, 15.5);
-    if (anchorId === 'dining') return new THREE.Vector3(-6.5, 0.95, 0.3);
     const a = this.world.anchors.get(anchorId);
     return a ? a.pos.clone() : null;
   }
@@ -126,7 +109,9 @@ export class MissionSystem {
   }
 
   private spawnPickupAt(id: string, kind: string, pos: THREE.Vector3) {
-    const mesh = createPickupMesh(kind as 'fuse' | 'tape' | 'note' | 'battery' | 'cover' | 'key');
+    const mesh = createPickupMesh(
+      (kind === 'token' ? 'part' : kind) as 'fuse' | 'tape' | 'note' | 'battery' | 'cover' | 'key' | 'keycard' | 'part'
+    );
     mesh.position.copy(pos);
     if (kind === 'note') {
       mesh.rotation.x = -Math.PI / 2.4;
@@ -190,14 +175,7 @@ export class MissionSystem {
     if (!o || o.done) return;
     o.count += addCount;
     if (o.def.count && o.count >= o.def.count) {
-      // completar la parte de recogida; puede requerir entrega (target)
-      if (o.def.target === 'electrical_panel') {
-        this.game.notify(`Lleva los fusibles al panel eléctrico (${o.count}/${o.def.count})`);
-      } else if (o.def.target === 'vent_covers') {
-        this.game.notify(`Instala las tapas en los conductos (${o.count}/${o.def.count})`);
-      } else {
-        this.completeObjective(id);
-      }
+      this.completeObjective(id);
     }
     this.syncObjectives();
   }

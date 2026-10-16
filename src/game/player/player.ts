@@ -5,7 +5,6 @@
 import * as THREE from 'three';
 import type { WorldBuilder } from '../world/worldbuilder';
 import { mapData } from '../ai/mapdata';
-
 export interface PlayerHost {
   world: WorldBuilder;
   addNoise(x: number, z: number, radius: number): void;
@@ -19,11 +18,15 @@ export interface PlayerHost {
 const STAND_EYE = 1.62;
 const CROUCH_EYE = 0.95;
 const PLAYER_R = 0.3;
+const BMIN_X = mapData.building.minX + 0.35;
+const BMAX_X = mapData.building.maxX - 0.35;
+const BMIN_Z = mapData.building.minZ + 0.35;
+const BMAX_Z = mapData.building.maxZ - 0.35;
 
 export class Player {
-  pos = new THREE.Vector3(3.0, 0, 12.3);
+  pos = new THREE.Vector3(mapData.playerSpawn.x, 0, mapData.playerSpawn.z);
   vel = new THREE.Vector3();
-  yaw = Math.PI;
+  yaw = mapData.playerSpawn.yaw;
   pitch = 0;
   camera: THREE.PerspectiveCamera;
   host: PlayerHost;
@@ -93,10 +96,9 @@ export class Player {
   }
 
   reset() {
-    this.pos.set(3.0, 0, 12.3);
+    this.pos.set(mapData.playerSpawn.x, 0, mapData.playerSpawn.z);
     this.vel.set(0, 0, 0);
-    // mirar al norte: el escritorio con la linterna y la tableta queda de frente
-    this.yaw = Math.PI;
+    this.yaw = mapData.playerSpawn.yaw;
     this.pitch = 0;
     this.crouching = false;
     this.stamina = 100;
@@ -253,7 +255,7 @@ export class Player {
         else if (this.vel.x < 0) resolvedX = b.max.x + PLAYER_R + 0.001;
       }
     }
-    this.pos.x = Math.max(-23.7, Math.min(23.7, resolvedX));
+    this.pos.x = Math.max(BMIN_X, Math.min(BMAX_X, resolvedX));
     // resolver eje Z
     let resolvedZ = nz;
     for (const c of world.colliders) {
@@ -270,7 +272,7 @@ export class Player {
         else if (this.vel.z < 0) resolvedZ = b.max.z + PLAYER_R + 0.001;
       }
     }
-    this.pos.z = Math.max(-16.7, Math.min(16.7, resolvedZ));
+    this.pos.z = Math.max(BMIN_Z, Math.min(BMAX_Z, resolvedZ));
     // gravedad simple: seguir la altura del suelo
     const fy = world.floorHeightAt(this.pos.x, this.pos.z);
     this.pos.y += (fy - this.pos.y) * Math.min(1, dt * 12);

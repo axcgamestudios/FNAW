@@ -15,10 +15,12 @@ import { SecurityCameras } from '../systems/cameras';
 import { MissionSystem } from '../systems/missions';
 import { EventDirector } from '../systems/events';
 import { CinematicPlayer } from '../systems/cinematic';
+import { TrialSystem, type TrialHudData } from '../systems/trials';
 import { AudioEngine } from '../audio/audio';
 import { useHud } from './state';
 import { loadSave, unlockChapter, addTape, addEnding } from '../systems/save';
 import { mapData } from '../ai/mapdata';
+import { createPickupMesh } from '../world/props';
 import { Assets, type GltfRig } from '../world/assets';
 import { disposeTextures } from '../world/textures';
 import { disposeMaterials } from '../world/materials';
@@ -40,6 +42,7 @@ export class Game {
   missions!: MissionSystem;
   events!: EventDirector;
   cine!: CinematicPlayer;
+  trials!: TrialSystem;
   audio = new AudioEngine();
   chapter = 1;
   chapterDef!: ChapterDef;
@@ -100,7 +103,7 @@ export class Game {
 
     // noche cerrada: fondo casi negro + niebla densa
     this.scene.background = new THREE.Color(0x010102);
-    this.scene.fog = new THREE.FogExp2(0x030407, 0.065);
+    this.scene.fog = new THREE.FogExp2(0x030407, 0.052);
     // hemisferio casi nulo: el edificio está a oscuras, la linterna es esencial
     const hemi = new THREE.HemisphereLight(0x11131c, 0x020203, 0.05);
     this.scene.add(hemi);
@@ -113,13 +116,13 @@ export class Game {
     (this.scene as THREE.Scene & { environmentIntensity: number }).environmentIntensity = 0.12;
     pmrem.dispose();
 
-    this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.08, 70);
+    this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.08, 95);
     this.scene.add(this.camera);
 
     // cargar modelos GLB y texturas del repositorio
     await Assets.loadAll((f, label) => onProgress(0.05 + f * 0.45, label));
 
-    onProgress(0.55, 'Construyendo la pizzería...');
+    onProgress(0.55, 'Construyendo el MEGAPLEX...');
     await nextFrame();
     this.world = new WorldBuilder(this.scene);
     this.world.buildAll((f, label) => onProgress(0.55 + f * 0.2, label));
@@ -152,6 +155,7 @@ export class Game {
       setStatic: (l) => this.audio.setStatic(l),
     });
     this.cine = new CinematicPlayer(this.camera, this.world);
+    this.trials = new TrialSystem(this.makeTrialHost());
 
     this.buildDust();
 
@@ -332,9 +336,11 @@ export class Game {
     useHud.getState().setMode('menu');
     useHud.getState().setTablet(false);
     // Freddy del menú: clon en la oficina mirando a cámara
+    const CX = -37.5;
+    const CZ = 24.5;
     if (!this.menuRig && Assets.has('freddy')) {
       this.menuRig = Assets.createVariant('freddy');
-      this.menuRig.root.position.set(0, 0, 11.2);
+      this.menuRig.root.position.set(CX, 0, CZ - 1.2);
       this.menuRig.root.rotation.y = 0;
       this.scene.add(this.menuRig.root);
     } else if (this.menuRig) {
@@ -343,8 +349,8 @@ export class Game {
     // foco cenital tenue sobre Freddy (visible entre la estática)
     if (!this.menuSpot) {
       const spot = new THREE.SpotLight(0xcfd8e8, 60, 9, 0.55, 0.5, 1.6);
-      spot.position.set(0.4, 3.05, 12.9);
-      spot.target.position.set(0, 2.1, 11.2);
+      spot.position.set(CX + 0.4, 3.1, CZ + 0.6);
+      spot.target.position.set(CX, 2.1, CZ - 1.2);
       this.scene.add(spot, spot.target);
       this.menuSpot = spot;
     }
@@ -358,8 +364,10 @@ export class Game {
 
   private menuCamera(dt: number) {
     const t = performance.now() / 1000;
-    // cámara fija frente al rostro de Freddy (2.6 m: mirar ligeramente hacia arriba)
-    this.camera.position.set(Math.sin(t * 0.07) * 0.08, 2.18 + Math.sin(t * 0.11) * 0.02, 12.5);
+    const CX = -37.5;
+    const CZ = 24.5;
+    // cámara fija frente al rostro de Freddy
+    this.camera.position.set(CX + Math.sin(t * 0.07) * 0.08, 2.18 + Math.sin(t * 0.11) * 0.02, CZ + 0.9);
     this.camera.rotation.set(0, 0, 0);
     this.camera.rotation.order = 'YXZ';
     this.camera.rotation.y = 0 + Math.sin(t * 0.05) * 0.03;
@@ -372,7 +380,6 @@ export class Game {
         if (this.menuTwitchT <= 0) {
           this.menuTwitchT = 1.2 + Math.random() * 3.5;
         }
-        const twitch = Math.max(0, this.menuTwitchT - (1.2 + Math.random() * 3.5) + 0.4);
         head.rotation.z = Math.sin(t * 0.8) * 0.03 + (Math.random() < 0.02 ? (Math.random() - 0.5) * 0.2 : 0);
         head.rotation.y = Math.sin(t * 0.33) * 0.08;
       }
@@ -411,7 +418,9 @@ export class Game {
     this.cams.reset(n);
     this.missions = new MissionSystem(this.chapterDef, this.world, useHud, this.makeMissionHost());
     this.events = new EventDirector(this.makeEventHost());
+    this.trials.reset(n);
     this.buildInteractables();
+    this.trialInteractables = [];
     this.callQueue = [];
     this.callLineIdx = 0;
     this.callLineTimer = 0;
@@ -491,6 +500,62 @@ export class Game {
       onCallStart: (lines: string[]) => this.startCall(lines),
       onKitchenNoise: () => {
         this.notify('RUIDO EN LA COCINA — COMPRUÉBALO');
+      },
+    };
+  }
+
+  /* ============ HOST DE PRUEBAS ============ */
+
+  private trialInteractables: Interactable[] = [];
+
+  private makeTrialHost() {
+    return {
+      world: this.world,
+      player: this.player,
+      animatronics: this.animatronics,
+      notify: (msg: string) => this.notify(msg),
+      setTrialHud: (d: TrialHudData) =>
+        useHud.getState().syncHud({
+          trialActive: !!d.name,
+          trialName: d.name,
+          trialAttempts: d.attempts,
+          trialTasks: d.tasksTotal,
+          trialTasksDone: d.tasksDone,
+        }),
+      completeObjective: (id: string) => this.missions.completeObjective(id),
+      objectiveDone: (id: string) => !!this.missions.objectives.find((o) => o.def.id === id)?.done,
+      registerInteractable: (inter: Interactable) => {
+        this.trialInteractables.push(inter);
+        this.interactables.push(inter);
+      },
+      clearTrialInteractables: () => {
+        this.interactables = this.interactables.filter((i) => !this.trialInteractables.includes(i));
+        this.trialInteractables = [];
+      },
+      addNoise: (x: number, z: number, r: number) => this.addNoise(x, z, r),
+      onTrialSuccess: () => {
+        // el Freddy Dorado despierta al superar la prueba de generadores
+        if (this.chapter === 5) {
+          const golden = this.animatronics.find((a) => a.def.id === 'golden');
+          if (golden && !golden.active) {
+            this.audio.stinger();
+            golden.scriptWake();
+            this.notify('EL TRAJE DORADO SE HA LEVANTADO — CORRE AL VESTÍBULO');
+            this.player.setShake(0.9);
+          }
+        }
+      },
+      sfx: {
+        stinger: () => this.audio.stinger(),
+        roar: (pos: THREE.Vector3, voice: string) => this.audio.roar(pos, voice),
+        ventBang: (pos: THREE.Vector3) => this.audio.ventBang(pos),
+        childLaugh: (pos: THREE.Vector3) => this.audio.childLaugh(pos),
+        footstep: (pos: THREE.Vector3, surface: string, running: boolean, heavy: boolean) =>
+          this.audio.footstep(pos, surface, running, heavy),
+        powerDown: () => this.audio.powerDown(),
+        powerUp: () => this.audio.powerUp(),
+        switchClick: () => this.audio.switchClick(),
+        respawn: () => this.audio.respawn(),
       },
     };
   }
@@ -667,9 +732,9 @@ export class Game {
 
     // puertas
     for (const door of world.doors.values()) {
-      const isStorageB = door.def.id === 'door_storageB';
       const isExit = door.def.id === 'door_exit';
-      const isSecret = door.def.id === 'door_secret';
+      const isSecret = door.def.id === 'door_techS';
+      const isGenerator = door.def.id === 'door_generator' || door.def.id === 'door_generator2';
       this.interactables.push({
         id: `door_${door.def.id}`,
         label: isSecret ? 'Empujar la estantería' : door.locked ? 'Puerta bloqueada' : door.open ? 'Cerrar puerta' : 'Abrir puerta',
@@ -679,24 +744,36 @@ export class Game {
         action: () => {
           if (isSecret && door.locked) {
             door.locked = false;
-            this.nav.setDoorBlocked('door_secret', false);
-            this.notify('La estantería se desliza hacia dentro... una sala oculta');
+            this.nav.setDoorBlocked('door_techS', false);
+            this.notify('La estantería se desliza hacia dentro... la sala técnica');
             this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
             door.open = true;
             door.targetAngle = door.group.rotation.y - 1.8;
             return;
           }
-          if (door.locked && door.code) {
-            useHud.getState().setKeypad(door.def.id);
-            this.audio.alertBeep();
-            return;
-          }
-          if (door.locked) {
-            if (isExit && this.missions.hasKey) {
-              this.finishGame('escape');
+          if (isGenerator && door.locked) {
+            // la sala de generadores se abre en el capítulo 5
+            if (ch >= 5) {
+              door.locked = false;
+              this.nav.setDoorBlocked(door.def.id, false);
+              this.notify('SALA DE GENERADORES ABIERTA');
+              this.audio.keypadBeep(true);
               return;
             }
             this.notify(door.def.lockedMsg ?? 'Bloqueada');
+            this.audio.keypadBeep(false);
+            return;
+          }
+          if (door.locked) {
+            if (isExit && ch === 6 && this.missions.keycards >= 3) {
+              this.finishGame('escape');
+              return;
+            }
+            if (isExit && ch === 6) {
+              this.notify(`NECESITAS 3 TARJETAS (${this.missions.keycards}/3)`);
+            } else {
+              this.notify(door.def.lockedMsg ?? 'Bloqueada');
+            }
             this.audio.keypadBeep(false);
             return;
           }
@@ -707,7 +784,6 @@ export class Game {
           this.addNoise(door.def.x, door.def.z, 6);
         },
       });
-      if (isStorageB) door.locked = ch >= 3;
     }
 
     // escondites
@@ -775,84 +851,52 @@ export class Game {
       });
     }
 
-    // panel de la oficina (cap1)
-    const officePanel = world.anchors.get('office_panel');
-    if (officePanel) {
-      this.interactables.push({
-        id: 'office_panel',
-        label: 'Reparar el panel de la oficina',
-        pos: { x: officePanel.pos.x, y: officePanel.pos.y, z: officePanel.pos.z },
-        radius: 1.7,
-        holdTime: 5,
-        holdLabel: 'REPARANDO',
-        enabled: () => this.mode === 'playing' && ch === 1 && !this.missions.objectives.find((o) => o.def.id === 'c1_repair')?.done && this.missions.fusesHeld >= 2,
-        action: () => {
-          this.missions.fusesHeld -= 2;
-          this.audio.repairClick();
-          this.missions.completeObjective('c1_repair');
-        },
-      });
-    }
-
-    // panel eléctrico (cap2)
-    const elecPanel = world.anchors.get('electrical_panel');
-    if (elecPanel) {
-      this.interactables.push({
-        id: 'electrical_panel',
-        label: 'Insertar fusibles en el panel',
-        pos: { x: elecPanel.pos.x, y: elecPanel.pos.y, z: elecPanel.pos.z },
-        radius: 1.8,
-        holdTime: 6,
-        holdLabel: 'INSERTANDO FUSIBLES',
-        enabled: () => this.mode === 'playing' && ch === 2 && this.missions.fusesHeld >= 3,
-        action: () => {
-          this.missions.fusesHeld -= 3;
-          this.power = Math.min(100, this.power + 30);
-          this.audio.powerUp();
-          this.missions.completeObjective('c2_fuses');
-        },
-      });
-    }
-
-    // soportes de cámara (cap2)
-    for (const [anchorId, objId, camIdx] of [['cam09_mount', 'c2_cam9', 9], ['cam05_mount', 'c2_cam5', 5]] as Array<[string, string, number]>) {
+    // breakers del Cuarto Eléctrico (cap1)
+    for (const [anchorId, objId] of [['breaker_1', 'c1_b1'], ['breaker_2', 'c1_b2']] as Array<[string, string]>) {
       const a = world.anchors.get(anchorId);
       if (!a) continue;
       this.interactables.push({
         id: anchorId,
-        label: 'Reparar la cámara',
+        label: 'Rearranca el breaker',
         pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
         radius: 1.8,
         holdTime: 5,
-        holdLabel: 'REPARANDO CÁMARA',
-        enabled: () => this.mode === 'playing' && ch === 2 && !this.missions.objectives.find((o) => o.def.id === objId)?.done,
+        holdLabel: 'REARRANCANDO BREAKER',
+        enabled: () => this.mode === 'playing' && ch === 1 && !this.missions.objectives.find((o) => o.def.id === objId)?.done,
         action: () => {
-          this.cams.repairCam(camIdx);
-          this.audio.repairClick();
+          this.power = Math.min(100, this.power + 20);
+          this.audio.powerUp();
           this.missions.completeObjective(objId);
         },
       });
     }
 
-    // interruptores del fusible maestro (cap4)
-    const masterX = -12.7;
-    for (let i = 0; i < 4; i++) {
-      const sx = masterX + 0.42 - i * 0.28;
-      const switchNo = i + 1;
+    // tarjetas de acceso (cap6)
+    for (const [anchorId, objId, label] of [
+      ['key_rockstar', 'c6_key1', 'Galería Estelar'],
+      ['key_theater', 'c6_key2', 'Teatro Bruno'],
+      ['key_foodcourt', 'c6_key3', 'Plaza de Comida'],
+    ] as Array<[string, string, string]>) {
+      const a = world.anchors.get(anchorId);
+      if (!a) continue;
+      const mesh = createPickupMesh('keycard');
+      mesh.position.copy(a.pos);
+      world.root.add(mesh);
+      a.mesh = mesh;
+      const y0 = mesh.position.y;
+      world.propAnims.push({ update: (_dt, t) => { if (mesh.visible) mesh.position.y = y0 + Math.sin(t * 2 + a!.pos.x) * 0.02; } });
       this.interactables.push({
-        id: `sw_master_${i}`,
-        label: `Interruptor ${switchNo}`,
-        pos: { x: sx, y: 1.55, z: 16.55 },
-        radius: 1.4,
-        enabled: () => this.mode === 'playing' && ch === 4 && !this.missions.objectives.find((o) => o.def.id === 'c4_master')?.done,
+        id: `pickup_${anchorId}`,
+        label: `Coger tarjeta — ${label}`,
+        pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
+        radius: 1.6,
+        enabled: () => this.mode === 'playing' && ch === 6 && mesh.visible,
         action: () => {
-          if (this.missions.sequenceTargetId !== 'master_switches') {
-            this.missions.sequenceTargetId = 'master_switches';
-            this.missions.sequenceTarget = [3, 1, 4, 2];
-            this.missions.sequenceProgress = [];
-            this.notify('FUSIBLE MAESTRO — introduce la secuencia');
-          }
-          this.missions.pressSwitch(switchNo);
+          mesh.visible = false;
+          this.missions.keycards++;
+          this.audio.pickup();
+          this.missions.completeObjective(objId);
+          this.notify(`TARJETA ${this.missions.keycards}/3 — ${label}`);
         },
       });
     }
@@ -953,7 +997,10 @@ export class Game {
       case 'fuse':
         this.missions.fusesHeld++;
         this.notify(`Fusible conseguido (${this.missions.fusesHeld})`);
-        this.missions.progressObjective(this.chapter === 1 ? 'c1_fuses' : 'c2_fuses');
+        break;
+      case 'token':
+        this.missions.progressObjective('c2_tokens');
+        this.notify('Ficha dorada conseguida');
         break;
       case 'battery':
         this.player.addBattery(34);
@@ -961,8 +1008,7 @@ export class Game {
         break;
       case 'key':
         this.missions.hasKey = true;
-        this.notify('LLAVE MAESTRA — ve al vestíbulo de salida');
-        this.missions.completeObjective('c4_key');
+        this.notify('LLAVE MAESTRA');
         break;
       case 'note': {
         const noteId = id.replace('_pick', '');
@@ -970,7 +1016,6 @@ export class Game {
         if (note) {
           useHud.getState().setNote({ id: note.id, title: note.title, text: note.text });
         }
-        if (noteId === 'note_code') this.notify('La nota contiene un código...');
         break;
       }
       case 'tape': {
@@ -980,18 +1025,8 @@ export class Game {
           const save = addTape(tape.id);
           useHud.getState().setProgress(save.unlockedChapter, save.tapes);
         }
-        this.missions.progressObjective('c2_tape');
-        if (id === 'tape_golden') {
-          this.missions.completeObjective('c3_goldtape');
-          // ¡Freddy Dorado despierta!
-          const golden = this.animatronics.find((a) => a.def.id === 'golden');
-          if (golden && !golden.active) {
-            this.audio.stinger();
-            this.audio.roar(golden.pos, 'deep');
-            golden.scriptWake();
-            this.notify('ALGO DORADO SE HA LEVANTADO — ¡VUELVE A LA OFICINA!');
-            this.player.setShake(0.8);
-          }
+        if (this.chapter === 4) {
+          this.missions.progressObjective('c4_tape');
         }
         break;
       }
@@ -1047,7 +1082,7 @@ export class Game {
     if (!doorId) return;
     const door = this.world.doors.get(doorId);
     if (!door) return;
-    if (code === (door.code ?? '1987')) {
+    if (code === (door.code ?? '1993')) {
       door.locked = false;
       this.nav.setDoorBlocked(doorId, false);
       door.open = true;
@@ -1055,8 +1090,7 @@ export class Game {
       this.audio.keypadBeep(true);
       this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
       st.setKeypad(null);
-      this.notify('ALMACÉN SUR ABIERTO');
-      this.missions.completeObjective('c3_code');
+      this.notify('PUERTA ABIERTA');
     } else {
       this.audio.keypadBeep(false);
       this.notify('Código incorrecto');
@@ -1075,43 +1109,125 @@ export class Game {
 
   /* ============ MUERTE Y VICTORIA ============ */
 
+  private jumpscareStrobe: THREE.PointLight | null = null;
+  private pendingTrialRespawn = false;
+
   private onDeath(ai: Animatronic) {
     if (this.mode !== 'playing') return;
     this.mode = 'dying';
     this.dyingAnimatronic = ai;
-    this.deathTimer = 1.7;
+    this.deathTimer = 1.5;
     this.jumpscareTimer = 0;
-    this.audio.jumpscare(ai.def.voice);
+    // GRITO FNAF MULTICAPA
+    this.audio.superScream(ai.def.voice);
     this.audio.setChase(false);
+    this.audio.setStatic(0.0);
     useHud.getState().setJumpscare(ai.def.kind);
     useHud.getState().setTablet(false);
-    this.player.setShake(1.4);
+    this.player.setShake(1.6);
     this.holdInteract = null;
     useHud.getState().setPrompt(null);
+    // ¿prueba activa? → respawn tras el jumpscare
+    this.pendingTrialRespawn = !!this.trials.onPlayerCaught();
+    // luz estroboscópica en la cara
+    if (!this.jumpscareStrobe) {
+      this.jumpscareStrobe = new THREE.PointLight(0xff2233, 0, 6, 1.6);
+      this.scene.add(this.jumpscareStrobe);
+    }
+    this.jumpscareStrobe.intensity = 40;
+    // congelar al resto de animatrónicos (la escena es SUYA)
+    for (const a of this.animatronics) {
+      if (a !== ai) {
+        a.currentSpeed = 0;
+      }
+    }
   }
 
   private updateDying(dt: number) {
     this.jumpscareTimer += dt;
     const ai = this.dyingAnimatronic;
     if (ai) {
-      const target = this.camera.position.clone();
-      const dir = target.clone().sub(ai.pos).normalize();
-      ai.pos.addScaledVector(dir, dt * 5.5);
+      // EMBESTIDA FNAF: el modelo GLB se planta a 1.05 m de la cámara, cara a cara
+      const cam = this.camera;
+      const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
+      fwd.y = 0;
+      fwd.normalize();
+      const eyeY = cam.position.y;
+      const target = cam.position.clone().addScaledVector(fwd, 1.05);
+      // espasmos violentos de posición (el clásico temblor FNAF)
+      const jit = 0.09;
+      target.x += (Math.random() - 0.5) * jit;
+      target.z += (Math.random() - 0.5) * jit;
+      ai.pos.set(target.x, 0, target.z);
       ai.rig.root.position.copy(ai.pos);
-      ai.yaw = Math.atan2(dir.x, dir.z);
-      ai.rig.root.rotation.y = ai.yaw;
+      // mirar SIEMPRE a la cámara
+      const faceYaw = Math.atan2(cam.position.x - target.x, cam.position.z - target.z);
+      ai.rig.root.rotation.y = faceYaw + (Math.random() - 0.5) * 0.08;
+      ai.yaw = ai.rig.root.rotation.y;
       ai.poseDying(dt);
-      this.player.setShake(1.2);
+      // ojos al máximo: brillo feroz durante el agarre
+      if (ai.rig.eyeGlow) {
+        ai.rig.eyeGlow.intensity = 14;
+        ai.rig.eyeGlow.distance = 2.5;
+      }
+      for (const e of ai.rig.eyes) {
+        const mats = Array.isArray(e.material) ? e.material : [e.material];
+        for (const m of mats as THREE.MeshStandardMaterial[]) m.emissiveIntensity = 3.2;
+      }
+      // estrobo blanco/rojo en plena cara + luz frontal fija
+      if (this.jumpscareStrobe) {
+        const facePos = target.clone().addScaledVector(fwd, -0.35);
+        facePos.y = eyeY + 0.15;
+        this.jumpscareStrobe.position.copy(facePos);
+        const strobe = Math.sin(this.jumpscareTimer * 55) > 0;
+        this.jumpscareStrobe.intensity = strobe ? 30 : 60;
+        this.jumpscareStrobe.color.setHex(strobe ? 0xff2233 : 0xffffff);
+      }
+      // cámara: FOV violento + giro de cabeza + sacudida
+      this.camera.fov = 96;
+      this.camera.updateProjectionMatrix();
+      this.camera.rotation.z = (Math.random() - 0.5) * 0.24;
+      this.player.setShake(1.5);
+      // exposición pulsante
+      if (this.renderer) {
+        this.renderer.toneMappingExposure = 1.0 + Math.max(0, Math.sin(this.jumpscareTimer * 40)) * 1.6;
+      }
     }
     this.deathTimer -= dt;
     if (this.deathTimer <= 0) {
-      this.mode = 'dead';
-      useHud.getState().setMode('dead');
-      useHud.getState().setDead(ai ? ai.def.name : 'Algo');
+      // apagar estrobo y restaurar cámara y ojos
+      if (this.jumpscareStrobe) this.jumpscareStrobe.intensity = 0;
+      if (ai) {
+        if (ai.rig.eyeGlow) ai.rig.eyeGlow.intensity = 0;
+        for (const e of ai.rig.eyes) {
+          const mats = Array.isArray(e.material) ? e.material : [e.material];
+          for (const m of mats as THREE.MeshStandardMaterial[]) m.emissiveIntensity = 1.2;
+        }
+      }
+      this.camera.rotation.z = 0;
+      this.camera.fov = 70;
+      this.camera.updateProjectionMatrix();
+      if (this.renderer) this.renderer.toneMappingExposure = 1.0;
       useHud.getState().setJumpscare(null);
-      useHud.getState().setSubtitle(null);
-      this.audio.setStatic(0.6);
-      this.audio.setBreathing(false);
+      if (this.pendingTrialRespawn) {
+        // RESPAWN de la prueba
+        this.pendingTrialRespawn = false;
+        this.mode = 'playing';
+        useHud.getState().setMode('playing');
+        useHud.getState().setSubtitle(null);
+        this.audio.setStatic(0);
+        this.trials.respawnPlayer();
+        const t = this.trials;
+        this.notify(`REAPARECES — PRUEBA REINICIADA (INTENTO #${Math.max(1, t.attempts + 1)})`);
+        this.player.setShake(0.4);
+      } else {
+        this.mode = 'dead';
+        useHud.getState().setMode('dead');
+        useHud.getState().setDead(ai ? ai.def.name : 'Algo');
+        useHud.getState().setSubtitle(null);
+        this.audio.setStatic(0.6);
+        this.audio.setBreathing(false);
+      }
     }
   }
 
@@ -1287,7 +1403,7 @@ export class Game {
       host.time = this.time;
       host.chapter = this.chapter;
       host.chapterTime = this.time;
-      host.aggression = this.chapterDef.aggression;
+      host.aggression = this.chapterDef.aggression * (this.trials.active ? 1.25 : 1);
     }
 
     // animatrónicos (solo los del capítulo despiertan; el resto sigue dormido)
@@ -1308,22 +1424,32 @@ export class Game {
     }
     this.updateCall(dt);
 
-    // objetivos de desplazamiento (los de "volver" solo al final)
+    // pruebas (trials): activación y efectos
     const room = this.world.roomIdAt(this.player.pos.x, this.player.pos.z);
+    this.trials.update(dt, room);
+
+    // objetivos de desplazamiento
     const othersDoneFor = (excludeId: string) =>
       this.missions.objectives
         .filter((o) => o.def.id !== excludeId && !o.def.optional && o.def.type !== 'survive')
         .every((o) => o.done);
     const gotoChecks: Array<[string, string, boolean]> = [
-      ['c2_kitchen', 'kitchen', false],
-      ['c1_return', 'office', true],
-      ['c2_return', 'office', true],
-      ['c3_survive', 'office', false],
+      ['c1_atrium', 'atrium', false],
+      ['c3_cove', 'pirateCove', true],
     ];
     for (const [objId, roomId, requireOthers] of gotoChecks) {
       const o = this.missions.objectives.find((x) => x.def.id === objId);
       if (o && !o.done && room === roomId && (!requireOthers || othersDoneFor(o.def.id))) {
         this.missions.completeObjective(objId);
+        // susto guionizado al llegar a la cala
+        if (objId === 'c3_cove') {
+          const foxy = this.animatronics.find((a) => a.def.id === 'foxy');
+          if (foxy && !foxy.active) {
+            this.audio.stinger();
+            this.player.setShake(0.6);
+            this.notify('ALGO SE MUEVE TRAS EL TELÓN DE LA CALA...');
+          }
+        }
       }
     }
 

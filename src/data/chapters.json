@@ -3,132 +3,183 @@
     {
       "chapter": 1,
       "id": "cap1",
-      "title": "Turno de Prueba",
+      "title": "Turno de Cierre",
       "enemies": ["freddy"],
       "aggression": 0.5,
-      "eventRate": 0.65,
+      "eventRate": 0.6,
       "startPower": 100,
       "introCinematic": "cine_arrival",
       "outroCinematic": "cine_sighting",
       "lines": [
-        "Pizzería Estelar Bruno — 1987.",
-        "Te contratan como guardia nocturno.",
-        "Nadie te dijo que el edificio estaba...",
-        "habitado."
+        "Complejo Bruno MEGAPLEX — 11:47 PM.",
+        "El mayor centro de ocio del estado. Cuatro plantas de risas de día.",
+        "De noche, la energía se apaga y algo camina por los paseos.",
+        "Aprende el terreno. Enciende los breakers. Y aguanta."
       ],
       "radio": {
         "atMinute": 0.3,
         "lines": [
-          "*clic* — ¿Hola? ¿Hola? Bienvenido a tu primer turno.",
-          "Soy el técnico que cubría las noches antes que tú. Escucha con atención.",
-          "Primero: recoge la linterna y la tableta del escritorio de la oficina. Sin linterna, aquí dentro eres ciego.",
-          "Segundo: el generador de la oficina está muerto. Necesitas dos fusibles de repuesto. Suele haber en los almacenes... y en las mesas del comedor.",
-          "Con los fusibles, repara el panel que está junto a la puerta de la oficina. Mantén E sobre él.",
-          "Y una cosa más... no dejes que se te acerquen. Si algo te mira desde el fondo de un pasillo, ponte la máscara. O corre. O ambas."
+          "*clic* — ¿Hola? ¿Hola? Bienvenido al MEGAPLEX, chico.",
+          "Soy Rulo, el técnico del turno anterior. Sí, el que dejó el puesto. Ya sabes por qué.",
+          "Primero: recoge la linterna y la tableta de tu escritorio. Sin linterna, este sitio es una tumba.",
+          "Segundo: dos breakers fundidos en el Cuarto Eléctrico, al fondo del Pasillo Técnico Norte. Sostén E sobre ellos para rearrancarlos.",
+          "Tercero: date una vuelta por el Atrio. Mira las cámaras con C. Aprende los pasillos antes de que ellos aprendan los tuyos.",
+          "Y si algo grande y peludo te mira desde el escenario... no le des la espalda. Corre."
         ]
       },
       "objectives": [
-        { "id": "c1_gear", "title": "Recoge la linterna y la tableta", "hint": "Están sobre el escritorio de la oficina", "type": "interact", "room": "office", "target": "desk_pickup" },
-        { "id": "c1_fuses", "title": "Encuentra 2 fusibles de repuesto", "hint": "Almacén norte y mesas del comedor", "type": "collect", "count": 2 },
-        { "id": "c1_repair", "title": "Repara el panel de la oficina", "hint": "Panel junto a la puerta — mantén E", "type": "hold", "room": "office", "target": "office_panel" },
-        { "id": "c1_cams", "title": "Comprueba las cámaras de vigilancia", "hint": "Abre la tableta con C y cambia de cámara", "type": "system", "target": "tablet_used" },
-        { "id": "c1_return", "title": "Vuelve a la oficina", "hint": "Espera allí a que amanezca el turno", "type": "goto", "room": "office" }
+        { "id": "c1_gear", "title": "Recoge la linterna y la tableta", "hint": "Escritorio de la Oficina de Seguridad (Paseo Sur)", "type": "interact", "room": "office", "target": "desk_pickup" },
+        { "id": "c1_cams", "title": "Comprueba las cámaras (14 en total)", "hint": "Abre la tableta con C", "type": "system", "target": "tablet_used" },
+        { "id": "c1_b1", "title": "Rearranca el breaker 1", "hint": "Cuarto Eléctrico — mantén E", "type": "hold", "room": "electrical", "target": "breaker_1" },
+        { "id": "c1_b2", "title": "Rearranca el breaker 2", "hint": "Cuarto Eléctrico — mantén E", "type": "hold", "room": "electrical", "target": "breaker_2" },
+        { "id": "c1_atrium", "title": "Explora el Atrio Central", "hint": "La gran sala con la fuente", "type": "goto", "room": "atrium" }
       ]
     },
     {
       "chapter": 2,
       "id": "cap2",
-      "title": "Avería en Serie",
-      "enemies": ["freddy", "bonnie", "chica"],
-      "aggression": 0.75,
+      "title": "La Bolera",
+      "enemies": ["freddy", "bonnie"],
+      "aggression": 0.8,
       "eventRate": 1.0,
       "startPower": 85,
       "introCinematic": "cine_cap2",
       "outroCinematic": "cine_camstare",
       "lines": [
-        "Los sistemas fallan más de lo normal.",
-        "Las cámaras 05 y 09 han dejado de transmitir.",
-        "Y la coneja del escenario ha aprendido a usar los conductos."
+        "Primera prueba de la noche: la Bolera.",
+        "Las máquinas de chapa llevan días muertas. Mala señal.",
+        "Y la coneja del recreativo ha aprendido a usar los conductos."
       ],
       "radio": {
         "atMinute": 0.3,
         "lines": [
-          "¿Hola? Ah, ¡sigues ahí! Bien.",
-          "Las cámaras se caen a menudo. Repáralas en persona: la 09 en el pasillo oeste, la 05 en la sala de juegos. Sostén E sobre ellas.",
-          "Oye... anoche escuché golpes en la cocina. Si oyes lo mismo, ve a comprobarlo. O no. Tú decides.",
-          "Bonnie — la coneja — se mete en los conductos. Revisa las rejillas antes de quedarte quieto. La linterna la congela si la enfocas directo.",
-          "Y guarda fusibles. Tres. El panel del cuarto eléctrico los necesita todos."
+          "Escucha, la Bolera tiene los pinsetters fundidos. Tres. El jefe quiere la bolera viva para el evento de mañana.",
+          "Y sí: es una PRUEBA. Las luces morirán, ella vendrá. Si te atrapa, despiertas en el paseo. Inténtalo otra vez.",
+          "Bonnie — la coneja — sale del Salón Recreativo. La linterna la congela si le das de lleno en la cara.",
+          "Antes de entrar, recoge 3 fichas doradas del recreativo. Las necesitarás para las máquinas. Y para tu nerviosismo."
         ]
       },
       "objectives": [
-        { "id": "c2_cam9", "title": "Repara la cámara 09", "hint": "Pasillo oeste — mantén E sobre la cámara", "type": "hold", "room": "westhall", "target": "cam09_mount" },
-        { "id": "c2_cam5", "title": "Repara la cámara 05", "hint": "Sala de juegos — mantén E sobre la cámara", "type": "hold", "room": "arcade", "target": "cam05_mount" },
-        { "id": "c2_fuses", "title": "Reúne 3 fusibles y restaura el panel eléctrico", "hint": "Fusibles en almacenes y taller — panel en el cuarto eléctrico", "type": "collect", "count": 3, "target": "electrical_panel" },
-        { "id": "c2_kitchen", "title": "Investiga el ruido en la cocina", "hint": "Se activará durante la noche", "type": "goto", "room": "kitchen" },
-        { "id": "c2_tape", "title": "Recupera la cinta del taller", "hint": "El banco de trabajo del taller", "type": "collect", "count": 1 },
-        { "id": "c2_return", "title": "Vuelve a la oficina", "hint": "", "type": "goto", "room": "office" }
+        { "id": "c2_tokens", "title": "Reúne 3 fichas doradas", "hint": "Caídas por el Salón Recreativo", "type": "collect", "count": 3 },
+        { "id": "c2_trial", "title": "SUPERA LA PRUEBA: Bolera", "hint": "Entra en la Bolera y reinicia las 3 máquinas de chapa", "type": "trial", "target": "bowling" }
       ]
     },
     {
       "chapter": 3,
       "id": "cap3",
-      "title": "La Sala Prohibida",
-      "enemies": ["freddy", "bonnie", "chica", "foxy"],
+      "title": "La Guardería",
+      "enemies": ["freddy", "bonnie", "chica"],
       "aggression": 0.95,
-      "eventRate": 1.25,
-      "startPower": 70,
+      "eventRate": 1.2,
+      "startPower": 75,
       "introCinematic": "cine_cap3",
       "outroCinematic": "cine_golden",
       "lines": [
-        "Las cintas mencionan una sala que no está en el plano.",
-        "El zorro del rincón infantil ha empezado a moverse. Es rápido. Y no le gustan las máscaras.",
-        "Detrás del almacén sur hay algo que el dueño no quiere que nadie encuentre."
+        "La caja musical de la Guardería se rompió.",
+        "Sin su melodía, la de la gallina no duerme.",
+        "Encuentra los 3 mecanismos. Y reza para que la música la calme."
       ],
       "radio": {
         "atMinute": 0.3,
         "lines": [
-          "Escucha, tengo que ser breve.",
-          "La puerta del almacén sur tiene cerrojo. Escribí el código en una nota y la escondí en el almacén norte. Cuatro dígitos. El año del incidente.",
-          "Detrás del almacén hay una estantería que no está atornillada. Empújala. Lo que guardó el dueño ahí dentro... mejor lo ves tú mismo.",
-          "El zorro. Foxy. No le engaña la máscara. Si lo ves al fondo de un pasillo, ilumínalo. Directamente a los ojos. Y si te persigue, corre: es rápido, pero tú giras mejor.",
-          "Y si algo DORADO se mueve... no luches. Vuelve a la oficina. Aguantad hasta el amanecer."
+          "La caja musical de la Guardería perdió sus 3 mecanismos. Piano, foso de bolas, juguetería. Sin la melodía, Chica vaga toda la noche.",
+          "Es la PRUEBA más ruidosa: risas, pasos pequeños, luces muertas. No te flaquees.",
+          "Chica no esquiva la linterna. La oye TODO. Camina agachado con Ctrl y no corras dentro.",
+          "Cuando la pases, pásate por la Cala del Pirata. Alguien dejó un cartel ahí... y algo se mueve tras el telón."
         ]
       },
       "objectives": [
-        { "id": "c3_code", "title": "Encuentra el código y abre el almacén sur", "hint": "La nota está en el almacén norte — teclado en la puerta", "type": "keypad", "room": "storageB" },
-        { "id": "c3_goldtape", "title": "Recupera la cinta dorada de la sala oculta", "hint": "Empuja la estantería del fondo del almacén sur", "type": "collect", "count": 1, "target": "golden_tape" },
-        { "id": "c3_survive", "title": "¡DORADO DESPIERTA! Vuelve a la oficina", "hint": "No mires atrás. Corre.", "type": "goto", "room": "office" }
+        { "id": "c3_trial", "title": "SUPERA LA PRUEBA: Guardería", "hint": "Recupera los 3 mecanismos de la caja musical", "type": "trial", "target": "daycare" },
+        { "id": "c3_cove", "title": "Investiga la Cala del Pirata", "hint": "Oeste del Paseo Oeste", "type": "goto", "room": "pirateCove" }
       ]
     },
     {
       "chapter": 4,
       "id": "cap4",
-      "title": "Amanecer",
-      "enemies": ["freddy", "bonnie", "chica", "foxy", "golden"],
-      "aggression": 1.2,
-      "eventRate": 1.5,
-      "startPower": 60,
+      "title": "La Cala del Pirata",
+      "enemies": ["freddy", "bonnie", "chica", "foxy"],
+      "aggression": 1.1,
+      "eventRate": 1.4,
+      "startPower": 70,
       "introCinematic": "cine_cap4",
-      "outroCinematic": "cine_ending",
+      "outroCinematic": "cine_cap5",
       "lines": [
-        "El fusible maestro está fundido. La salida, bloqueada.",
-        "Todo el edificio sabe que estás aquí.",
-        "Restaura la energía. Encuentra la llave. Y corre hacia la puerta."
+        "La atracción de la Cala lleva años apagada.",
+        "El zorro de detrás del telón ha empezado a correr de verdad.",
+        "Enciende los 3 interruptores. Y no pares de moverte."
+      ],
+      "radio": {
+        "atMinute": 0.25,
+        "lines": [
+          "Foxy. El zorro. Es el más rápido y el único al que la máscara no engaña. Si te persigue: sprint y giros.",
+          "La linterna lo REPELE — directamente a la cara, sin piedad, hasta que retroceda.",
+          "Tres interruptores en la pared sur de la Cala, en orden. Si te atrapa, reapareces en el paseo. Es su juego favorito: el gato y el zorro.",
+          "Cuando la atracción ruge, él vuelve a su telón. Siempre vuelve. Nunca sabrás si duerme o finge."
+        ]
+      },
+      "objectives": [
+        { "id": "c4_trial", "title": "SUPERA LA PRUEBA: Cala del Pirata", "hint": "3 interruptores de la atracción, en orden", "type": "trial", "target": "cove" },
+        { "id": "c4_tape", "title": "Recupera la cinta del barco", "hint": "Cerca del barco pirata de la Cala", "type": "collect", "count": 1, "optional": true }
+      ]
+    },
+    {
+      "chapter": 5,
+      "id": "cap5",
+      "title": "Los Generadores",
+      "enemies": ["freddy", "bonnie", "chica", "foxy"],
+      "aggression": 1.3,
+      "eventRate": 1.6,
+      "startPower": 60,
+      "introCinematic": null,
+      "outroCinematic": null,
+      "lines": [
+        "El fusible maestro está fundido. Toda la red depende de él.",
+        "La energía del complejo entero se decide en la Sala de Generadores.",
+        "Orden 3 · 1 · 4 · 2. Y todos despiertos."
       ],
       "radio": {
         "atMinute": 0.2,
         "lines": [
-          "No queda tiempo. Lo encontré. En el 85, debajo del escenario. Los trajes estaban vacíos por dentro. Todavía lo están.",
-          "El fusible maestro: orden 3, 1, 4, 2. En ese orden. El panel grande del cuarto eléctrico.",
-          "La llave de la salida la escondí donde nadie baja. La sala tras la estantería del almacén sur. Junto al traje dorado.",
-          "Cuando la tengas... corre al vestíbulo. Y no mires atrás.",
-          "Si encontraste las cintas... ya sabes qué debe volver a quedarse aquí abajo— *GOLPE* —está en la línea— *"
+          "La nota que dejé en el Cuarto Eléctrico lo dice: 3, 1, 4, 2. El orden del fusible maestro de la Sala de Generadores.",
+          "La puerta del generador está al este del Paseo Sur. La abrí para ti. No me preguntes cómo.",
+          "Uno más: hay un TRAJE DORADO en la Sala Técnica Sur, bajo tu oficina. Si sientes que te mira... corre. No luches. CORRE.",
+          "Cuando la red vuelva, las puertas exteriores del vestíbulo se armarán. Corre al sur. No mires atrás."
         ]
       },
       "objectives": [
-        { "id": "c4_master", "title": "Restaura el fusible maestro (3-1-4-2)", "hint": "Cuarto eléctrico, panel maestro", "type": "sequence", "room": "electrical", "target": "master_switches" },
-        { "id": "c4_key", "title": "Encuentra la llave de salida", "hint": "Sala oculta, junto al traje dorado", "type": "interact", "room": "secret", "target": "exit_key" },
-        { "id": "c4_escape", "title": "ESCAPA por el vestíbulo de salida", "hint": "Puerta doble del vestíbulo este", "type": "interact", "room": "exit", "target": "exit_door" }
+        { "id": "c5_trial", "title": "SUPERA LA PRUEBA: Generadores (3·1·4·2)", "hint": "Sala de Generadores, panel maestro", "type": "trial", "target": "generators" }
+      ]
+    },
+    {
+      "chapter": 6,
+      "id": "cap6",
+      "title": "La Fuga",
+      "enemies": ["freddy", "bonnie", "chica", "foxy", "golden"],
+      "aggression": 1.5,
+      "eventRate": 1.8,
+      "startPower": 55,
+      "introCinematic": "cine_cap6",
+      "outroCinematic": "cine_ending",
+      "lines": [
+        "Energía restaurada. Puertas armadas.",
+        "Tres tarjetas de acceso abren los tornos del vestíbulo.",
+        "El complejo entero sabe que te vas. TODOS vienen."
+      ],
+      "radio": {
+        "atMinute": 0.2,
+        "lines": [
+          "Última noche, chico. Tres tarjetas de servicio: la de la Galería Estelar, la del Teatro y la de la Plaza de Comida.",
+          "Con las tres, los tornos del vestíbulo se abren. La puerta de salida se desbloquea al acercarlas.",
+          "Ellos lo saben. Los cuatro cazan. Y el dorado... el dorado no caza: recoge.",
+          "Corre al vestíbulo. Usa los grandes espacios. Gira en las fuentes. Y cuando veas la puerta... no dudes.",
+          "*clic* — Buena suerte, chico. — *señal perdida* —"
+        ]
+      },
+      "objectives": [
+        { "id": "c6_key1", "title": "Tarjeta de acceso — Galería Estelar", "hint": "Sobre el pedestal de la estatua", "type": "interact", "room": "rockstar", "target": "key_rockstar" },
+        { "id": "c6_key2", "title": "Tarjeta de acceso — Teatro Bruno", "hint": "En la primera fila de butacas", "type": "interact", "room": "theater", "target": "key_theater" },
+        { "id": "c6_key3", "title": "Tarjeta de acceso — Plaza de Comida", "hint": "En una mesa central", "type": "interact", "room": "foodcourt", "target": "key_foodcourt" },
+        { "id": "c6_escape", "title": "ESCAPA por los tornos del vestíbulo", "hint": "Puerta doble del vestíbulo sur", "type": "interact", "room": "lobby", "target": "exit_door" }
       ]
     }
   ]
