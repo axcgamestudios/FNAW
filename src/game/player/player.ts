@@ -21,7 +21,7 @@ const CROUCH_EYE = 0.95;
 const PLAYER_R = 0.3;
 
 export class Player {
-  pos = new THREE.Vector3(0, 0, 15);
+  pos = new THREE.Vector3(3.0, 0, 12.3);
   vel = new THREE.Vector3();
   yaw = Math.PI;
   pitch = 0;
@@ -93,7 +93,7 @@ export class Player {
   }
 
   reset() {
-    this.pos.set(0, 0, 15);
+    this.pos.set(3.0, 0, 12.3);
     this.vel.set(0, 0, 0);
     this.yaw = 0;
     this.pitch = 0;

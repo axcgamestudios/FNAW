@@ -1,102 +1,94 @@
-# FNAF 2 REIMAGINADO — Survival Horror 3D
+# FNAW — Vigilia en la Pizzería Estelar
 
-Un videojuego de terror y supervivencia en primera persona inspirado en las mecánicas de
-*Five Nights at Freddy's 2*, pero con libertad de movimiento total: explora una pizzería
-abandonada en 3D, repara sus sistemas, cumple objetivos y sobrevive a cinco noches de
-animatrónicos con IA propia.
+Survival horror 3D en primera persona inspirado en el tono de *Five Nights at Freddy's*
+y el juego libre de *Security Breach*: explora una pizzería abandonada de 1987, cumple
+objetivos, descubre qué pasó y escapa. Construido con **Next.js 16 + React 19 + Three.js
++ Web Audio API**.
 
-Construido con **Next.js 16 + React 19 + Three.js + Web Audio API**. Todos los gráficos
-(texturas PBR) y todo el audio (síntesis en tiempo real) son 100% procedurales: **cero
-dependencias de assets externos**, sin riesgo de CORS ni descargas.
+Los **modelos 3D (Freddy, Bonnie, Chica, Foxy, Jeremy y la linterna) y las texturas
+provienen del repositorio del usuario** (github.com/axcgamestudios/FNAW) y se cargan
+como GLB con sus esqueletos reales, animados proceduralmente (caminar, correr,
+vigilar, atacar, gatear en conductos) más los clips incluidos (idle de Bonnie, ragdolls
+de Foxy). El audio es 100% síntesis en tiempo real.
 
 ## Cómo jugar
 
-Requiere un navegador de escritorio moderno (Chrome, Edge o Firefox) con WebGL 2.
+Requiere navegador de escritorio moderno (Chrome, Edge, Firefox) con WebGL 2.
 
 ```bash
-# 1. instalar dependencias
-bun install        # o npm install
-
-# 2. servidor de desarrollo
-bun run dev        # http://localhost:3000
-
-# 3. build de producción
-bun run build
-bun run start
+bun install      # o npm install
+bun run dev      # http://localhost:3000
+bun run build && bun run start   # producción
 ```
-
-Abre `http://localhost:3000`, haz clic en **NUEVA PARTIDA** y captura el ratón.
 
 ### Controles
 
 | Tecla | Acción |
 |---|---|
 | `W A S D` | Moverse |
-| `Ratón` | Mirar (clic en la pantalla para capturar; también arrastrar con clic) |
-| `Shift` | Correr (gasta resistencia y hace ruido) |
+| `Ratón` | Mirar (clic para capturar; también arrastrar con clic) |
+| `Shift` | Correr (resistencia + ruido) |
 | `Ctrl` | Agacharse / gatear en conductos |
-| `E` | Interactuar (mantener para reparar) |
-| `F` | Linterna (batería limitada) |
-| `Q` | Máscara de animatrónico (engaña a algunos enemigos) |
-| `C` | Tableta de cámaras |
-| `A / D` o `1-9` | Cambiar cámara (con la tableta abierta) |
-| `Espacio` / botón | Dar cuerda a la caja musical (CAM 04) |
-| `Esc` | Pausa |
+| `E` | Interactuar / mantener para reparar |
+| `F` | Linterna (modelo GLB en mano, batería limitada) |
+| `Q` | Máscara (engaña a Bonnie/Chica/Freddy; no a Foxy ni a Dorado) |
+| `C` | Tableta de cámaras (12 cámaras con visión nocturna) |
+| `A/D` o `1-9` | Cambiar cámara |
+| `E / clic` | Saltar cinemática · `ESC` omite toda la cinemática |
+| `Esc` | Pausa real (todo congelado) |
 
-## Las cinco noches
+## Historia (4 capítulos con cinemáticas)
 
-1. **La Primera Ronda** — tutorial integrado: recoge la linterna y la tableta, encuentra
-   fusibles, repara el panel de la oficina y comprueba la caja musical.
-2. **Señales Perdidas** — repara las cámaras averiadas (05 y 09), repone el panel eléctrico
-   e investiga el ruido de la cocina. La coneja empieza a usar los conductos.
-3. **Rastros** — recupera 3 cintas de mantenimiento, reinicia la estación del taller y
-   abre el almacén sur con el código de la nota. El zorro Ren despierta: no se deja
-   engañar por la máscara.
-4. **Sistemas Críticos** — restaura el sector oeste con la secuencia correcta de
-   interruptores, tapa los conductos y no dejes que la energía caiga del 15%.
-5. **La Última Noche** — fusible maestro (3-1-4-2), la llave escondida tras la estantería
-   de la sala oculta y el escape final por el vestíbulo. Dos finales según las cintas
-   recogidas (10 en total).
+1. **Turno de Prueba** — llega a la pizzería (cinemática de llegada con Jeremy), recoge
+   tu equipo, repara el panel con fusibles y comprueba las cámaras. Freddy acecha.
+2. **Avería en Serie** — Bonnie (conductos) y Chica (ruidos) despiertan. Repara las
+   cámaras 05/09, el panel eléctrico e investiga la cocina. Recupera la cinta del taller.
+3. **La Sala Prohibida** — Foxy corre por los pasillos. Encuentra el código (1987), abre
+   el almacén sur y empuja la estantería: la **cinta dorada** despierta a **Freddy
+   Dorado**, que te caza sin descanso hasta volver a la oficina.
+4. **Amanecer** — todos activos: fusible maestro (3-1-4-2), la llave de la sala oculta y
+   el escape final. Dos finales según las cintas recogidas (11 en total).
 
-## Los animatrónicos
+## Los animatrónicos (modelos GLB del repositorio)
 
-| Personaje | Comportamiento | Contraataques |
-|---|---|---|
-| **Bruno el Oso** | Patrulla pasillos y comedor; persecución directa | Máscara a tiempo, correr |
-| **Clara la Coneja** | Usa los conductos de ventilación | Linterna directa (la congela), tapas de conducto |
-| **Gina la Gallina** | Acude a los ruidos, acecha la cocina | Silencio (agacharse), máscara parcial |
-| **Ren el Zorro** | Corredor veloz de pasillos; ignora la máscara | Linterna a los ojos (lo ahuyenta), esquivar |
-| **La Marioneta** | Caza implacable cuando la caja musical se para | Dar cuerda a la caja (CAM 04) |
+| Personaje | Modelo | Comportamiento | Contraataque |
+|---|---|---|---|
+| **Freddy** | freddy.glb | Patrulla y persigue directo | Máscara a tiempo |
+| **Bonnie** | bonnie.glb (idle animado) | Conductos de ventilación | Linterna directa (lo congela) |
+| **Chica** | chica.glb | Atraída por ruidos | Silencio / máscara |
+| **Foxy** | foxy.glb | Veloz, ignora la máscara | Linterna a los ojos |
+| **Freddy Dorado** | freddy.glb tintado | Caza implacable por guion | Correr y no mirar atrás |
+
+Extras: Foxy inerte en pose ragdoll en el taller, Jeremy en la cinemática de llegada y
+la linterna GLB como modelo en primera persona.
 
 ## Arquitectura
 
 ```
-src/
-  app/                  Entrada Next.js (page, layout, CSS del juego)
-  components/game/      UI React: menú, HUD, tableta, pausa, muerte, notas...
-  game/
-    core/               Game (orquestador), tipos, estado zustand
-    world/              Mundo: texturas PBR procedurales, plan de planta,
-                        puertas con bisagra, conductos, mobiliario
-    characters/         Modelos articulados de los 5 animatrónicos
-    player/             Jugador FPS: movimiento, colisiones, linterna
-    ai/                 Grafo de navegación A* + máquina de estados de la IA
-    systems/            Cámaras, misiones, eventos de terror, guardado
-    audio/              Motor Web Audio: audio espacial HRTF y síntesis
-src/data/*.json         Configuración: mapa, noches, enemigos, eventos, historia
+public/models/*.glb      Modelos del repositorio del usuario
+public/textures/*.jpg    Texturas del repositorio (suelos, metal)
+src/data/*.json          Capítulos, cinemáticas, enemigos, eventos, historia
+src/game/
+  core/                  Game (orquestador), estado, tipos
+  world/                 assets.ts (carga GLB + mapeo de huesos), mundo, props
+  characters/            Modelos procedurales (fallback si falla un GLB)
+  player/                FPS: movimiento, colisiones, linterna en mano
+  ai/                    NavGraph A* + FSM de animatrónicos + pose anti-T
+  systems/               CinePlayer, cámaras, misiones, eventos, guardado
+  audio/                 Web Audio: audio espacial HRTF y síntesis
+src/components/game/     Menú FNAF, HUD, tableta, cinemáticas, pantallas
 ```
 
-El edificio tiene **19 zonas conectadas** (oficina, escenario, comedor, arcade, taller,
-cocina, cuarto eléctrico, sala oculta, conductos...) con colisiones reales, luces que
-parpadean y fallan, y rutas alternativas.
+El mapa tiene **19 salas conectadas + 7 conductos**, colisiones reales, luces con
+parpadeo y apagones, y texturas reales del repositorio (suelo ajedrez, moqueta de
+fiesta, hormigón, madera, metal).
 
-## Rendimiento
+## Notas técnicas
 
-- Calidad automática: si los FPS caen, se reduce resolución/sombras en tiempo real.
-- Ajustes manuales en **AJUSTES** (volumen, sensibilidad, invertir Y, calidad).
-- Culling de luces (solo las 11 más cercanas al jugador o cámara activa).
-
-## Guardado
-
-El progreso (noches desbloqueadas, cintas, finales, ajustes) se guarda en
-`localStorage` con recuperación ante datos corruptos.
+- **Cámaras**: render desde posiciones reales con exposición de visión nocturna e
+  interferencias cuando hay un animatrónico en la sala (CAM 08 solo audio).
+- **Corrección de T-pose**: los esqueletos GLB se posan con pivotes correctores
+  calculados por quaternions en espacio mundo, y la animación procedural es aditiva
+  sobre la pose de reposo.
+- **Rendimiento**: culling de luces, instancing, degradación automática de calidad.
+- **Guardado**: localStorage con recuperación ante datos corruptos.

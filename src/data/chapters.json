@@ -1,0 +1,135 @@
+{
+  "chapters": [
+    {
+      "chapter": 1,
+      "id": "cap1",
+      "title": "Turno de Prueba",
+      "enemies": ["freddy"],
+      "aggression": 0.5,
+      "eventRate": 0.65,
+      "startPower": 100,
+      "introCinematic": "cine_arrival",
+      "outroCinematic": "cine_sighting",
+      "lines": [
+        "Pizzería Estelar Bruno — 1987.",
+        "Te contratan como guardia nocturno.",
+        "Nadie te dijo que el edificio estaba...",
+        "habitado."
+      ],
+      "radio": {
+        "atMinute": 0.3,
+        "lines": [
+          "*clic* — ¿Hola? ¿Hola? Bienvenido a tu primer turno.",
+          "Soy el técnico que cubría las noches antes que tú. Escucha con atención.",
+          "Primero: recoge la linterna y la tableta del escritorio de la oficina. Sin linterna, aquí dentro eres ciego.",
+          "Segundo: el generador de la oficina está muerto. Necesitas dos fusibles de repuesto. Suele haber en los almacenes... y en las mesas del comedor.",
+          "Con los fusibles, repara el panel que está junto a la puerta de la oficina. Mantén E sobre él.",
+          "Y una cosa más... no dejes que se te acerquen. Si algo te mira desde el fondo de un pasillo, ponte la máscara. O corre. O ambas."
+        ]
+      },
+      "objectives": [
+        { "id": "c1_gear", "title": "Recoge la linterna y la tableta", "hint": "Están sobre el escritorio de la oficina", "type": "interact", "room": "office", "target": "desk_pickup" },
+        { "id": "c1_fuses", "title": "Encuentra 2 fusibles de repuesto", "hint": "Almacén norte y mesas del comedor", "type": "collect", "count": 2 },
+        { "id": "c1_repair", "title": "Repara el panel de la oficina", "hint": "Panel junto a la puerta — mantén E", "type": "hold", "room": "office", "target": "office_panel" },
+        { "id": "c1_cams", "title": "Comprueba las cámaras de vigilancia", "hint": "Abre la tableta con C y cambia de cámara", "type": "system", "target": "tablet_used" },
+        { "id": "c1_return", "title": "Vuelve a la oficina", "hint": "Espera allí a que amanezca el turno", "type": "goto", "room": "office" }
+      ]
+    },
+    {
+      "chapter": 2,
+      "id": "cap2",
+      "title": "Avería en Serie",
+      "enemies": ["freddy", "bonnie", "chica"],
+      "aggression": 0.75,
+      "eventRate": 1.0,
+      "startPower": 85,
+      "introCinematic": "cine_cap2",
+      "outroCinematic": "cine_camstare",
+      "lines": [
+        "Los sistemas fallan más de lo normal.",
+        "Las cámaras 05 y 09 han dejado de transmitir.",
+        "Y la coneja del escenario ha aprendido a usar los conductos."
+      ],
+      "radio": {
+        "atMinute": 0.3,
+        "lines": [
+          "¿Hola? Ah, ¡sigues ahí! Bien.",
+          "Las cámaras se caen a menudo. Repáralas en persona: la 09 en el pasillo oeste, la 05 en la sala de juegos. Sostén E sobre ellas.",
+          "Oye... anoche escuché golpes en la cocina. Si oyes lo mismo, ve a comprobarlo. O no. Tú decides.",
+          "Bonnie — la coneja — se mete en los conductos. Revisa las rejillas antes de quedarte quieto. La linterna la congela si la enfocas directo.",
+          "Y guarda fusibles. Tres. El panel del cuarto eléctrico los necesita todos."
+        ]
+      },
+      "objectives": [
+        { "id": "c2_cam9", "title": "Repara la cámara 09", "hint": "Pasillo oeste — mantén E sobre la cámara", "type": "hold", "room": "westhall", "target": "cam09_mount" },
+        { "id": "c2_cam5", "title": "Repara la cámara 05", "hint": "Sala de juegos — mantén E sobre la cámara", "type": "hold", "room": "arcade", "target": "cam05_mount" },
+        { "id": "c2_fuses", "title": "Reúne 3 fusibles y restaura el panel eléctrico", "hint": "Fusibles en almacenes y taller — panel en el cuarto eléctrico", "type": "collect", "count": 3, "target": "electrical_panel" },
+        { "id": "c2_kitchen", "title": "Investiga el ruido en la cocina", "hint": "Se activará durante la noche", "type": "goto", "room": "kitchen" },
+        { "id": "c2_tape", "title": "Recupera la cinta del taller", "hint": "El banco de trabajo del taller", "type": "collect", "count": 1 },
+        { "id": "c2_return", "title": "Vuelve a la oficina", "hint": "", "type": "goto", "room": "office" }
+      ]
+    },
+    {
+      "chapter": 3,
+      "id": "cap3",
+      "title": "La Sala Prohibida",
+      "enemies": ["freddy", "bonnie", "chica", "foxy"],
+      "aggression": 0.95,
+      "eventRate": 1.25,
+      "startPower": 70,
+      "introCinematic": "cine_cap3",
+      "outroCinematic": "cine_golden",
+      "lines": [
+        "Las cintas mencionan una sala que no está en el plano.",
+        "El zorro del rincón infantil ha empezado a moverse. Es rápido. Y no le gustan las máscaras.",
+        "Detrás del almacén sur hay algo que el dueño no quiere que nadie encuentre."
+      ],
+      "radio": {
+        "atMinute": 0.3,
+        "lines": [
+          "Escucha, tengo que ser breve.",
+          "La puerta del almacén sur tiene cerrojo. Escribí el código en una nota y la escondí en el almacén norte. Cuatro dígitos. El año del incidente.",
+          "Detrás del almacén hay una estantería que no está atornillada. Empújala. Lo que guardó el dueño ahí dentro... mejor lo ves tú mismo.",
+          "El zorro. Foxy. No le engaña la máscara. Si lo ves al fondo de un pasillo, ilumínalo. Directamente a los ojos. Y si te persigue, corre: es rápido, pero tú giras mejor.",
+          "Y si algo DORADO se mueve... no luches. Vuelve a la oficina. Aguantad hasta el amanecer."
+        ]
+      },
+      "objectives": [
+        { "id": "c3_code", "title": "Encuentra el código y abre el almacén sur", "hint": "La nota está en el almacén norte — teclado en la puerta", "type": "keypad", "room": "storageB" },
+        { "id": "c3_goldtape", "title": "Recupera la cinta dorada de la sala oculta", "hint": "Empuja la estantería del fondo del almacén sur", "type": "collect", "count": 1, "target": "golden_tape" },
+        { "id": "c3_survive", "title": "¡DORADO DESPIERTA! Vuelve a la oficina", "hint": "No mires atrás. Corre.", "type": "goto", "room": "office" }
+      ]
+    },
+    {
+      "chapter": 4,
+      "id": "cap4",
+      "title": "Amanecer",
+      "enemies": ["freddy", "bonnie", "chica", "foxy", "golden"],
+      "aggression": 1.2,
+      "eventRate": 1.5,
+      "startPower": 60,
+      "introCinematic": "cine_cap4",
+      "outroCinematic": "cine_ending",
+      "lines": [
+        "El fusible maestro está fundido. La salida, bloqueada.",
+        "Todo el edificio sabe que estás aquí.",
+        "Restaura la energía. Encuentra la llave. Y corre hacia la puerta."
+      ],
+      "radio": {
+        "atMinute": 0.2,
+        "lines": [
+          "No queda tiempo. Lo encontré. En el 85, debajo del escenario. Los trajes estaban vacíos por dentro. Todavía lo están.",
+          "El fusible maestro: orden 3, 1, 4, 2. En ese orden. El panel grande del cuarto eléctrico.",
+          "La llave de la salida la escondí donde nadie baja. La sala tras la estantería del almacén sur. Junto al traje dorado.",
+          "Cuando la tengas... corre al vestíbulo. Y no mires atrás.",
+          "Si encontraste las cintas... ya sabes qué debe volver a quedarse aquí abajo— *GOLPE* —está en la línea— *"
+        ]
+      },
+      "objectives": [
+        { "id": "c4_master", "title": "Restaura el fusible maestro (3-1-4-2)", "hint": "Cuarto eléctrico, panel maestro", "type": "sequence", "room": "electrical", "target": "master_switches" },
+        { "id": "c4_key", "title": "Encuentra la llave de salida", "hint": "Sala oculta, junto al traje dorado", "type": "interact", "room": "secret", "target": "exit_key" },
+        { "id": "c4_escape", "title": "ESCAPA por el vestíbulo de salida", "hint": "Puerta doble del vestíbulo este", "type": "interact", "room": "exit", "target": "exit_door" }
+      ]
+    }
+  ]
+}

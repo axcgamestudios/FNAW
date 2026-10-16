@@ -1,0 +1,339 @@
+/**
+ * Biblioteca de assets GLTF: carga los modelos del repositorio del usuario,
+ * normaliza escala/orientación, mapea huesos por nombre/estructura y
+ * expone rigs animables + texturas reales.
+ */
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { clone as cloneSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
+
+export interface RigBones {
+  pelvis?: THREE.Object3D;
+  torso?: THREE.Object3D;
+  chest?: THREE.Object3D;
+  neck?: THREE.Object3D;
+  head?: THREE.Object3D;
+  jaw?: THREE.Object3D;
+  armL?: THREE.Object3D;
+  armR?: THREE.Object3D;
+  forearmL?: THREE.Object3D;
+  forearmR?: THREE.Object3D;
+  legL?: THREE.Object3D;
+  legR?: THREE.Object3D;
+  shinL?: THREE.Object3D;
+  shinR?: THREE.Object3D;
+  earL?: THREE.Object3D;
+  earR?: THREE.Object3D;
+}
+
+export interface GltfRig {
+  root: THREE.Group;
+  model: THREE.Object3D;
+  bones: RigBones;
+  mixer: THREE.AnimationMixer | null;
+  idleAction: THREE.AnimationAction | null;
+  eyes: THREE.Mesh[];
+  height: number;
+  kind: string;
+}
+
+interface ModelConfig {
+  file: string;
+  height: number;
+  rotY: number;
+  eyeColor: number;
+  eyeNames?: RegExp;
+}
+
+const CONFIGS: Record<string, ModelConfig> = {
+  freddy: { file: 'models/freddy.glb', height: 2.02, rotY: 0, eyeColor: 0x4dd2ff, eyeNames: /eye|iris|pupil/i },
+  bonnie: { file: 'models/bonnie.glb', height: 2.0, rotY: 0, eyeColor: 0xff5070, eyeNames: /eye/i },
+  chica: { file: 'models/chica.glb', height: 1.95, rotY: 0, eyeColor: 0xffe066, eyeNames: /eye/i },
+  foxy: { file: 'models/foxy.glb', height: 1.98, rotY: 0, eyeColor: 0xffbf40, eyeNames: /eye/i },
+  golden: { file: 'models/freddy.glb', height: 2.02, rotY: 0, eyeColor: 0xffdd44, eyeNames: /eye|iris|pupil/i },
+  jeremy: { file: 'models/jeremy.glb', height: 1.78, rotY: 0, eyeColor: 0x000000 },
+  flashlight: { file: 'models/flashlight.glb', height: 0.26, rotY: 0, eyeColor: 0x000000 },
+};
+
+export interface GameTextures {
+  floorChecker: THREE.Texture;
+  floorCarpet: THREE.Texture;
+  floorConcrete: THREE.Texture;
+  floorWood: THREE.Texture;
+  floorStone: THREE.Texture;
+  wallMetal: THREE.Texture;
+}
+
+export class AssetLibrary {
+  rigs = new Map<string, GltfRig>();
+  textures!: GameTextures;
+  loaded = false;
+  private raws = new Map<string, THREE.Object3D>();
+  private clips = new Map<string, THREE.AnimationClip[]>();
+
+  async loadAll(onProgress: (frac: number, label: string) => void) {
+    const loader = new GLTFLoader();
+    const texLoader = new THREE.TextureLoader();
+    const texFiles: Array<[keyof GameTextures, string]> = [
+      ['floorChecker', 'textures/floor_checker.jpg'],
+      ['floorCarpet', 'textures/floor_carpet_party.jpg'],
+      ['floorConcrete', 'textures/floor_concrete.jpg'],
+      ['floorWood', 'textures/floor_wood.jpg'],
+      ['floorStone', 'textures/floor_stone.jpg'],
+      ['wallMetal', 'textures/wall_metal.jpg'],
+    ];
+    const entries = Object.entries(CONFIGS).filter(([k]) => k !== 'golden');
+    const total = entries.length + texFiles.length;
+    let done = 0;
+    const tick = (label: string) => {
+      done++;
+      onProgress(done / total, label);
+    };
+
+    // texturas
+    const texResult: Partial<GameTextures> = {};
+    for (const [key, url] of texFiles) {
+      try {
+        const t = await texLoader.loadAsync(url);
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = 4;
+        texResult[key] = t;
+      } catch {
+        // fallback: textura procedural oscura
+        const c = document.createElement('canvas');
+        c.width = c.height = 64;
+        const ctx = c.getContext('2d')!;
+        ctx.fillStyle = '#555';
+        ctx.fillRect(0, 0, 64, 64);
+        const t = new THREE.CanvasTexture(c);
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        texResult[key] = t;
+      }
+      tick(`Cargando texturas (${done})...`);
+    }
+    this.textures = texResult as GameTextures;
+
+    // modelos
+    for (const [kind, cfg] of entries) {
+      try {
+        const gltf = await loader.loadAsync(cfg.file);
+        this.raws.set(kind, gltf.scene);
+        this.clips.set(kind, gltf.animations || []);
+      } catch (err) {
+        console.warn(`No se pudo cargar el modelo ${kind}:`, err);
+      }
+      tick(`Cargando modelo: ${kind}...`);
+    }
+
+    // rigs normales (golden se clona bajo demanda)
+    for (const kind of ['freddy', 'bonnie', 'chica', 'foxy', 'jeremy', 'flashlight']) {
+      if (this.raws.has(kind)) {
+        this.rigs.set(kind, this.prepareRig(kind));
+      }
+    }
+    this.loaded = true;
+  }
+
+  has(kind: string): boolean {
+    return this.rigs.has(kind);
+  }
+
+  /** preparar un rig: normaliza tamaño, origen y orientación; mapea huesos */
+  private prepareRig(kind: string, sourceOverride?: THREE.Object3D): GltfRig {
+    const cfg = CONFIGS[kind] ?? CONFIGS.freddy;
+    const src = sourceOverride ?? this.raws.get(kind)!;
+    const model = cloneSkeleton(src);
+    const root = new THREE.Group();
+    root.add(model);
+
+    // materiales: clonar y preparar (sombras + ojos emisivos)
+    const eyes: THREE.Mesh[] = [];
+    model.traverse((o) => {
+      if (o instanceof THREE.Mesh) {
+        o.castShadow = true;
+        o.receiveShadow = true;
+        if (o.geometry && 'skinIndex' in (o.geometry.attributes ?? {})) {
+          o.frustumCulled = false;
+        }
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        const newMats = mats.map((m) => {
+          const cm = (m as THREE.Material).clone() as THREE.MeshStandardMaterial;
+          if (cm.map) {
+            cm.map = cm.map.clone();
+            cm.map.needsUpdate = true;
+          }
+          cm.metalness = Math.min(cm.metalness ?? 0, 0.55);
+          cm.roughness = Math.max(cm.roughness ?? 0.6, 0.45);
+          return cm;
+        });
+        o.material = Array.isArray(o.material) ? newMats : newMats[0];
+        if (cfg.eyeNames && cfg.eyeNames.test(o.name)) {
+          for (const m of (Array.isArray(o.material) ? o.material : [o.material]) as THREE.MeshStandardMaterial[]) {
+            m.emissive = new THREE.Color(cfg.eyeColor);
+            m.emissiveIntensity = 1.6;
+          }
+          eyes.push(o);
+        }
+      }
+    });
+
+    // normalizar: escala a altura objetivo, pies en y=0
+    model.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const scale = cfg.height / Math.max(0.0001, size.y);
+    model.scale.setScalar(scale);
+    model.updateMatrixWorld(true);
+    const box2 = new THREE.Box3().setFromObject(model);
+    const center = box2.getCenter(new THREE.Vector3());
+    // centrar en XZ y apoyar en el suelo
+    model.position.x -= center.x;
+    model.position.z -= center.z;
+    model.position.y -= box2.min.y;
+    model.rotation.y = cfg.rotY;
+
+    // mixer
+    let mixer: THREE.AnimationMixer | null = null;
+    let idleAction: THREE.AnimationAction | null = null;
+    const clips = this.clips.get(kind) ?? [];
+    if (clips.length) {
+      mixer = new THREE.AnimationMixer(model);
+      const idle = clips.find((c) => /idle/i.test(c.name)) ?? clips[0];
+      if (idle && kind !== 'foxy') {
+        idleAction = mixer.clipAction(idle);
+        idleAction.play();
+      }
+    }
+
+    const bones = mapBones(model, kind);
+    return { root, model, bones, mixer, idleAction, eyes, height: cfg.height, kind };
+  }
+
+  /** rig clonado (por ejemplo, Freddy Dorado) con tinte opcional */
+  createVariant(kind: string, tint?: number): GltfRig {
+    const src = this.raws.get('freddy')!;
+    const rig = this.prepareRig('golden', src);
+    if (tint !== undefined) {
+      rig.model.traverse((o) => {
+        if (o instanceof THREE.Mesh) {
+          const mats = Array.isArray(o.material) ? o.material : [o.material];
+          for (const m of mats as THREE.MeshStandardMaterial[]) {
+            m.color = new THREE.Color(tint);
+            m.emissive = new THREE.Color(tint);
+            m.emissiveIntensity = 0.22;
+            m.metalness = 0.85;
+            m.roughness = 0.38;
+          }
+        }
+      });
+    }
+    // clonar animaciones también
+    const clips = this.clips.get('freddy') ?? [];
+    if (clips.length) {
+      rig.mixer = new THREE.AnimationMixer(rig.model);
+    }
+    return rig;
+  }
+
+  /** pose estática de ragdoll (prop decorativo de Foxy) */
+  createSlumpedFoxy(): THREE.Object3D | null {
+    const src = this.raws.get('foxy');
+    if (!src) return null;
+    const model = cloneSkeleton(src);
+    const root = new THREE.Group();
+    root.add(model);
+    const clips = this.clips.get('foxy') ?? [];
+    if (clips.length) {
+      const mixer = new THREE.AnimationMixer(model);
+      const action = mixer.clipAction(clips[clips.length - 1]);
+      action.play();
+      action.paused = true;
+      action.time = action.getClip().duration * 0.55;
+      mixer.update(0.016);
+    }
+    model.traverse((o) => {
+      if (o instanceof THREE.Mesh) {
+        o.castShadow = true;
+        if (o.geometry && 'skinIndex' in (o.geometry.attributes ?? {})) o.frustumCulled = false;
+      }
+    });
+    model.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    model.scale.setScalar(1.85 / Math.max(0.001, size.y));
+    model.updateMatrixWorld(true);
+    const box2 = new THREE.Box3().setFromObject(model);
+    model.position.y -= box2.min.y;
+    return root;
+  }
+
+  update(dt: number) {
+    for (const rig of this.rigs.values()) {
+      rig.mixer?.update(dt);
+    }
+  }
+}
+
+/* ============ MAPEO DE HUESOS ============ */
+
+function findBone(model: THREE.Object3D, patterns: RegExp[]): THREE.Object3D | undefined {
+  const all: THREE.Object3D[] = [];
+  model.traverse((o) => all.push(o));
+  for (const p of patterns) {
+    const hit = all.find((o) => o.name && p.test(o.name));
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
+function mapBones(model: THREE.Object3D, kind: string): RigBones {
+  if (kind === 'freddy' || kind === 'golden') {
+    // Freddy usa nombres genéricos: mapeo estructural conocido del archivo
+    const byName = (n: string) => {
+      let found: THREE.Object3D | undefined;
+      model.traverse((o) => {
+        if (o.name === n) found = o;
+      });
+      return found;
+    };
+    return {
+      pelvis: byName('Bone_35'),
+      legR: byName('Bone.003_14'),
+      shinR: byName('Bone.005_13'),
+      legL: byName('Bone.004_17'),
+      shinL: byName('Bone.006_16'),
+      torso: byName('Bone.001_34'),
+      armR: byName('Bone.010_20'),
+      forearmR: byName('Bone.012_19'),
+      armL: byName('Bone.011_23'),
+      forearmL: byName('Bone.013_22'),
+      neck: byName('Bone.002_33'),
+      head: byName('Bone.009_32'),
+      jaw: byName('Bone.017_24'),
+      earL: byName('Bone.019_30'),
+      earR: byName('Bone.024_31'),
+    };
+  }
+  const side = (base: string, side: 'L' | 'R') => new RegExp(`bip_${base}_${side}($|_|chica|foxy|\\.)`, 'i');
+  return {
+    pelvis: findBone(model, [/bip_pelvis/i]),
+    torso: findBone(model, [/bip_spine/i]),
+    neck: findBone(model, [/bip_neck/i]),
+    head: findBone(model, [/bip_head($|_)/i, /bip_head_01[12]/i]),
+    jaw: findBone(model, [/bip_jaw($|_)/i, /bip_jaw_01[23]/i]),
+    armL: findBone(model, [side('upperArm', 'L'), side('upperarm', 'L')]),
+    armR: findBone(model, [side('upperArm', 'R'), side('upperarm', 'R')]),
+    forearmL: findBone(model, [side('lowerArm', 'L'), side('lowerarm', 'L')]),
+    forearmR: findBone(model, [side('lowerArm', 'R'), side('lowerarm', 'R')]),
+    legL: findBone(model, [side('hip', 'L')]),
+    legR: findBone(model, [side('hip', 'R')]),
+    shinL: findBone(model, [side('knee', 'L')]),
+    shinR: findBone(model, [side('knee', 'R')]),
+    earL: findBone(model, [/bip_ear_0_L/i, /bip_ear_0_.*_L/i]),
+    earR: findBone(model, [/bip_ear_0_R/i, /bip_ear_0_.*_R/i]),
+  };
+}
+
+/* instancia global */
+export const Assets = new AssetLibrary();

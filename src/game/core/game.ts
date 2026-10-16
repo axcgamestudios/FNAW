@@ -1,12 +1,12 @@
 /**
- * Game: orquestador principal. Motor Three.js, bucle de juego,
- * entrada, interacciones, sistemas y flujos de noche/muerte/victoria.
+ * Game: orquestador principal. Motor Three.js, bucle, entrada,
+ * interacciones, capítulos con cinemáticas y modelos GLTF del repo.
  */
 import * as THREE from 'three';
-import nightsData from '@/data/nights.json';
+import chaptersData from '@/data/chapters.json';
 import storyData from '@/data/story.json';
 import animData from '@/data/animatronics.json';
-import type { NightDef, AnimatronicDef, Interactable, NoiseEvent } from './types';
+import type { ChapterDef, AnimatronicDef, Interactable, NoiseEvent } from './types';
 import { WorldBuilder } from '../world/worldbuilder';
 import { NavGraph } from '../ai/navgraph';
 import { Animatronic, type AIHost, type PlayerLike } from '../ai/animatronic';
@@ -14,10 +14,12 @@ import { Player } from '../player/player';
 import { SecurityCameras } from '../systems/cameras';
 import { MissionSystem } from '../systems/missions';
 import { EventDirector } from '../systems/events';
+import { CinematicPlayer } from '../systems/cinematic';
 import { AudioEngine } from '../audio/audio';
 import { useHud } from './state';
-import { loadSave, unlockNight, addTape, addEnding } from '../systems/save';
+import { loadSave, unlockChapter, addTape, addEnding } from '../systems/save';
 import { mapData } from '../ai/mapdata';
+import { Assets, type GltfRig } from '../world/assets';
 import { disposeTextures } from '../world/textures';
 import { disposeMaterials } from '../world/materials';
 
@@ -36,13 +38,13 @@ export class Game {
   cams!: SecurityCameras;
   missions!: MissionSystem;
   events!: EventDirector;
+  cine!: CinematicPlayer;
   audio = new AudioEngine();
-  night = 1;
-  nightDef!: NightDef;
+  chapter = 1;
+  chapterDef!: ChapterDef;
   mode = 'boot';
-  time = 0; // segundos de juego de la noche
+  time = 0; // segundos de juego del capítulo
   power = 100;
-  musicBox = 100;
   holdInteract: { inter: Interactable; progress: number } | null = null;
   interactables: Interactable[] = [];
   noises: NoiseEvent[] = [];
@@ -63,9 +65,13 @@ export class Game {
   private fpsCount = 0;
   private fpsLowTime = 0;
   private disposed = false;
-  private windowListeners: Array<[string, EventListenerOrEventListenerObject]> = [];
-  private winding = false;
-  private maskBlockTimer = 0;
+  private windowListeners: Array<[string, EventListener]> = [];
+  private interactPressed = false;
+  private menuRig: GltfRig | null = null;
+  private menuTwitchT = 0;
+  private flashlightModel: THREE.Object3D | null = null;
+  private flashlightLens: THREE.Mesh | null = null;
+  private chapterEndPending = false;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -74,7 +80,7 @@ export class Game {
   /* ============ INICIALIZACIÓN ============ */
 
   async init(onProgress: (frac: number, label: string) => void) {
-    onProgress(0.05, 'Encendiendo motores 3D...');
+    onProgress(0.02, 'Encendiendo motores 3D...');
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
@@ -85,9 +91,8 @@ export class Game {
 
     const save = loadSave();
     this.quality = save.settings.quality;
-    this.applyQuality();
     useHud.getState().setSettings(save.settings);
-    useHud.getState().setProgress(save.unlockedNight, save.tapes);
+    useHud.getState().setProgress(save.unlockedChapter, save.tapes);
     this.audio.setVolumes(save.settings.master, save.settings.music, save.settings.sfx);
 
     this.scene.background = new THREE.Color(0x030304);
@@ -98,16 +103,19 @@ export class Game {
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.08, 70);
     this.scene.add(this.camera);
 
-    onProgress(0.15, 'Construyendo la pizzería...');
+    // cargar modelos GLB y texturas del repositorio
+    await Assets.loadAll((f, label) => onProgress(0.05 + f * 0.45, label));
+
+    onProgress(0.55, 'Construyendo la pizzería...');
     await nextFrame();
     this.world = new WorldBuilder(this.scene);
-    this.world.buildAll((f, label) => onProgress(0.15 + f * 0.5, label));
+    this.world.buildAll((f, label) => onProgress(0.55 + f * 0.2, label));
     await nextFrame();
 
-    onProgress(0.72, 'Trazando rutas de los animatrónicos...');
+    onProgress(0.8, 'Trazando rutas de los animatrónicos...');
     this.nav.build(this.world);
 
-    onProgress(0.8, 'Reclutando al guardia...');
+    onProgress(0.84, 'Reclutando al guardia...');
     this.player = new Player(this.camera, {
       world: this.world,
       addNoise: (x, z, r) => this.addNoise(x, z, r),
@@ -117,8 +125,9 @@ export class Game {
       },
       power: this.power,
     });
+    this.attachFlashlightModel();
 
-    onProgress(0.88, 'Despertando a los animatrónicos...');
+    onProgress(0.9, 'Despertando a los animatrónicos...');
     const host = this.makeAIHost();
     for (const def of (animData as { animatronics: AnimatronicDef[] }).animatronics) {
       this.animatronics.push(new Animatronic(def, host));
@@ -128,25 +137,55 @@ export class Game {
       camSwitch: () => this.audio.camSwitch(),
       setStatic: (l) => this.audio.setStatic(l),
     });
+    this.cine = new CinematicPlayer(this.camera, this.world);
 
     this.buildDust();
 
+    // Foxy inerte en el taller (ragdoll del propio modelo)
+    const slumped = Assets.createSlumpedFoxy();
+    if (slumped) {
+      slumped.position.set(-17.5, 0.92, 1.2);
+      slumped.rotation.y = 2.4;
+      this.world.root.add(slumped);
+    }
+
     this.setupInput();
-    onProgress(0.96, 'Listo para la noche...');
+    onProgress(0.97, 'Listo...');
+    this.enterMenu();
     this.render();
     onProgress(1, 'Completado');
+  }
+
+  /** modelo GLB de la linterna en primera persona */
+  private attachFlashlightModel() {
+    const rig = Assets.rigs.get('flashlight');
+    if (!rig) return;
+    const model = rig.root;
+    model.position.set(0.26, -0.22, -0.42);
+    model.rotation.set(0.1, 0, 0);
+    model.scale.setScalar(rig.height / 0.26 * 1.1);
+    model.visible = false;
+    this.camera.add(model);
+    this.flashlightModel = model;
+    // lente emisiva
+    const lens = new THREE.Mesh(
+      new THREE.CircleGeometry(0.035, 12),
+      new THREE.MeshStandardMaterial({ color: 0xfff6d8, emissive: 0xffeeb0, emissiveIntensity: 0 })
+    );
+    lens.position.set(0, 0.02, -0.14);
+    model.add(lens);
+    this.flashlightLens = lens;
   }
 
   private makeAIHost(): AIHost {
     return {
       time: 0,
-      hour: 0,
-      night: 1,
+      chapter: 1,
+      chapterTime: 0,
       aggression: 1,
       nav: this.nav,
       world: this.world,
       noises: this.noises,
-      musicBoxLevel: 1,
       onDeath: (ai) => this.onDeath(ai),
       sfx: {
         footstep: (pos, kind, running, heavy) => this.audio.footstep(pos, kind, running, heavy),
@@ -183,7 +222,7 @@ export class Game {
     this.scene.add(this.dust);
   }
 
-  private updateDust(dt: number) {
+  private updateDust(_dt: number) {
     if (!this.dust) return;
     this.dust.position.set(
       Math.round(this.player.pos.x / 8) * 8,
@@ -200,35 +239,92 @@ export class Game {
     p.needsUpdate = true;
   }
 
-  /* ============ NOCHE ============ */
+  /* ============ MENÚ (estilo FNAF: Freddy en estática) ============ */
 
-  startNight(n: number) {
-    this.night = n;
-    this.nightDef = (nightsData as { nights: NightDef[] }).nights.find((x) => x.night === n) ?? (nightsData as { nights: NightDef[] }).nights[0];
+  enterMenu() {
+    this.mode = 'menu';
+    useHud.getState().setMode('menu');
+    useHud.getState().setTablet(false);
+    // Freddy del menú: clon en la oficina mirando a cámara
+    if (!this.menuRig && Assets.has('freddy')) {
+      this.menuRig = Assets.createVariant('freddy');
+      this.menuRig.root.position.set(0, 0, 11.2);
+      this.menuRig.root.rotation.y = 0;
+      this.scene.add(this.menuRig.root);
+    } else if (this.menuRig) {
+      this.scene.add(this.menuRig.root);
+    }
+    this.audio.setStatic(0);
+    this.audio.setBreathing(false);
+    this.audio.setChase(false);
+    this.audio.stopPhoneVoice();
+    useHud.getState().setSubtitle(null);
+  }
+
+  private menuCamera(dt: number) {
+    const t = performance.now() / 1000;
+    // cámara fija frente al rostro de Freddy (que está en z=11.2 mirando al sur) con deriva sutil
+    this.camera.position.set(Math.sin(t * 0.07) * 0.08, 1.72 + Math.sin(t * 0.11) * 0.02, 12.75);
+    this.camera.rotation.set(0, 0, 0);
+    this.camera.rotation.order = 'YXZ';
+    this.camera.rotation.y = 0 + Math.sin(t * 0.05) * 0.03;
+    this.camera.rotation.x = -0.04;
+    // espasmos de cabeza de Freddy
+    if (this.menuRig) {
+      this.menuTwitchT -= dt;
+      const head = this.menuRig.bones.head;
+      if (head) {
+        if (this.menuTwitchT <= 0) {
+          this.menuTwitchT = 1.2 + Math.random() * 3.5;
+        }
+        const twitch = Math.max(0, this.menuTwitchT - (1.2 + Math.random() * 3.5) + 0.4);
+        head.rotation.z = Math.sin(t * 0.8) * 0.03 + (Math.random() < 0.02 ? (Math.random() - 0.5) * 0.2 : 0);
+        head.rotation.y = Math.sin(t * 0.33) * 0.08;
+      }
+      for (const e of this.menuRig.eyes) {
+        const mats = Array.isArray(e.material) ? e.material : [e.material];
+        for (const m of mats as THREE.MeshStandardMaterial[]) {
+          m.emissiveIntensity = 1.2 + (Math.random() < 0.06 ? -1.1 : 0);
+        }
+      }
+      this.menuRig.mixer?.update(dt);
+    }
+    if (this.world) this.world.update(dt, this.camera.position);
+  }
+
+  /* ============ CAPÍTULOS ============ */
+
+  startChapter(n: number) {
+    this.chapter = n;
+    const chapters = (chaptersData as { chapters: ChapterDef[] }).chapters;
+    this.chapterDef = chapters.find((x) => x.chapter === n) ?? chapters[0];
     this.time = 0;
-    this.power = this.nightDef.startPower;
-    this.musicBox = 100;
+    this.power = this.chapterDef.startPower;
     this.noises = [];
     this.danger = 0;
+    this.chapterEndPending = false;
+    // quitar Freddy del menú
+    if (this.menuRig) this.scene.remove(this.menuRig.root);
     this.world.reset();
     this.player.reset();
     for (const a of this.animatronics) a.reset();
     this.cams.reset(n);
-    this.missions = new MissionSystem(this.nightDef, this.world, useHud, this.makeMissionHost());
+    this.missions = new MissionSystem(this.chapterDef, this.world, useHud, this.makeMissionHost());
     this.events = new EventDirector(this.makeEventHost());
     this.buildInteractables();
-    this.mode = 'playing';
+    this.callQueue = [];
+    this.callLineIdx = 0;
+    this.callLineTimer = 0;
     useHud.getState().syncHud({
-      night: n,
-      nightTitle: this.nightDef.title,
+      chapter: n,
+      chapterTitle: this.chapterDef.title,
       hour: 0,
       power: this.power,
-      musicBox: 100,
       objectives: [],
       prompt: null,
       subtitle: null,
       deadBy: null,
-      nightComplete: false,
+      chapterComplete: false,
       ending: null,
       jumpscare: null,
     });
@@ -236,10 +332,19 @@ export class Game {
     this.audio.startAmbient();
     this.audio.setChase(false);
     this.audio.resume();
-    // llamada de teléfono programada
-    this.callQueue = [];
-    this.callLineIdx = 0;
-    this.callLineTimer = 0;
+    // ¿cinemática de entrada?
+    if (this.chapterDef.introCinematic) {
+      this.playCinematic(this.chapterDef.introCinematic, () => {
+        this.beginPlay();
+      });
+    } else {
+      this.beginPlay();
+    }
+  }
+
+  private beginPlay() {
+    this.mode = 'playing';
+    useHud.getState().setMode('playing');
   }
 
   private makeMissionHost() {
@@ -266,8 +371,8 @@ export class Game {
       player: this.player,
       animatronics: this.animatronics,
       time: 0,
-      night: this.night,
-      eventRate: this.nightDef?.eventRate ?? 1,
+      night: this.chapter,
+      eventRate: this.chapterDef?.eventRate ?? 1,
       audio: {
         knock: (pos: { x: number; y: number; z: number }, count?: number) => this.audio.knock(pos, count),
         whisper: (pos: { x: number; y: number; z: number }) => this.audio.whisper(pos),
@@ -286,15 +391,27 @@ export class Game {
       onCallStart: (lines: string[]) => this.startCall(lines),
       onKitchenNoise: () => {
         this.notify('RUIDO EN LA COCINA — COMPRUÉBALO');
-        const o = this.missions?.objectives.find((x) => x.def.id === 'n2_kitchen');
-        if (o && !o.done) o.done = false;
-        const gotoObj = this.missions?.objectives.find((x) => x.def.id === 'n2_kitchen');
-        if (gotoObj) {
-          // activarlo: se completa al llegar
-          this.notify('Investiga la cocina');
-        }
       },
     };
+  }
+
+  /* ============ CINEMÁTICAS ============ */
+
+  playCinematic(id: string, onEnd: () => void) {
+    this.mode = 'cinematic';
+    useHud.getState().setMode('cinematic');
+    this.audio.setStatic(0);
+    if (document.pointerLockElement === this.canvas) document.exitPointerLock();
+    const ok = this.cine.play(id, onEnd);
+    if (!ok) {
+      this.mode = 'playing';
+      useHud.getState().setMode('playing');
+      onEnd();
+    }
+  }
+
+  skipCinematic() {
+    if (this.cine.active) this.cine.skip();
   }
 
   /* ============ ENTRADA ============ */
@@ -316,7 +433,15 @@ export class Game {
   private onKeyDown(e: KeyboardEvent) {
     if (e.code === 'Tab') e.preventDefault();
     this.player.keys[e.code] = true;
-    const st = useHud.getState();
+    if (this.mode === 'cinematic') {
+      if (e.code === 'KeyE' || e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        this.skipCinematic();
+      } else if (e.code === 'Escape') {
+        this.cine.stop(true);
+      }
+      return;
+    }
     if (this.mode !== 'playing') {
       if (e.code === 'Escape' && this.mode === 'paused') this.resume();
       return;
@@ -346,19 +471,13 @@ export class Game {
       case 'Escape':
         this.pause();
         break;
-      case 'Space':
-        if (st.tabletOpen && st.tabletCam === 4) {
-          this.winding = true;
-          e.preventDefault();
-        }
-        break;
       case 'ArrowLeft':
       case 'KeyA':
-        if (st.tabletOpen) this.cams.switchCam(-1);
+        if (useHud.getState().tabletOpen) this.cams.switchCam(-1);
         break;
       case 'ArrowRight':
       case 'KeyD':
-        if (st.tabletOpen) this.cams.switchCam(1);
+        if (useHud.getState().tabletOpen) this.cams.switchCam(1);
         break;
       default:
         if (e.code.startsWith('Digit')) {
@@ -375,7 +494,6 @@ export class Game {
 
   private onKeyUp(e: KeyboardEvent) {
     this.player.keys[e.code] = false;
-    if (e.code === 'Space') this.winding = false;
     if (e.code === 'KeyE') this.holdInteract = null;
   }
 
@@ -383,7 +501,6 @@ export class Game {
     if (this.mode !== 'playing') return;
     const locked = document.pointerLockElement === this.canvas;
     if (!locked) {
-      // alternativa: arrastrar con el botón izquierdo pulsado
       if (e.buttons & 1) {
         const settings = useHud.getState().settings;
         this.player.onMouseMove(e.movementX, e.movementY, settings.sensitivity, settings.invertY);
@@ -395,13 +512,13 @@ export class Game {
   }
 
   onCanvasClick() {
+    if (this.mode === 'cinematic') {
+      this.skipCinematic();
+      return;
+    }
     if (this.mode === 'playing' && document.pointerLockElement !== this.canvas) {
       this.canvas.requestPointerLock?.();
     }
-  }
-
-  setMouseWinding(v: boolean) {
-    this.winding = v;
   }
 
   private onResize() {
@@ -420,8 +537,6 @@ export class Game {
       this.notify('No puedes ponerte la máscara aquí');
       return;
     }
-    if (this.maskBlockTimer > 0) return;
-    this.maskBlockTimer = 0.6;
     this.player.masked = !this.player.masked;
     this.audio.setBreathing(this.player.masked);
     this.audio.servo(this.player.pos, 'deep');
@@ -437,6 +552,9 @@ export class Game {
     const open = !st.tabletOpen;
     st.setTablet(open);
     this.audio.camSwitch();
+    if (open && this.chapter === 1) {
+      this.missions.completeObjective('c1_cams', true);
+    }
   }
 
   /* ============ INTERACCIONES ============ */
@@ -445,6 +563,7 @@ export class Game {
     this.interactables = [];
     const world = this.world;
     const P = () => this.player;
+    const ch = this.chapter;
 
     // puertas
     for (const door of world.doors.values()) {
@@ -474,7 +593,7 @@ export class Game {
           }
           if (door.locked) {
             if (isExit && this.missions.hasKey) {
-              this.finishNight('escape');
+              this.finishGame('escape');
               return;
             }
             this.notify(door.def.lockedMsg ?? 'Bloqueada');
@@ -488,7 +607,7 @@ export class Game {
           this.addNoise(door.def.x, door.def.z, 6);
         },
       });
-      if (isStorageB) door.locked = this.night >= 3;
+      if (isStorageB) door.locked = ch >= 3;
     }
 
     // escondites
@@ -531,8 +650,9 @@ export class Game {
           this.missions.hasFlashlight = true;
           torch.mesh!.visible = false;
           this.audio.pickup();
-          this.missions.completeObjective('n1_flashlight');
+          this.missions.completeObjective('c1_gear');
           this.notify('Linterna equipada [F]');
+          if (this.flashlightModel) this.flashlightModel.visible = true;
         },
       });
     }
@@ -548,13 +668,13 @@ export class Game {
           this.missions.hasTablet = true;
           tabletA.mesh!.visible = false;
           this.audio.pickup();
-          this.missions.completeObjective('n1_flashlight');
+          this.missions.completeObjective('c1_gear');
           this.notify('Tableta equipada [C]');
         },
       });
     }
 
-    // panel de la oficina (misión 1)
+    // panel de la oficina (cap1)
     const officePanel = world.anchors.get('office_panel');
     if (officePanel) {
       this.interactables.push({
@@ -564,16 +684,16 @@ export class Game {
         radius: 1.7,
         holdTime: 5,
         holdLabel: 'REPARANDO',
-        enabled: () => this.mode === 'playing' && this.night === 1 && !this.missions.objectives.find((o) => o.def.id === 'n1_repair')?.done && this.missions.fusesHeld >= 2,
+        enabled: () => this.mode === 'playing' && ch === 1 && !this.missions.objectives.find((o) => o.def.id === 'c1_repair')?.done && this.missions.fusesHeld >= 2,
         action: () => {
           this.missions.fusesHeld -= 2;
           this.audio.repairClick();
-          this.missions.completeObjective('n1_repair');
+          this.missions.completeObjective('c1_repair');
         },
       });
     }
 
-    // panel eléctrico (misión 2)
+    // panel eléctrico (cap2)
     const elecPanel = world.anchors.get('electrical_panel');
     if (elecPanel) {
       this.interactables.push({
@@ -583,28 +703,28 @@ export class Game {
         radius: 1.8,
         holdTime: 6,
         holdLabel: 'INSERTANDO FUSIBLES',
-        enabled: () => this.mode === 'playing' && this.night === 2 && this.missions.fusesHeld >= 3,
+        enabled: () => this.mode === 'playing' && ch === 2 && this.missions.fusesHeld >= 3,
         action: () => {
           this.missions.fusesHeld -= 3;
           this.power = Math.min(100, this.power + 30);
           this.audio.powerUp();
-          this.missions.completeObjective('n2_fuses');
+          this.missions.completeObjective('c2_fuses');
         },
       });
     }
 
-    // soportes de cámara (misión 2)
-    for (const [anchorId, objId, camIdx] of [['cam09_mount', 'n2_cam9', 9], ['cam05_mount', 'n2_cam5', 5]] as Array<[string, string, number]>) {
+    // soportes de cámara (cap2)
+    for (const [anchorId, objId, camIdx] of [['cam09_mount', 'c2_cam9', 9], ['cam05_mount', 'c2_cam5', 5]] as Array<[string, string, number]>) {
       const a = world.anchors.get(anchorId);
       if (!a) continue;
       this.interactables.push({
         id: anchorId,
         label: 'Reparar la cámara',
         pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
-        radius: 1.6,
+        radius: 1.8,
         holdTime: 5,
         holdLabel: 'REPARANDO CÁMARA',
-        enabled: () => this.mode === 'playing' && this.night === 2 && !this.missions.objectives.find((o) => o.def.id === objId)?.done,
+        enabled: () => this.mode === 'playing' && ch === 2 && !this.missions.objectives.find((o) => o.def.id === objId)?.done,
         action: () => {
           this.cams.repairCam(camIdx);
           this.audio.repairClick();
@@ -613,93 +733,25 @@ export class Game {
       });
     }
 
-    // banco del taller (misión 3)
-    const bench = world.anchors.get('workbench');
-    if (bench) {
+    // interruptores del fusible maestro (cap4)
+    const masterX = -12.7;
+    for (let i = 0; i < 4; i++) {
+      const sx = masterX + 0.42 - i * 0.28;
+      const switchNo = i + 1;
       this.interactables.push({
-        id: 'workbench',
-        label: 'Reiniciar la estación de mantenimiento',
-        pos: { x: bench.pos.x, y: bench.pos.y, z: bench.pos.z },
-        radius: 1.7,
-        holdTime: 8,
-        holdLabel: 'REINICIANDO ESTACIÓN',
-        enabled: () => this.mode === 'playing' && this.night === 3 && !this.missions.objectives.find((o) => o.def.id === 'n3_station')?.done,
+        id: `sw_master_${i}`,
+        label: `Interruptor ${switchNo}`,
+        pos: { x: sx, y: 1.55, z: 16.55 },
+        radius: 1.4,
+        enabled: () => this.mode === 'playing' && ch === 4 && !this.missions.objectives.find((o) => o.def.id === 'c4_master')?.done,
         action: () => {
-          this.audio.powerUp();
-          this.missions.completeObjective('n3_station');
-        },
-      });
-    }
-
-    // interruptores del cuarto eléctrico (misiones 4 y 5)
-    for (const [targetId, x0, n] of [['west_switches', -15.5, 4], ['master_switches', -12.7, 4]] as Array<[string, number, number]>) {
-      for (let i = 0; i < n; i++) {
-        const sx = x0 + 0.42 - i * 0.28;
-        const switchNo = i + 1;
-        this.interactables.push({
-          id: `sw_${targetId}_${i}`,
-          label: `Interruptor ${switchNo}`,
-          pos: { x: sx, y: 1.55, z: 16.55 },
-          radius: 1.4,
-          enabled: () => {
-            if (this.mode !== 'playing') return false;
-            if (targetId === 'west_switches') return this.night >= 4 && !this.missions.objectives.find((o) => o.def.id === 'n4_seq')?.done;
-            return this.night >= 5 && !this.missions.objectives.find((o) => o.def.id === 'n5_master')?.done;
-          },
-          action: () => {
-            if (!this.missions.sequenceActive() || this.missions.sequenceTargetId !== targetId) {
-              this.missions.sequenceTargetId = targetId;
-              this.missions.sequenceTarget = targetId === 'west_switches' ? [2, 4, 1, 3] : [3, 1, 4, 2];
-              this.missions.sequenceProgress = [];
-              this.notify(targetId === 'west_switches' ? 'SECTOR OESTE — introduce la secuencia' : 'FUSIBLE MAESTRO — introduce la secuencia');
-            }
-            this.missions.pressSwitch(switchNo);
-          },
-        });
-      }
-    }
-
-    // tapas de conducto: instalar
-    for (const ventId of ['vent_office', 'vent_machinery']) {
-      const v = world.vents.get(ventId);
-      if (!v) continue;
-      const px = v.def.coverAt === 'a' ? v.def.a[0] : v.def.b[0];
-      const pz = v.def.coverAt === 'a' ? v.def.a[1] : v.def.b[1];
-      this.interactables.push({
-        id: `install_${ventId}`,
-        label: 'Colocar tapa de conducto',
-        pos: { x: px, y: 0.6, z: pz },
-        radius: 1.5,
-        enabled: () => this.mode === 'playing' && this.night === 4 && this.missions.coversHeld > 0 && !v.coverClosed,
-        action: () => {
-          this.missions.coversHeld--;
-          v.coverClosed = true;
-          v.blocked = true;
-          if (v.coverMesh) v.coverMesh.visible = true;
-          if (v.coverCollider) v.coverCollider.active = true;
-          this.nav.setVentBlocked(ventId, true);
-          this.audio.switchClick();
-          this.missions.progressObjective('n4_covers');
-          if (this.missions.coversHeld === 0) {
-            const o = this.missions.objectives.find((x) => x.def.id === 'n4_covers');
-            if (o && o.count >= 2) this.missions.completeObjective('n4_covers');
+          if (this.missions.sequenceTargetId !== 'master_switches') {
+            this.missions.sequenceTargetId = 'master_switches';
+            this.missions.sequenceTarget = [3, 1, 4, 2];
+            this.missions.sequenceProgress = [];
+            this.notify('FUSIBLE MAESTRO — introduce la secuencia');
           }
-        },
-      });
-      // quitar la tapa
-      this.interactables.push({
-        id: `remove_${ventId}`,
-        label: 'Quitar tapa de conducto',
-        pos: { x: px, y: 0.6, z: pz },
-        radius: 1.5,
-        enabled: () => this.mode === 'playing' && v.coverClosed,
-        action: () => {
-          v.coverClosed = false;
-          v.blocked = false;
-          if (v.coverMesh) v.coverMesh.visible = false;
-          if (v.coverCollider) v.coverCollider.active = false;
-          this.nav.setVentBlocked(ventId, false);
-          this.audio.switchClick();
+          this.missions.pressSwitch(switchNo);
         },
       });
     }
@@ -789,8 +841,6 @@ export class Game {
     if (this.interactPressed) this.interactPressed = false;
   }
 
-  private interactPressed = false;
-
   private tryInteract() {
     this.interactPressed = true;
   }
@@ -802,21 +852,16 @@ export class Game {
       case 'fuse':
         this.missions.fusesHeld++;
         this.notify(`Fusible conseguido (${this.missions.fusesHeld})`);
-        this.missions.progressObjective(this.night === 1 ? 'n1_fuses' : this.night === 2 ? 'n2_fuses' : 'n3_tapes');
+        this.missions.progressObjective(this.chapter === 1 ? 'c1_fuses' : 'c2_fuses');
         break;
       case 'battery':
         this.player.addBattery(34);
         this.notify('Batería +34%');
         break;
-      case 'cover':
-        this.missions.coversHeld++;
-        this.notify(`Tapa de conducto (${this.missions.coversHeld}/2)`);
-        this.missions.progressObjective('n4_covers');
-        break;
       case 'key':
         this.missions.hasKey = true;
         this.notify('LLAVE MAESTRA — ve al vestíbulo de salida');
-        this.missions.completeObjective('n5_key');
+        this.missions.completeObjective('c4_key');
         break;
       case 'note': {
         const noteId = id.replace('_pick', '');
@@ -832,15 +877,27 @@ export class Game {
         if (tape) {
           useHud.getState().setNote({ id: tape.id, title: tape.title, text: tape.text });
           const save = addTape(tape.id);
-          useHud.getState().setProgress(save.unlockedNight, save.tapes);
+          useHud.getState().setProgress(save.unlockedChapter, save.tapes);
         }
-        this.missions.progressObjective('n3_tapes');
+        this.missions.progressObjective('c2_tape');
+        if (id === 'tape_golden') {
+          this.missions.completeObjective('c3_goldtape');
+          // ¡Freddy Dorado despierta!
+          const golden = this.animatronics.find((a) => a.def.id === 'golden');
+          if (golden && !golden.active) {
+            this.audio.stinger();
+            this.audio.roar(golden.pos, 'deep');
+            golden.scriptWake();
+            this.notify('ALGO DORADO SE HA LEVANTADO — ¡VUELVE A LA OFICINA!');
+            this.player.setShake(0.8);
+          }
+        }
         break;
       }
     }
   }
 
-  /* ============ LÓGICA DE NOCHE ============ */
+  /* ============ LÓGICA DE CAPÍTULO ============ */
 
   notify(msg: string) {
     const st = useHud.getState();
@@ -870,15 +927,14 @@ export class Game {
         this.callLineTimer = 2.2 + line.length * 0.036;
         this.callLineIdx++;
         if (this.callLineIdx >= this.callQueue.length) {
-          // fin de la llamada
-          const finish = window.setTimeout(() => {
+          const dur = this.callLineTimer;
+          this.callQueue = [];
+          window.setTimeout(() => {
             useHud.getState().setSubtitle(null);
             useHud.getState().syncHud({ callActive: false });
             this.audio.stopPhoneVoice();
             this.audio.phoneBeep();
-          }, this.callLineTimer * 1000);
-          void finish;
-          this.callQueue = [];
+          }, dur * 1000);
         }
       }
     }
@@ -899,7 +955,7 @@ export class Game {
       this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
       st.setKeypad(null);
       this.notify('ALMACÉN SUR ABIERTO');
-      this.missions.completeObjective('n3_code');
+      this.missions.completeObjective('c3_code');
     } else {
       this.audio.keypadBeep(false);
       this.notify('Código incorrecto');
@@ -935,7 +991,6 @@ export class Game {
 
   private updateDying(dt: number) {
     this.jumpscareTimer += dt;
-    // el animatrónico se lanza contra la cámara
     const ai = this.dyingAnimatronic;
     if (ai) {
       const target = this.camera.position.clone();
@@ -945,12 +1000,11 @@ export class Game {
       ai.yaw = Math.atan2(dir.x, dir.z);
       ai.rig.root.rotation.y = ai.yaw;
       const b = ai.rig.bones;
-      b.armL.rotation.x = -2.6;
-      b.armR.rotation.x = -2.6;
-      b.jaw.rotation.x = 0.8;
+      if (b.armL) ai.swingPublic(b.armL, -2.2);
+      if (b.armR) ai.swingPublic(b.armR, -2.2);
+      if (b.jaw) ai.swingPublic(b.jaw, 0.5);
       this.player.setShake(1.2);
     }
-    this.player.update(dt * 0.35);
     this.deathTimer -= dt;
     if (this.deathTimer <= 0) {
       this.mode = 'dead';
@@ -963,51 +1017,58 @@ export class Game {
     }
   }
 
-  retryNight() {
+  retryChapter() {
     this.audio.setStatic(0);
     useHud.getState().setDead(null);
     useHud.getState().setJumpscare(null);
-    this.startNight(this.night);
-    useHud.getState().setMode('playing');
+    if (this.cine.active) this.cine.stop(false);
+    this.startChapter(this.chapter);
   }
 
-  private finishNight(reason: 'clock' | 'escape') {
+  /** fin de capítulo: cinemática de salida + pantalla de completado */
+  private completeChapter() {
+    if (this.chapterEndPending) return;
+    this.chapterEndPending = true;
+    this.audio.setChase(false);
+    this.audio.setBreathing(false);
+    const finish = () => {
+      const save = unlockChapter(this.chapter + 1);
+      useHud.getState().setProgress(save.unlockedChapter, save.tapes);
+      this.mode = 'complete';
+      useHud.getState().setMode('complete');
+      useHud.getState().syncHud({ chapterComplete: true });
+      this.audio.victory();
+    };
+    if (this.chapterDef.outroCinematic) {
+      this.playCinematic(this.chapterDef.outroCinematic, finish);
+    } else {
+      finish();
+    }
+  }
+
+  private finishGame(reason: 'escape') {
     if (this.mode !== 'playing') return;
     this.audio.setChase(false);
     this.audio.setBreathing(false);
-    this.audio.victory();
-    const st = useHud.getState();
-    if (reason === 'escape') {
-      const save = loadSave();
-      const ending = save.tapes.length >= 10 ? 'secret' : 'normal';
-      const lines = ending === 'secret' ? storyData.endingSecret : storyData.endingNormal;
-      addEnding(ending);
-      st.setEnding(ending, lines);
+    const save = loadSave();
+    const ending = save.tapes.length >= 10 ? 'secret' : 'normal';
+    const lines = ending === 'secret' ? storyData.endingSecret : storyData.endingNormal;
+    addEnding(ending);
+    const finale = () => {
+      useHud.getState().setEnding(ending, lines);
       this.mode = 'ending';
-      st.setMode('ending');
-      return;
+      useHud.getState().setMode('ending');
+    };
+    if (this.chapterDef.outroCinematic) {
+      this.playCinematic(this.chapterDef.outroCinematic, finale);
+    } else {
+      finale();
     }
-    const save = unlockNight(this.night + 1);
-    st.setProgress(save.unlockedNight, save.tapes);
-    this.mode = 'complete';
-    st.setMode('complete');
-    st.syncHud({ nightComplete: true });
   }
 
   returnToMenu() {
-    this.mode = 'menu';
-    this.audio.setStatic(0);
-    this.audio.setBreathing(false);
-    this.audio.setChase(false);
-    this.audio.stopPhoneVoice();
-    useHud.getState().setSubtitle(null);
-    const st = useHud.getState();
-    st.setMode('menu');
-    st.setTablet(false);
-    st.setDead(null);
-    st.setKeypad(null);
-    st.setNote(null);
-    st.setJumpscare(null);
+    if (this.cine.active) this.cine.stop(false);
+    this.enterMenu();
   }
 
   pause() {
@@ -1080,43 +1141,37 @@ export class Game {
     } else if (this.mode === 'dying') {
       this.updateDying(dt);
       this.world.update(dt, this.player.pos);
+    } else if (this.mode === 'cinematic') {
+      this.cine.update(dt);
+      this.world.update(dt, this.camera.position);
     } else if (this.mode === 'menu' || this.mode === 'boot') {
-      // menú: rotación lenta de cámara ambiental
       this.menuCamera(dt);
+    } else if (this.mode === 'dead' || this.mode === 'complete' || this.mode === 'ending') {
+      // escena congelada con la última cámara
+      this.world.update(dt, this.camera.position);
     }
 
-    // audio siempre actualizado (para menús)
     if (this.audio.available) {
       this.audio.update(dt);
-      this.audio.updateListener(this.camera.position, this.camera.quaternion);
+      if (this.mode !== 'cinematic') {
+        this.audio.updateListener(this.camera.position, this.camera.quaternion);
+      } else {
+        this.audio.updateListener(this.camera.position, this.camera.quaternion);
+      }
     }
 
-    // render con la cámara activa
     const st = useHud.getState();
-    const activeCam = st.tabletOpen && this.mode === 'playing' ? this.cams.camera : this.camera;
+    const tabletRendering = st.tabletOpen && this.mode === 'playing';
+    // la tableta renderiza con más exposición (visión nocturna de las cámaras)
+    this.renderer.toneMappingExposure = tabletRendering ? 2.15 : 1.12;
+    const activeCam = tabletRendering ? this.cams.camera : this.camera;
     this.renderer.render(this.scene, activeCam);
   };
 
-  private menuCamera(dt: number) {
-    const t = performance.now() / 1000;
-    this.camera.position.set(Math.sin(t * 0.05) * 3 + 0, 1.7, 13.5 + Math.cos(t * 0.04) * 0.6);
-    this.camera.rotation.set(0, Math.PI + Math.sin(t * 0.03) * 0.12, 0);
-    this.camera.rotation.order = 'YXZ';
-    if (this.world) this.world.update(dt, this.camera.position);
-  }
-
   private tick(dt: number) {
+    if (!this.chapterDef || !this.missions) return;
     const st = useHud.getState();
     this.time += dt;
-    this.maskBlockTimer = Math.max(0, this.maskBlockTimer - dt);
-
-    // hora del juego
-    const minutes = this.nightDef.minutes;
-    const hourFloat = (this.time / (minutes * 60)) * 6;
-    if (hourFloat >= 6) {
-      this.finishNight('clock');
-      return;
-    }
 
     // jugador (bloqueado si tablet/nota/teclado abiertos)
     const uiBlocked = st.tabletOpen || !!st.note || !!st.keypadDoor;
@@ -1127,61 +1182,48 @@ export class Game {
     }
 
     // IA host actualizado
-    const host = this.animatronics[0] ? (this.animatronics[0] as unknown as { host: AIHost }).host : null;
+    const host = this.animatronics[0]?.host;
     if (host) {
       host.time = this.time;
-      host.hour = hourFloat;
-      host.night = this.night;
-      host.aggression = this.nightDef.animatronicAggression;
-      host.musicBoxLevel = this.musicBox / 100;
-      // reutiliza el array compartido de ruidos
+      host.chapter = this.chapter;
+      host.chapterTime = this.time;
+      host.aggression = this.chapterDef.aggression;
     }
 
-    // animatrónicos
+    // animatrónicos (solo los del capítulo despiertan; el resto sigue dormido)
     const playerLike = this.player as unknown as PlayerLike;
     for (const a of this.animatronics) {
+      if (!a.def.activeChapters.includes(this.chapter) && !a.active) {
+        a.update(dt * 0.2, playerLike); // dormido: animación mínima
+        continue;
+      }
       a.update(dt, playerLike);
     }
 
-    // máscara: la IA la detecta a través de player.masked
-    // sistema de eventos
+    // eventos
     this.events.update(dt);
     this.events.checkKitchenNoise(this.time / 60);
-    if (!this.events.callDone && this.time / 60 >= this.nightDef.call.atMinute) {
-      this.events.triggerCall(this.nightDef.call.lines);
+    if (!this.events.callDone && this.chapterDef.radio && this.time / 60 >= this.chapterDef.radio.atMinute) {
+      this.events.triggerCall(this.chapterDef.radio.lines);
     }
     this.updateCall(dt);
 
-    // objetivo: ir a la cocina (N2)
-    if (this.night === 2 && this.events.kitchenNoiseDone) {
-      const o = this.missions.objectives.find((x) => x.def.id === 'n2_kitchen');
-      if (o && !o.done && this.world.roomIdAt(this.player.pos.x, this.player.pos.z) === 'kitchen') {
-        this.missions.completeObjective('n2_kitchen');
-      }
-    }
-    // objetivo: caja musical (N1): completar al dar cuerda (manejado abajo)
-    if (this.night === 1 && this.missions.musicBoxWoundOnce) {
-      this.missions.completeObjective('n1_musicbox', true);
-    }
-
-    // caja musical
-    if (this.musicBox > 0) {
-      this.musicBox = Math.max(0, this.musicBox - dt * 1.42);
-    }
-    const windingNow = this.winding && st.tabletOpen && st.tabletCam === 4;
-    if (windingNow && this.musicBox < 100) {
-      this.musicBox = Math.min(100, this.musicBox + dt * 16);
-      if (Math.random() < dt * 3) this.audio.repairClick();
-      if (!this.missions.musicBoxWoundOnce) {
-        this.missions.musicBoxWoundOnce = true;
-        this.missions.completeObjective('n1_musicbox', true);
-      }
-    }
-    this.audio.setMusicBox(this.musicBox / 100, { x: -2, y: 1.2, z: -14.5 });
-    if (this.musicBox < 25 && this.musicBox > 0) {
-      if (Math.floor(this.time) % 8 === 0 && Math.floor(this.time) !== Math.floor(this.time - dt)) {
-        this.audio.alertBeep();
-        this.notify('CAJA MUSICAL SIN CUERDA — CAM 04');
+    // objetivos de desplazamiento (los de "volver" solo al final)
+    const room = this.world.roomIdAt(this.player.pos.x, this.player.pos.z);
+    const othersDoneFor = (excludeId: string) =>
+      this.missions.objectives
+        .filter((o) => o.def.id !== excludeId && !o.def.optional && o.def.type !== 'survive')
+        .every((o) => o.done);
+    const gotoChecks: Array<[string, string, boolean]> = [
+      ['c2_kitchen', 'kitchen', false],
+      ['c1_return', 'office', true],
+      ['c2_return', 'office', true],
+      ['c3_survive', 'office', false],
+    ];
+    for (const [objId, roomId, requireOthers] of gotoChecks) {
+      const o = this.missions.objectives.find((x) => x.def.id === objId);
+      if (o && !o.done && room === roomId && (!requireOthers || othersDoneFor(o.def.id))) {
+        this.missions.completeObjective(objId);
       }
     }
 
@@ -1193,14 +1235,7 @@ export class Game {
     this.power = Math.max(0, this.power - drain * dt);
     this.world.setPowerFactor(this.power > 25 ? 1 : this.power / 25);
     if (this.power <= 0) {
-      // apagón total
       for (const r of this.world.rooms.values()) r.lightOn = false;
-      if (this.night === 4) {
-        // fallo del objetivo de energía
-        const o = this.missions.objectives.find((x) => x.def.id === 'n4_power');
-        if (o && !o.done) o.done = true; // completado en falso (sobrevive igualmente)
-        this.missions.syncObjectives();
-      }
     } else if (this.power > 3) {
       for (const r of this.world.rooms.values()) r.lightOn = true;
     }
@@ -1219,22 +1254,21 @@ export class Game {
       }
     }
 
-    // tapas de conducto: Clara las tumba
+    // tapas de conducto: Bonnie las tumba
     for (const v of this.world.vents.values()) {
       if (!v.coverClosed) continue;
-      const clara = this.animatronics.find((a) => a.def.id === 'clara');
-      if (clara && clara.active) {
+      const bonnie = this.animatronics.find((a) => a.def.id === 'bonnie');
+      if (bonnie && bonnie.active) {
         const px = v.def.coverAt === 'a' ? v.def.a[0] : v.def.b[0];
         const pz = v.def.coverAt === 'a' ? v.def.a[1] : v.def.b[1];
-        const d = Math.hypot(clara.pos.x - px, clara.pos.z - pz);
-        if (d < 1.6 && (clara.state === 'chase' || clara.state === 'hunt')) {
+        const d = Math.hypot(bonnie.pos.x - px, bonnie.pos.z - pz);
+        if (d < 1.6 && (bonnie.state === 'chase' || bonnie.state === 'hunt')) {
           v.coverTimer -= dt;
           if (v.coverTimer < 0 && Math.random() < dt * 1.4) {
             this.audio.ventBang({ x: px, y: 0.6, z: pz });
             v.coverTimer = 2.4;
           }
           if (Math.random() < dt * 0.11) {
-            // ¡tapa derribada!
             v.coverClosed = false;
             v.blocked = false;
             if (v.coverMesh) v.coverMesh.visible = false;
@@ -1247,14 +1281,13 @@ export class Game {
       }
     }
 
-    // detección de escondites: si te vieron entrar
+    // detección de escondites
     if (this.player.hidden) {
       for (const a of this.animatronics) {
         if (!a.active || a.state === 'dormant') continue;
         const d = a.pos.distanceTo(this.player.pos);
         if (d < 2.0 && (a.state === 'search' || a.state === 'chase' || a.state === 'hunt')) {
           if (Math.random() < dt * 0.35) {
-            // te encontró en el escondite
             const spot = mapData.hidingSpots.find((s) => s.id === this.player.hiddenSpotId);
             this.player.unhide(new THREE.Vector3(spot ? spot.pos[0] : this.player.pos.x, 0, spot ? spot.pos[1] : this.player.pos.z));
             a.state = 'chase';
@@ -1266,7 +1299,7 @@ export class Game {
       }
     }
 
-    // peligro (para latido y viñeta)
+    // peligro
     let danger = 0;
     let chase = false;
     for (const a of this.animatronics) {
@@ -1283,29 +1316,32 @@ export class Game {
     this.audio.danger = danger;
     this.audio.setChase(chase);
 
-    // mundo (luces, parpadeos, ventiladores) — foco: jugador o cámara activa
+    // mundo (luces)
     const focus = st.tabletOpen ? this.cams.camera.position : this.player.pos;
     this.world.update(dt, focus);
     this.updateDust(dt);
     this.updateInteractions(dt);
     this.cams.update(dt, this.animatronics, st.tabletOpen);
 
+    // fin de capítulo: todos los objetivos requeridos
+    if (!this.chapterEndPending && this.missions.allRequiredDone()) {
+      this.completeChapter();
+      return;
+    }
+
     // HUD a 10 Hz
     this.hudTimer -= dt;
     if (this.hudTimer <= 0) {
       this.hudTimer = 0.1;
       useHud.getState().syncHud({
-        hour: hourFloat,
         battery: this.player.flashlightBattery,
         stamina: this.player.stamina,
         power: this.power,
-        musicBox: this.musicBox,
         maskOn: this.player.masked,
         flashlightOn: this.player.flashlightOn,
         crouching: this.player.crouching,
         inVent: this.player.inVent,
         danger,
-        musicBoxCam: st.tabletOpen && st.tabletCam === 4,
         tabletGlitch: this.cams.glitchLevel > 0.55,
       });
     }

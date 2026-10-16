@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "This is a **working, active security camera feed** from a FNAF-style horror game interface. Here is the detailed breakdown:\n\n**Camera Feed Details:**\n*   **Camera ID:** CAM 01 (displayed in top-left corner)\n*   **Room/Location:** A stage or performance area (indicated by the striped backdrop and theatrical lighting). The large poster in the foreground reads \"**¡BRUNO Y SUS AMIGOS!**\" (Bruno and His Friends!), suggesting this is a children's entertainment venue or pizzeria.\n*   **Animatronics Visible:**\n    *   **Right side:** A white, rabbit-like animatronic with orange accents (resembling a classic springlock or bunny character) is standing with arms outstretched in a \"T-pose.\"\n    *   **Center/Background:** Partially obscured by the poster, you can see the yellow arm/hand of another animatronic (likely the titular \"Bruno,\" who appears to be a bear based on the poster art).\n    *   **Poster Art:** A large, simplistic brown bear face dominates the left side of the view.\n\n**Visual & Technical Quality:**\n*   **Lighting:** The scene uses high-contrast, moody stage lighting. There are deep shadows on the floor and walls, with purple/magenta light hitting the left side and blue/green light on the right striped curtain.\n*   **CRT Effects:** The image displays authentic analog distortion:\n    *   **Scanlines:** Horizontal lines are visible across the entire screen.\n    *   **Color Bleed/Chromatic Aberration:** Slight color fringing is visible, especially around the white animatronic.\n    *   **Vignetting:** The corners of the camera feed are darker than the center.\n    *   **Noise/Grain:** A subtle static overlay gives it that \"recorded on old tape\" look.\n    *   **Timestamp:** \"1987-10-12\" is visible in the header, referencing the infamous \"Bite of '87\" lore from the FNAF universe.\n\n**Interface Elements:**\n*   **Map Overlay:** A green grid map is in the bottom-right corner showing room layout, with **CAM 01** highlighted in green to indicate the current viewpoint.\n*   **UI Text:** Spanish text at the top reads: *\"HAZ CLIC PARA CAPTURAR EL RATÓN – o mantén clic y arrastra para mirar\"* (Click to capture the mouse – or click and hold and drag to look), indicating this is an interactive gameplay moment where the player must likely find or interact with something (possibly a rat or hidden object).\n*   **Status Bar:** Bottom text shows controls like `[C] CERRAR` (Close) and `[A/D] CAMBIAR CAMARA` (Change Camera).\n\n**Verdict:** Yes, this is a fully functional security camera view. It is currently live and recording (indicated by the red \"REC\" dot), displaying CAM 01 of the facility's surveillance system.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792117269,
+  "id": "20261016102100d0035f269a724e08",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016102100d0035f269a724e08",
+  "usage": {
+    "completion_tokens": 631,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1104,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1735
+  }
+}

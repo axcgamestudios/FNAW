@@ -2,7 +2,7 @@
 
 /**
  * Vista de la tableta de vigilancia: overlay CRT sobre el render de
- la cámara activa, mapa con selección de cámaras y cuerda de la caja musical.
+ la cámara activa y mapa con selección de cámaras.
  */
 import { useMemo } from 'react';
 import mapData from '@/data/map.json';
@@ -19,21 +19,13 @@ export default function TabletView() {
   const tabletOpen = useHud((s) => s.tabletOpen);
   const tabletCam = useHud((s) => s.tabletCam);
   const glitch = useHud((s) => s.tabletGlitch);
-  const musicBox = useHud((s) => s.musicBox);
-  const musicBoxCam = useHud((s) => s.musicBoxCam);
 
   const cams = mapData.cams;
   const current = cams.find((c) => c.index === tabletCam);
   const audioOnly = !!current?.audioOnly;
 
   const camButtons = useMemo(
-    () =>
-      cams.map((c) => ({
-        index: c.index,
-        name: CAM_NAMES[c.index] ?? `CAM ${c.index}`,
-        room: c.room,
-        broken: false,
-      })),
+    () => cams.map((c) => ({ index: c.index })),
     [cams]
   );
 
@@ -44,9 +36,7 @@ export default function TabletView() {
 
   return (
     <div className="absolute inset-0 z-20">
-      {/* marco de la tableta */}
       <div className="tablet-frame scanlines">
-        {/* pantalla con ruido */}
         <div className="absolute inset-0 tablet-static" style={{ opacity: glitch ? 0.65 : 0.25 }} />
         {glitch && <div className="tablet-glitch-line" />}
         <div className="crt-vignette" />
@@ -70,7 +60,6 @@ export default function TabletView() {
           </div>
         )}
 
-        {/* cabecera */}
         <div className="absolute top-3 left-5 flex items-center gap-3 z-10">
           <span className="w-2.5 h-2.5 rounded-full bg-[#ff2222]" style={{ animation: 'danger-pulse 1.2s infinite' }} />
           <span className="text-[#7dcf8a] text-xs tracking-[0.25em]">
@@ -78,35 +67,6 @@ export default function TabletView() {
           </span>
           <span className="text-[10px] text-[#4a8a55] tracking-[0.2em]">REC ● 1987-10-12</span>
         </div>
-
-        {/* caja musical: control de cuerda */}
-        {musicBoxCam && (
-          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 text-center z-10">
-            <p className={`text-xs tracking-[0.3em] mb-2 ${musicBox < 25 ? 'text-[#ff5544]' : 'text-[#d8b13a]'}`}>
-              CAJA MUSICAL — {Math.round(musicBox)}%
-            </p>
-            <div className="w-64 mx-auto hud-bar mb-3">
-              <div
-                className="hud-bar-fill"
-                style={{
-                  width: `${musicBox}%`,
-                  background: musicBox < 25 ? '#c83428' : '#d8b13a',
-                }}
-              />
-            </div>
-            <button
-              className="px-8 py-3 text-sm tracking-[0.25em] border border-[#d8b13a] text-[#ffe9a0] bg-[rgba(60,40,8,0.75)] cursor-pointer hover:bg-[rgba(90,60,12,0.9)] active:bg-[#d8b13a] active:text-[#201400]"
-              onMouseDown={() => game?.setMouseWinding(true)}
-              onMouseUp={() => game?.setMouseWinding(false)}
-              onMouseLeave={() => game?.setMouseWinding(false)}
-              onTouchStart={() => game?.setMouseWinding(true)}
-              onTouchEnd={() => game?.setMouseWinding(false)}
-            >
-              MANTÉN PARA DAR CUERDA
-            </button>
-            <p className="mt-2 text-[10px] text-[#8a8578] tracking-[0.2em]">[ESPACIO] también funciona</p>
-          </div>
-        )}
 
         {/* mapa y selector de cámaras */}
         <div className="absolute bottom-3 right-3 z-10">
@@ -126,15 +86,10 @@ export default function TabletView() {
                 />
               );
             })}
-            {/* posiciones de cámaras */}
             {cams.map((c) => {
               const active = c.index === tabletCam;
               return (
-                <g
-                  key={c.index}
-                  className="cursor-pointer"
-                  onClick={() => game?.cams.setCam(c.index)}
-                >
+                <g key={c.index} className="cursor-pointer" onClick={() => game?.cams.setCam(c.index)}>
                   <rect
                     x={c.pos[0] - 0.9}
                     y={c.pos[2] - 0.7}
@@ -164,13 +119,11 @@ export default function TabletView() {
           </div>
         </div>
 
-        {/* pie: controles */}
         <div className="absolute bottom-3 left-5 z-10 text-[10px] tracking-[0.25em] text-[#4a8a55]">
           [C] CERRAR · [A/D] CAMBIAR CÁMARA · [1-9] SELECCIÓN RÁPIDA
         </div>
       </div>
 
-      {/* alerta de interferencia */}
       {glitch && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 text-[#ff5544] text-xs tracking-[0.4em] z-30">
           ⚠ INTERFERENCIA EN LA SEÑAL — ALGO SE MUEVE AQUÍ

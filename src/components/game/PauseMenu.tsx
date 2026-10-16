@@ -12,7 +12,8 @@ import SettingsPanel from './SettingsPanel';
 
 export default function PauseMenu() {
   const [panel, setPanel] = useState<'none' | 'settings' | 'controls'>('none');
-  const night = useHud((s) => s.night);
+  const night = useHud((s) => s.chapter);
+  const chapterTitle = useHud((s) => s.chapterTitle);
 
   const resume = () => {
     const game = getGame();
@@ -25,8 +26,12 @@ export default function PauseMenu() {
   const restart = () => {
     const game = getGame();
     if (!game) return;
-    game.retryNight();
-    useHud.getState().setMode('playing');
+    game.retryChapter();
+    if (game.mode !== 'cinematic') {
+      useHud.getState().setMode('playing');
+    } else {
+      useHud.getState().setMode('cinematic');
+    }
     const canvas = document.querySelector('.game-canvas') as HTMLCanvasElement | null;
     canvas?.requestPointerLock?.();
   };
@@ -40,10 +45,10 @@ export default function PauseMenu() {
       <div className="scanlines absolute inset-0 pointer-events-none" />
       <div className="flex gap-12 items-start">
         <div className="w-[300px]">
-          <p className="text-[10px] tracking-[0.5em] text-[#5a564c] mb-1">PAUSA — NOCHE {String(night).padStart(2, '0')}</p>
+          <p className="text-[10px] tracking-[0.5em] text-[#5a564c] mb-1">PAUSA — CAPÍTULO {String(night).padStart(2, '0')} · {chapterTitle.toUpperCase()}</p>
           <h2 className="text-2xl tracking-[0.3em] text-[#c9c2b0] mb-8">TURNO DETENIDO</h2>
           <button className="menu-btn" onClick={resume}>REANUDAR</button>
-          <button className="menu-btn" onClick={restart}>REINICIAR NOCHE</button>
+          <button className="menu-btn" onClick={restart}>REINICIAR CAPÍTULO</button>
           <button className="menu-btn" onClick={() => setPanel(panel === 'settings' ? 'none' : 'settings')}>AJUSTES</button>
           <button className="menu-btn" onClick={() => setPanel(panel === 'controls' ? 'none' : 'controls')}>CONTROLES</button>
           <button className="menu-btn" onClick={quit}>SALIR AL MENÚ</button>

@@ -1,28 +1,33 @@
 'use client';
 
 /**
- * Intro de noche: líneas de apertura + botón de comenzar el turno.
+ * Intro de capítulo: líneas de apertura + botón de comenzar.
  */
 import { useCallback, useEffect } from 'react';
 import { useHud } from '@/game/core/state';
 import { getGame } from '@/game/core/instance';
 
-export default function NightIntro() {
+export default function ChapterIntro() {
   const lines = useHud((s) => s.introLines);
-  const night = useHud((s) => s.night);
-  const nightTitle = useHud((s) => s.nightTitle);
+  const chapter = useHud((s) => s.chapter);
+  const chapterTitle = useHud((s) => s.chapterTitle);
   const setMode = useHud((s) => s.setMode);
 
   const start = useCallback(() => {
     const game = getGame();
     if (!game) return;
-    game.startNight(night);
-    setMode('playing');
+    game.startChapter(chapter);
     game.audio.init();
     game.audio.resume();
     const canvas = document.querySelector('.game-canvas') as HTMLCanvasElement | null;
     canvas?.requestPointerLock?.();
-  }, [night, setMode]);
+    // el modo lo fija la cinemática de entrada o beginPlay
+    if (game.mode !== 'cinematic') {
+      setMode('playing');
+    } else {
+      setMode('cinematic');
+    }
+  }, [chapter, setMode]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -37,9 +42,9 @@ export default function NightIntro() {
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#020203] scanlines">
-      <p className="text-xs tracking-[0.6em] text-[#5a564c] mb-6">NOCHE {String(night).padStart(2, '0')}</p>
+      <p className="text-xs tracking-[0.6em] text-[#5a564c] mb-6">CAPÍTULO {String(chapter).padStart(2, '0')}</p>
       <h2 className="text-3xl tracking-[0.3em] text-[#c9c2b0] mb-10 title-flicker">
-        {nightTitle.toUpperCase()}
+        {chapterTitle.toUpperCase()}
       </h2>
       <div className="max-w-lg text-center space-y-3 mb-14 px-6">
         {lines.map((l, i) => (
@@ -53,7 +58,7 @@ export default function NightIntro() {
         ))}
       </div>
       <button className="big-btn" onClick={start}>
-        COMENZAR EL TURNO — 12 AM
+        EMPEZAR
       </button>
       <p className="mt-6 text-[10px] tracking-[0.3em] text-[#3a382f]">ENTER PARA EMPEZAR</p>
     </div>

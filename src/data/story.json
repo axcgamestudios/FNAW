@@ -59,12 +59,33 @@
       "title": "Cinta del técnico — FINAL",
       "location": "secret",
       "text": "Si encontraste esto, restauraste el fusible maestro y el edificio despertó del todo. Ellos recuerdan. Los cinco recuerdan. La música los mantiene soñando. Cuando la caja se para, dejan de soñar y empiezan a recordar lo que les hicieron entre las paredes de esta sala. No dejes que la melodía se pare. Nunca. — R."
+    },
+    {
+      "id": "tape_golden",
+      "title": "Cinta sin etiqueta",
+      "location": "secret",
+      "text": "*estática* ...la sala está sellada. Los cinco trajes pequeños cuelgan del techo. Uno grande, dorado, en el rincón. El dueño dice que es 'decoración antigua'. Los motores del traje dorado funcionan. Yo los he oído. Giran cuando nadie mira. Si encuentras esta cinta, ya has entrado donde no debías. CIÉRRALO TODO Y NO VUELVAS A BAJAR."
     }
   ],
   "notes": [
-    { "id": "note_code", "title": "Nota arrugada", "location": "storageA", "text": "El código del almacén sur es 1987. Escríbelo en el teclado de la puerta. R." },
-    { "id": "note_order", "title": "Nota del electricista", "location": "electrical", "text": "SECTOR OESTE — ORDEN DE INTERRUPTORES: 2, 4, 1, 3. Si lo haces al revés, el diferencial salta y empiezas de nuevo. No preguntes por qué. El instalador era un sádico." },
-    { "id": "note_master", "title": "Esquema del panel maestro", "location": "office", "text": "FUSIBLE MAESTRO — secuencia de rearranque: 3, 1, 4, 2. Grabada en la placa: 'LA SALIDA SE LIBERA CON LA LLAVE R. SALA TRAS ESTANTERÍA ALMACÉN SUR.'" }
+    {
+      "id": "note_code",
+      "title": "Nota arrugada",
+      "location": "storageA",
+      "text": "El código del almacén sur es 1987. Escríbelo en el teclado de la puerta. R."
+    },
+    {
+      "id": "note_order",
+      "title": "Nota del electricista",
+      "location": "electrical",
+      "text": "SECTOR OESTE — ORDEN DE INTERRUPTORES: 2, 4, 1, 3. Si lo haces al revés, el diferencial salta y empiezas de nuevo. No preguntes por qué. El instalador era un sádico."
+    },
+    {
+      "id": "note_master",
+      "title": "Esquema del panel maestro",
+      "location": "office",
+      "text": "FUSIBLE MAESTRO — secuencia de rearranque: 3, 1, 4, 2. Grabada en la placa: 'LA SALIDA SE LIBERA CON LA LLAVE R. SALA TRAS ESTANTERÍA ALMACÉN SUR.'"
+    }
   ],
   "endingNormal": [
     "Las puertas de emergencia se abren con un golpe metálico.",

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. **Wood** (weathered, dark wooden planks)\n2. **Metal** (rusted, riveted metal plates/panels)\n3. **Stone tile** (light gray stone paving tiles with grout lines)",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792113680,
+  "id": "20261016092118f36c07a7cc3f43ab",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016092118f36c07a7cc3f43ab",
+  "usage": {
+    "completion_tokens": 48,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 4078,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 4126
+  }
+}

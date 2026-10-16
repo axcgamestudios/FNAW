@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "This is a cinematic shot from a horror game, characterized by its distinct visual style and atmospheric tension.\n\n**Letterbox Bars:**\nThe image features prominent black letterbox bars at the top and bottom of the screen. These bars frame the central action, creating a widescreen cinematic aspect ratio that focuses the viewer's attention on the scene while enhancing the feeling of watching a movie or a recorded security feed.\n\n**Character Model Quality (Jeremy):**\nThe character model for Jeremy (the security guard) is rendered in a low-poly, stylized 3D aesthetic typical of indie horror games. He is depicted as a simple humanoid figure wearing what appears to be a uniform or jumpsuit. The model lacks high-fidelity facial features or complex textures, appearing somewhat blocky and minimalist. He stands in a \"T-pose\" or with arms outstretched to his sides, facing away from the camera toward a set of doors.\n\n**The Scene:**\nThe setting is the lobby of \"Pizzeria Estelar Bruno.\" The environment is drenched in an ominous, deep red or magenta lighting that casts long shadows and creates a sense of dread. The room features:\n*   **Walls:** Covered in vertical corrugated metal siding.\n*   **Flooring:** A grid of large, square tiles that reflect the red light.\n*   **Furniture:** Simple, dark rectangular benches are placed sparsely in the room.\n*   **Exit:** Ahead of the character is a set of heavy double doors with a small green indicator light above them, suggesting they may be locked or secured.\nThe overall atmosphere is sterile, empty, and unsettling, amplified by the unnatural color grading.\n\n**Subtitle Text:**\nAt the bottom center of the screen, within the lower letterbox area, white text reads:\n**\"Pizzeria Estelar Bruno. 11:47 PM.\"**\n\nAdditionally, in the bottom right corner, there is smaller UI text indicating game controls: **\"SALTAR [E] · ESC PARA OMITIR TODA\"** (which translates to \"SKIP [E] · ESC TO SKIP ALL\"), and a compass indicator showing **\"N\"** (North) in the bottom left corner.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792115251,
+  "id": "20261016094723b484f6ea19be4941",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016094723b484f6ea19be4941",
+  "usage": {
+    "completion_tokens": 449,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1117,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1566
+  }
+}

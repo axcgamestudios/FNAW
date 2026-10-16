@@ -3,7 +3,8 @@
  */
 import type { GameSave, GameSettings } from '../core/types';
 
-const KEY = 'bruno_nights_save_v1';
+const KEY = 'fnaw_save_v2';
+const OLD_KEY = 'bruno_nights_save_v1';
 
 const DEFAULT_SETTINGS: GameSettings = {
   master: 0.9,
@@ -16,7 +17,7 @@ const DEFAULT_SETTINGS: GameSettings = {
 };
 
 const DEFAULT_SAVE: GameSave = {
-  unlockedNight: 1,
+  unlockedChapter: 1,
   tapes: [],
   endings: [],
   settings: DEFAULT_SETTINGS,
@@ -24,11 +25,15 @@ const DEFAULT_SAVE: GameSave = {
 
 export function loadSave(): GameSave {
   try {
-    const raw = localStorage.getItem(KEY);
+    let raw = localStorage.getItem(KEY);
+    if (!raw) raw = localStorage.getItem(OLD_KEY);
     if (!raw) return { ...DEFAULT_SAVE };
-    const data = JSON.parse(raw) as Partial<GameSave>;
+    const data = JSON.parse(raw) as Partial<GameSave> & { unlockedNight?: number };
+    const unlocked = typeof data.unlockedChapter === 'number'
+      ? data.unlockedChapter
+      : typeof data.unlockedNight === 'number' ? data.unlockedNight : 1;
     return {
-      unlockedNight: typeof data.unlockedNight === 'number' && data.unlockedNight >= 1 && data.unlockedNight <= 6 ? Math.floor(data.unlockedNight) : 1,
+      unlockedChapter: unlocked >= 1 && unlocked <= 5 ? Math.floor(unlocked) : 1,
       tapes: Array.isArray(data.tapes) ? data.tapes.filter((t) => typeof t === 'string').slice(0, 50) : [],
       endings: Array.isArray(data.endings) ? data.endings.filter((t) => typeof t === 'string').slice(0, 10) : [],
       settings: { ...DEFAULT_SETTINGS, ...(typeof data.settings === 'object' && data.settings ? data.settings : {}) },
@@ -47,10 +52,9 @@ export function writeSave(save: GameSave) {
   }
 }
 
-export function unlockNight(n: number): GameSave {
+export function unlockChapter(n: number): GameSave {
   const s = loadSave();
-  if (n > s.unlockedNight) s.unlockedNight = Math.min(6, n);
-  s.lastNight = n;
+  if (n > s.unlockedChapter) s.unlockedChapter = Math.min(5, n);
   writeSave(s);
   return s;
 }

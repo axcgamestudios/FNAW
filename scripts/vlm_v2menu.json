@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the description of what is visible:\n\n*   **Is an animatronic bear face visible?** **No.** There is no animatronic face visible in the background. The background consists of a dark, reddish-brown wall with vertical lines (resembling wood paneling or a corrugated surface) and a tiled floor. The entire scene is covered in a heavy layer of static noise and scanlines.\n*   **Is it close-up and facing the camera?** **N/A.** Since there is no animatronic face present, this does not apply.\n*   **What menu options appear?** The following white text options appear on the left side of the screen:\n    *   **FNAW** (Title)\n    *   VIGILIA EN LA PIZZERIA ESTELAR (Subtitle)\n    *   CINTAS 0/11 - CAPÍTULOS 2/4\n    *   NUEVA PARTIDA\n    *   CONTINUAR\n    *   CAPÍTULOS\n    *   AJUSTES\n    *   CONTROLES\n    *   CRÉDITOS\n*   **Does it look like the FNAF menu style?** **Yes, partially.** The visual style strongly mimics the aesthetic of *Five Nights at Freddy's*, specifically the use of a dark environment, heavy static/scanline overlays to create a \"camera feed\" or corrupted video look, and simple white monospaced text for the UI. However, the specific content (the title \"FNAW\" and the lack of an animatronic staring at the player) indicates this is likely a fan game or a different horror title using that specific art style.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792115091,
+  "id": "20261016094442cb2791a044ad4714",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016094442cb2791a044ad4714",
+  "usage": {
+    "completion_tokens": 368,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1144,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1512
+  }
+}

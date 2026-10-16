@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Outstretched sideways (T-pose)",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792115538,
+  "id": "202610160952161893d853a0f84d45",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610160952161893d853a0f84d45",
+  "usage": {
+    "completion_tokens": 10,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1096,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1106
+  }
+}

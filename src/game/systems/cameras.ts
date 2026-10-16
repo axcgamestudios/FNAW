@@ -73,14 +73,23 @@ export class SecurityCameras {
 
   update(dt: number, animatronics: Animatronic[], tabletOpen: boolean) {
     this.t += dt;
-    // balanceo lento de la cámara (motor de cámara)
+    // balanceo lento del motor de cámara (mirar con lookAt, con deriva suave)
     const def = this.currentDef;
-    const baseLook = new THREE.Vector3(def.look[0], def.look[1], def.look[2]);
-    const dir = baseLook.clone().sub(this.camera.position);
-    const yaw = Math.atan2(dir.x, dir.z) + Math.sin(this.t * 0.31) * 0.14;
-    const pitch = Math.asin(Math.max(-1, Math.min(1, dir.y / dir.length())));
-    this.camera.rotation.set(pitch, yaw, 0, 'YXZ');
-    this.camera.rotateZ(Math.sin(this.t * 0.23) * 0.012);
+    const camPos = new THREE.Vector3(def.pos[0], def.pos[1], def.pos[2]);
+    const look = new THREE.Vector3(def.look[0], def.look[1], def.look[2]);
+    const dir = look.clone().sub(camPos);
+    const len = Math.max(0.001, dir.length());
+    // deriva angular lenta alrededor del punto mirado
+    const swayYaw = Math.sin(this.t * 0.31) * 0.13 + Math.sin(this.t * 0.13) * 0.05;
+    const swayPitch = Math.sin(this.t * 0.23) * 0.04;
+    const cosY = Math.cos(swayYaw);
+    const sinY = Math.sin(swayYaw);
+    const dx = dir.x * cosY + dir.z * sinY;
+    const dz = -dir.x * sinY + dir.z * cosY;
+    const dy = dir.y + swayPitch * len;
+    this.camera.position.copy(camPos);
+    this.camera.lookAt(camPos.clone().add(new THREE.Vector3(dx, dy, dz)));
+    this.camera.rotateZ(Math.sin(this.t * 0.4) * 0.01);
 
     if (!tabletOpen) {
       this.audio.setStatic(0);

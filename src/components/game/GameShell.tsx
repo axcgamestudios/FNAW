@@ -9,16 +9,17 @@ import { setGameInstance, getGame } from '@/game/core/instance';
 import type { Game } from '@/game/core/game';
 import LoadingScreen from './LoadingScreen';
 import MainMenu from './MainMenu';
-import NightIntro from './NightIntro';
+import ChapterIntro from './ChapterIntro';
 import HUD from './HUD';
 import TabletView from './TabletView';
 import PauseMenu from './PauseMenu';
 import DeathScreen from './DeathScreen';
-import NightCompleteScreen from './NightCompleteScreen';
+import ChapterCompleteScreen from './ChapterCompleteScreen';
 import EndingScreen from './EndingScreen';
 import KeypadDialog from './KeypadDialog';
 import NoteReader from './NoteReader';
 import JumpscareOverlay from './JumpscareOverlay';
+import CinematicOverlay from './CinematicOverlay';
 
 export default function GameShell() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -116,12 +117,13 @@ export default function GameShell() {
 
       {mode === 'menu' && <MainMenu />}
 
-      {mode === 'intro' && <NightIntro />}
+      {mode === 'intro' && <ChapterIntro />}
 
       {(mode === 'playing' || mode === 'paused') && <HUD />}
 
-      {mode === 'playing' && <TabletView />}
+      {mode === 'cinematic' && <CinematicOverlay />}
 
+      {mode === 'playing' && <TabletView />}
       {mode === 'playing' && pointerHint && (
         <button
           className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-6 py-3 text-sm tracking-[0.25em] text-[#e8e2d0] cursor-pointer"
@@ -136,7 +138,7 @@ export default function GameShell() {
 
       {mode === 'dead' && <DeathScreen />}
 
-      {mode === 'complete' && <NightCompleteScreen />}
+      {mode === 'complete' && <ChapterCompleteScreen />}
 
       {mode === 'ending' && <EndingScreen />}
 

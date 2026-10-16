@@ -1,11 +1,12 @@
 /**
- * Animatrónico: modelo + máquina de estados + detección + navegación.
- * Estados: dormant, patrol, investigate, chase, search, checkMask,
- * stunned, attack, retreat, crawl(vent), hunt (marioneta).
+ * Animatrónico: modelo GLTF del repositorio + máquina de estados +
+ * detección + navegación. Animación procedural sobre los huesos del
+ * esqueleto real (aditiva sobre la pose de reposo) y clips de GLB.
  */
 import * as THREE from 'three';
 import type { AnimatronicDef, NoiseEvent } from '../core/types';
 import { buildAnimatronic, type CharacterRig } from '../characters/models';
+import { Assets, type GltfRig } from '../world/assets';
 import type { NavGraph } from './navgraph';
 import { GRID_W, GRID_H } from './navgraph';
 import type { WorldBuilder } from '../world/worldbuilder';
@@ -22,7 +23,6 @@ export interface PlayerLike {
   masked: boolean;
   hidden: boolean;
   hiddenSpotId: string | null;
-  /** dirección de la vista */
   lookDir: THREE.Vector3;
   roomLightLevel(): number;
   emitNoise(): void;
@@ -30,13 +30,12 @@ export interface PlayerLike {
 
 export interface AIHost {
   time: number;
-  hour: number;
-  night: number;
+  chapter: number;
+  chapterTime: number;
   aggression: number;
   nav: NavGraph;
   world: WorldBuilder;
   noises: NoiseEvent[];
-  musicBoxLevel: number;
   onDeath(ai: Animatronic): void;
   sfx: {
     footstep(pos: THREE.Vector3, kind: string, running: boolean, heavy: boolean): void;
@@ -52,12 +51,47 @@ export interface AIHost {
 const _v1 = new THREE.Vector3();
 const _v2 = new THREE.Vector3();
 
+/** Rig unificado: GLTF o procedural con la misma interfaz para la IA */
+interface ARig {
+  root: THREE.Group;
+  bones: {
+    pelvis?: THREE.Object3D;
+    torso?: THREE.Object3D;
+    head?: THREE.Object3D;
+    jaw?: THREE.Object3D;
+    armL?: THREE.Object3D;
+    armR?: THREE.Object3D;
+    forearmL?: THREE.Object3D;
+    forearmR?: THREE.Object3D;
+    legL?: THREE.Object3D;
+    legR?: THREE.Object3D;
+    shinL?: THREE.Object3D;
+    shinR?: THREE.Object3D;
+    earL?: THREE.Object3D;
+    earR?: THREE.Object3D;
+  };
+  eyes: THREE.Mesh[];
+  eyeGlow: THREE.PointLight;
+  height: number;
+  mixer: THREE.AnimationMixer | null;
+  idleAction: THREE.AnimationAction | null;
+}
+
+/** pose de reposo de cada hueso para animación aditiva */
+interface RestPose {
+  bone: THREE.Object3D;
+  x: number;
+  y: number;
+  z: number;
+}
+
 export class Animatronic {
   def: AnimatronicDef;
-  rig: CharacterRig;
+  rig: ARig;
   host: AIHost;
   state: AIState = 'dormant';
   active = false;
+  scriptedAwake = false;
   pos = new THREE.Vector3();
   yaw = 0;
   path: THREE.Vector3[] = [];
@@ -80,24 +114,139 @@ export class Animatronic {
   twitch = 0;
   crawling = false;
   stuckTimer = 0;
-  stagePose = false;
+  private rests: RestPose[] = [];
+  private mixerFade = 0;
 
   constructor(def: AnimatronicDef, host: AIHost) {
     this.def = def;
     this.host = host;
-    this.rig = buildAnimatronic(def.kind, def.eyeColor);
+    this.rig = this.buildRig(def);
     const room = host.world.rooms.get(def.startRoom);
     const [ox, oz] = def.startOffset ?? [0, 0];
     const cx = room ? room.center.x : 0;
     const cz = room ? room.center.z : 0;
     this.pos.set(cx + ox, 0, cz + oz);
     this.rig.root.position.copy(this.pos);
-    this.rig.root.rotation.y = 0; // el frente del modelo es +Z: miran al sur (al público)
+    this.rig.root.rotation.y = 0;
+    (this.rig.root as unknown as { userData: { animatronicId?: string } }).userData.animatronicId = def.id;
     host.world.scene.add(this.rig.root);
+    // corregir T-pose: bajar los brazos insertando pivotes correctores
+    this.applyArmDownPose();
   }
 
-  get eyeColor(): number {
-    return this.def.eyeColor;
+  /** Construye el rig: GLTF del repo si está disponible; procedural si no */
+  private buildRig(def: AnimatronicDef): ARig {
+    const assetKind = def.kind; // 'freddy' | 'bonnie' | 'chica' | 'foxy' | 'golden'
+    let gltfRig: GltfRig | null = null;
+    if (assetKind === 'golden') {
+      gltfRig = Assets.createVariant('golden', 0xc8a028);
+    } else if (Assets.has(assetKind)) {
+      gltfRig = Assets.rigs.get(assetKind) ?? null;
+    }
+    if (gltfRig) {
+      const eyeGlow = new THREE.PointLight(def.eyeColor, 9, 5, 1.9);
+      eyeGlow.position.set(0, def.kind === 'golden' ? 1.8 : 1.6, 0.3);
+      gltfRig.root.add(eyeGlow);
+      const rig: ARig = {
+        root: gltfRig.root,
+        bones: gltfRig.bones,
+        eyes: gltfRig.eyes,
+        eyeGlow,
+        height: gltfRig.height,
+        mixer: gltfRig.mixer,
+        idleAction: gltfRig.idleAction,
+      };
+      this.storeRests(rig);
+      return rig;
+    }
+    // fallback procedural
+    const char = buildAnimatronic(
+      def.kind === 'freddy' || def.kind === 'golden' ? 'bear'
+        : def.kind === 'bonnie' ? 'rabbit'
+        : def.kind === 'chica' ? 'chicken' : 'fox',
+      def.eyeColor
+    );
+    const rig: ARig = {
+      root: char.root,
+      bones: char.bones,
+      eyes: char.eyes,
+      eyeGlow: char.eyeGlow ?? new THREE.PointLight(def.eyeColor, 0, 0.1),
+      height: char.height,
+      mixer: null,
+      idleAction: null,
+    };
+    this.storeRests(rig);
+    return rig;
+  }
+
+  private storeRests(rig: ARig) {
+    this.rests = [];
+    for (const bone of Object.values(rig.bones)) {
+      if (bone) {
+        this.rests.push({ bone, x: bone.rotation.x, y: bone.rotation.y, z: bone.rotation.z });
+      }
+    }
+  }
+
+  private rest(bone: THREE.Object3D | undefined): RestPose | undefined {
+    if (!bone) return undefined;
+    return this.rests.find((r) => r.bone === bone);
+  }
+
+  /** rotación aditiva sobre la pose de reposo */
+  private swing(bone: THREE.Object3D | undefined, dx: number, dy = 0, dz = 0) {
+    if (!bone) return;
+    const r = this.rest(bone);
+    bone.rotation.x = (r ? r.x : 0) + dx;
+    bone.rotation.y = (r ? r.y : 0) + dy;
+    bone.rotation.z = (r ? r.z : 0) + dz;
+  }
+
+  /**
+   * Corrige la T-pose de fábrica: inserta un pivote entre el hueso del hombro
+   * y su padre, y lo rota para que el brazo caiga (con leve apertura).
+   * El pivote preserva la transformación mundial original del hueso.
+   */
+  private applyArmDownPose() {
+    const rig = this.rig;
+    if (!rig.bones.armL && !rig.bones.armR) return;
+    this.rig.root.updateMatrixWorld(true);
+    const pairs: Array<[THREE.Object3D | undefined, number]> = [
+      [rig.bones.armL, 1],
+      [rig.bones.armR, -1],
+    ];
+    for (const [arm, side] of pairs) {
+      if (!arm || !arm.parent) continue;
+      // dirección mundial actual del brazo (hombro → codo)
+      const shoulder = arm.getWorldPosition(new THREE.Vector3());
+      const child = arm.children.find((c) => c.name && /forearm|lowerarm|elbow|lower/i.test(c.name)) ?? arm.children[0];
+      if (!child) continue;
+      const elbow = child.getWorldPosition(new THREE.Vector3());
+      const armDir = elbow.sub(shoulder).normalize();
+      if (armDir.y < -0.82) continue; // ya apunta abajo
+      // objetivo: hacia abajo con ligera apertura lateral (el lado _L del personaje está en +X)
+      const target = new THREE.Vector3(side * 0.2, -1, 0).normalize();
+      const Q = new THREE.Quaternion().setFromUnitVectors(armDir, target);
+      // insertar pivote que preserva la transformación local del hueso
+      const pivot = new THREE.Object3D();
+      pivot.name = arm.name + '_pivot';
+      pivot.position.copy(arm.position);
+      pivot.quaternion.copy(arm.quaternion);
+      pivot.scale.copy(arm.scale);
+      arm.parent.add(pivot);
+      arm.position.set(0, 0, 0);
+      arm.quaternion.identity();
+      arm.scale.set(1, 1, 1);
+      pivot.add(arm);
+      // rotación correctora conjugada al espacio local del padre
+      const pivotParent = pivot.parent!;
+      const parentQ = pivotParent.getWorldQuaternion(new THREE.Quaternion());
+      const qLocal = parentQ.clone().invert().multiply(Q).multiply(parentQ);
+      pivot.quaternion.copy(qLocal.multiply(pivot.quaternion));
+    }
+    // recalcular las poses de reposo tras la corrección
+    this.storeRests(rig);
+    this.rig.root.updateMatrixWorld(true);
   }
 
   reset() {
@@ -118,6 +267,14 @@ export class Animatronic {
     this.fooledTime = 0;
     this.maskLocked = false;
     this.currentSpeed = 0;
+    // restaurar pose de reposo
+    for (const r of this.rests) {
+      r.bone.rotation.set(r.x, r.y, r.z);
+    }
+    if (this.rig.idleAction) {
+      this.rig.idleAction.reset().play();
+      this.mixerFade = 1;
+    }
   }
 
   wake() {
@@ -128,29 +285,31 @@ export class Animatronic {
     this.host.sfx.vocal(this.pos, this.def.voice);
   }
 
+  /** activación guionizada (p. ej. Freddy Dorado al coger la cinta) */
+  scriptWake() {
+    this.scriptedAwake = true;
+    this.wake();
+    this.state = this.def.persistent ? 'hunt' : 'chase';
+    this.stateTimer = 0;
+    this.lastKnown = null;
+  }
+
+  get eyeColor(): number {
+    return this.def.eyeColor;
+  }
+
   /* ================== ACTUALIZACIÓN PRINCIPAL ================== */
 
   update(dt: number, player: PlayerLike) {
     this.stateTimer += dt;
     this.thinkTimer -= dt;
     this.vocalTimer -= dt;
-
-    // marioneta: despierta y caza si la caja musical está vacía (independiente de wakeHour)
-    if (this.def.persistent && this.host.musicBoxLevel <= 0.02) {
-      this.active = true;
-      if (this.state !== 'hunt' && this.state !== 'attack') {
-        this.state = 'hunt';
-        this.stateTimer = 0;
-        this.host.sfx.stinger();
-        this.host.sfx.roar(this.pos, 'chime');
-      }
-    } else if (this.def.persistent && this.host.musicBoxLevel > 0.5 && this.state === 'hunt') {
-      this.state = 'patrol';
-      this.stateTimer = 0;
-    }
+    if (this.rig.mixer) this.rig.mixer.update(dt);
 
     if (!this.active) {
-      if (this.host.hour >= this.wakeHourForNight()) {
+      // despertar por temporizador del capítulo
+      const delay = this.wakeDelayForChapter();
+      if (delay < 900 && this.host.chapterTime >= delay) {
         this.wake();
       } else {
         this.animateIdle(dt, player);
@@ -194,15 +353,14 @@ export class Animatronic {
     this.pos.y += (fy - this.pos.y) * Math.min(1, dt * 10);
     this.rig.root.position.copy(this.pos);
     if (!this.crawling) this.rig.root.rotation.set(0, this.yaw, 0);
-    else this.rig.root.rotation.set(0.95, this.yaw, 0);
+    else this.rig.root.rotation.set(0.55, this.yaw, 0.12);
 
-    // animación procedural
     this.animate(dt, player);
   }
 
-  private wakeHourForNight(): number {
-    const n = Math.min(Math.max(this.host.night, 1), 5);
-    return this.def.wakeHour[n - 1] ?? 0;
+  private wakeDelayForChapter(): number {
+    const c = Math.min(Math.max(this.host.chapter, 1), 4);
+    return this.def.wakeDelay?.[c - 1] ?? 0;
   }
 
   /* ================== DETECCIÓN ================== */
@@ -237,7 +395,6 @@ export class Animatronic {
         // ya está sobre el jugador
       } else {
         const dist = this.pos.distanceTo(player.pos);
-        // máscara puesta antes de contacto → posible engaño
         if (player.masked && this.def.maskFoolable && dist < 4.2 && dist > 1.2 && !this.maskLocked) {
           this.state = 'checkMask';
           this.stateTimer = 0;
@@ -246,7 +403,6 @@ export class Animatronic {
           return;
         }
         if (player.masked && !this.def.maskFoolable) {
-          // no se deja engañar: ataque directo
           this.host.sfx.roar(this.pos, this.def.voice);
         }
         this.startChase();
@@ -254,27 +410,18 @@ export class Animatronic {
     } else if (this.state === 'chase' && this.host.time - this.lastSeenAt > 2.6) {
       this.state = 'search';
       this.stateTimer = 0;
-    } else if (this.state === 'hunt' && this.host.musicBoxLevel > 0.02) {
-      // la marioneta pierde el rastro si la caja suena
-      this.state = 'search';
-      this.stateTimer = 0;
     }
   }
 
   canSee(player: PlayerLike): boolean {
-    if (player.hidden) {
-      // solo si está muy cerca y ya lo vio entrar
-      return false;
-    }
+    if (player.hidden) return false;
     const d = this.pos.distanceTo(player.pos);
     let maxDist = this.def.visionDist * (0.75 + this.host.aggression * 0.35);
-    // oscuridad: reduce visión
     const light = player.roomLightLevel();
     if (!player.flashlightOn && light < 0.25) maxDist *= 0.45;
     if (player.crouching) maxDist *= 0.8;
-    if (player.flashlightOn) maxDist *= 1.25; // la linterna delata
+    if (player.flashlightOn) maxDist *= 1.25;
     if (d > maxDist) return false;
-    // cono de visión (la marioneta ve a 360)
     if (this.def.visionFov < 360) {
       _v1.subVectors(player.pos, this.pos);
       _v1.y = 0;
@@ -284,7 +431,6 @@ export class Animatronic {
       const cosHalf = Math.cos((this.def.visionFov * Math.PI) / 360);
       if (dot < cosHalf && d > 2.2) return false;
     }
-    // línea de visión por rejilla
     return this.host.nav.los(this.pos, player.pos, this.def.ventAccess);
   }
 
@@ -298,13 +444,11 @@ export class Animatronic {
     if (this.def.flashlight === 'none' || this.state === 'attack' || this.state === 'hunt') return;
     const d = this.pos.distanceTo(player.pos);
     if (d > 13) return;
-    // ¿el jugador lo está iluminando?
     _v1.subVectors(this.pos, player.pos).normalize();
-    if (_v1.dot(player.lookDir) < 0.965) return;
+    if (_v1.dot(player.lookDir) < 0.955) return;
     if (!this.host.nav.los(player.pos, this.pos, this.def.ventAccess)) return;
     this.litTime += dt;
     if (this.def.flashlight === 'freeze' && this.litTime > 0.1) {
-      // congelada mientras se ilumina
       if (this.state !== 'stunned' && this.state !== 'checkMask') {
         this.state = 'stunned';
         this.stateTimer = 0;
@@ -331,14 +475,12 @@ export class Animatronic {
   }
 
   private updatePatrol(dt: number, player: PlayerLike) {
-    // elegir destino de patrulla
     if (!this.patrolTarget || this.arrived(1.2) || this.stateTimer > 40) {
       const rooms = this.def.patrolRooms;
       const room = rooms[(Math.random() * rooms.length) | 0];
       const r = this.host.world.rooms.get(room);
       if (r) {
         const [x1, z1, x2, z2] = r.def.rect;
-        // con agresividad: a veces elige la sala del jugador (interceptación)
         let tx = x1 + 1 + Math.random() * (x2 - x1 - 2);
         let tz = z1 + 1 + Math.random() * (z2 - z1 - 2);
         if (Math.random() < 0.28 * this.host.aggression) {
@@ -362,7 +504,6 @@ export class Animatronic {
         if (this.pos.distanceTo(this.investigatePoint) > 1.6 && this.stateTimer < 20) {
           this.setPath(this.investigatePoint);
         } else {
-          // mirar alrededor
           this.yaw += Math.sin(this.stateTimer * 2.2) * dt * 2.5;
           if (this.stateTimer > 6) {
             this.investigatePoint = null;
@@ -399,7 +540,6 @@ export class Animatronic {
     const speed = this.def.speedRun * (0.9 + this.host.aggression * 0.18);
     this.followPath(dt, speed, player);
     const d = this.pos.distanceTo(player.pos);
-    // intento de engaño con máscara a corta distancia
     if (d < 2.8 && d > 1.1 && player.masked && this.def.maskFoolable && !this.maskLocked) {
       if (Math.random() < 0.55) {
         this.state = 'checkMask';
@@ -420,7 +560,6 @@ export class Animatronic {
   }
 
   private updateHunt(dt: number, player: PlayerLike) {
-    // la marioneta nunca pierde el rastro mientras la caja esté parada
     this.lastKnown = player.pos.clone();
     if (this.stateTimer > 1.2 || !this.path.length) {
       this.stateTimer = 0.01;
@@ -440,7 +579,6 @@ export class Animatronic {
       return;
     }
     if (!this.path.length || this.arrived(1.5)) {
-      // buscar en las inmediaciones
       const angle = Math.random() * Math.PI * 2;
       const r = 2 + Math.random() * 5;
       const target = new THREE.Vector3(
@@ -460,18 +598,15 @@ export class Animatronic {
 
   private updateCheckMask(dt: number, player: PlayerLike) {
     this.currentSpeed = 0;
-    // mirar al jugador de cerca
     _v1.subVectors(player.pos, this.pos);
     this.yaw = Math.atan2(_v1.x, _v1.z);
     this.fooledTime += dt;
     if (!player.masked || player.running) {
-      // se la quitó delante de él → ataque
       this.maskLocked = true;
       this.startChase();
       return;
     }
     if (this.fooledTime > this.def.maskFoolTime) {
-      // pierde el interés
       this.retreat();
     }
   }
@@ -495,12 +630,10 @@ export class Animatronic {
   }
 
   private updateAttack(dt: number, player: PlayerLike) {
-    // impulso del ataque
     const windup = this.def.attackWindup;
     if (this.stateTimer < windup) {
       _v1.subVectors(player.pos, this.pos);
       this.yaw = Math.atan2(_v1.x, _v1.z);
-      // el jugador puede escapar durante la preparación
       const d = this.pos.distanceTo(player.pos);
       if (d > this.def.attackRange + 1.1) {
         this.startChase();
@@ -508,7 +641,6 @@ export class Animatronic {
       }
       return;
     }
-    // embestida
     const speed = 9;
     this.pos.addScaledVector(this.lungeDir, speed * dt);
     this.rig.root.position.copy(this.pos);
@@ -547,7 +679,6 @@ export class Animatronic {
     this.pathIdx = 0;
     this.stuckTimer = 0;
     if (!this.path.length) {
-      // sin camino: objetivo más cercano alcanzable
       const rooms = this.def.patrolRooms;
       for (const roomId of rooms) {
         const r = this.host.world.rooms.get(roomId);
@@ -583,14 +714,12 @@ export class Animatronic {
       return;
     }
     _v1.normalize();
-    // giro suave
     const targetYaw = Math.atan2(_v1.x, _v1.z);
     let diff = targetYaw - this.yaw;
     while (diff > Math.PI) diff -= Math.PI * 2;
     while (diff < -Math.PI) diff += Math.PI * 2;
     this.yaw += Math.max(-4.5 * dt, Math.min(4.5 * dt, diff));
 
-    // ¿celda de conducto? gatear
     const cellVent = this.isVentCell(this.pos.x, this.pos.z);
     const targetVent = this.isVentCell(target.x, target.z);
     const wantCrawl = cellVent || targetVent;
@@ -603,9 +732,7 @@ export class Animatronic {
     this.pos.x += _v1.x * step;
     this.pos.z += _v1.z * step;
 
-    // atasco (tapa de conducto cerrada): golpearla
-    const moved = step;
-    if (moved < v * dt * 0.35) {
+    if (step < v * dt * 0.35) {
       this.stuckTimer += dt;
     } else {
       this.stuckTimer = Math.max(0, this.stuckTimer - dt);
@@ -615,15 +742,13 @@ export class Animatronic {
       this.stuckTimer = 0;
     }
 
-    // abrir puertas cerradas cercanas en la dirección de avance
     this.autoDoors();
 
-    // pasos
     this.footTimer -= dt * (v > this.def.speedWalk * 1.05 ? 1.6 : 1);
     if (this.footTimer <= 0) {
       this.footTimer = 0.55 + Math.random() * 0.1;
       const surface = this.crawling ? 'metal' : this.surfaceAt();
-      this.host.sfx.footstep(this.pos, surface, v > this.def.speedWalk * 1.05, this.def.kind !== 'puppet');
+      this.host.sfx.footstep(this.pos, surface, v > this.def.speedWalk * 1.05, true);
     }
   }
 
@@ -660,20 +785,16 @@ export class Animatronic {
     }
   }
 
-  /* ================== ANIMACIÓN PROCEDURAL ================== */
+  /* ================== ANIMACIÓN PROCEDURAL SOBRE EL ESQUELETO ================== */
 
   private animateIdle(dt: number, player: PlayerLike) {
     this.currentSpeed = Math.max(0, this.currentSpeed - dt * 4);
     const t = this.host.time;
-    // balanceo sutil + cabeza que sigue al jugador si está cerca (¡miedo!)
     const b = this.rig.bones;
-    b.torso.rotation.z = Math.sin(t * 0.5 + this.def.eyeColor) * 0.015;
-    if (this.def.kind === 'puppet') {
-      this.rig.root.position.y = 0.04 + Math.sin(t * 1.8) * 0.05;
-      b.armL.rotation.x = Math.sin(t * 1.2) * 0.08;
-      b.armR.rotation.x = -Math.sin(t * 1.2) * 0.08;
-      b.head.rotation.y = Math.sin(t * 0.4) * 0.5;
-    }
+    // mezcla del clip idle (si existe)
+    this.updateMixerFade(0.35);
+    // balanceo sutil
+    if (b.torso) this.swing(b.torso, 0, 0, Math.sin(t * 0.5 + this.def.eyeColor) * 0.012);
     const d = this.pos.distanceTo(player.pos);
     if (d < 9 && this.active) {
       _v1.subVectors(player.pos, this.pos);
@@ -681,18 +802,25 @@ export class Animatronic {
       let diff = wantYaw - this.yaw;
       while (diff > Math.PI) diff -= Math.PI * 2;
       while (diff < -Math.PI) diff += Math.PI * 2;
-      // giran la cabeza (no el cuerpo) hacia el jugador — inquietante
-      b.head.rotation.y = Math.max(-1.1, Math.min(1.1, diff));
-    } else {
-      b.head.rotation.y *= Math.max(0, 1 - dt * 2);
+      if (b.head) this.swing(b.head, 0, Math.max(-0.9, Math.min(0.9, diff)), 0);
+    } else if (b.head) {
+      this.swing(b.head, 0, 0, 0);
     }
     this.stepJaw(t);
   }
 
+  /** control de mezcla entre clip idle y pose manual */
+  private updateMixerFade(target: number) {
+    if (!this.rig.idleAction) return;
+    this.mixerFade += (target - this.mixerFade) * 0.08;
+    this.rig.idleAction.setEffectiveWeight(this.mixerFade);
+    this.rig.idleAction.paused = this.mixerFade < 0.02;
+  }
+
   private stepJaw(t: number) {
     const b = this.rig.bones;
-    const open = this.state === 'attack' ? 0.65 : Math.max(0, Math.sin(t * 0.7 + this.def.eyeColor * 0.001)) * 0.06;
-    b.jaw.rotation.x = open;
+    const open = this.state === 'attack' ? 0.5 : Math.max(0, Math.sin(t * 0.7 + this.def.eyeColor * 0.001)) * 0.045;
+    if (b.jaw) this.swing(b.jaw, open);
   }
 
   private animate(dt: number, player: PlayerLike) {
@@ -700,93 +828,78 @@ export class Animatronic {
     const t = this.host.time;
 
     if (this.crawling) {
+      this.updateMixerFade(0);
       this.walkPhase += dt * this.currentSpeed * 3.2;
       const s = Math.sin(this.walkPhase);
-      b.armL.rotation.x = -1.4 + s * 0.5;
-      b.armR.rotation.x = -1.4 - s * 0.5;
-      b.legL.rotation.x = 0.6 + -s * 0.35;
-      b.legR.rotation.x = 0.6 + s * 0.35;
-      b.torso.rotation.x = 0.2;
-      b.head.rotation.x = -0.5;
+      this.swing(b.armL, -1.2 + s * 0.45);
+      this.swing(b.armR, -1.2 - s * 0.45);
+      this.swing(b.legL, 0.5 - s * 0.3);
+      this.swing(b.legR, 0.5 + s * 0.3);
+      if (b.torso) this.swing(b.torso, 0.18, 0, 0);
+      if (b.head) this.swing(b.head, -0.4, 0, 0);
       return;
     }
 
     const moving = this.currentSpeed > 0.15;
     if (moving) {
+      this.updateMixerFade(0);
       const freq = this.currentSpeed * 2.4;
       this.walkPhase += dt * freq;
       const s = Math.sin(this.walkPhase);
       const c = Math.cos(this.walkPhase);
-      const amp = Math.min(1, this.currentSpeed / this.def.speedWalk) * (this.currentSpeed > this.def.speedWalk * 1.05 ? 0.85 : 0.55);
-      b.legL.rotation.x = s * 0.62 * amp;
-      b.legR.rotation.x = -s * 0.62 * amp;
-      b.shinL.rotation.x = Math.max(0, -s) * 0.75 * amp;
-      b.shinR.rotation.x = Math.max(0, s) * 0.75 * amp;
-      b.armL.rotation.x = -s * 0.5 * amp;
-      b.armR.rotation.x = s * 0.5 * amp;
-      b.forearmL.rotation.x = -0.35 - Math.max(0, s) * 0.4;
-      b.forearmR.rotation.x = -0.35 - Math.max(0, -s) * 0.4;
-      b.pelvis.position.y = (this.def.kind === 'puppet' ? 1.06 : 0.98) + Math.abs(c) * 0.035 * amp;
-      b.torso.rotation.x = this.currentSpeed > this.def.speedWalk * 1.05 ? 0.22 : 0.06;
-      b.torso.rotation.z = s * 0.04 * amp;
-      if (this.def.kind === 'puppet') {
-        this.rig.root.position.y = 0.05 + Math.sin(t * 2.2) * 0.05;
-        b.armL.rotation.x = -0.9 + s * 0.25;
-        b.armR.rotation.x = -0.9 - s * 0.25;
+      const amp = Math.min(1, this.currentSpeed / this.def.speedWalk) * (this.currentSpeed > this.def.speedWalk * 1.05 ? 0.75 : 0.5);
+      this.swing(b.legL, s * 0.55 * amp);
+      this.swing(b.legR, -s * 0.55 * amp);
+      this.swing(b.shinL, Math.max(0, -s) * 0.7 * amp);
+      this.swing(b.shinR, Math.max(0, s) * 0.7 * amp);
+      this.swing(b.armL, -s * 0.45 * amp);
+      this.swing(b.armR, s * 0.45 * amp);
+      this.swing(b.forearmL, -0.3 - Math.max(0, s) * 0.35);
+      this.swing(b.forearmR, -0.3 - Math.max(0, -s) * 0.35);
+      if (b.pelvis) {
+        const r = this.rest(b.pelvis)!;
+        b.pelvis.position.y = (b.pelvis.position.y * 0.7 + (r.bone.position.y + Math.abs(c) * 0.03 * amp) * 0.3);
       }
+      if (b.torso) this.swing(b.torso, this.currentSpeed > this.def.speedWalk * 1.05 ? 0.18 : 0.05, 0, s * 0.035 * amp);
     } else {
       this.walkPhase = 0;
-      b.torso.rotation.z = Math.sin(t * 0.5) * 0.015;
-      if (this.def.kind === 'puppet') {
-        this.rig.root.position.y = 0.04 + Math.sin(t * 1.8) * 0.05;
-        b.armL.rotation.x = Math.sin(t * 1.2) * 0.08;
-        b.armR.rotation.x = -Math.sin(t * 1.2) * 0.08;
-      } else {
-        b.legL.rotation.x *= Math.max(0, 1 - dt * 5);
-        b.legR.rotation.x *= Math.max(0, 1 - dt * 5);
-        b.armL.rotation.x = -0.08 + Math.sin(t * 0.8) * 0.03;
-        b.armR.rotation.x = -0.08 - Math.sin(t * 0.8) * 0.03;
-      }
+      this.updateMixerFade(0.35);
+      if (b.torso) this.swing(b.torso, 0, 0, Math.sin(t * 0.5) * 0.012);
+      this.swing(b.legL, 0);
+      this.swing(b.legR, 0);
+      this.swing(b.armL, -0.05 + Math.sin(t * 0.8) * 0.02);
+      this.swing(b.armR, -0.05 - Math.sin(t * 0.8) * 0.02);
     }
 
-    // attack: brazos arriba y mandíbula abierta
     if (this.state === 'attack') {
-      b.armL.rotation.x = -2.4;
-      b.armR.rotation.x = -2.4;
-      b.forearmL.rotation.x = -0.5;
-      b.forearmR.rotation.x = -0.5;
-      b.jaw.rotation.x = 0.7;
-      b.torso.rotation.x = 0.35;
+      this.swing(b.armL, -2.1);
+      this.swing(b.armR, -2.1);
+      this.swing(b.forearmL, -0.45);
+      this.swing(b.forearmR, -0.45);
+      if (b.jaw) this.swing(b.jaw, 0.55);
+      if (b.torso) this.swing(b.torso, 0.3, 0, 0);
     } else if (this.state === 'checkMask') {
-      // cabeza ladeada, escrutando
-      b.head.rotation.z = 0.28;
-      b.jaw.rotation.x = 0.03;
+      if (b.head) this.swing(b.head, 0, 0, 0.24);
+      if (b.jaw) this.swing(b.jaw, 0.03);
     } else if (this.state === 'stunned') {
-      b.head.rotation.z = -0.2;
-      b.jaw.rotation.x = 0.12;
+      if (b.head) this.swing(b.head, 0, 0, -0.18);
+      if (b.jaw) this.swing(b.jaw, 0.1);
     } else {
       this.stepJaw(t);
-      b.head.rotation.z *= Math.max(0, 1 - dt * 3);
     }
 
-    // mirar al jugador si está cerca y es interés actual
+    // mirar al jugador si está cerca
     const d = this.pos.distanceTo(player.pos);
-    if (d < 12 && (this.state === 'chase' || this.state === 'hunt' || this.state === 'checkMask' || this.state === 'stunned')) {
+    const interested = this.state === 'chase' || this.state === 'hunt' || this.state === 'checkMask' || this.state === 'stunned' || (d < 9 && !moving);
+    if (b.head && interested && d < 12) {
       _v1.subVectors(player.pos, this.pos);
       const wantYaw = Math.atan2(_v1.x, _v1.z);
       let diff = wantYaw - this.yaw;
       while (diff > Math.PI) diff -= Math.PI * 2;
       while (diff < -Math.PI) diff += Math.PI * 2;
-      b.head.rotation.y = Math.max(-1.2, Math.min(1.2, diff));
-    } else if (d < 9 && !moving) {
-      _v1.subVectors(player.pos, this.pos);
-      const wantYaw = Math.atan2(_v1.x, _v1.z);
-      let diff = wantYaw - this.yaw;
-      while (diff > Math.PI) diff -= Math.PI * 2;
-      while (diff < -Math.PI) diff += Math.PI * 2;
-      b.head.rotation.y = Math.max(-1.1, Math.min(1.1, diff));
-    } else {
-      b.head.rotation.y *= Math.max(0, 1 - dt * 2);
+      this.swing(b.head, 0, Math.max(-1.0, Math.min(1.0, diff)), 0);
+    } else if (b.head) {
+      this.swing(b.head, 0, 0, 0);
     }
 
     // espasmo aleatorio (terror)
@@ -795,18 +908,25 @@ export class Animatronic {
       this.twitchTimer = 6 + Math.random() * 18;
       this.twitch = 0.22;
     }
-    if (this.twitch > 0) {
+    if (this.twitch > 0 && b.head) {
       this.twitch -= dt;
-      b.head.rotation.z += (Math.random() - 0.5) * 0.14;
+      b.head.rotation.z += (Math.random() - 0.5) * 0.13;
     }
 
     // pupilas más brillantes al cazar
-    const glow = this.state === 'chase' || this.state === 'hunt' || this.state === 'attack' ? 2.6 : 1.4;
+    const glow = this.state === 'chase' || this.state === 'hunt' || this.state === 'attack' ? 2.6 : 1.5;
     for (const e of this.rig.eyes) {
-      const m = e.material as THREE.MeshStandardMaterial;
-      m.emissiveIntensity = glow;
+      const mats = Array.isArray(e.material) ? e.material : [e.material];
+      for (const m of mats as THREE.MeshStandardMaterial[]) {
+        m.emissiveIntensity = glow;
+      }
     }
-    if (this.rig.eyeGlow) this.rig.eyeGlow.intensity = this.state === 'dormant' ? 1.5 : glow * 4;
+    if (this.rig.eyeGlow) this.rig.eyeGlow.intensity = this.state === 'dormant' ? 2 : glow * 4;
+  }
+
+  /** pose manual pública (usada por la secuencia de muerte) */
+  swingPublic(bone: THREE.Object3D, dx: number, dy = 0, dz = 0) {
+    this.swing(bone, dx, dy, dz);
   }
 
   dispose() {

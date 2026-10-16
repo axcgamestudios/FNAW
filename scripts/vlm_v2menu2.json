@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Yes, a 3D animatronic bear is clearly visible facing the camera in the center of the image.\n\n**Description of the bear:**\n*   **Colors:** The animatronic is primarily a reddish-brown or rusty orange color, with a lighter tan/cream-colored belly and muzzle.\n*   **Hat:** It is wearing a black top hat on its head.\n*   **Details:** It has a black bowtie, large rounded ears, and a wide, toothy grin. Its eyes are wide open and looking directly at the viewer.\n\n**Proximity:**\nThe bear is positioned in the mid-ground/foreground, appearing quite large and close to the camera, dominating the central part of the screen.\n\n**Resemblance to Freddy Fazbear:**\nYes, it looks extremely similar to **Freddy Fazbear** from *Five Nights at Freddy's* (FNAF). It shares the iconic color scheme (brown/tan), the top hat, the bowtie, and the general facial structure. \n\n**Static Noise:**\nThe entire image, including the bear, is covered in a layer of **static noise** (scanlines and a slightly grainy, distorted texture), which gives it that classic horror game aesthetic. The text \"FNAW\" at the top left suggests this is likely a fan-game or a specific mod inspired by the FNAF series.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792115162,
+  "id": "20261016094557d8ca44509b08443a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016094557d8ca44509b08443a",
+  "usage": {
+    "completion_tokens": 285,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1115,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1400
+  }
+}

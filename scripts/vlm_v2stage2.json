@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the description of the scene:\n\n**Character Visibility and Appearance:**\n*   **Freddy (Brown Bear):** He is **not** fully visible. He is positioned directly behind a large yellow poster in the center of the stage, with only his head and upper torso peeking out from behind it.\n*   **Bonnie (Rabbit):** Bonnie is fully visible on the left side of the stage, facing the camera with his arms outstretched. The model appears to be a stylized 3D render with visible polygon edges and flat textures, typical of indie horror games or fan-made projects (resembling *Five Nights at Freddy's*).\n*   **Chica (Chicken):** Chica is fully visible on the right side of the stage, also facing forward with her arms out. Her model quality matches Bonnie's—stylized 3D with somewhat blocky geometry.\n\n**Stage and Environment:**\n*   **Floor Texture:** The floor is **not checkered tiles**. It consists of dark **wooden planks** running horizontally across the screen.\n*   **Atmosphere:** The environment has a distinct **horror atmosphere**. It is very dark, illuminated by eerie colored spotlights (purple on the left, green in the center, blue on the right). The background features red curtains and striped walls, creating a \"creepy circus\" or abandoned pizzeria vibe. There are also UI elements on the screen (a checklist in Spanish and status bars at the bottom) indicating this is likely a gameplay screenshot from a survival horror game.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792115476,
+  "id": "202610160951124dc2da1672c64660",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610160951124dc2da1672c64660",
+  "usage": {
+    "completion_tokens": 330,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1133,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1463
+  }
+}

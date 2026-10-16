@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, **no, the animatronics are not in a natural standing pose with arms hanging down at their sides.**\n\nHere is a description of what is visible:\n\n*   **The Bear (Freddy Fazbear):** This is the only character fully visible in the center of the frame. He is wearing his signature black top hat and bow tie. However, he is **not** standing with his arms at his sides. Instead, he is in an active pose with his right arm bent and raised (hand near his chest/stomach area) and his left arm slightly extended outward. He appears to be gesturing or waving.\n\n*   **The Rabbit (Bonnie):** The rabbit is not clearly visible in this specific shot. In the context of this game's main menu, if other characters were present, they would typically be positioned to the sides, but here the focus is solely on the bear.\n\n*   **The Chicken (Chica):** Similarly, the chicken is not visible in this image. Only the bear is shown on stage against the red brick wall background.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792117500,
+  "id": "20261016102456951727014c874911",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016102456951727014c874911",
+  "usage": {
+    "completion_tokens": 226,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1105,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1331
+  }
+}

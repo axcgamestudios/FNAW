@@ -7,11 +7,27 @@ export type GameMode =
   | 'menu'
   | 'loading'
   | 'intro'
+  | 'cinematic'
   | 'playing'
   | 'paused'
   | 'dead'
   | 'complete'
   | 'ending';
+
+export interface ChapterDef {
+  chapter: number;
+  id: string;
+  title: string;
+  enemies: string[];
+  aggression: number;
+  eventRate: number;
+  startPower: number;
+  introCinematic?: string;
+  outroCinematic?: string;
+  lines: string[];
+  radio?: { atMinute: number; lines: string[] };
+  objectives: ObjectiveDef[];
+}
 
 export interface RoomDef {
   id: string;
@@ -67,13 +83,15 @@ export interface CamDef {
 export interface AnimatronicDef {
   id: string;
   name: string;
-  kind: 'bear' | 'rabbit' | 'chicken' | 'fox' | 'puppet';
+  kind: string;
   startRoom: string;
   startOffset?: [number, number];
-  /** Noches en las que está activo */
-  activeNights: number[];
-  /** Hora (0-6) a la que despierta */
-  wakeHour: number[];
+  /** Capítulos en los que está activo */
+  activeChapters: number[];
+  /** Retardo (segundos desde el inicio del capítulo) para despertar */
+  wakeDelay: number[];
+  /** Se despierta por guion (no por temporizador) */
+  scriptAwake?: boolean;
   speedWalk: number;
   speedRun: number;
   visionDist: number;
@@ -124,7 +142,7 @@ export interface WeightedEvent {
 }
 
 export interface GameSave {
-  unlockedNight: number;
+  unlockedChapter: number;
   tapes: string[];
   endings: string[];
   settings: GameSettings;

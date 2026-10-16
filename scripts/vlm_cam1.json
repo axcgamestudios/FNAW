@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image, here is what the security camera feed shows:\n\n**Current Camera Status:**\n- **Camera:** CAM 01 – ESCENARIO (Stage)\n- **Image Visibility:** **BLACK/NO SIGNAL** — The main viewing area is completely black with no visible room, animatronics, or hallway. The camera feed is either offline, disabled, or the lights are out in this location.\n- **Date Stamp:** 1987-10-12 (suggesting this is set during the \"Missing Children Incident\" or \"Bite of '87\" era)\n\n**Interface Elements Visible:**\n- **CRT/Analog Effects:** The screen displays a dark green monochrome terminal aesthetic typical of 1980s security systems, though no scan lines or static are visible over the black feed itself\n- **Map:** A green wireframe blueprint appears in the bottom-right corner showing the building layout with room labels (though most text is too small to read clearly)\n- **Camera Selection:** A grid showing cameras 01-12, with **CAM 01 currently selected** (highlighted in bright green)\n- **Controls:** Text at bottom indicates: `[C] CERRAR · [A/B] CAMBIAR CAMARA · [1-9] SELECCION RAPIDA` (Close, Change Camera, Quick Select)\n- **Chapter Info:** Top left shows \"CAPITULO 01 - TURNO DE PRUEBA\" (Chapter 01 - Test Shift) with objectives listed\n\n**Context:** This appears to be from *Five Nights at Freddy's: Help Wanted* or a similar FNAF-style game (note the partial animatronic figure visible on the far right edge outside the tablet frame). The black screen on the Stage camera suggests either the player needs to fix the camera, the power is out in that room, or this is a \"jump scare\" setup where the feed will suddenly cut to static or an animatronic face.\n\n**The room is not visible**—you're looking at a dead monitor displaying only the HUD interface without any actual video feed of the stage or animatronics.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792115926,
+  "id": "2026101609583972d8e8a3205f49f8",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101609583972d8e8a3205f49f8",
+  "usage": {
+    "completion_tokens": 437,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1112,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1549
+  }
+}

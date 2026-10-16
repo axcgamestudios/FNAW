@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the description of what is visible:\n\n**Are animatronic characters visible under colored spotlights?**\n**No.** The main camera feed (labeled \"CAM 01 - ESCENARIO\") is currently displaying a **completely black screen**. There are no animatronic characters, spotlights, or stage details visible within this specific camera view.\n\n**Is the image dark but VISIBLE?**\n**No.** The central portion of the image representing the security feed is **pure black** (or effectively void of visual data). It is not a \"dark\" image where shapes can be discerned; it is an empty/black feed.\n\n**Description of what is seen:**\nThe image displays a user interface resembling a security system from a video game (specifically *Five Nights at Freddy's*).\n*   **Central Feed:** A large black rectangle dominates the center, indicating that Camera 01 (Stage) is either off, disabled, or showing nothing.\n*   **UI Elements:**\n    *   **Top Left:** Text reads \"CAM 01 - ESCENARIO REC • 1987-10-12\".\n    *   **Bottom Right:** A map layout of the building is visible, along with a grid of buttons numbered 01 through 12 for selecting different cameras. Camera **01** is highlighted in green.\n    *   **Bottom Left:** Control text instructions in Spanish (e.g., \"[C] CERRAR\", \"CAMBIAR CAMARA\").\n*   **Periphery:** On the far right edge of the screen, partially cut off, there appears to be a small part of a character (likely the animatronic **Chica**, based on the yellow coloring and shape), but this is outside the camera monitor interface itself.\n\n**Summary:** You are looking at a blank, black security camera feed for the Stage (Camera 01). No characters or lights are visible on the monitor.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792116038,
+  "id": "2026101610002869bef3d558d44bbf",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101610002869bef3d558d44bbf",
+  "usage": {
+    "completion_tokens": 398,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1111,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1509
+  }
+}

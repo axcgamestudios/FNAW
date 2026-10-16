@@ -1,0 +1,562 @@
+{
+  "cine_arrival": {
+    "letterbox": true,
+    "actors": [
+      {
+        "id": "jeremy",
+        "pos": [
+          20.6,
+          0,
+          12.6
+        ],
+        "yaw": 2.6
+      }
+    ],
+    "shots": [
+      {
+        "pos": [
+          17.6,
+          2.7,
+          12.4
+        ],
+        "look": [
+          21,
+          1.1,
+          12.2
+        ],
+        "dur": 4.5,
+        "text": "Pizzería Estelar Bruno. 11:47 PM."
+      },
+      {
+        "pos": [
+          15.5,
+          2.2,
+          9.8
+        ],
+        "look": [
+          20.8,
+          1.4,
+          13.5
+        ],
+        "dur": 4,
+        "text": "El último guardia nocturno no volvió a casa."
+      },
+      {
+        "pos": [
+          -6,
+          2.4,
+          -4.5
+        ],
+        "look": [
+          10,
+          1.2,
+          -7
+        ],
+        "dur": 4.5,
+        "text": "Un edificio de quinientos metros cuadrados. Un contrato de cinco noches."
+      },
+      {
+        "pos": [
+          8.5,
+          2.0,
+          -8.0
+        ],
+        "look": [
+          8.5,
+          1.4,
+          -13.2
+        ],
+        "dur": 5,
+        "text": "Ellos se apagan al terminar el turno... se supone."
+      },
+      {
+        "pos": [
+          8,
+          1.9,
+          -11.2
+        ],
+        "look": [
+          8,
+          2.0,
+          -12.6
+        ],
+        "dur": 3.2,
+        "text": "Freddy no está apagado."
+      },
+      {
+        "pos": [
+          0,
+          1.5,
+          11.6
+        ],
+        "look": [
+          0.4,
+          0.9,
+          13.8
+        ],
+        "dur": 4,
+        "text": "Tu puesto: la oficina de seguridad. Tu herramienta: una linterna."
+      },
+      {
+        "pos": [
+          0,
+          1.6,
+          12.8
+        ],
+        "look": [
+          -3.75,
+          1.4,
+          9
+        ],
+        "dur": 3.8,
+        "text": "Sobrevive. Averigua qué pasó aquí. Y no confíes en la oscuridad."
+      }
+    ]
+  },
+  "cine_sighting": {
+    "letterbox": true,
+    "actors": [
+      {
+        "id": "freddy",
+        "pos": [
+          13,
+          0,
+          -6.5
+        ],
+        "yaw": 3.5
+      }
+    ],
+    "shots": [
+      {
+        "pos": [
+          2,
+          1.8,
+          5.5
+        ],
+        "look": [
+          13,
+          1.3,
+          -6.5
+        ],
+        "dur": 3.5,
+        "text": "Algo se mueve al fondo del pasillo principal."
+      },
+      {
+        "pos": [
+          9,
+          1.7,
+          -2.5
+        ],
+        "look": [
+          13,
+          1.5,
+          -6.5
+        ],
+        "dur": 3.6,
+        "text": "Freddy: «¿Quién... anda... ahí?»"
+      },
+      {
+        "pos": [
+          11.5,
+          1.65,
+          -4.5
+        ],
+        "look": [
+          13,
+          1.6,
+          -6.5
+        ],
+        "dur": 2.8,
+        "text": "Te ha visto."
+      },
+      {
+        "pos": [
+          2,
+          1.8,
+          5.5
+        ],
+        "look": [
+          13,
+          1.3,
+          -6.5
+        ],
+        "dur": 2.5,
+        "text": "Vuelve a la oficina. El turno no ha terminado."
+      }
+    ]
+  },
+  "cine_cap2": {
+    "letterbox": true,
+    "shots": [
+      {
+        "pos": [
+          1.5,
+          2.2,
+          4.2
+        ],
+        "look": [
+          -8,
+          1.0,
+          0.5
+        ],
+        "dur": 4,
+        "text": "El comedor huele a óxido y a fiesta de hace treinta años."
+      },
+      {
+        "pos": [
+          -18,
+          2.2,
+          -10.5
+        ],
+        "look": [
+          -20.5,
+          1.2,
+          -15.5
+        ],
+        "dur": 4,
+        "text": "La cocina lleva semanas haciendo ruidos propios."
+      },
+      {
+        "pos": [
+          17,
+          2.2,
+          4.2
+        ],
+        "look": [
+          15,
+          1.2,
+          -2.5
+        ],
+        "dur": 4,
+        "text": "Dos cámaras muertas. Algo no quiere que veas."
+      },
+      {
+        "pos": [
+          6.5,
+          1.9,
+          -8.0
+        ],
+        "look": [
+          5.2,
+          1.4,
+          -12.8
+        ],
+        "dur": 3.5,
+        "text": "El escenario está... distinto. Falta una."
+      }
+    ]
+  },
+  "cine_camstare": {
+    "letterbox": true,
+    "actors": [
+      {
+        "id": "freddy",
+        "pos": [
+          8.5,
+          0.45,
+          -12.4
+        ],
+        "yaw": 0.2
+      }
+    ],
+    "shots": [
+      {
+        "pos": [
+          8.6,
+          2.5,
+          -8.6
+        ],
+        "look": [
+          8.5,
+          1.6,
+          -12.4
+        ],
+        "dur": 4,
+        "text": "CAM 01 — 05:58 AM"
+      },
+      {
+        "pos": [
+          8.6,
+          2.3,
+          -9.6
+        ],
+        "look": [
+          8.5,
+          1.9,
+          -12.2
+        ],
+        "dur": 3.5,
+        "text": "Se ha girado. Mira directamente a la lente."
+      },
+      {
+        "pos": [
+          8.5,
+          1.8,
+          -10.6
+        ],
+        "look": [
+          8.5,
+          2.0,
+          -12.3
+        ],
+        "dur": 3,
+        "text": "Sabe que lo estás viendo."
+      }
+    ]
+  },
+  "cine_cap3": {
+    "letterbox": true,
+    "shots": [
+      {
+        "pos": [
+          8,
+          2.2,
+          4.4
+        ],
+        "look": [
+          6,
+          0.8,
+          0.5
+        ],
+        "dur": 4,
+        "text": "El rincón infantil. El foso de bolas. Los dibujos."
+      },
+      {
+        "pos": [
+          5.5,
+          1.6,
+          1.5
+        ],
+        "look": [
+          8.6,
+          1.2,
+          -0.8
+        ],
+        "dur": 3.5,
+        "text": "Algo ha estado durmiendo aquí. Y ya no está."
+      },
+      {
+        "pos": [
+          -10,
+          1.8,
+          6.5
+        ],
+        "look": [
+          -10,
+          1.4,
+          9.6
+        ],
+        "dur": 4,
+        "text": "El almacén sur. El cerrojo no estaba ahí la semana pasada."
+      },
+      {
+        "pos": [
+          -10,
+          1.5,
+          11.8
+        ],
+        "look": [
+          -10,
+          1.3,
+          13.3
+        ],
+        "dur": 3.5,
+        "text": "La estantería del fondo cruje cuando te acercas."
+      }
+    ]
+  },
+  "cine_golden": {
+    "letterbox": true,
+    "actors": [
+      {
+        "id": "golden",
+        "pos": [
+          -10,
+          0,
+          15.2
+        ],
+        "yaw": 3.3
+      }
+    ],
+    "shots": [
+      {
+        "pos": [
+          -10,
+          1.4,
+          11.5
+        ],
+        "look": [
+          -10,
+          1.7,
+          15.0
+        ],
+        "dur": 3.5,
+        "text": "La estantería se cierra a tus espaldas."
+      },
+      {
+        "pos": [
+          -10.3,
+          1.55,
+          13.4
+        ],
+        "look": [
+          -10,
+          1.85,
+          15.1
+        ],
+        "dur": 3.2,
+        "text": "El traje dorado se levanta solo."
+      },
+      {
+        "pos": [
+          -10.2,
+          1.7,
+          13.0
+        ],
+        "look": [
+          -10,
+          2.0,
+          15.0
+        ],
+        "dur": 2.6,
+        "text": "Dorado: «TÚ... LO ENCONTRASTE.»"
+      },
+      {
+        "pos": [
+          -9.6,
+          1.5,
+          11.2
+        ],
+        "look": [
+          -10,
+          1.8,
+          15.0
+        ],
+        "dur": 2.4,
+        "text": "CORRE."
+      }
+    ]
+  },
+  "cine_cap4": {
+    "letterbox": true,
+    "shots": [
+      {
+        "pos": [
+          0,
+          1.7,
+          12.8
+        ],
+        "look": [
+          0,
+          1.0,
+          13.8
+        ],
+        "dur": 4,
+        "text": "El fusible maestro ha muerto. El edificio entero lo nota."
+      },
+      {
+        "pos": [
+          -2,
+          1.9,
+          6.5
+        ],
+        "look": [
+          -20,
+          1.2,
+          6.5
+        ],
+        "dur": 4,
+        "text": "Los pasillos están más oscuros. Y más ocupados."
+      },
+      {
+        "pos": [
+          18.5,
+          1.8,
+          11.5
+        ],
+        "look": [
+          18.5,
+          1.3,
+          16.6
+        ],
+        "dur": 4,
+        "text": "La salida de emergencia. Un cerrojo. Una llave escondida."
+      },
+      {
+        "pos": [
+          8,
+          1.9,
+          -11.2
+        ],
+        "look": [
+          8,
+          2.0,
+          -12.6
+        ],
+        "dur": 3.4,
+        "text": "Todos despiertos. Todos hambrientos. Una sola noche."
+      }
+    ]
+  },
+  "cine_ending": {
+    "letterbox": true,
+    "shots": [
+      {
+        "pos": [
+          18.5,
+          1.9,
+          12.5
+        ],
+        "look": [
+          18.5,
+          1.2,
+          16.6
+        ],
+        "dur": 4,
+        "text": "La puerta cede. El aire frío huele a amanecer."
+      },
+      {
+        "pos": [
+          17.5,
+          2.2,
+          10.5
+        ],
+        "look": [
+          20,
+          1.4,
+          14.5
+        ],
+        "dur": 4.5,
+        "text": "No miras atrás. Nadie te sigue. Nadie te sigue... ¿verdad?"
+      },
+      {
+        "pos": [
+          21,
+          2.5,
+          8.5
+        ],
+        "look": [
+          23.5,
+          1.0,
+          12
+        ],
+        "dur": 4,
+        "text": "6:00 AM. El primer sol entra por las rendijas."
+      },
+      {
+        "pos": [
+          20,
+          1.7,
+          9.5
+        ],
+        "look": [
+          18.5,
+          1.3,
+          16.6
+        ],
+        "dur": 3.5,
+        "text": "Dentro, algo canta la última nota de una canción vieja."
+      }
+    ]
+  }
+}

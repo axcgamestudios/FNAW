@@ -1,89 +1,1015 @@
 {
   "building": {
-    "minX": -24, "maxX": 24, "minZ": -17, "maxZ": 17,
-    "wallHeight": 3.2, "wallThickness": 0.28
+    "minX": -24,
+    "maxX": 24,
+    "minZ": -17,
+    "maxZ": 17,
+    "wallHeight": 3.2,
+    "wallThickness": 0.28
   },
   "rooms": [
-    { "id": "kitchen",   "name": "Cocina",              "rect": [-24, -17, -13, -9],  "floor": "tile",      "wall": "tile",      "ambientLight": { "intensity": 0.55, "flicker": 0.35 } },
-    { "id": "storageA",  "name": "Almacén Norte",        "rect": [-13, -17, -6, -9],   "floor": "concrete", "wall": "concrete", "ambientLight": { "intensity": 0.30, "flicker": 0.6 } },
-    { "id": "prize",     "name": "Rincón de Premios",    "rect": [-6, -17, 2, -9],     "floor": "carpet",   "wall": "wallpaper", "ambientLight": { "intensity": 0.65, "color": 15761536 } },
-    { "id": "stage",     "name": "Escenario Principal",  "rect": [2, -17, 15, -9],     "floor": "wood",     "wall": "wallpaper", "ambientLight": { "intensity": 0.4, "color": 13133215 } },
-    { "id": "restrooms", "name": "Baños",                "rect": [15, -17, 24, -9],    "floor": "tile",     "wall": "tile",      "ambientLight": { "intensity": 0.4, "flicker": 0.2 } },
-    { "id": "mainhall",  "name": "Pasillo Principal",    "rect": [-24, -9, 24, -3.5],  "floor": "checker",  "wall": "wallpaper", "ambientLight": { "intensity": 0.5, "flicker": 0.25 } },
-    { "id": "workshop",  "name": "Taller de Piezas",     "rect": [-24, -3.5, -13.5, 5],"floor": "concrete", "wall": "concrete", "ambientLight": { "intensity": 0.45, "color": 12642060 } },
-    { "id": "dining",    "name": "Comedor",              "rect": [-13.5, -3.5, 3, 5],  "floor": "tile",     "wall": "wallpaper", "ambientLight": { "intensity": 0.55 } },
-    { "id": "kidscove",  "name": "Rincón Infantil",      "rect": [3, -3.5, 13, 5],     "floor": "carpet",   "wall": "wallpaper", "ambientLight": { "intensity": 0.6, "color": 15130880 } },
-    { "id": "arcade",    "name": "Sala de Juegos",       "rect": [13, -3.5, 24, 5],    "floor": "concrete", "wall": "tile",      "ambientLight": { "intensity": 0.5, "color": 2100480, "flicker": 0.3 } },
-    { "id": "westhall",  "name": "Pasillo Oeste",        "rect": [-24, 5, -6, 9],      "floor": "checker",  "wall": "wallpaper", "ambientLight": { "intensity": 0.45, "flicker": 0.3 } },
-    { "id": "junction",  "name": "Acceso a Oficina",     "rect": [-6, 5, 6, 9],        "floor": "tile",     "wall": "wallpaper", "ambientLight": { "intensity": 0.5, "flicker": 0.4 } },
-    { "id": "easthall",  "name": "Pasillo Este",         "rect": [6, 5, 24, 9],        "floor": "checker",  "wall": "wallpaper", "ambientLight": { "intensity": 0.45, "flicker": 0.3 } },
-    { "id": "electrical","name": "Cuarto Eléctrico",     "rect": [-24, 9, -14, 17],    "floor": "concrete", "wall": "concrete", "ambientLight": { "intensity": 0.4, "color": 13107, "flicker": 0.15 } },
-    { "id": "storageB",  "name": "Almacén Sur",          "rect": [-14, 9, -6, 13.2],   "floor": "concrete", "wall": "concrete", "ambientLight": { "intensity": 0.3, "flicker": 0.5 } },
-    { "id": "secret",    "name": "Sala Oculta",          "rect": [-14, 13.2, -6, 17],  "floor": "concrete", "wall": "concrete", "ambientLight": { "intensity": 0.18, "color": 13133215, "flicker": 0.7 } },
-    { "id": "office",    "name": "Oficina de Seguridad", "rect": [-6, 9, 6, 17],       "floor": "tile",     "wall": "tile",      "ambientLight": { "intensity": 0.75, "color": 15761536 } },
-    { "id": "machinery", "name": "Sala de Máquinas",     "rect": [6, 9, 13, 17],       "floor": "metal",    "wall": "metal",     "ambientLight": { "intensity": 0.35, "color": 13133215, "flicker": 0.25 } },
-    { "id": "exit",      "name": "Vestíbulo de Salida",  "rect": [13, 9, 24, 17],      "floor": "tile",     "wall": "wallpaper", "ambientLight": { "intensity": 0.55, "color": 13133215 } }
+    {
+      "id": "kitchen",
+      "name": "Cocina",
+      "rect": [
+        -24,
+        -17,
+        -13,
+        -9
+      ],
+      "floor": "tile",
+      "wall": "tile",
+      "ambientLight": {
+        "intensity": 0.55,
+        "flicker": 0.35
+      }
+    },
+    {
+      "id": "storageA",
+      "name": "Almacén Norte",
+      "rect": [
+        -13,
+        -17,
+        -6,
+        -9
+      ],
+      "floor": "concrete",
+      "wall": "concrete",
+      "ambientLight": {
+        "intensity": 0.3,
+        "flicker": 0.6
+      }
+    },
+    {
+      "id": "prize",
+      "name": "Rincón de Premios",
+      "rect": [
+        -6,
+        -17,
+        2,
+        -9
+      ],
+      "floor": "carpet",
+      "wall": "wallpaper",
+      "ambientLight": {
+        "intensity": 0.65,
+        "color": 15761536
+      }
+    },
+    {
+      "id": "stage",
+      "name": "Escenario Principal",
+      "rect": [
+        2,
+        -17,
+        15,
+        -9
+      ],
+      "floor": "wood",
+      "wall": "wallpaper",
+      "ambientLight": {
+        "intensity": 0.4,
+        "color": 13133215
+      }
+    },
+    {
+      "id": "restrooms",
+      "name": "Baños",
+      "rect": [
+        15,
+        -17,
+        24,
+        -9
+      ],
+      "floor": "tile",
+      "wall": "tile",
+      "ambientLight": {
+        "intensity": 0.4,
+        "flicker": 0.2
+      }
+    },
+    {
+      "id": "mainhall",
+      "name": "Pasillo Principal",
+      "rect": [
+        -24,
+        -9,
+        24,
+        -3.5
+      ],
+      "floor": "checker",
+      "wall": "wallpaper",
+      "ambientLight": {
+        "intensity": 0.5,
+        "flicker": 0.25
+      }
+    },
+    {
+      "id": "workshop",
+      "name": "Taller de Piezas",
+      "rect": [
+        -24,
+        -3.5,
+        -13.5,
+        5
+      ],
+      "floor": "concrete",
+      "wall": "concrete",
+      "ambientLight": {
+        "intensity": 0.45,
+        "color": 12642060
+      }
+    },
+    {
+      "id": "dining",
+      "name": "Comedor",
+      "rect": [
+        -13.5,
+        -3.5,
+        3,
+        5
+      ],
+      "floor": "tile",
+      "wall": "wallpaper",
+      "ambientLight": {
+        "intensity": 0.55
+      }
+    },
+    {
+      "id": "kidscove",
+      "name": "Rincón Infantil",
+      "rect": [
+        3,
+        -3.5,
+        13,
+        5
+      ],
+      "floor": "carpet",
+      "wall": "wallpaper",
+      "ambientLight": {
+        "intensity": 0.6,
+        "color": 15130880
+      }
+    },
+    {
+      "id": "arcade",
+      "name": "Sala de Juegos",
+      "rect": [
+        13,
+        -3.5,
+        24,
+        5
+      ],
+      "floor": "concrete",
+      "wall": "tile",
+      "ambientLight": {
+        "intensity": 0.5,
+        "color": 2100480,
+        "flicker": 0.3
+      }
+    },
+    {
+      "id": "westhall",
+      "name": "Pasillo Oeste",
+      "rect": [
+        -24,
+        5,
+        -6,
+        9
+      ],
+      "floor": "checker",
+      "wall": "wallpaper",
+      "ambientLight": {
+        "intensity": 0.45,
+        "flicker": 0.3
+      }
+    },
+    {
+      "id": "junction",
+      "name": "Acceso a Oficina",
+      "rect": [
+        -6,
+        5,
+        6,
+        9
+      ],
+      "floor": "tile",
+      "wall": "wallpaper",
+      "ambientLight": {
+        "intensity": 0.5,
+        "flicker": 0.4
+      }
+    },
+    {
+      "id": "easthall",
+      "name": "Pasillo Este",
+      "rect": [
+        6,
+        5,
+        24,
+        9
+      ],
+      "floor": "checker",
+      "wall": "wallpaper",
+      "ambientLight": {
+        "intensity": 0.45,
+        "flicker": 0.3
+      }
+    },
+    {
+      "id": "electrical",
+      "name": "Cuarto Eléctrico",
+      "rect": [
+        -24,
+        9,
+        -14,
+        17
+      ],
+      "floor": "concrete",
+      "wall": "concrete",
+      "ambientLight": {
+        "intensity": 0.4,
+        "color": 13107,
+        "flicker": 0.15
+      }
+    },
+    {
+      "id": "storageB",
+      "name": "Almacén Sur",
+      "rect": [
+        -14,
+        9,
+        -6,
+        13.2
+      ],
+      "floor": "concrete",
+      "wall": "concrete",
+      "ambientLight": {
+        "intensity": 0.3,
+        "flicker": 0.5
+      }
+    },
+    {
+      "id": "secret",
+      "name": "Sala Oculta",
+      "rect": [
+        -14,
+        13.2,
+        -6,
+        17
+      ],
+      "floor": "concrete",
+      "wall": "concrete",
+      "ambientLight": {
+        "intensity": 0.18,
+        "color": 13133215,
+        "flicker": 0.7
+      }
+    },
+    {
+      "id": "office",
+      "name": "Oficina de Seguridad",
+      "rect": [
+        -6,
+        9,
+        6,
+        17
+      ],
+      "floor": "tile",
+      "wall": "tile",
+      "ambientLight": {
+        "intensity": 0.75,
+        "color": 15761536
+      }
+    },
+    {
+      "id": "machinery",
+      "name": "Sala de Máquinas",
+      "rect": [
+        6,
+        9,
+        13,
+        17
+      ],
+      "floor": "metal",
+      "wall": "metal",
+      "ambientLight": {
+        "intensity": 0.35,
+        "color": 13133215,
+        "flicker": 0.25
+      }
+    },
+    {
+      "id": "exit",
+      "name": "Vestíbulo de Salida",
+      "rect": [
+        13,
+        9,
+        24,
+        17
+      ],
+      "floor": "tile",
+      "wall": "wallpaper",
+      "ambientLight": {
+        "intensity": 0.55,
+        "color": 13133215
+      }
+    }
   ],
   "doors": [
-    { "id": "door_kitchen",   "x": -18.5, "z": -9,   "axis": "x", "width": 1.6, "roomA": "kitchen",  "roomB": "mainhall" },
-    { "id": "door_storageA",  "x": -9.5,  "z": -9,   "axis": "x", "width": 1.4, "roomA": "storageA", "roomB": "mainhall" },
-    { "id": "door_prize",     "x": -2,    "z": -9,   "axis": "x", "width": 2.4, "roomA": "prize",    "roomB": "mainhall" },
-    { "id": "door_restrooms", "x": 19.5,  "z": -9,   "axis": "x", "width": 1.4, "roomA": "restrooms","roomB": "mainhall" },
-    { "id": "door_workshop",  "x": -19,   "z": -3.5, "axis": "x", "width": 1.8, "roomA": "workshop", "roomB": "mainhall" },
-    { "id": "door_kidscove",  "x": 8,     "z": -3.5, "axis": "x", "width": 1.8, "roomA": "kidscove", "roomB": "mainhall" },
-    { "id": "door_arcade",    "x": 18.5,  "z": -3.5, "axis": "x", "width": 1.8, "roomA": "arcade",   "roomB": "mainhall" },
-    { "id": "door_workshop_w","x": -19,   "z": 5,    "axis": "x", "width": 1.6, "roomA": "workshop", "roomB": "westhall" },
-    { "id": "door_dining_w",  "x": -7,    "z": 5,    "axis": "x", "width": 1.6, "roomA": "dining",   "roomB": "westhall" },
-    { "id": "door_kidscove_j","x": 5,     "z": 5,    "axis": "x", "width": 1.6, "roomA": "kidscove", "roomB": "junction" },
-    { "id": "door_arcade_e",  "x": 18,    "z": 5,    "axis": "x", "width": 1.6, "roomA": "arcade",   "roomB": "easthall" },
-    { "id": "door_electrical","x": -19,   "z": 9,    "axis": "x", "width": 1.6, "roomA": "electrical","roomB": "westhall" },
-    { "id": "door_storageB",  "x": -10,   "z": 9,    "axis": "x", "width": 1.6, "roomA": "storageB", "roomB": "westhall" },
-    { "id": "door_machinery", "x": 9.5,   "z": 9,    "axis": "x", "width": 1.6, "roomA": "machinery","roomB": "easthall" },
-    { "id": "door_exit",      "x": 18.5,  "z": 9,    "axis": "x", "width": 1.8, "roomA": "exit",     "roomB": "easthall", "locked": true, "lockedMsg": "Salida de emergencia. Necesitas la llave maestra.", "code": "" },
-    { "id": "door_workshop_d","x": -13.5, "z": 0.75, "axis": "z", "width": 1.6, "roomA": "workshop", "roomB": "dining" },
-    { "id": "door_dining_k",  "x": 3,     "z": 0.75, "axis": "z", "width": 1.6, "roomA": "dining",   "roomB": "kidscove" },
-    { "id": "door_kids_arcade","x": 13,   "z": 0.75, "axis": "z", "width": 1.6, "roomA": "kidscove", "roomB": "arcade" },
-    { "id": "door_secret",    "x": -10,   "z": 13.2, "axis": "x", "width": 1.4, "roomA": "storageB", "roomB": "secret", "secret": true, "locked": true, "lockedMsg": "Una estantería. Parece que puede moverse..." }
+    {
+      "id": "door_kitchen",
+      "x": -18.5,
+      "z": -9,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "kitchen",
+      "roomB": "mainhall"
+    },
+    {
+      "id": "door_storageA",
+      "x": -9.5,
+      "z": -9,
+      "axis": "x",
+      "width": 1.4,
+      "roomA": "storageA",
+      "roomB": "mainhall"
+    },
+    {
+      "id": "door_prize",
+      "x": -2,
+      "z": -9,
+      "axis": "x",
+      "width": 2.4,
+      "roomA": "prize",
+      "roomB": "mainhall"
+    },
+    {
+      "id": "door_restrooms",
+      "x": 19.5,
+      "z": -9,
+      "axis": "x",
+      "width": 1.4,
+      "roomA": "restrooms",
+      "roomB": "mainhall"
+    },
+    {
+      "id": "door_workshop",
+      "x": -19,
+      "z": -3.5,
+      "axis": "x",
+      "width": 1.8,
+      "roomA": "workshop",
+      "roomB": "mainhall"
+    },
+    {
+      "id": "door_kidscove",
+      "x": 8,
+      "z": -3.5,
+      "axis": "x",
+      "width": 1.8,
+      "roomA": "kidscove",
+      "roomB": "mainhall"
+    },
+    {
+      "id": "door_arcade",
+      "x": 18.5,
+      "z": -3.5,
+      "axis": "x",
+      "width": 1.8,
+      "roomA": "arcade",
+      "roomB": "mainhall"
+    },
+    {
+      "id": "door_workshop_w",
+      "x": -19,
+      "z": 5,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "workshop",
+      "roomB": "westhall"
+    },
+    {
+      "id": "door_dining_w",
+      "x": -7,
+      "z": 5,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "dining",
+      "roomB": "westhall"
+    },
+    {
+      "id": "door_kidscove_j",
+      "x": 5,
+      "z": 5,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "kidscove",
+      "roomB": "junction"
+    },
+    {
+      "id": "door_arcade_e",
+      "x": 18,
+      "z": 5,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "arcade",
+      "roomB": "easthall"
+    },
+    {
+      "id": "door_electrical",
+      "x": -19,
+      "z": 9,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "electrical",
+      "roomB": "westhall"
+    },
+    {
+      "id": "door_storageB",
+      "x": -10,
+      "z": 9,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "storageB",
+      "roomB": "westhall"
+    },
+    {
+      "id": "door_machinery",
+      "x": 9.5,
+      "z": 9,
+      "axis": "x",
+      "width": 1.6,
+      "roomA": "machinery",
+      "roomB": "easthall"
+    },
+    {
+      "id": "door_exit",
+      "x": 18.5,
+      "z": 9,
+      "axis": "x",
+      "width": 1.8,
+      "roomA": "exit",
+      "roomB": "easthall",
+      "locked": true,
+      "lockedMsg": "Salida de emergencia. Necesitas la llave maestra.",
+      "code": ""
+    },
+    {
+      "id": "door_workshop_d",
+      "x": -13.5,
+      "z": 0.75,
+      "axis": "z",
+      "width": 1.6,
+      "roomA": "workshop",
+      "roomB": "dining"
+    },
+    {
+      "id": "door_dining_k",
+      "x": 3,
+      "z": 0.75,
+      "axis": "z",
+      "width": 1.6,
+      "roomA": "dining",
+      "roomB": "kidscove"
+    },
+    {
+      "id": "door_kids_arcade",
+      "x": 13,
+      "z": 0.75,
+      "axis": "z",
+      "width": 1.6,
+      "roomA": "kidscove",
+      "roomB": "arcade"
+    },
+    {
+      "id": "door_secret",
+      "x": -10,
+      "z": 13.2,
+      "axis": "x",
+      "width": 1.4,
+      "roomA": "storageB",
+      "roomB": "secret",
+      "secret": true,
+      "locked": true,
+      "lockedMsg": "Una estantería. Parece que puede moverse..."
+    }
   ],
   "openings": [
-    { "comment": "Arcada del escenario (sin puerta)", "x0": 4,  "x1": 13,  "z": -9,   "axis": "x" },
-    { "comment": "Arcada del comedor (sin puerta)",   "x0": -10, "x1": -3, "z": -3.5, "axis": "x" },
-    { "comment": "Entrada izquierda oficina",          "x0": -4.55, "x1": -2.95, "z": 9, "axis": "x" },
-    { "comment": "Entrada derecha oficina",            "x0": 2.95,  "x1": 4.55,  "z": 9, "axis": "x" }
+    {
+      "comment": "Arcada del escenario (sin puerta)",
+      "x0": 4,
+      "x1": 13,
+      "z": -9,
+      "axis": "x"
+    },
+    {
+      "comment": "Arcada del comedor (sin puerta)",
+      "x0": -10,
+      "x1": -3,
+      "z": -3.5,
+      "axis": "x"
+    },
+    {
+      "comment": "Entrada izquierda oficina",
+      "x0": -4.55,
+      "x1": -2.95,
+      "z": 9,
+      "axis": "x"
+    },
+    {
+      "comment": "Entrada derecha oficina",
+      "x0": 2.95,
+      "x1": 4.55,
+      "z": 9,
+      "axis": "x"
+    }
   ],
   "vents": [
-    { "id": "vent_office",    "from": "junction", "to": "office",    "a": [0, 8.2],     "b": [0, 9.8],      "segments": [[0, 8.2, 0, 9.8]],      "coverAt": "b" },
-    { "id": "vent_prize",     "from": "prize",    "to": "mainhall",  "a": [-4.5, -9.8], "b": [-4.5, -8.2],  "segments": [[-4.5, -9.8, -4.5, -8.2]] },
-    { "id": "vent_kitchen",   "from": "kitchen",  "to": "storageA",  "a": [-13.8, -13], "b": [-12.2, -13],  "segments": [[-13.8, -13, -12.2, -13]] },
-    { "id": "vent_kids",      "from": "kidscove", "to": "arcade",    "a": [12.2, 3.5],  "b": [13.8, 3.5],   "segments": [[12.2, 3.5, 13.8, 3.5]] },
-    { "id": "vent_machinery", "from": "easthall", "to": "machinery", "a": [12, 8.2],    "b": [12, 9.8],     "segments": [[12, 8.2, 12, 9.8]],    "coverAt": "b" },
-    { "id": "vent_workshop",  "from": "workshop", "to": "westhall",  "a": [-15.5, 4.2], "b": [-15.5, 5.8],  "segments": [[-15.5, 4.2, -15.5, 5.8]] },
-    { "id": "vent_west",      "from": "kitchen",  "to": "workshop",  "a": [-23.3, -12], "b": [-23.3, -4.2], "segments": [[-23.3, -12, -23.3, -9.1], [-23.3, -8.7, -23.3, -3.9], [-23.3, -3.5, -23.3, -3.3]] }
+    {
+      "id": "vent_office",
+      "from": "junction",
+      "to": "office",
+      "a": [
+        0,
+        8.2
+      ],
+      "b": [
+        0,
+        9.8
+      ],
+      "segments": [
+        [
+          0,
+          8.2,
+          0,
+          9.8
+        ]
+      ],
+      "coverAt": "b"
+    },
+    {
+      "id": "vent_prize",
+      "from": "prize",
+      "to": "mainhall",
+      "a": [
+        -4.5,
+        -9.8
+      ],
+      "b": [
+        -4.5,
+        -8.2
+      ],
+      "segments": [
+        [
+          -4.5,
+          -9.8,
+          -4.5,
+          -8.2
+        ]
+      ]
+    },
+    {
+      "id": "vent_kitchen",
+      "from": "kitchen",
+      "to": "storageA",
+      "a": [
+        -13.8,
+        -13
+      ],
+      "b": [
+        -12.2,
+        -13
+      ],
+      "segments": [
+        [
+          -13.8,
+          -13,
+          -12.2,
+          -13
+        ]
+      ]
+    },
+    {
+      "id": "vent_kids",
+      "from": "kidscove",
+      "to": "arcade",
+      "a": [
+        12.2,
+        3.5
+      ],
+      "b": [
+        13.8,
+        3.5
+      ],
+      "segments": [
+        [
+          12.2,
+          3.5,
+          13.8,
+          3.5
+        ]
+      ]
+    },
+    {
+      "id": "vent_machinery",
+      "from": "easthall",
+      "to": "machinery",
+      "a": [
+        12,
+        8.2
+      ],
+      "b": [
+        12,
+        9.8
+      ],
+      "segments": [
+        [
+          12,
+          8.2,
+          12,
+          9.8
+        ]
+      ],
+      "coverAt": "b"
+    },
+    {
+      "id": "vent_workshop",
+      "from": "workshop",
+      "to": "westhall",
+      "a": [
+        -15.5,
+        4.2
+      ],
+      "b": [
+        -15.5,
+        5.8
+      ],
+      "segments": [
+        [
+          -15.5,
+          4.2,
+          -15.5,
+          5.8
+        ]
+      ]
+    },
+    {
+      "id": "vent_west",
+      "from": "kitchen",
+      "to": "workshop",
+      "a": [
+        -23.3,
+        -12
+      ],
+      "b": [
+        -23.3,
+        -4.2
+      ],
+      "segments": [
+        [
+          -23.3,
+          -12,
+          -23.3,
+          -9.1
+        ],
+        [
+          -23.3,
+          -8.7,
+          -23.3,
+          -3.9
+        ],
+        [
+          -23.3,
+          -3.5,
+          -23.3,
+          -3.3
+        ]
+      ]
+    }
   ],
   "cams": [
-    { "index": 1,  "name": "CAM 01 — Escenario",   "room": "stage",     "pos": [8.5, 2.65, -8.6],  "look": [8, 1.5, -13.5] },
-    { "index": 2,  "name": "CAM 02 — Comedor",     "room": "dining",    "pos": [1.5, 2.65, 4.4],   "look": [-5, 1, 0] },
-    { "index": 3,  "name": "CAM 03 — P. Principal","room": "mainhall",  "pos": [-21, 2.65, -4],    "look": [10, 1.5, -6] },
-    { "index": 4,  "name": "CAM 04 — Premios",     "room": "prize",     "pos": [-5.2, 2.65, -9.5], "look": [-2, 1, -14], "musicBox": true },
-    { "index": 5,  "name": "CAM 05 — Sala Juegos", "room": "arcade",    "pos": [17, 2.65, 4.3],    "look": [21, 1.4, 1] },
-    { "index": 6,  "name": "CAM 06 — R. Infantil", "room": "kidscove",  "pos": [11.8, 2.65, 4.3],  "look": [7, 1, 0] },
-    { "index": 7,  "name": "CAM 07 — Taller",      "room": "workshop",  "pos": [-15, 2.65, 4.3],   "look": [-19, 1.2, 1] },
-    { "index": 8,  "name": "CAM 08 — Cocina",      "room": "kitchen",   "pos": [-18.5, 2.6, -13],  "look": [-18, 1, -13], "audioOnly": true },
-    { "index": 9,  "name": "CAM 09 — P. Oeste",    "room": "westhall",  "pos": [-8, 2.65, 8.4],    "look": [-16, 1.5, 6] },
-    { "index": 10, "name": "CAM 10 — P. Este",     "room": "easthall",  "pos": [10, 2.65, 8.4],    "look": [18, 1.5, 6] },
-    { "index": 11, "name": "CAM 11 — Eléctrico",   "room": "electrical","pos": [-15.5, 2.65, 16.3],"look": [-19, 1.4, 12] },
-    { "index": 12, "name": "CAM 12 — Vestíbulo",   "room": "exit",      "pos": [22.5, 2.65, 16.3], "look": [18, 1.3, 12] }
+    {
+      "index": 1,
+      "name": "CAM 01 — Escenario",
+      "room": "stage",
+      "pos": [
+        8.5,
+        2.2,
+        -7.9
+      ],
+      "look": [
+        8,
+        1.0,
+        -13.5
+      ]
+    },
+    {
+      "index": 2,
+      "name": "CAM 02 — Comedor",
+      "room": "dining",
+      "pos": [
+        1.5,
+        2.3,
+        4.0
+      ],
+      "look": [
+        -6,
+        0.9,
+        0
+      ]
+    },
+    {
+      "index": 3,
+      "name": "CAM 03 — P. Principal",
+      "room": "mainhall",
+      "pos": [
+        -20.5,
+        2.3,
+        -4.2
+      ],
+      "look": [
+        8,
+        1.0,
+        -6.5
+      ]
+    },
+    {
+      "index": 4,
+      "name": "CAM 04 — Premios",
+      "room": "prize",
+      "pos": [
+        -5.2,
+        2.3,
+        -10.2
+      ],
+      "look": [
+        -2,
+        0.9,
+        -14.5
+      ]
+    },
+    {
+      "index": 5,
+      "name": "CAM 05 — Sala Juegos",
+      "room": "arcade",
+      "pos": [
+        16.8,
+        2.3,
+        4.0
+      ],
+      "look": [
+        21,
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "index": 6,
+      "name": "CAM 06 — R. Infantil",
+      "room": "kidscove",
+      "pos": [
+        11.8,
+        2.3,
+        4.0
+      ],
+      "look": [
+        7,
+        0.9,
+        -0.5
+      ]
+    },
+    {
+      "index": 7,
+      "name": "CAM 07 — Taller",
+      "room": "workshop",
+      "pos": [
+        -15,
+        2.3,
+        4.0
+      ],
+      "look": [
+        -19,
+        0.9,
+        0.5
+      ]
+    },
+    {
+      "index": 8,
+      "name": "CAM 08 — Cocina",
+      "room": "kitchen",
+      "pos": [
+        -18.5,
+        2.3,
+        -12.5
+      ],
+      "look": [
+        -18,
+        0.9,
+        -13
+      ],
+      "audioOnly": true
+    },
+    {
+      "index": 9,
+      "name": "CAM 09 — P. Oeste",
+      "room": "westhall",
+      "pos": [
+        -8,
+        2.3,
+        7.9
+      ],
+      "look": [
+        -17,
+        1.0,
+        6
+      ]
+    },
+    {
+      "index": 10,
+      "name": "CAM 10 — P. Este",
+      "room": "easthall",
+      "pos": [
+        10,
+        2.3,
+        7.9
+      ],
+      "look": [
+        19,
+        1.0,
+        6
+      ]
+    },
+    {
+      "index": 11,
+      "name": "CAM 11 — Eléctrico",
+      "room": "electrical",
+      "pos": [
+        -15.5,
+        2.3,
+        16.0
+      ],
+      "look": [
+        -19,
+        1.0,
+        12
+      ]
+    },
+    {
+      "index": 12,
+      "name": "CAM 12 — Vestíbulo",
+      "room": "exit",
+      "pos": [
+        22.5,
+        2.3,
+        16.0
+      ],
+      "look": [
+        18,
+        1.0,
+        11.5
+      ]
+    }
   ],
   "hidingSpots": [
-    { "id": "locker_storageB", "room": "storageB", "pos": [-12.5, 12.5], "type": "locker", "look": [0, -0.2] },
-    { "id": "locker_workshop", "room": "workshop",  "pos": [-22.5, 3.8], "type": "locker", "look": [0, -0.2] },
-    { "id": "table_dining_1",  "room": "dining",    "pos": [-9, 1.5],    "type": "table",  "look": [0, -0.2] },
-    { "id": "table_dining_2",  "room": "dining",    "pos": [-2, -1.5],   "type": "table",  "look": [0, -0.2] },
-    { "id": "counter_kitchen", "room": "kitchen",   "pos": [-16, -15.5], "type": "counter","look": [0, -0.2] }
+    {
+      "id": "locker_storageB",
+      "room": "storageB",
+      "pos": [
+        -12.5,
+        12.5
+      ],
+      "type": "locker",
+      "look": [
+        0,
+        -0.2
+      ]
+    },
+    {
+      "id": "locker_workshop",
+      "room": "workshop",
+      "pos": [
+        -22.5,
+        3.8
+      ],
+      "type": "locker",
+      "look": [
+        0,
+        -0.2
+      ]
+    },
+    {
+      "id": "table_dining_1",
+      "room": "dining",
+      "pos": [
+        -9,
+        1.5
+      ],
+      "type": "table",
+      "look": [
+        0,
+        -0.2
+      ]
+    },
+    {
+      "id": "table_dining_2",
+      "room": "dining",
+      "pos": [
+        -2,
+        -1.5
+      ],
+      "type": "table",
+      "look": [
+        0,
+        -0.2
+      ]
+    },
+    {
+      "id": "counter_kitchen",
+      "room": "kitchen",
+      "pos": [
+        -16,
+        -15.5
+      ],
+      "type": "counter",
+      "look": [
+        0,
+        -0.2
+      ]
+    }
   ],
   "batterySpots": [
-    [-22, -13.5], [-9.5, -11], [-4, -13], [20, -13], [-21, -7], [12, -7],
-    [-20, 1], [-6, 2], [8, 1], [21, 1], [-20, 7], [10, 7],
-    [-22, 12], [-11, 11], [0, 13], [10, 13], [20, 13], [-13, -15]
+    [
+      -22,
+      -13.5
+    ],
+    [
+      -9.5,
+      -11
+    ],
+    [
+      -4,
+      -13
+    ],
+    [
+      20,
+      -13
+    ],
+    [
+      -21,
+      -7
+    ],
+    [
+      12,
+      -7
+    ],
+    [
+      -20,
+      1
+    ],
+    [
+      -6,
+      2
+    ],
+    [
+      8,
+      1
+    ],
+    [
+      21,
+      1
+    ],
+    [
+      -20,
+      7
+    ],
+    [
+      10,
+      7
+    ],
+    [
+      -22,
+      12
+    ],
+    [
+      -11,
+      11
+    ],
+    [
+      0,
+      13
+    ],
+    [
+      10,
+      13
+    ],
+    [
+      20,
+      13
+    ],
+    [
+      -13,
+      -15
+    ]
   ]
 }

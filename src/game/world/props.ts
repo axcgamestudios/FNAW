@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { woodMaterial, metalMaterial, darkMetalMaterial, plasticMaterial } from './materials';
 import { posterBruno, posterParty, kidDrawing, screenStaticTex } from './textures';
+import { Assets } from './assets';
 import type { WorldBuilder } from './worldbuilder';
 
 export interface Anchor {
@@ -284,14 +285,24 @@ function buildOffice(world: WorldBuilder) {
   world.root.add(fan);
   world.propAnims.push({ update: (dt) => { blades.rotation.z += dt * 14; } });
 
-  // Prop de linterna + tableta (recogibles misión 1)
+  // Prop de linterna (modelo GLB real) + tableta (recogibles capítulo 1)
   const torch = new THREE.Group();
-  const torchBody = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.24, 10), metalMaterial([0.4, 0.4]));
-  torchBody.rotation.z = Math.PI / 2;
-  const torchLens = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.045, 0.04, 10), new THREE.MeshStandardMaterial({ color: 0xfff8dd, emissive: 0xfff0c0, emissiveIntensity: 0.35 }));
-  torchLens.rotation.z = Math.PI / 2;
-  torchLens.position.x = 0.13;
-  torch.add(torchBody, torchLens);
+  const glbTorch = Assets.rigs.get('flashlight');
+  if (glbTorch) {
+    const torchModel = glbTorch.root.clone(true);
+    torchModel.scale.multiplyScalar(1.1);
+    torchModel.rotation.z = Math.PI / 2;
+    torchModel.rotation.y = 0.4;
+    torchModel.position.y = 0.12;
+    torch.add(torchModel);
+  } else {
+    const torchBody = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.24, 10), metalMaterial([0.4, 0.4]));
+    torchBody.rotation.z = Math.PI / 2;
+    const torchLens = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.045, 0.04, 10), new THREE.MeshStandardMaterial({ color: 0xfff8dd, emissive: 0xfff0c0, emissiveIntensity: 0.35 }));
+    torchLens.rotation.z = Math.PI / 2;
+    torchLens.position.x = 0.13;
+    torch.add(torchBody, torchLens);
+  }
   torch.position.set(1.6, 0.86, 13.7);
   torch.rotation.y = 0.4;
   world.root.add(torch);

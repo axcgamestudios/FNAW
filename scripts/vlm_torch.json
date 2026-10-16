@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Yes, the image displays a **first-person horror game view** where a **3D flashlight model** is clearly visible in the player's hand at the **bottom-right** of the screen. \n\nHere is a detailed description of what I see:\n\n*   **The Flashlight:** A large, detailed, dark red or maroon 3D model of a flashlight (or possibly a heavy-duty torch) dominates the lower right foreground. It features ribbed grips and a prominent lens ring.\n*   **The Light Beam:** The flashlight is active, casting a bright, reddish-tinged beam of light that illuminates the immediate environment in front of the player.\n*   **The Environment:** The setting appears to be a dimly lit, eerie room with vertical wood-paneled walls and a tiled floor. In the background, there are desks or tables and what looks like a security monitor on the wall.\n*   **User Interface (UI):**\n    *   **Top Left:** A list of objectives in Spanish (e.g., \"Encuentra 2 fusibles de repuesto\" - Find 2 spare fuses).\n    *   **Center:** An interaction prompt that reads \"**Coger la tableta de vigilancia [E]**\" (Pick up the surveillance tablet [E]).\n    *   **Bottom Left:** A mini-map or radar display.\n    *   **Bottom Right:** Controls for \"[Q] MASCARA\" (Mask) and \"[C] CAMARAS\" (Cameras).\n\nThe overall atmosphere is dark and suspenseful, typical of the horror genre.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792117554,
+  "id": "20261016102549601ea7023e224d46",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016102549601ea7023e224d46",
+  "usage": {
+    "completion_tokens": 324,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1104,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1428
+  }
+}

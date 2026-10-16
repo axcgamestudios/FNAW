@@ -3,9 +3,9 @@
  * secuencias de interruptores, teclados numéricos y escape final.
  */
 import * as THREE from 'three';
-import nightsData from '@/data/nights.json';
+import chaptersData from '@/data/chapters.json';
 import storyData from '@/data/story.json';
-import type { NightDef, ObjectiveDef, Interactable } from '../core/types';
+import type { ChapterDef, ObjectiveDef, Interactable } from '../core/types';
 import { createPickupMesh } from '../world/props';
 import type { WorldBuilder } from '../world/worldbuilder';
 import type { useHud } from '../core/state';
@@ -28,21 +28,19 @@ interface SpawnedItem {
 const FUSE_SPOTS: Record<number, string[]> = {
   1: ['fuse_storageA', 'dining'],
   2: ['fuse_storageA', 'fuse_storageB', 'fuse_workshop'],
-  3: ['fuse_workshop', 'fuse_storageB'],
-  4: ['fuse_storageA', 'fuse_workshop'],
-  5: [],
+  3: [],
+  4: [],
 };
 
-const TAPE_NIGHT: Record<number, string[]> = {
-  1: [],
-  2: [],
-  3: ['tape_w1', 'tape_w2', 'tape_w3'],
-  4: [],
-  5: ['tape_w4', 'tape_w5', 'tape_w6', 'tape_w7', 'tape_w8', 'tape_w9', 'tape_w10'],
+const TAPE_CHAPTER: Record<number, string[]> = {
+  1: ['tape_w6', 'tape_w7'],
+  2: ['tape_w1', 'tape_w2', 'tape_w8'],
+  3: ['tape_golden', 'tape_w3', 'tape_w4'],
+  4: ['tape_w5', 'tape_w9', 'tape_w10'],
 };
 
 export class MissionSystem {
-  night: NightDef;
+  chapter: ChapterDef;
   world: WorldBuilder;
   store: HudStore;
   objectives: ObjectiveRT[] = [];
@@ -60,13 +58,13 @@ export class MissionSystem {
   game: MissionHost;
   exitReached = false;
 
-  constructor(night: NightDef, world: WorldBuilder, store: HudStore, game: MissionHost) {
-    this.night = night;
+  constructor(chapter: ChapterDef, world: WorldBuilder, store: HudStore, game: MissionHost) {
+    this.chapter = chapter;
     this.world = world;
     this.store = store;
     this.game = game;
-    this.objectives = night.objectives.map((o) => ({ def: o, done: false, count: 0 }));
-    if (night.night === 3) {
+    this.objectives = chapter.objectives.map((o) => ({ def: o, done: false, count: 0 }));
+    if (chapter.chapter === 3) {
       // cerrojo con código en el almacén sur
       const d = world.doors.get('door_storageB');
       if (d) {
@@ -74,10 +72,7 @@ export class MissionSystem {
         d.code = '1987';
       }
     }
-    if (night.night < 5) {
-      const exitD = world.doors.get('door_exit');
-      if (exitD) exitD.locked = true;
-    } else {
+    if (chapter.chapter < 4) {
       const exitD = world.doors.get('door_exit');
       if (exitD) exitD.locked = true;
     }
@@ -89,31 +84,25 @@ export class MissionSystem {
   /* ============ SPAWN DE OBJETOS ============ */
 
   private spawnItems() {
-    const n = this.night.night;
+    const n = this.chapter.chapter;
     // fusibles
     const fuseSpots = FUSE_SPOTS[n] ?? [];
     fuseSpots.forEach((spotId, i) => {
       this.spawnPickup(`fuse_${i}`, 'fuse', spotId);
     });
     // cintas
-    (TAPE_NIGHT[n] ?? []).forEach((tapeId) => {
+    (TAPE_CHAPTER[n] ?? []).forEach((tapeId) => {
       const tape = (storyData.tapes as Array<{ id: string; title: string; location: string; text: string }>).find((t) => t.id === tapeId);
       if (tape) this.spawnPickup(tape.id, 'tape', `tape_${tape.location}`);
     });
-    // notas de lore (siempre disponibles: nota código en N3+, nota orden en N4+, nota maestra N5)
+    // notas de lore: nota código en cap3+, nota maestra en cap4
     if (n >= 3) this.spawnPickup('note_code_pick', 'note', 'note_code');
-    if (n >= 4) this.spawnPickup('note_order_pick', 'note', 'note_order');
-    if (n >= 5) this.spawnPickup('note_master_pick', 'note', 'note_master');
-    // tapas de conducto (N4)
+    if (n >= 4) this.spawnPickup('note_master_pick', 'note', 'note_master');
+    // llave en la sala oculta (cap4)
     if (n === 4) {
-      this.spawnPickup('cover_prize', 'cover', 'cover_prize');
-      this.spawnPickup('cover_workshop', 'cover', 'cover_workshop');
-    }
-    // llave en la sala oculta (N5)
-    if (n === 5) {
       this.spawnPickup('exit_key', 'key', 'secret_key');
     }
-    // baterías (todas las noches, 6 aleatorias)
+    // baterías (todos los capítulos, 6 aleatorias)
     const spots = this.world.map.batterySpots.slice();
     for (let i = 0; i < 6; i++) {
       const idx = Math.floor(Math.random() * spots.length);
@@ -243,10 +232,10 @@ export class MissionSystem {
         this.game.sfx.powerUp();
         if (this.sequenceTargetId === 'west_switches') {
           this.game.setPower(this.game.getPower() + 45);
-          this.completeObjective('n4_seq');
+          this.completeObjective('c4_master');
         } else {
           this.game.setPower(100);
-          this.completeObjective('n5_master');
+          this.completeObjective('c4_master');
           this.game.notify('ENERGÍA RESTAURADA — LA SALIDA TIENE LUZ');
         }
         this.sequenceTargetId = '';

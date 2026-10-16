@@ -15,9 +15,9 @@ export interface HudState {
   mode: GameMode;
   loadingProgress: number;
   loadingLabel: string;
-  night: number;
-  nightTitle: string;
-  hour: number; // 0..6
+  chapter: number;
+  chapterTitle: string;
+  hour: number; // 0..6 (solo estético en cinemáticas)
   battery: number;
   stamina: number;
   power: number;
@@ -40,11 +40,14 @@ export interface HudState {
   keypadDoor: string | null;
   note: NoteView | null;
   deadBy: string | null;
-  nightComplete: boolean;
+  chapterComplete: boolean;
   ending: 'normal' | 'secret' | null;
   jumpscare: string | null;
+  cinematic: boolean;
+  cinematicText: string | null;
+  cinematicSkip: boolean;
   settings: GameSettings;
-  unlockedNight: number;
+  unlockedChapter: number;
   tapes: string[];
   pointerLockHint: boolean;
   introLines: string[];
@@ -72,8 +75,8 @@ export const useHud = create<HudState>()((set) => ({
   mode: 'boot',
   loadingProgress: 0,
   loadingLabel: 'Iniciando...',
-  night: 1,
-  nightTitle: '',
+  chapter: 1,
+  chapterTitle: '',
   hour: 0,
   battery: 100,
   stamina: 100,
@@ -97,9 +100,12 @@ export const useHud = create<HudState>()((set) => ({
   keypadDoor: null,
   note: null,
   deadBy: null,
-  nightComplete: false,
+  chapterComplete: false,
   ending: null,
   jumpscare: null,
+  cinematic: false,
+  cinematicText: null,
+  cinematicSkip: false,
   settings: {
     master: 0.9,
     music: 0.7,
@@ -109,7 +115,7 @@ export const useHud = create<HudState>()((set) => ({
     quality: 'high',
     subtitleSize: 'medium',
   },
-  unlockedNight: 1,
+  unlockedChapter: 1,
   tapes: [],
   pointerLockHint: false,
   introLines: [],
@@ -127,7 +133,7 @@ export const useHud = create<HudState>()((set) => ({
   setDead: (by) => set({ deadBy: by }),
   setJumpscare: (k) => set({ jumpscare: k }),
   setSettings: (s) => set({ settings: s }),
-  setProgress: (unlocked, tapes) => set({ unlockedNight: unlocked, tapes }),
+  setProgress: (unlocked, tapes) => set({ unlockedChapter: unlocked, tapes }),
   setPointerHint: (v) => set({ pointerLockHint: v }),
   setIntro: (lines) => set({ introLines: lines }),
   setEnding: (e, lines) => set({ ending: e, endingLines: lines }),
