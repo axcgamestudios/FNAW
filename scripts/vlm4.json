@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided:\n\n**Is a flashlight beam visible?**\n**No.** The flashlight is currently **off** (apagada). The scene is illuminated by ambient light, but there is no active cone of light projecting from the player's position. This is confirmed by the HUD text in the bottom-left corner which reads **\"LINTERNA APAGADA\"** (Flashlight Off).\n\n**What objects do you see?**\n*   **Environment:** A room with dark red/burgundy vertical striped wallpaper and a black-and-white checkered floor.\n*   **Furniture:** Part of a dark red object (likely a desk or table) is visible in the bottom-center foreground.\n*   **Atmosphere:** Small white specks resembling dust particles or static are floating in the air.\n\n**What HUD indicators changed?**\n*   **Flashlight Status:** The text explicitly states **\"LINTERNA APAGADA – [F]\"**, indicating the flashlight is inactive and can be toggled with the F key.\n*   **Battery/Resistance Bar:** The yellow bar labeled **\"RESISTENCIA\"** (Resistance/Battery) appears to be full or nearly full, as it has not been depleted by use yet.\n*   **Time:** The clock in the top-right shows **12:04 AM**, indicating the game session (Night 01) has just begun.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792110540,
+  "id": "202610160828548bfcc4865fb34bf9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610160828548bfcc4865fb34bf9",
+  "usage": {
+    "completion_tokens": 285,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 912,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1197
+  }
+}

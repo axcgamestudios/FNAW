@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "From a first-person perspective, the scene is a claustrophobic, dimly lit security office that heavily evokes the atmosphere of *Five Nights at Freddy's* (FNAF). The room is bathed in an unsettling, deep red glow emanating from a single overhead light source, casting long shadows and creating a sense of immediate dread.\n\n**Room Layout and Environment:**\nThe office is a small, box-like space with walls covered in vertical, reddish-pink striped wallpaper that looks worn and slightly grimy. The floor features a stark, high-contrast black-and-white checkerboard pattern. To the left, there is a dark window or opening with horizontal bars, while to the right, an open doorway leads into a hallway illuminated by an eerie, sickly greenish-yellow light, suggesting a transition to another part of the building.\n\n**The Desk and Equipment:**\nIn the foreground sits a simple wooden desk. On its surface rests a black, old-fashioned oscillating fan, a staple of the FNAF aesthetic. Next to it lies a green tablet device—the primary tool for surveillance. Two large, blocky black monitors or cabinets sit on the desk, facing the player. A prompt in the center of the screen reads \"Coger la tableta de vigilancia [E]\" (Pick up the security tablet [E]), indicating the start of gameplay.\n\n**Lighting and Atmosphere:**\nThe lighting is the most striking element. The intense red ceiling light creates a \"blood-soaked\" ambiance, while dust particles or \"floaters\" are visible in the air, adding to the gritty, stagnant feel of the environment. The contrast between the red interior and the green-lit exterior hallway enhances the feeling of being trapped in a hostile space.\n\n**Heads-Up Display (HUD):**\nThe screen is framed by a classic survival horror HUD:\n*   **Top Left:** \"NOCHE 01 – OBJETIVOS\" (Night 01 - Objectives), listing tasks like collecting a flashlight and tablet, finding fuses, fixing the office panel, checking a music box on CAM 04, and surviving until 6 AM.\n*   **Top Right:** The time is displayed as \"12:00 AM\" with the text \"NOCHE 01 · La Primera Ronda\" (Night 01 · The First Round).\n*   **Bottom Left:** Status bars for \"ENERGIA\" (Energy) and \"RESISTENCIA\" (Stamina/Resistance).\n*   **Bottom Right:** Battery percentages for the flashlight (\"LINTERNA\") and tablet (\"TABLETA\"), both at 99%.\n\n**Conclusion:**\nYes, this scene strongly evokes a FNAF-style security office. It utilizes the same core elements: a confined workspace, limited power resources, a reliance on a tablet for monitoring cameras, a fan for atmosphere, and a palpable sense of vulnerability as the night begins. The visual style—low-poly models combined with atmospheric lighting—perfectly captures the indie horror spirit of the FNAF series.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792112318,
+  "id": "20261016085826fecd52012fc645a5",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016085826fecd52012fc645a5",
+  "usage": {
+    "completion_tokens": 624,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1105,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1729
+  }
+}

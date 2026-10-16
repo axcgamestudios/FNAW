@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image, here is a detailed description of the security camera interface:\n\n**The Camera Feed (Main View)**\n*   **Room/Location:** The feed is currently displaying **CAM 01 – ESCENARIO** (which translates to \"CAM 01 – STAGE\" or \"SCENARIO\"). \n*   **Status:** The screen is currently **completely black**, indicating the room is dark, the camera is disabled, or there is no light source. A red \"REC\" dot is visible in the top left corner of the feed, along with a timestamp reading **1007-10-12**.\n\n**Visual Effects & Overlay**\n*   **CRT/Scanline Effects:** The display features a heavy **green phosphor monochrome aesthetic** typical of old CRT monitors. There are visible horizontal scanlines running across the entire screen, giving it a flickering, analog texture.\n*   **Vignette:** The edges of the monitor screen are slightly darker than the center, simulating the curvature and depth of an old tube television.\n\n**Camera Map (Right Side)**\n*   **Layout:** On the right side of the screen, there is a schematic **floor plan map** of the building. It is rendered in bright green lines against a black background.\n*   **Details:** The map shows various rooms divided by walls. Small numbered squares (representing camera nodes) are placed in different locations on the map.\n*   **Selection:** Camera **01** is currently highlighted with a solid green fill, indicating it is the active camera being viewed.\n\n**UI Buttons & Controls**\n*   **Camera Selection Grid:** Below the map is a grid of buttons numbered **01 through 12**, allowing the player to jump directly to specific cameras.\n*   **Bottom Controls:** At the very bottom, there is a text-based control line: `[C] CERRAR · [A/D] CAMBIAR CAMARA · [1-9] SELECCION RAPIDA`. This indicates controls for closing the camera, cycling through cameras, or quick selection.\n*   **Left Sidebar:**\n    *   **Top:** Displays \"NOCHE 01 – OBJETIVOS\" (Night 1 - Objectives) with a checklist including items like \"Encontrar\" (Find), \"Reparar\" (Repair), etc.\n    *   **Bottom:** Shows status bars for \"LINTERNA\" (Flashlight) and \"RESISTIR\" (Resist/Endure), along with a compass indicating \"N\" (North).\n\n**Is it FNAF-style?**\n**Yes, absolutely.** This is a classic **Five Nights at Freddy's (FNAF)-style camera system**. \n*   It uses the same static camera feed layout.\n*   It features the iconic green-tinted CRT visual style and scanlines.\n*   It utilizes a map for spatial awareness alongside a button grid for switching cameras (a hallmark of the FNAF UI).\n*   The objective-based survival horror context (Night 1, objectives, stamina/resistance bar) fits the genre perfectly.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792110846,
+  "id": "2026101608331194c571c8aaa54254",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101608331194c571c8aaa54254",
+  "usage": {
+    "completion_tokens": 638,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 941,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1579
+  }
+}

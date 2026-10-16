@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, **there are no animatronic characters or stage visible**. \n\nThe image shows the **main menu screen** for a game titled \"**FNAF 2 REIMAGINADO**\" (a reimagining of *Five Nights at Freddy's 2*). The screen displays:\n\n- The title in large red text (\"FNAF 2\")\n- A Spanish language menu with options like \"NUEVA PARTIDA\" (New Game), \"CONTINUAR\" (Continue), \"SELECCION DE NOCHE\" (Night Selection), etc.\n- Background text indicating the setting: \"PIZZERIA ESTELAR BRUNO - 1987\"\n- Game progress stats: \"CINTAS: 0/18 - NOCHES DESBLOQUEADAS: 2/5\"\n\n**To answer your specific questions about animatronics and stage details:** Since this is only the title/menu screen and not gameplay footage, I cannot describe any character models, their poses, the stage environment, or their visual quality. The image contains only text UI elements on a black background with no 3D rendered characters or environments.\n\nIf you have a different image showing the actual game scene with the animatronics on stage, please share that and I'd be happy to provide the detailed description you're looking for!",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792111980,
+  "id": "20261016085256f04cdb81a4194bea",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016085256f04cdb81a4194bea",
+  "usage": {
+    "completion_tokens": 280,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 520,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 800
+  }
+}

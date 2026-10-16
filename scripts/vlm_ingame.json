@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the screenshot, here is a detailed description of the 3D first-person horror game:\n\n### **Environment**\nThe environment is currently **completely dark**, indicating the player is in a pitch-black location (likely an office or building interior) without a light source active. The only visible elements are faint, scattered white pixels that resemble distant stars or dust particles floating in the void. The setting is established through text as **\"NOCHE 01 - La Primera Ronda\" (Night 01 - The First Round)**, suggesting a nightly shift-based survival scenario similar to *Five Nights at Freddy's*.\n\n### **HUD (Heads-Up Display)**\nThe interface is minimalistic and text-based, using a monospaced terminal font:\n*   **Top Left (Objectives):** Lists 5 tasks for the night:\n    *   Recoge la linterna y la tableta (Get flashlight and tablet)\n    *   Encuentra 2 fusibles de la solicitud (Find 2 request fuses)\n    *   Repara el panel de la oficina (Repair office panel)\n    *   Comprueba la caja musical (CAM 04) (Check music box on Camera 04)\n    *   Sobrevive hasta las 6 AM (Survive until 6 AM)\n*   **Top Right:** Displays the current time **\"12:00 AM\"** and the night title.\n*   **Bottom Left:**\n    *   **Flashlight Toggle:** \"[LINTERNA] o APAGADA – [F]\" (Flashlight or OFF).\n    *   **Status Bars:** Three horizontal bars with labels:\n        *   **RESISTENCIA** (Stamina/Resistance) - Yellow/Green bar.\n        *   **[S]...A DEL EDIFICIO** (likely \"SALIDA DEL EDIFICIO\" / Building Exit) - Blue bar.\n        *   A circular icon with an **\"N\"** (possibly indicating North or a specific item).\n*   **Bottom Right:** Inventory/Status indicators showing **\"[O] MÁSCARA\" (Mask)**, **\"CAJA MUSICAL 89%\"** (Music Box at 89%), and **\"[C] CÁMARAS\" (Cameras)**.\n\n### **Graphics Quality**\nThe graphics are **low-poly and retro-styled**, reminiscent of PS1-era horror games or indie titles using limited color palettes.\n*   **Resolution & Textures:** Appears to be running at a low resolution with no visible textures due to the darkness.\n*   **Lighting:** Uses absolute darkness with potential point-light sources (the flashlight) currently disabled.\n*   **UI:** Clean, high-contrast white text on black background, giving it a \"terminal\" or \"VHS\" aesthetic.\n\n### **Problems / Technical Issues**\n*   **Visibility:** The screen is almost entirely black, which may be intentional for horror atmosphere but makes navigation impossible without the flashlight.\n*   **Clipped Text:** The label for the blue status bar at the bottom left is cut off, showing only **\"...A DEL EDIFICIO\"** instead of the full word (likely \"SALIDA\").\n*   **Ambiguity:** The \"N\" icon is not clearly explained, and it is unclear if the music box percentage (89%) is a timer counting down or a progress indicator.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792110309,
+  "id": "2026101608245569799c9243614992",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101608245569799c9243614992",
+  "usage": {
+    "completion_tokens": 698,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 912,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1610
+  }
+}

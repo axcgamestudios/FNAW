@@ -1,0 +1,17 @@
+{
+  "events": [
+    { "id": "knock_wall",     "weight": 10, "minNight": 1 },
+    { "id": "knock_door",     "weight": 8,  "minNight": 1 },
+    { "id": "footsteps_fake", "weight": 9,  "minNight": 1 },
+    { "id": "whisper",        "weight": 5,  "minNight": 2 },
+    { "id": "light_flicker",  "weight": 10, "minNight": 1 },
+    { "id": "cam_glitch",     "weight": 7,  "minNight": 2 },
+    { "id": "shadow_figure",  "weight": 6,  "minNight": 2 },
+    { "id": "vent_bang",      "weight": 8,  "minNight": 2 },
+    { "id": "child_laugh",    "weight": 4,  "minNight": 2 },
+    { "id": "power_dip",      "weight": 5,  "minNight": 3 },
+    { "id": "door_creak",     "weight": 7,  "minNight": 1 },
+    { "id": "radio_burst",    "weight": 4,  "minNight": 3 },
+    { "id": "stairs_thump",   "weight": 5,  "minNight": 1 }
+  ]
+}

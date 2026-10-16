@@ -1,0 +1,233 @@
+{
+  "animatronics": [
+    {
+      "id": "bruno",
+      "name": "Bruno el Oso",
+      "kind": "bear",
+      "startRoom": "stage",
+      "startOffset": [
+        -0.5,
+        0.5
+      ],
+      "activeNights": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "wakeHour": [
+        1.5,
+        1.2,
+        0.8,
+        0.5,
+        0
+      ],
+      "speedWalk": 1.7,
+      "speedRun": 3.4,
+      "visionDist": 13,
+      "visionFov": 70,
+      "hearing": 1.0,
+      "attackRange": 1.35,
+      "attackWindup": 0.5,
+      "maskFoolable": true,
+      "maskFoolTime": 3.0,
+      "flashlight": "none",
+      "ventAccess": false,
+      "patrolRooms": [
+        "mainhall",
+        "dining",
+        "stage",
+        "arcade",
+        "westhall",
+        "easthall",
+        "junction",
+        "kidscove"
+      ],
+      "voice": "deep",
+      "eyeColor": 10829872
+    },
+    {
+      "id": "clara",
+      "name": "Clara la Coneja",
+      "kind": "rabbit",
+      "startRoom": "stage",
+      "startOffset": [
+        -3.7,
+        0.5
+      ],
+      "activeNights": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "wakeHour": [
+        2.5,
+        2,
+        1.5,
+        1,
+        0.3
+      ],
+      "speedWalk": 1.9,
+      "speedRun": 3.6,
+      "visionDist": 11,
+      "visionFov": 60,
+      "hearing": 1.3,
+      "attackRange": 1.3,
+      "attackWindup": 0.45,
+      "maskFoolable": true,
+      "maskFoolTime": 2.2,
+      "flashlight": "freeze",
+      "ventAccess": true,
+      "patrolRooms": [
+        "prize",
+        "storageA",
+        "kitchen",
+        "mainhall",
+        "kidscove",
+        "junction",
+        "dining"
+      ],
+      "voice": "screech",
+      "eyeColor": 16729328
+    },
+    {
+      "id": "gina",
+      "name": "Gina la Gallina",
+      "kind": "chicken",
+      "startRoom": "stage",
+      "startOffset": [
+        2.7,
+        0.5
+      ],
+      "activeNights": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "wakeHour": [
+        99,
+        3,
+        2.5,
+        2,
+        1
+      ],
+      "speedWalk": 1.6,
+      "speedRun": 3.2,
+      "visionDist": 12,
+      "visionFov": 75,
+      "hearing": 1.6,
+      "attackRange": 1.35,
+      "attackWindup": 0.5,
+      "maskFoolable": true,
+      "maskFoolTime": 2.0,
+      "flashlight": "none",
+      "ventAccess": false,
+      "patrolRooms": [
+        "kitchen",
+        "dining",
+        "mainhall",
+        "restrooms",
+        "storageA",
+        "junction"
+      ],
+      "voice": "clank",
+      "eyeColor": 16771912
+    },
+    {
+      "id": "ren",
+      "name": "Ren el Zorro",
+      "kind": "fox",
+      "startRoom": "kidscove",
+      "startOffset": [
+        0,
+        -0.75
+      ],
+      "activeNights": [
+        3,
+        4,
+        5
+      ],
+      "wakeHour": [
+        99,
+        99,
+        2,
+        1.5,
+        0.5
+      ],
+      "speedWalk": 2.2,
+      "speedRun": 4.3,
+      "visionDist": 16,
+      "visionFov": 55,
+      "hearing": 1.2,
+      "attackRange": 1.5,
+      "attackWindup": 0.35,
+      "maskFoolable": false,
+      "maskFoolTime": 0,
+      "flashlight": "repel",
+      "ventAccess": false,
+      "patrolRooms": [
+        "kidscove",
+        "arcade",
+        "easthall",
+        "westhall",
+        "mainhall",
+        "dining",
+        "junction"
+      ],
+      "voice": "rusty",
+      "eyeColor": 16761088
+    },
+    {
+      "id": "puppet",
+      "name": "La Marioneta",
+      "kind": "puppet",
+      "startRoom": "prize",
+      "startOffset": [
+        0,
+        -1.5
+      ],
+      "activeNights": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "wakeHour": [
+        99,
+        99,
+        99,
+        99,
+        99
+      ],
+      "speedWalk": 2.0,
+      "speedRun": 3.8,
+      "visionDist": 18,
+      "visionFov": 360,
+      "hearing": 2.0,
+      "attackRange": 1.6,
+      "attackWindup": 0.4,
+      "maskFoolable": false,
+      "maskFoolTime": 0,
+      "flashlight": "none",
+      "ventAccess": false,
+      "patrolRooms": [
+        "prize",
+        "mainhall",
+        "dining",
+        "westhall",
+        "easthall",
+        "junction",
+        "arcade",
+        "storageA"
+      ],
+      "voice": "chime",
+      "eyeColor": 16777215,
+      "persistent": true
+    }
+  ]
+}

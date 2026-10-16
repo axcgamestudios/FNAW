@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is a detailed description of the horror game scene:\n\n**Character Count and Types**\nThere is **one** animatronic character clearly visible on the stage. Based on its silhouette and the context of the poster, it appears to be a **bear-like or humanoid robot** (likely representing \"Bruno\" from the sign). While the poster suggests a group (\"Bruno y sus Amigos\" - Bruno and Friends), only one figure is currently present on the stage in this view.\n\n**Appearance Details**\n*   **The Animatronic:** The character has a distinct, retro-futuristic design. It features a rounded, bulbous head (possibly resembling a vintage space helmet or a simple bear head) and a segmented, metallic body with visible joints at the elbows and knees. It stands perfectly still, facing away from the camera toward the curtains.\n*   **The Poster:** Dominating the left side is a large, yellowed poster featuring a simplistic, cartoonish brown bear face with large, hollow eyes. Below it, the text reads \"**¡BRUNO Y SUS AMIGOS!**\" (Bruno and His Friends!).\n\n**Stage Environment**\n*   **Setting:** The characters are positioned on a raised wooden platform or stage.\n*   **Lighting:** The scene uses dramatic, moody lighting typical of the horror genre. A strong spotlight illuminates the single animatronic from the front/right, casting long shadows. The background features vertical stage curtains lit with eerie blue and purple neon lights.\n*   **Atmosphere:** The surrounding area is shrouded in darkness, with red and pink ambient light spilling from the sides, creating a sense of isolation and dread.\n\n**Model Quality and Recognition**\n*   **Graphics:** The models have a **low-poly, stylized aesthetic** reminiscent of indie horror games (similar to *Five Nights at Freddy's* or *Poppy Playtime*). The textures are somewhat flat but effective, using shading to create depth.\n*   **Recognizability:** Yes, they are immediately recognizable as **animatronic mascots**. The stiff, jointed posture of the robot, combined with the \"mascot\" branding on the poster and the pizzeria/stage setting, clearly identifies them as entertainment robots rather than living creatures or humans. The UI elements (mentioning \"Night 01,\" \"Survive until 6 AM,\" and collecting a \"Musical Box\") further confirm this is a survival horror scenario involving these machines.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792112040,
+  "id": "20261016085352875bd589f789435c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016085352875bd589f789435c",
+  "usage": {
+    "completion_tokens": 516,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 509,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1025
+  }
+}

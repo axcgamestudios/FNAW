@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the screenshot, here is the description of the visible elements:\n\n**Visible Buttons:**\nThere are **two** main buttons displayed at the bottom of the screen:\n1.  **REINTENTAR NOCHE** (Retry Night)\n2.  **SALIR AL MENÚ** (Exit to Menu)\n\n**Is there a \"REINTENTAR NOCHE\" button?**\n**Yes**, the button labeled **\"REINTENTAR NOCHE\"** is clearly visible on the left side.\n\n**Description of Screen State:**\nThe screen is in a **Game Over / Death state**.\n*   **Context:** The large red text reads \"**TE ENCONTRARON**\" (They found you), indicating the player has been caught by an enemy (specifically mentioned as \"**Bruno el Oso**\" or Bruno the Bear).\n*   **Progress:** The text at the top indicates this happened during \"**NOCHE 01 – 12 AM A 6 AM**\" (Night 1).\n*   **Atmosphere:** The screen uses a dark background with red text, typical of horror game failure screens, creating a tense and final atmosphere. The player must now choose to try the night again or quit to the main menu.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792111278,
+  "id": "20261016084114ec8c81dcde9542a7",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016084114ec8c81dcde9542a7",
+  "usage": {
+    "completion_tokens": 259,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 489,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 748
+  }
+}

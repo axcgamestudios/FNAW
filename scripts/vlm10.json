@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the description of the scene:\n\n**Number of Characters Visible and Facing Camera:**\nThere are **three** animatronic characters visible on the stage, and all three appear to be facing forward toward the camera/viewer.\n\n**Character Descriptions:**\n1.  **The Bear (Center):** A large, brown bear with a friendly but slightly unsettling expression. It has large eyes and is wearing a black top hat. It is positioned in the center of the stage, partially obscured by a large poster.\n2.  **The Pink Rabbit (Left):** A pink animatronic rabbit standing on the left side of the stage. It appears to have long ears and is illuminated by red lighting.\n3.  **The Yellow Chicken (Right):** An animatronic character on the right side of the stage that appears yellow or light-colored (resembling a chicken or bird). It stands under green/yellow lighting.\n\n**Overall Scene Quality:**\nThe image depicts a low-poly 3D environment typical of indie horror games (specifically resembling *Five Nights at Freddy's*). The graphics are somewhat blocky and retro-styled. The lighting is atmospheric and moody, utilizing colored spotlights (red, green, blue) to create a stage effect against dark curtains. The UI elements suggest this is gameplay footage from \"Night 1\" of a survival horror game where the player must complete objectives until 6 AM.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792112114,
+  "id": "20261016085509273567143fa8476f",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016085509273567143fa8476f",
+  "usage": {
+    "completion_tokens": 298,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 500,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 798
+  }
+}
