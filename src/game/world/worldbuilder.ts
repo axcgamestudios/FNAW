@@ -70,6 +70,9 @@ const WALL_H = 3.2;
 const WALL_T = 0.28;
 const DOOR_H = 2.15;
 
+/** salas con luz encendida al empezar la noche (el resto: fundida) */
+const LIGHTS_ON_DEFAULT = new Set(['office']);
+
 type MapData = typeof mapData;
 
 export class WorldBuilder {
@@ -84,6 +87,8 @@ export class WorldBuilder {
   propAnims: PropAnim[] = [];
   emergencyLights: THREE.PointLight[] = [];
   stageSpots: THREE.SpotLight[] = [];
+  /** modo visión de cámara: la sala del feed recibe un impulso de luz tenue */
+  camView = false;
   private roomLights: RoomRT[] = [];
   private clock = 0;
   private power = 1;
@@ -546,11 +551,16 @@ export class WorldBuilder {
     for (const rt of this.rooms.values()) {
       const amb = rt.def.ambientLight;
       const color = amb?.color ?? 0xffd9a8;
-      const light = new THREE.PointLight(color, (amb?.intensity ?? 0.45) * LM, 15, 1.7);
+      // noche cerrada: la instalación está fundida en su mayoría; solo la
+      // oficina conserva luz tenue. Las salas "reparadas" encienden tenues.
+      const dimFactor = rt.def.id === 'office' ? 0.6 : 0.17;
+      const base = (amb?.intensity ?? 0.45) * LM * dimFactor;
+      const light = new THREE.PointLight(color, base, 15, 1.7);
       light.position.set(rt.center.x, 2.85, rt.center.z);
       this.root.add(light);
       rt.light = light;
-      rt.lightBase = (amb?.intensity ?? 0.45) * LM;
+      rt.lightBase = base;
+      rt.lightOn = LIGHTS_ON_DEFAULT.has(rt.def.id);
       this.roomLights.push(rt);
       // Luminaria empotrada
       const fixture = new THREE.Mesh(
@@ -562,24 +572,25 @@ export class WorldBuilder {
       rt.fixture = fixture;
     }
 
-    // Focos del escenario (colores de espectáculo)
+    // Focos del escenario: solo queda un azul moribundo (siluetas)
     const spotColors = [0xff5544, 0x44ff88, 0x5588ff];
     const spotX = [5.5, 8.5, 11.5];
     for (let i = 0; i < 3; i++) {
-      const spot = new THREE.SpotLight(spotColors[i], 55, 18, 0.5, 0.45, 1.2);
+      const spot = new THREE.SpotLight(spotColors[i], i === 2 ? 7 : 0, 18, 0.5, 0.45, 1.2);
       spot.position.set(spotX[i], 3.0, -9.5);
       spot.target.position.set(spotX[i], 1.2, -13.5);
+      spot.castShadow = i === 2;
       this.root.add(spot);
       this.root.add(spot.target);
       this.stageSpots.push(spot);
     }
 
-    // Luces de emergencia (rojas) — siempre encendidas
+    // Luces de emergencia (rojas) — siempre encendidas, tenues
     const emPos: Array<[number, number]> = [
-      [-19, 15], [18.5, 15.5], [0, 12.5], [-19, 2], [8.5, 0], [-8.5, 1.5],
+      [-19, 15], [18.5, 15.5], [0, 12.5], [-8.5, 1.5],
     ];
     for (const [x, z] of emPos) {
-      const l = new THREE.PointLight(0xff2211, 12, 10, 1.8);
+      const l = new THREE.PointLight(0xff2211, 6, 9, 1.9);
       l.position.set(x, 2.9, z);
       this.root.add(l);
       this.emergencyLights.push(l);
@@ -622,6 +633,19 @@ export class WorldBuilder {
         }
       }
     }
+    // modo tableta: la sala del feed recibe luz tenue aunque esté fundida
+    // (sensores de la cámara; solo afecta al render del feed)
+    if (this.camView) {
+      const r = this.roomAt(focusPos.x, focusPos.z);
+      if (r && r.light) {
+        const boost = r.lightBase * 0.55;
+        if (r.light.intensity < boost) r.light.intensity = boost;
+        if (r.fixture) {
+          const fm = r.fixture.material as THREE.MeshStandardMaterial;
+          fm.emissiveIntensity = 0.6;
+        }
+      }
+    }
     // Animaciones de props (ventiladores, cortinas, pantallas)
     for (const a of this.propAnims) {
       a.update(dt, this.clock);
@@ -647,7 +671,7 @@ export class WorldBuilder {
       if (v.coverCollider) v.coverCollider.active = false;
     }
     for (const r of this.rooms.values()) {
-      r.lightOn = true;
+      r.lightOn = LIGHTS_ON_DEFAULT.has(r.def.id);
       r.blackoutTimer = 0;
     }
     for (const c of this.colliders) {

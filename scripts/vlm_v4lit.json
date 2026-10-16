@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the first-person horror game screenshot provided, here is a detailed description of the visual elements:\n\n**1) Hands/Arms and Flashlight Position**\nThe view is strictly first-person with **no visible hands or arms** holding the light source. Instead, the flashlight is modeled as a **large, tactical black flashlight** (resembling a heavy-duty police or military torch) resting in the **bottom-right foreground** of the screen. It appears to be floating or mounted at a low angle, pointing toward the center of the room. The flashlight has a textured grip, a prominent orange/red button on its side, and a reflective silver bezel around the lens.\n\n**2) Desk Props**\nThe desk surface features a distinct **black-and-white checkerboard pattern** that looks worn, dirty, and stained. Scattered across it are:\n*   **A large desk fan:** Positioned behind the flashlight; its blades appear static/not spinning in this frozen moment.\n*   **Wooden blocks/planks:** Several reddish-brown wooden pieces lie haphazardly on the desk surface.\n*   **A dark rectangular box:** A solid black or dark red cube sits to the right of the fan.\n*   *(Note: The monitor, cupcake with candle, papers, and walkie-talkie mentioned are not clearly visible in this specific frame, likely located off-screen or outside the immediate cone of light).*\n\n**3) Wall Decorations**\nThe back wall is covered in **vertical wood paneling** (dark brown stripes). Within the illuminated circle of the flashlight beam, the wall appears to be a lighter color—possibly **beige or off-white striped wallpaper**—creating a stark contrast with the surrounding darkness. There are no clearly visible posters, drawings, or cork boards within the lit area; the wall texture appears plain but slightly grimy or aged.\n\n**4) Ceiling Wires**\nIn the upper-center portion of the image, against the pitch-black ceiling, **thick, dark cables or wires** are visible. They appear to be hanging loosely or running across the ceiling space, adding to the industrial/abandoned aesthetic of the office.\n\n**5) Security Camera**\nA **security camera** is mounted high on the right-side wall (partially obscured by shadow). It is a standard boxy surveillance camera, facing inward toward the room, suggesting the player is being watched or recorded.\n\n**6) Light Beam Quality and Shadows**\nThe flashlight emits a **strong, conical beam of warm, yellowish-white light** that cuts sharply through the oppressive darkness. The light has a **grainy, dusty quality**, with visible particles or motes floating within the beam (volumetric lighting). Shadows are **deep, harsh, and high-contrast**, creating a \"spotlight effect\" where anything outside the beam is almost completely invisible. The edges of the light circle are soft, falloff is gradual, and the overall atmosphere is claustrophobic and tense.\n\n**7) Battery HUD Widget**\nLocated in the **bottom-left corner** of the screen is a user interface element displaying battery status:\n*   It shows a **yellow/orange rectangular icon** representing the battery charge.\n*   Text reads: **\"LINTERNA ON [F]\"** indicating the flashlight is currently toggled on and can be switched with the F key.\n*   Below this is a red notification bubble labeled **\"1 issue\"** with an \"x\" to dismiss it, suggesting a gameplay mechanic related to maintenance or errors.\n*   Additional text in the bottom-right corner shows controls for **\"[Q] MÁSCARA\"** (Mask) and **\"[C] CÁMARAS\"** (Cameras), typical of survival horror inventory systems.\n\nThe overall scene suggests a \"Chapter 01\" or tutorial level (\"TURNO DE PRUEBA\" / Trial Shift) where the player must manage limited light resources while navigating a decrepit office environment.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792123049,
+  "id": "20261016115715bebcfc9a57e749c5",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016115715bebcfc9a57e749c5",
+  "usage": {
+    "completion_tokens": 805,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 975,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1780
+  }
+}

@@ -78,6 +78,18 @@ export const floorMaterials = {
   concrete: (rep: [number, number]) => texPbr('f_conc', realTex(Assets.textures?.floorConcrete, rep), () => floorConcrete(), rep, { roughness: 0.92, bumpScale: 0.05 }),
   carpet: (rep: [number, number]) => texPbr('f_carpet', realTex(Assets.textures?.floorCarpet, rep), () => floorCarpet(), rep, { roughness: 0.95, bumpScale: 0.06 }),
   metal: (rep: [number, number]) => texPbr('f_metal', realTex(Assets.textures?.wallMetal, rep), () => floorMetal(), rep, { roughness: 0.45, metalness: 0.7, bumpScale: 0.04 }),
+  /** baldosa encerada de la oficina: refleja la linterna y las luces */
+  polished: (rep: [number, number]) => {
+    const base = texPbr('f_checker', realTex(Assets.textures?.floorChecker, rep), () => floorChecker(), rep, { roughness: 0.5, bumpScale: 0.03 });
+    const ck = `f_polished_${rep[0]}_${rep[1]}`;
+    if (matCache.has(ck)) return matCache.get(ck)!;
+    const m = base.clone();
+    m.roughness = 0.18;
+    m.metalness = 0.25;
+    m.envMapIntensity = 1.5;
+    matCache.set(ck, m);
+    return m;
+  },
 };
 
 export const wallMaterials = {

@@ -11,7 +11,7 @@ import { getGame } from '@/game/core/instance';
 
 const CAM_NAMES: Record<number, string> = {
   1: 'ESCENARIO', 2: 'COMEDOR', 3: 'P. PRINCIPAL', 4: 'PREMIOS', 5: 'SALA JUEGOS',
-  6: 'R. INFANTIL', 7: 'TALLER', 8: 'COCINA', 9: 'P. OESTE', 10: 'P. ESTE',
+  6: 'CALA PIRATA', 7: 'TALLER', 8: 'COCINA', 9: 'P. OESTE', 10: 'P. ESTE',
   11: 'ELÉCTRICO', 12: 'VESTÍBULO',
 };
 
@@ -43,8 +43,8 @@ export default function TabletView() {
 
         {audioOnly && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#040705]">
-            <p className="text-[#7dcf8a] text-sm tracking-[0.4em] mb-6">SEÑAL DE VÍDEO PERDIDA</p>
-            <div className="flex items-end gap-1 h-12">
+            <p className="cam-label" style={{ color: '#7dcf8a' }}>SEÑAL DE VÍDEO PERDIDA</p>
+            <div className="flex items-end gap-1 h-12 mt-6">
               {Array.from({ length: 28 }).map((_, i) => (
                 <div
                   key={i}
@@ -56,16 +56,18 @@ export default function TabletView() {
                 />
               ))}
             </div>
-            <p className="mt-6 text-[10px] tracking-[0.3em] text-[#4a8a55]">SOLO AUDIO DISPONIBLE</p>
+            <p className="cam-sub mt-6">SOLO AUDIO DISPONIBLE — CAM 08</p>
           </div>
         )}
 
         <div className="absolute top-3 left-5 flex items-center gap-3 z-10">
           <span className="w-2.5 h-2.5 rounded-full bg-[#ff2222]" style={{ animation: 'danger-pulse 1.2s infinite' }} />
-          <span className="text-[#7dcf8a] text-xs tracking-[0.25em]">
+          <span className="cam-label">
             CAM {String(tabletCam).padStart(2, '0')} — {CAM_NAMES[tabletCam] ?? ''}
           </span>
-          <span className="text-[10px] text-[#4a8a55] tracking-[0.2em]">REC ● 1987-10-12</span>
+        </div>
+        <div className="absolute top-9 left-5 z-10 cam-sub">
+          REC ● 12-11-1987 · TURNO NOCTURNO · SEGURIDAD
         </div>
 
         {/* mapa y selector de cámaras */}
@@ -119,8 +121,8 @@ export default function TabletView() {
           </div>
         </div>
 
-        <div className="absolute bottom-3 left-5 z-10 text-[10px] tracking-[0.25em] text-[#4a8a55]">
-          [C] CERRAR · [A/D] CAMBIAR CÁMARA · [1-9] SELECCIÓN RÁPIDA
+        <div className="absolute bottom-3 left-5 z-10 cam-sub">
+          [C] CERRAR · [A/D] CAMBIAR CÁMARA · [1-9] RÁPIDA
         </div>
       </div>
 

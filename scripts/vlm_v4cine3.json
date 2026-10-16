@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is a description of the game cinematic scene:\n\n**Scene Description:**\nThe scene depicts a dark, atmospheric interior, likely a pizzeria or restaurant, as indicated by the text overlay: **\"Pizzeria Estelar Bruno. 11:47 PM.\"**\n\n*   **Human Guard Model:** **No**, there is no human guard model visible in this frame. The scene appears to be empty of characters.\n*   **Textured:** The environment is partially textured. You can see a distinct **black and white checkered pattern** on the surface in the bottom-left corner (likely a table or floor). The walls appear to have vertical paneling or corrugated textures, though they are mostly obscured by shadow.\n*   **Pose:** N/A (No character models are present to assess pose).\n*   **Lighting Darkness:** The lighting is **extremely dark**. It is a low-light environment with heavy shadows, creating a suspenseful or horror-like atmosphere. Only small portions of the geometry are illuminated enough to discern the checkered texture and wall lines.\n*   **Letterbox:** **Yes**, the image utilizes **letterboxing**. There are prominent black bars at the top and bottom of the screen, framing the cinematic view.\n\n**Additional UI Elements:**\n*   There is a red notification badge in the bottom-left corner reading \"1 Issue\".\n*   There are skip instructions in the bottom-right corner: \"SALTAR [E] - ESC PARA OMITIR TODA\" (Spanish for \"SKIP [E] - ESC TO SKIP ALL\").",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792121527,
+  "id": "2026101611315860666f91a9fe4599",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101611315860666f91a9fe4599",
+  "usage": {
+    "completion_tokens": 326,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 910,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1236
+  }
+}

@@ -22,6 +22,7 @@ import { mapData } from '../ai/mapdata';
 import { Assets, type GltfRig } from '../world/assets';
 import { disposeTextures } from '../world/textures';
 import { disposeMaterials } from '../world/materials';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 type StoryTape = { id: string; title: string; location: string; text: string };
 type StoryNote = { id: string; title: string; location: string; text: string };
@@ -69,9 +70,11 @@ export class Game {
   private interactPressed = false;
   private menuRig: GltfRig | null = null;
   private menuTwitchT = 0;
+  private menuSpot: THREE.SpotLight | null = null;
   private flashlightModel: THREE.Object3D | null = null;
   private flashlightLens: THREE.Mesh | null = null;
   private chapterEndPending = false;
+  private powerOut = false;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -86,7 +89,7 @@ export class Game {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.12;
+    this.renderer.toneMappingExposure = 1.0;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const save = loadSave();
@@ -95,10 +98,20 @@ export class Game {
     useHud.getState().setProgress(save.unlockedChapter, save.tapes);
     this.audio.setVolumes(save.settings.master, save.settings.music, save.settings.sfx);
 
-    this.scene.background = new THREE.Color(0x030304);
-    this.scene.fog = new THREE.FogExp2(0x05060a, 0.042);
-    const hemi = new THREE.HemisphereLight(0x2a3040, 0x060608, 0.8);
+    // noche cerrada: fondo casi negro + niebla densa
+    this.scene.background = new THREE.Color(0x010102);
+    this.scene.fog = new THREE.FogExp2(0x030407, 0.065);
+    // hemisferio casi nulo: el edificio está a oscuras, la linterna es esencial
+    const hemi = new THREE.HemisphereLight(0x11131c, 0x020203, 0.05);
     this.scene.add(hemi);
+
+    // entorno PMREM sutil: reflejos especulares realistas en metales y suelos
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    const envScene = new RoomEnvironment();
+    const envRT = pmrem.fromScene(envScene, 0.06);
+    this.scene.environment = envRT.texture;
+    (this.scene as THREE.Scene & { environmentIntensity: number }).environmentIntensity = 0.12;
+    pmrem.dispose();
 
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.08, 70);
     this.scene.add(this.camera);
@@ -126,6 +139,7 @@ export class Game {
       power: this.power,
     });
     this.attachFlashlightModel();
+    this.buildGuardArms();
 
     onProgress(0.9, 'Despertando a los animatrónicos...');
     const host = this.makeAIHost();
@@ -141,14 +155,6 @@ export class Game {
 
     this.buildDust();
 
-    // Foxy inerte en el taller (ragdoll del propio modelo)
-    const slumped = Assets.createSlumpedFoxy();
-    if (slumped) {
-      slumped.position.set(-17.5, 0.92, 1.2);
-      slumped.rotation.y = 2.4;
-      this.world.root.add(slumped);
-    }
-
     this.setupInput();
     onProgress(0.97, 'Listo...');
     this.enterMenu();
@@ -156,25 +162,105 @@ export class Game {
     onProgress(1, 'Completado');
   }
 
-  /** modelo GLB de la linterna en primera persona */
+  /** modelo GLB de la linterna en primera persona (tamaño real, mano derecha) */
   private attachFlashlightModel() {
     const rig = Assets.rigs.get('flashlight');
     if (!rig) return;
     const model = rig.root;
-    model.position.set(0.26, -0.22, -0.42);
-    model.rotation.set(0.1, 0, 0);
-    model.scale.setScalar(rig.height / 0.26 * 1.1);
+    // el GLB ya está normalizado a ~19 cm por su eje Z (la cabeza apunta a -Z)
+    model.position.set(0.3, -0.27, -0.44);
+    model.rotation.set(0.05, -0.09, 0.02);
     model.visible = false;
     this.camera.add(model);
     this.flashlightModel = model;
-    // lente emisiva
+    // lente emisiva en la cabeza del frontal (-Z)
     const lens = new THREE.Mesh(
-      new THREE.CircleGeometry(0.035, 12),
+      new THREE.CircleGeometry(0.022, 16),
       new THREE.MeshStandardMaterial({ color: 0xfff6d8, emissive: 0xffeeb0, emissiveIntensity: 0 })
     );
-    lens.position.set(0, 0.02, -0.14);
+    lens.position.set(0, 0.0, -0.1);
+    lens.rotation.y = Math.PI;
     model.add(lens);
     this.flashlightLens = lens;
+  }
+
+  /** brazos del guardia en primera persona sosteniendo la linterna */
+  private guardArms: THREE.Group | null = null;
+  private guardArmsSway = new THREE.Quaternion();
+
+  private buildGuardArms() {
+    const skinTex = Assets.textures?.guardSkin;
+    const clothTex = Assets.textures?.guardUniform;
+    const group = new THREE.Group();
+
+    const skinMat = new THREE.MeshStandardMaterial({
+      map: skinTex ?? null, color: skinTex ? 0xffffff : 0xb08a68, roughness: 0.72, metalness: 0,
+    });
+    const clothMat = new THREE.MeshStandardMaterial({
+      map: clothTex ?? null, color: clothTex ? 0xffffff : 0x27292e, roughness: 0.88, metalness: 0,
+    });
+
+    /** miembro cilíndrico del punto A al B (espacio de cámara) */
+    const limb = (a: THREE.Vector3, b: THREE.Vector3, rA: number, rB: number, mat: THREE.Material) => {
+      const len = a.distanceTo(b);
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(rA, rB, len, 10), mat);
+      m.position.copy(a).add(b).multiplyScalar(0.5);
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize());
+      return m;
+    };
+
+    // ---- brazo derecho: antebrazo visible desde el borde inferior-derecho ----
+    // manga (uniforme) + puño remangado (piel) + mano
+    group.add(limb(new THREE.Vector3(0.5, -0.42, -0.1), new THREE.Vector3(0.38, -0.33, -0.24), 0.066, 0.056, clothMat));
+    group.add(limb(new THREE.Vector3(0.38, -0.33, -0.24), new THREE.Vector3(0.32, -0.29, -0.33), 0.052, 0.046, skinMat));
+    const handR = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.04, 0.09), skinMat);
+    handR.position.set(0.305, -0.26, -0.38);
+    handR.rotation.y = -0.15;
+    const thumbR = new THREE.Mesh(new THREE.BoxGeometry(0.019, 0.018, 0.048), skinMat);
+    thumbR.position.set(0.283, -0.242, -0.36);
+    group.add(handR, thumbR);
+
+    // ---- brazo izquierdo: sujeta el frente por debajo ----
+    group.add(limb(new THREE.Vector3(-0.36, -0.52, -0.12), new THREE.Vector3(-0.08, -0.42, -0.28), 0.064, 0.054, clothMat));
+    group.add(limb(new THREE.Vector3(-0.08, -0.42, -0.28), new THREE.Vector3(0.05, -0.37, -0.38), 0.05, 0.045, skinMat));
+    const handL = new THREE.Mesh(new THREE.BoxGeometry(0.054, 0.044, 0.088), skinMat);
+    handL.position.set(0.13, -0.33, -0.43);
+    handL.rotation.set(0.2, -0.5, 0);
+    const fingersL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.034, 0.052), skinMat);
+    fingersL.position.set(0.18, -0.31, -0.48);
+    fingersL.rotation.set(0.2, -0.5, 0);
+    group.add(handL, fingersL);
+
+    group.traverse((o) => {
+      if (o instanceof THREE.Mesh) {
+        o.castShadow = false;
+        o.receiveShadow = false;
+        o.frustumCulled = false;
+      }
+    });
+    group.visible = false;
+    this.camera.add(group);
+    this.guardArms = group;
+  }
+
+  /** balanceo de los brazos en primera persona según el paso del jugador */
+  private updateGuardArms(dt: number) {
+    if (!this.guardArms || !this.guardArms.visible) return;
+    const t = performance.now() / 1000;
+    const speed = Math.hypot(this.player.vel.x, this.player.vel.z);
+    const bobY = Math.sin(t * speed * 2.3) * Math.min(0.02, speed * 0.006);
+    const bobX = Math.cos(t * speed * 1.15) * Math.min(0.014, speed * 0.004);
+    this.guardArms.position.set(bobX, bobY, 0);
+    const target = new THREE.Quaternion().setFromEuler(
+      new THREE.Euler(Math.sin(t * speed * 2.3) * 0.012 + Math.sin(t * 1.1) * 0.006, 0, Math.cos(t * speed * 1.15) * 0.01)
+    );
+    this.guardArmsSway.slerp(target, Math.min(1, dt * 8));
+    this.guardArms.quaternion.copy(this.guardArmsSway);
+    // lente de la linterna brilla al encender
+    if (this.flashlightLens) {
+      const m = this.flashlightLens.material as THREE.MeshStandardMaterial;
+      m.emissiveIntensity = this.player.flashlightOn ? 2.8 : 0.04;
+    }
   }
 
   private makeAIHost(): AIHost {
@@ -254,6 +340,15 @@ export class Game {
     } else if (this.menuRig) {
       this.scene.add(this.menuRig.root);
     }
+    // foco cenital tenue sobre Freddy (visible entre la estática)
+    if (!this.menuSpot) {
+      const spot = new THREE.SpotLight(0xcfd8e8, 60, 9, 0.55, 0.5, 1.6);
+      spot.position.set(0.4, 3.05, 12.9);
+      spot.target.position.set(0, 2.1, 11.2);
+      this.scene.add(spot, spot.target);
+      this.menuSpot = spot;
+    }
+    this.menuSpot.intensity = 60;
     this.audio.setStatic(0);
     this.audio.setBreathing(false);
     this.audio.setChase(false);
@@ -263,12 +358,12 @@ export class Game {
 
   private menuCamera(dt: number) {
     const t = performance.now() / 1000;
-    // cámara fija frente al rostro de Freddy (que está en z=11.2 mirando al sur) con deriva sutil
-    this.camera.position.set(Math.sin(t * 0.07) * 0.08, 1.72 + Math.sin(t * 0.11) * 0.02, 12.75);
+    // cámara fija frente al rostro de Freddy (2.6 m: mirar ligeramente hacia arriba)
+    this.camera.position.set(Math.sin(t * 0.07) * 0.08, 2.18 + Math.sin(t * 0.11) * 0.02, 12.5);
     this.camera.rotation.set(0, 0, 0);
     this.camera.rotation.order = 'YXZ';
     this.camera.rotation.y = 0 + Math.sin(t * 0.05) * 0.03;
-    this.camera.rotation.x = -0.04;
+    this.camera.rotation.x = 0.1;
     // espasmos de cabeza de Freddy
     if (this.menuRig) {
       this.menuTwitchT -= dt;
@@ -303,8 +398,13 @@ export class Game {
     this.noises = [];
     this.danger = 0;
     this.chapterEndPending = false;
-    // quitar Freddy del menú
+    this.powerOut = false;
+    // quitar Freddy del menú y su foco
     if (this.menuRig) this.scene.remove(this.menuRig.root);
+    if (this.menuSpot) this.menuSpot.intensity = 0;
+    // ocultar linterna/brazos hasta recogerla de nuevo
+    if (this.flashlightModel) this.flashlightModel.visible = false;
+    if (this.guardArms) this.guardArms.visible = false;
     this.world.reset();
     this.player.reset();
     for (const a of this.animatronics) a.reset();
@@ -653,6 +753,7 @@ export class Game {
           this.missions.completeObjective('c1_gear');
           this.notify('Linterna equipada [F]');
           if (this.flashlightModel) this.flashlightModel.visible = true;
+          if (this.guardArms) this.guardArms.visible = true;
         },
       });
     }
@@ -999,10 +1100,7 @@ export class Game {
       ai.rig.root.position.copy(ai.pos);
       ai.yaw = Math.atan2(dir.x, dir.z);
       ai.rig.root.rotation.y = ai.yaw;
-      const b = ai.rig.bones;
-      if (b.armL) ai.swingPublic(b.armL, -2.2);
-      if (b.armR) ai.swingPublic(b.armR, -2.2);
-      if (b.jaw) ai.swingPublic(b.jaw, 0.5);
+      ai.poseDying(dt);
       this.player.setShake(1.2);
     }
     this.deathTimer -= dt;
@@ -1163,7 +1261,9 @@ export class Game {
     const st = useHud.getState();
     const tabletRendering = st.tabletOpen && this.mode === 'playing';
     // la tableta renderiza con más exposición (visión nocturna de las cámaras)
-    this.renderer.toneMappingExposure = tabletRendering ? 2.15 : 1.12;
+    this.renderer.toneMappingExposure = tabletRendering ? 3.0 : 1.0;
+    // brazos del guardia en primera persona
+    if (this.mode === 'playing') this.updateGuardArms(dt);
     const activeCam = tabletRendering ? this.cams.camera : this.camera;
     this.renderer.render(this.scene, activeCam);
   };
@@ -1235,9 +1335,14 @@ export class Game {
     this.power = Math.max(0, this.power - drain * dt);
     this.world.setPowerFactor(this.power > 25 ? 1 : this.power / 25);
     if (this.power <= 0) {
+      // apagón total: solo quedan las rojas de emergencia
       for (const r of this.world.rooms.values()) r.lightOn = false;
-    } else if (this.power > 3) {
-      for (const r of this.world.rooms.values()) r.lightOn = true;
+      this.powerOut = true;
+    } else if (this.powerOut && this.power > 30) {
+      // red recuperada: vuelve la tenue luz de la oficina
+      this.powerOut = false;
+      const office = this.world.rooms.get('office');
+      if (office) office.lightOn = true;
     }
 
     // puertas animadas
@@ -1316,7 +1421,8 @@ export class Game {
     this.audio.danger = danger;
     this.audio.setChase(chase);
 
-    // mundo (luces)
+    // mundo (luces); en modo tableta se impulsa la sala del feed
+    this.world.camView = st.tabletOpen;
     const focus = st.tabletOpen ? this.cams.camera.position : this.player.pos;
     this.world.update(dt, focus);
     this.updateDust(dt);

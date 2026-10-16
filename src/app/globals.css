@@ -227,6 +227,146 @@
   cursor: not-allowed;
 }
 
+/* HUD FNAF: monoespaciado, discreto, blanco sobre negro */
+.fnaf-mono {
+  font-family: 'Courier New', 'Courier', monospace;
+  font-weight: 700;
+  color: #e8e6dc;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.95), 0 1px 2px rgba(0, 0, 0, 1);
+}
+.fnaf-dim {
+  color: #6e6a5e;
+}
+.fnaf-gold {
+  color: #d8b13a;
+}
+.fnaf-red {
+  color: #c83428;
+}
+.fnaf-green {
+  color: #5a9a55;
+}
+
+/* widget de batería estilo linterna */
+.battery-widget {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.battery-shell {
+  position: relative;
+  width: 64px;
+  height: 16px;
+  border: 2px solid #8a867a;
+  border-radius: 3px;
+  padding: 2px;
+}
+.battery-shell::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 4px;
+  width: 4px;
+  height: 6px;
+  background: #8a867a;
+  border-radius: 0 2px 2px 0;
+}
+.battery-cells {
+  display: flex;
+  gap: 2px;
+  height: 100%;
+}
+.battery-cell {
+  flex: 1;
+  background: #2a2a26;
+}
+.battery-cell.on {
+  background: #d8b13a;
+  box-shadow: 0 0 5px rgba(216, 177, 58, 0.6);
+}
+.battery-cell.on.low {
+  background: #c83428;
+  box-shadow: 0 0 6px rgba(200, 52, 40, 0.8);
+}
+
+/* etiqueta de tecla estilo FNAF */
+.key-badge {
+  display: inline-block;
+  min-width: 26px;
+  text-align: center;
+  padding: 1px 6px;
+  border: 1px solid #8a867a;
+  border-radius: 3px;
+  background: rgba(10, 10, 12, 0.85);
+  color: #d8b13a;
+  font-size: 0.8em;
+  margin-right: 7px;
+}
+
+/* lista de objetivos */
+.fnaf-objectives p {
+  line-height: 1.85;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #cfcabc;
+  transition: opacity 0.3s;
+}
+.fnaf-objectives p.done {
+  color: #4a8a55;
+  text-decoration: line-through;
+  text-decoration-color: rgba(74, 138, 85, 0.7);
+}
+.fnaf-objectives p.opt {
+  opacity: 0.55;
+}
+
+/* aviso de prompt central */
+.fnaf-prompt {
+  display: flex;
+  align-items: center;
+  background: rgba(6, 6, 8, 0.78);
+  border: 1px solid rgba(200, 190, 170, 0.22);
+  padding: 0.5rem 1.3rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+}
+
+/* tableta: etiqueta CAM grande + marca de agua */
+.cam-label {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.12em;
+  color: #c8e8cf;
+  text-shadow: 0 0 8px rgba(80, 220, 110, 0.5);
+}
+.cam-sub {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: #5a9a55;
+}
+
+/* menú: título grande grunge */
+.fnaf-title {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 4.6rem;
+  letter-spacing: 0.14em;
+  color: #e8e2d0;
+  line-height: 0.95;
+  text-shadow:
+    0 0 22px rgba(255, 60, 40, 0.3),
+    0 2px 0 rgba(0, 0, 0, 0.8),
+    0 0 2px #fff;
+}
+.fnaf-subtitle {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  letter-spacing: 0.5em;
+  color: #6a655a;
+}
+
 /* HUD */
 .hud-corner {
   position: absolute;

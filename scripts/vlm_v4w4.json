@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Looking at this image, I can see this is a **first-person perspective** (FNAF-style) game view showing a hallway with a checkered floor.\n\n**Answer: NO - The pose does NOT look different/animated.**\n\n**Reasoning:**\n- This is a **static first-person camera view** - there is **no visible character body**, legs, or arms in the frame to animate\n- The image shows only the environment (hallway, floor, walls, furniture) and UI elements (objective list, \"capture the rat\" prompt)\n- Since no walking character model is visible, there are **no leg positions or arm swings to compare** between animation frames\n- The scene appears to be a stationary moment in gameplay where the player is likely looking at an interactive object or reading instructions\n\nIn first-person horror games like this (appears to be *Five Nights at Freddy's: Help Wanted* or similar), the player's body is typically not rendered, so stride phase changes or limb swapping would not be visible even if the character were moving.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792124513,
+  "id": "20261016122148be10afd7c22f4177",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016122148be10afd7c22f4177",
+  "usage": {
+    "completion_tokens": 217,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 921,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1138
+  }
+}

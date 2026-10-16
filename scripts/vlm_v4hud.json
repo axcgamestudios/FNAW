@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the screenshot provided, here is a detailed description of the HUD (Heads-Up Display) elements:\n\n**1. Objectives List (Top-Left)**\n*   **Location:** Positioned in the upper-left corner.\n*   **Content:** It displays the current chapter (\"CAPÍTULO 01\") and mission title (\"TURNO DE PRUEBA\"). Below that is a checklist of objectives in Spanish, marked with empty square bullets (☐):\n    *   Recoge la linterna y la tablet (Get the flashlight and tablet)\n    *   Encuentra 2 fusibles de repuesto (Find 2 spare fuses)\n    *   Repara el panel de la oficina (Repair the office panel)\n    *   Comprueba las cámaras de vigilancia (Check the security cameras)\n    *   Vuelve a la oficina (Return to the office)\n\n**2. Status Indicators (Bottom-Left)**\n*   **Battery Indicator:** There isn't a traditional segmented battery bar visible. Instead, there is a small icon (likely representing the flashlight or battery) located just to the left of the text.\n*   **Flashlight Status:** Immediately to the right of the icon, text reads **\"LINTERNA OFF [F]\"**, indicating the flashlight is currently **OFF** and can be toggled with the **[F]** key.\n*   **Notification:** There is a prominent red rounded rectangle containing an \"N\" icon and the text \"**1Issue x**\", likely indicating an active issue or notification count.\n\n**3. Control Hints (Bottom-Right)**\n*   Located in the lower-right corner, listing context-sensitive actions:\n    *   **[Q] MÁSCARA** (Mask)\n    *   **[C] - CÁMARAS** (Cameras)\n\n**4. Typography Style**\n*   **Yes, the typography is monospaced and clean.** The font resembles a **terminal or typewriter style** (similar to Courier or Consolas). The characters have uniform width, sharp edges, and high contrast (white text on dark background), which contributes to the retro/indie horror aesthetic.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792121923,
+  "id": "202610161138380d89b85180644a67",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610161138380d89b85180644a67",
+  "usage": {
+    "completion_tokens": 448,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 928,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1376
+  }
+}

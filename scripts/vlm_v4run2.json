@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided:\n\n1)  **It is sliding stiffly (T-pose/standing pose).** The animatronic is **not** in a walking or running animation. It is standing upright with both feet planted firmly on the ground and legs straight, resembling a static \"T-pose\" or idle stance rather than a dynamic chase movement.\n\n2)  **Yes, it looks significantly bigger than a human.** The animatronic towers over the environment; its head is near the ceiling of the hallway, and its massive torso and limbs would dwarf a standard human figure.\n\n3)  **Pose description:**\n    *   **Legs:** Both legs are straight and together (or slightly apart), with **neither leg forward** in a stride.\n    *   **Arms:** The arms are held out to the sides in a rigid, slightly bent position (resembling a T-pose). The right hand (viewer's left) is open/palm-up, while the left hand (viewer's right) appears to be holding an object (possibly the flashlight or a tool).\n    *   **Mouth:** The jaw is wide open in a scream or aggressive grin, revealing rows of sharp teeth and glowing red eyes/endoskeleton inside.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792123982,
+  "id": "202610161212548bd8f83412644288",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610161212548bd8f83412644288",
+  "usage": {
+    "completion_tokens": 258,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 963,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1221
+  }
+}

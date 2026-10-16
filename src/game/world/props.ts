@@ -4,7 +4,7 @@
  */
 import * as THREE from 'three';
 import { woodMaterial, metalMaterial, darkMetalMaterial, plasticMaterial } from './materials';
-import { posterBruno, posterParty, kidDrawing, screenStaticTex } from './textures';
+import { posterBruno, posterParty, kidDrawing, screenStaticTex, pirateCurtainTex, outOfOrderTex, pirateCoveSignTex } from './textures';
 import { Assets } from './assets';
 import type { WorldBuilder } from './worldbuilder';
 
@@ -260,40 +260,58 @@ function buildOffice(world: WorldBuilder) {
   world.root.add(monitor);
   world.anchors.set('desk_monitor', { pos: new THREE.Vector3(-0.9, 1.28, 13.3), mesh: monitor });
 
-  // Ventilador de mesa animado
+  // Ventilador de mesa FNAF2 (metal verde-negro, jaula con radios)
   const fan = new THREE.Group();
-  const fanBase = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.14, 0.06, 10), darkMetalMaterial());
-  const fanPost = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.28, 8), darkMetalMaterial());
-  fanPost.position.y = 0.16;
-  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.1, 8), darkMetalMaterial());
+  const fanGreen = new THREE.MeshStandardMaterial({ color: 0x2a3a2a, roughness: 0.55, metalness: 0.6 });
+  const fanBase = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.16, 0.05, 12), fanGreen);
+  const fanPost = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.034, 0.3, 10), fanGreen);
+  fanPost.position.y = 0.17;
+  const motor = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.09, 6, 10), fanGreen);
+  motor.rotation.x = Math.PI / 2;
+  motor.position.set(0, 0.36, 0.03);
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.09, 10), darkMetalMaterial());
   hub.rotation.x = Math.PI / 2;
-  hub.position.set(0, 0.34, 0.04);
+  hub.position.set(0, 0.36, 0.05);
   const blades = new THREE.Group();
-  for (let i = 0; i < 3; i++) {
-    const bl = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.015, 0.06), plasticMaterial(0x9b9488, 0.5));
-    bl.position.x = 0.1;
+  for (let i = 0; i < 4; i++) {
+    const bl = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.014, 0.055), plasticMaterial(0x8a8878, 0.45, 0.2));
+    bl.position.x = 0.085;
+    bl.rotation.x = 0.5;
     const h = new THREE.Group();
     h.add(bl);
-    h.rotation.z = (i / 3) * Math.PI * 2;
+    h.rotation.z = (i / 4) * Math.PI * 2;
     blades.add(h);
   }
-  blades.position.set(0, 0.34, 0.06);
-  const cage = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.01, 6, 18), darkMetalMaterial());
-  cage.position.set(0, 0.34, 0.07);
-  fan.add(fanBase, fanPost, hub, blades, cage);
-  fan.position.set(0.6, 0.82, 13.5);
+  blades.position.set(0, 0.36, 0.07);
+  // jaula protectora: dos aros + radios
+  const cageFront = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.008, 6, 20), darkMetalMaterial());
+  cageFront.position.set(0, 0.36, 0.1);
+  const cageBack = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.008, 6, 20), darkMetalMaterial());
+  cageBack.position.set(0, 0.36, 0.0);
+  const spokes = new THREE.Group();
+  for (let i = 0; i < 8; i++) {
+    const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.3, 6), darkMetalMaterial());
+    sp.rotation.z = (i / 8) * Math.PI;
+    spokes.add(sp);
+  }
+  spokes.position.set(0, 0.36, 0.05);
+  fan.add(fanBase, fanPost, motor, hub, blades, cageFront, cageBack, spokes);
+  fan.position.set(0.62, 0.82, 13.45);
+  fan.rotation.y = -0.35;
+  fan.traverse((o) => {
+    if (o instanceof THREE.Mesh) { o.castShadow = true; }
+  });
   world.root.add(fan);
-  world.propAnims.push({ update: (dt) => { blades.rotation.z += dt * 14; } });
+  world.propAnims.push({ update: (dt) => { blades.rotation.z += dt * 16; } });
 
   // Prop de linterna (modelo GLB real) + tableta (recogibles capítulo 1)
   const torch = new THREE.Group();
   const glbTorch = Assets.rigs.get('flashlight');
   if (glbTorch) {
     const torchModel = glbTorch.root.clone(true);
-    torchModel.scale.multiplyScalar(1.1);
     torchModel.rotation.z = Math.PI / 2;
     torchModel.rotation.y = 0.4;
-    torchModel.position.y = 0.12;
+    torchModel.position.y = 0.1;
     torch.add(torchModel);
   } else {
     const torchBody = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.24, 10), metalMaterial([0.4, 0.4]));
@@ -319,10 +337,120 @@ function buildOffice(world: WorldBuilder) {
   world.root.add(tabG);
   world.anchors.set('desk_tablet', { pos: new THREE.Vector3(1.1, 0.86, 13.8), mesh: tabG });
 
+  // cupcake de Chica sobre el escritorio (pastel rosa con ojos y vela)
+  const cupcake = new THREE.Group();
+  const cakeBase = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.05, 0.04, 0.045, 12),
+    new THREE.MeshStandardMaterial({ color: 0x9a5a3a, roughness: 0.8 })
+  );
+  cakeBase.position.y = 0.022;
+  const frosting = new THREE.Mesh(
+    new THREE.ConeGeometry(0.052, 0.05, 12),
+    plasticMaterial(0xe88ab0, 0.4, 0.5)
+  );
+  frosting.position.y = 0.062;
+  const candle = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.05, 6), plasticMaterial(0xd8d2c2, 0.5));
+  candle.position.y = 0.1;
+  const flame = new THREE.Mesh(
+    new THREE.SphereGeometry(0.009, 8, 6),
+    new THREE.MeshStandardMaterial({ color: 0xffd070, emissive: 0xffa020, emissiveIntensity: 2.2 })
+  );
+  flame.position.y = 0.132;
+  for (const ex of [-0.02, 0.02]) {
+    const eye = new THREE.Mesh(
+      new THREE.SphereGeometry(0.013, 10, 8),
+      new THREE.MeshStandardMaterial({ color: 0xf0f0e8, emissive: 0x88ff99, emissiveIntensity: 1.1 })
+    );
+    eye.position.set(ex, 0.07, 0.042);
+    const pupil = new THREE.Mesh(
+      new THREE.SphereGeometry(0.006, 8, 6),
+      new THREE.MeshStandardMaterial({ color: 0x101010 })
+    );
+    pupil.position.set(ex, 0.07, 0.052);
+    cupcake.add(eye, pupil);
+  }
+  cupcake.add(cakeBase, frosting, candle, flame);
+  cupcake.position.set(2.3, 0.82, 13.75);
+  world.root.add(cupcake);
+  world.propAnims.push({
+    update: (_dt, t) => {
+      flame.scale.setScalar(0.85 + Math.sin(t * 11) * 0.18 + Math.random() * 0.06);
+      (flame.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.8 + Math.sin(t * 9) * 0.5;
+    },
+  });
+
+  // gorrito de fiesta en el escritorio
+  const partyHat = new THREE.Mesh(
+    new THREE.ConeGeometry(0.05, 0.14, 10),
+    plasticMaterial(0x3a8ad8, 0.4, 0.6)
+  );
+  partyHat.position.set(-1.95, 0.895, 13.9);
+  partyHat.rotation.z = 0.18;
+  world.root.add(partyHat);
+
+  // radios del techo colgando (chismes sucios)
+  const wirePts: Array<[number, number, number]> = [
+    [-2.5, 3.2, 11.5], [-1.5, 2.55, 12.2], [-0.2, 2.6, 12.6], [1.1, 2.5, 12.4],
+  ];
+  const wireCurve = new THREE.CatmullRomCurve3(wirePts.map((p) => new THREE.Vector3(...p)));
+  const wire = new THREE.Mesh(
+    new THREE.TubeGeometry(wireCurve, 24, 0.014, 6),
+    new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: 0.9 })
+  );
+  world.root.add(wire);
+  const wire2Pts: Array<[number, number, number]> = [
+    [2.5, 3.2, 15.5], [1.8, 2.6, 14.8], [0.8, 2.68, 14.2],
+  ];
+  const wire2 = new THREE.Mesh(
+    new THREE.TubeGeometry(new THREE.CatmullRomCurve3(wire2Pts.map((p) => new THREE.Vector3(...p))), 20, 0.012, 6),
+    new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: 0.9 })
+  );
+  world.root.add(wire2);
+
+  // Cámaras de vigilancia en las esquinas de la oficina (una vigilando al guardia)
+  const buildWallCam = (x: number, z: number, ry: number) => {
+    const cam = new THREE.Group();
+    const mount = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.22, 8), darkMetalMaterial());
+    mount.rotation.z = Math.PI / 2.6;
+    mount.position.set(0, 0.05, 0.05);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.11, 0.24), plasticMaterial(0x2a2c30, 0.55));
+    body.position.set(0.05, 0.12, 0.02);
+    const lens = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.035, 0.04, 0.06, 10),
+      new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.25, metalness: 0.7 })
+    );
+    lens.rotation.z = Math.PI / 2;
+    lens.position.set(0.19, 0.12, 0.02);
+    const led = new THREE.Mesh(
+      new THREE.SphereGeometry(0.008, 6, 6),
+      new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0xff2222, emissiveIntensity: 2.5 })
+    );
+    led.position.set(0.05, 0.19, 0.13);
+    cam.add(mount, body, lens, led);
+    cam.position.set(x, 2.72, z);
+    cam.rotation.y = ry;
+    cam.traverse((o) => { if (o instanceof THREE.Mesh) o.castShadow = true; });
+    world.root.add(cam);
+    world.propAnims.push({
+      update: (_dt, t) => {
+        // parpadeo del LED y vaivén lento del cuerpo (servo)
+        (led.material as THREE.MeshStandardMaterial).emissiveIntensity = Math.sin(t * 3.2) > 0 ? 2.5 : 0.4;
+        body.rotation.y = Math.sin(t * 0.35 + x) * 0.12;
+      },
+    });
+    return cam;
+  };
+  buildWallCam(-5.5, 10.2, Math.PI / 2 + 0.5);   // esquina NO mirando a la puerta sur
+  buildWallCam(5.5, 16.2, -Math.PI / 2 - 0.4);   // esquina SE mirando al escritorio
+
   // Archivadores
   for (const [dx, dz] of [[-5.2, 10.5], [-5.2, 11.7]] as Array<[number, number]>) {
     box(0.55, 1.35, 0.6, darkMetalMaterial(), dx, 0.675, dz, 0, true, world);
   }
+  // Cajas apiladas en la esquina
+  const boxMat = new THREE.MeshStandardMaterial({ color: 0x6b5a3e, roughness: 0.88 });
+  box(0.55, 0.42, 0.55, boxMat, 5.45, 0.21, 10.3, 0.2, true, world);
+  box(0.46, 0.36, 0.46, boxMat, 5.42, 0.6, 10.32, -0.14, false, world);
   // Silla de oficina
   const chair = new THREE.Group();
   const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 0.5), plasticMaterial(0x2a2a2e, 0.7));
@@ -352,9 +480,32 @@ function buildOffice(world: WorldBuilder) {
   world.root.add(panel);
   world.anchors.set('office_panel', { pos: new THREE.Vector3(-5.6, 1.5, 13), mesh: panel });
 
-  // Póster y pizarra
+  // Pósters, dibujos infantiles y corcho con notas
   addPoster(world, posterBruno(), -2.5, 1.9, 16.9, Math.PI);
   addPoster(world, posterParty(), 2.8, 1.9, 16.9, Math.PI);
+  addDrawing(world, 3, -1.3, 1.75, 16.9, Math.PI);
+  addDrawing(world, 1, 4.1, 1.75, 16.9, Math.PI);
+  addDrawing(world, 2, -3.6, 1.7, 9.14, 0);
+  // fila de dibujos en la pared oeste
+  addDrawing(world, 4, -5.86, 1.8, 11.5, Math.PI / 2);
+  addDrawing(world, 5, -5.86, 1.8, 12.6, Math.PI / 2);
+  // corcho con avisos
+  const cork = new THREE.Mesh(
+    new THREE.BoxGeometry(1.1, 0.8, 0.04),
+    new THREE.MeshStandardMaterial({ color: 0x8a6a44, roughness: 0.95 })
+  );
+  cork.position.set(5.86, 1.85, 12.4);
+  cork.rotation.y = -Math.PI / 2;
+  world.root.add(cork);
+  for (let i = 0; i < 4; i++) {
+    const note = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.2, 0.24),
+      new THREE.MeshStandardMaterial({ color: [0xd9d2be, 0xcfd8c8, 0xd8ccb8, 0xd2c8d8][i], roughness: 0.9 })
+    );
+    note.position.set(5.82, 1.65 + (i % 2) * 0.35, 12.05 + ((i / 2) | 0) * 0.42);
+    note.rotation.set(0, -Math.PI / 2, (Math.random() - 0.5) * 0.3);
+    world.root.add(note);
+  }
   // Nota del esquema maestro (lore / misión 5)
   const noteM = new THREE.Mesh(
     new THREE.PlaneGeometry(0.24, 0.3),
@@ -366,14 +517,23 @@ function buildOffice(world: WorldBuilder) {
   world.anchors.set('note_master', { pos: new THREE.Vector3(4.9, 1.4, 16.9), mesh: noteM });
   world.anchors.set('tape_office', { pos: new THREE.Vector3(-4.8, 1.2, 16.8) });
 
-  // Taza de café y papeles
+  // Taza de café, papeles y walkie sobre el escritorio
   const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.035, 0.09, 8), plasticMaterial(0xd8d2c2, 0.6));
   cup.position.set(-1.7, 0.87, 13.9);
   world.root.add(cup);
-  const papers = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.01, 0.2), plasticMaterial(0xc9c2ae, 0.9));
-  papers.position.set(-1.9, 0.83, 13.5);
-  papers.rotation.y = 0.5;
-  world.root.add(papers);
+  for (let i = 0; i < 3; i++) {
+    const papers = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.008, 0.19), plasticMaterial(0xc9c2ae, 0.9));
+    papers.position.set(-1.9 + i * 0.06, 0.83 + i * 0.009, 13.5 - i * 0.05);
+    papers.rotation.y = 0.4 + i * 0.5;
+    world.root.add(papers);
+  }
+  const walkie = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.16, 0.03), plasticMaterial(0x1a1c20, 0.6));
+  walkie.position.set(0.15, 0.91, 13.95);
+  walkie.rotation.y = -0.6;
+  world.root.add(walkie);
+  const walkieAnt = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.12, 6), darkMetalMaterial());
+  walkieAnt.position.set(0.12, 1.03, 13.94);
+  world.root.add(walkieAnt);
 }
 
 function buildStage(world: WorldBuilder) {
@@ -503,53 +663,144 @@ function buildDining(world: WorldBuilder) {
 }
 
 function buildKidsCove(world: WorldBuilder) {
-  // Foso de bolas
-  box(4.4, 0.35, 3.4, plasticMaterial(0x3a5a8a, 0.6, 0.3), 9.5, 0.175, 1.5, 0, false, world);
-  const ballMat = [
-    plasticMaterial(0xd84a4a, 0.35, 0.6), plasticMaterial(0xd8b13a, 0.35, 0.6),
-    plasticMaterial(0x4a8fd8, 0.35, 0.6), plasticMaterial(0x4ad86e, 0.35, 0.6),
-  ];
-  const ballGeo = new THREE.SphereGeometry(0.09, 10, 8);
-  const balls = new THREE.InstancedMesh(ballGeo, ballMat[0], 220);
-  const dummy = new THREE.Object3D();
-  let bi = 0;
-  for (let ix = 0; ix < 22 && bi < 220; ix++) {
-    for (let iz = 0; iz < 10 && bi < 220; iz++) {
-      dummy.position.set(7.5 + 0.2 + ix * 0.19 + Math.random() * 0.05, 0.38, 0.1 + iz * 0.33 + Math.random() * 0.05,);
-      dummy.updateMatrix();
-      balls.setMatrixAt(bi, dummy.matrix);
-      balls.setColorAt(bi, new THREE.Color([0xd84a4a, 0xd8b13a, 0x4a8fd8, 0x4ad86e][bi % 4]));
-      bi++;
-    }
+  /* ============ LA CALA DEL PIRATA (guarida de Foxy) ============ */
+  // Sala: x [3,13], z [-3.5,5]. El telón cierra el norte con un hueco central
+  // por donde Foxy asoma la cabeza (FNAF Pirate Cove).
+
+  // tarima baja de la cala (visual, sin colisión para no bloquear a la IA)
+  const platMat = woodMaterial([3, 1.6]);
+  box(7.6, 0.16, 1.0, platMat, 8, 0.08, -3.0, 0, false, world);
+
+  // telón estrellado púrpura: dos paños laterales con hueco central (x=8)
+  const curtainMat = new THREE.MeshStandardMaterial({
+    map: pirateCurtainTex(),
+    roughness: 0.92,
+    side: THREE.DoubleSide,
+  });
+  const curtainPanel = (x: number, w: number) => {
+    const cur = new THREE.Mesh(new THREE.BoxGeometry(w, 2.8, 0.1), curtainMat);
+    cur.position.set(x, 1.42, -2.72);
+    cur.castShadow = true;
+    cur.receiveShadow = true;
+    world.root.add(cur);
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(cur.position.clone(), new THREE.Vector3(w, 2.8, 0.2)), `cove_curtain_${x}`);
+    return cur;
+  };
+  curtainPanel(5.85, 3.3);
+  curtainPanel(10.15, 3.3);
+  // drapeado superior sobre el hueco (Foxy lo empuja al salir)
+  const valance = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 0.12), curtainMat);
+  valance.position.set(8, 2.62, -2.72);
+  world.root.add(valance);
+  world.propAnims.push({
+    update: (_dt, t) => {
+      // el hueco respira: la cortina central se mece
+      valance.rotation.z = Math.sin(t * 0.8) * 0.03;
+    },
+  });
+
+  // pilares del telón
+  for (const px of [4.05, 11.95]) {
+    box(0.18, 2.9, 0.18, woodMaterial([0.4, 2]), px, 1.45, -2.72, 0, true, world);
   }
-  balls.instanceMatrix.needsUpdate = true;
-  world.root.add(balls);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(9.5, 0.3, 1.5), new THREE.Vector3(4.4, 0.7, 3.4)), 'ballpit', false);
 
-  // Tobogán
-  const slide = new THREE.Group();
-  const ladder = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.6, 0.1), plasticMaterial(0x8a3a3a, 0.5));
-  ladder.position.set(0, 0.8, -0.8);
-  const ramp = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.08, 2.2), plasticMaterial(0xd8b13a, 0.5));
-  ramp.position.set(0, 0.7, 0.35);
-  ramp.rotation.x = 0.34;
-  slide.add(ladder, ramp);
-  slide.position.set(5.4, 0, 3.2);
-  world.root.add(slide);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(5.4, 0.8, 2.6), new THREE.Vector3(0.8, 1.6, 1.8)));
-
-  // Estantería de juguetes + dibujos
-  shelfUnit(world, 11.5, 4.2, 0, 2.0, 4);
-  addDrawing(world, 1, 3.35, 1.6, -2, -Math.PI / 2);
-  addDrawing(world, 2, 3.35, 1.6, 2.2, -Math.PI / 2);
-  addPoster(world, posterBruno(), 3.35, 1.9, 0.5, Math.PI / 2);
-  // Letrero RINCÓN INFANTIL
-  const sign = new THREE.Mesh(
-    new THREE.BoxGeometry(2.4, 0.4, 0.06),
-    new THREE.MeshStandardMaterial({ color: 0x203a4a, emissive: 0x3aaad8, emissiveIntensity: 0.4 })
+  // cartel de neón sobre el telón
+  const neon = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.2, 0.55),
+    new THREE.MeshStandardMaterial({ map: pirateCoveSignTex(), emissive: 0x9a7ad8, emissiveIntensity: 0.55, roughness: 0.6 })
   );
-  sign.position.set(8, 2.6, -3.4);
+  neon.position.set(8, 3.0, -2.64);
+  world.root.add(neon);
+
+  // farolillo moribundo dentro de la cala (deja ver los ojos de Foxy)
+  const coveLight = new THREE.PointLight(0x8a6ad8, 3.5, 6, 1.9);
+  coveLight.position.set(8, 2.3, -3.0);
+  world.root.add(coveLight);
+
+  // cartel de madera "FUERA DE SERVICIO" en caballete, delante del hueco
+  const sign = new THREE.Group();
+  const board = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.95, 0.48),
+    new THREE.MeshStandardMaterial({ map: outOfOrderTex(), roughness: 0.85 })
+  );
+  board.position.y = 0.62;
+  const legL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.68, 0.05), woodMaterial([0.2, 1]));
+  legL.position.set(-0.34, 0.34, 0.06);
+  legL.rotation.z = 0.12;
+  const legR = legL.clone();
+  legR.position.x = 0.34;
+  legR.rotation.z = -0.12;
+  sign.add(board, legL, legR);
+  sign.position.set(8, 0, -1.85);
+  sign.rotation.set(-0.06, 0.14, 0.015);
   world.root.add(sign);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(8, 0.5, -1.85), new THREE.Vector3(1.0, 0.9, 0.3)), 'cove_sign');
+
+  // cofre del tesoro abierto
+  const chest = new THREE.Group();
+  const chestMat = woodMaterial([1, 0.6]);
+  const cBody = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.34, 0.42), chestMat);
+  cBody.position.y = 0.17;
+  const cLid = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.6, 12, 1, false, 0, Math.PI), chestMat);
+  cLid.rotation.z = Math.PI / 2;
+  cLid.position.set(0, 0.34, -0.14);
+  cLid.rotation.x = -0.5;
+  const gold = new THREE.Mesh(
+    new THREE.SphereGeometry(0.16, 10, 8),
+    new THREE.MeshStandardMaterial({ color: 0xd8a018, emissive: 0x553300, emissiveIntensity: 0.35, metalness: 0.85, roughness: 0.35 })
+  );
+  gold.position.set(0, 0.3, 0.02);
+  gold.scale.set(1.5, 0.6, 1);
+  chest.add(cBody, cLid, gold);
+  chest.position.set(4.6, 0, -1.6);
+  chest.rotation.y = 0.5;
+  chest.traverse((o) => {
+    if (o instanceof THREE.Mesh) { o.castShadow = true; o.receiveShadow = true; }
+  });
+  world.root.add(chest);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(4.6, 0.25, -1.6), new THREE.Vector3(0.65, 0.5, 0.5)), 'cove_chest');
+
+  // silueta de barco pirata de cartón (pared este de la cala)
+  const ship = new THREE.Group();
+  const hull = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.5, 0.28, 1.5, 8, 1, false, 0, Math.PI),
+    new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: 0.9 })
+  );
+  hull.rotation.z = Math.PI / 2;
+  hull.position.y = 0.5;
+  const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 1.1, 6), woodMaterial([0.2, 1]));
+  mast.position.y = 1.0;
+  const sail = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.7, 0.65),
+    new THREE.MeshStandardMaterial({ color: 0xd9d2be, roughness: 0.95, side: THREE.DoubleSide })
+  );
+  sail.position.set(0, 1.0, 0.12);
+  const flag = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.22, 0.14),
+    new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.95, side: THREE.DoubleSide })
+  );
+  flag.position.set(0.14, 1.55, 0.05);
+  ship.add(hull, mast, sail, flag);
+  ship.position.set(11.9, 0.35, -1.4);
+  ship.rotation.y = -0.5;
+  ship.traverse((o) => {
+    if (o instanceof THREE.Mesh) { o.castShadow = true; o.receiveShadow = true; }
+  });
+  world.root.add(ship);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(11.9, 0.8, -1.4), new THREE.Vector3(1.4, 1.8, 0.5)), 'cove_ship');
+
+  // luna recortada y estrellas en la pared oeste
+  const moon = new THREE.Mesh(
+    new THREE.CircleGeometry(0.35, 24),
+    new THREE.MeshStandardMaterial({ color: 0xd8c890, emissive: 0x554420, emissiveIntensity: 0.25, roughness: 0.8 })
+  );
+  moon.position.set(3.35, 2.5, 1.2);
+  moon.rotation.y = Math.PI / 2;
+  world.root.add(moon);
+
+  // dibujos infantiles de Foxy hechos por los niños
+  addDrawing(world, 1, 3.35, 1.6, -0.8, -Math.PI / 2);
+  addDrawing(world, 2, 3.35, 1.6, 2.6, -Math.PI / 2);
 }
 
 function buildArcade(world: WorldBuilder) {

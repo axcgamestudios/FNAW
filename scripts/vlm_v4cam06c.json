@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here are the answers to your questions:\n\n*   **Label:** The image shows a **first-person gameplay view** (likely from *Five Nights at Freddy's: Help Wanted* or a similar fan game), **not** the security camera tablet feed. The camera label \"CAM 06\" is not visible on this screen.\n*   **Foxy Visible?** **No.** The view shows a dark room with striped wallpaper and a checkered floor. There is no animatronic (Foxy) visible in any gap.\n*   **Purple Light?** **No.** The only visible light is a bright, white/yellowish beam (likely from a flashlight) illuminating the center of the floor. There is no purple light.\n*   **Sign?** **No sign is clearly visible.**\n*   **Map Bottom Right?** **No.** The bottom right corner shows part of a wooden desk/table with some items on it (possibly a green object and a tool), but no map.\n\n**Brief Description of what is visible:**\nThe image depicts a dark, eerie room with vertical brown striped wallpaper and a black-and-white checkered floor. A bright light source (flashlight) shines on the floor in the middle distance. In the bottom left, there is a HUD showing \"LINTERNA OFF\" (Flashlight Off) and an energy bar. In the bottom right, the edge of a table is visible. The top left displays a mission list in Spanish for \"CAPITULO 01\" (Chapter 1), including tasks like \"Recoge la linterna y la tabla\" (Pick up the flashlight and the tablet). A small pink shoe or slipper lies on the floor near the table.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792122313,
+  "id": "20261016114502414b55ab980041bb",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016114502414b55ab980041bb",
+  "usage": {
+    "completion_tokens": 360,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 938,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1298
+  }
+}

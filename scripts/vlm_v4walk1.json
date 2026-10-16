@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the visual evidence in the image, here is the analysis of the animatronic's pose:\n\n1.  **Legs:** The legs are **together** (or in a neutral standing position), not in a stride. Both feet appear to be planted on the ground side-by-side.\n2.  **Arms:** The arms are **hanging down** at its sides (slightly bent at the elbows), not swinging and not in a T-pose. They are held close to the torso.\n3.  **Torso:** The torso is **upright/vertical**, not leaning forward significantly. It maintains a stiff, straight posture typical of an idle or static stance.\n4.  **Mouth:** Yes, the mouth appears to be **open** (showing teeth/jaws), which contributes to the horror aesthetic, but it does not indicate movement.\n5.  **Overall Impression:** It looks **STATIC** (standing/idle). Despite the \"walking toward camera\" context you mentioned, this specific frame captures the character in a frozen, upright, non-locomoting pose—resembling a jump-scare trigger point or a stationary model rather than a mid-stride walking animation.\n\n*(Note: While the prompt mentions a \"big brown bear,\" the visible red animatronic in the image is clearly Freddy Fazbear from the Five Nights at Freddy's series, but the pose analysis remains consistent with a static, non-walking stance.)*",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792124327,
+  "id": "2026101612171944349539bba147f4",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101612171944349539bba147f4",
+  "usage": {
+    "completion_tokens": 300,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 970,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1270
+  }
+}

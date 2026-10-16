@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import type { AnimatronicDef, NoiseEvent } from '../core/types';
 import { buildAnimatronic, type CharacterRig } from '../characters/models';
 import { Assets, type GltfRig } from '../world/assets';
+import { RigAnimator, type AnimCtx } from '../characters/animation';
 import type { NavGraph } from './navgraph';
 import { GRID_W, GRID_H } from './navgraph';
 import type { WorldBuilder } from '../world/worldbuilder';
@@ -54,6 +55,7 @@ const _v2 = new THREE.Vector3();
 /** Rig unificado: GLTF o procedural con la misma interfaz para la IA */
 interface ARig {
   root: THREE.Group;
+  model: THREE.Object3D | null;
   bones: {
     pelvis?: THREE.Object3D;
     torso?: THREE.Object3D;
@@ -73,16 +75,6 @@ interface ARig {
   eyes: THREE.Mesh[];
   eyeGlow: THREE.PointLight;
   height: number;
-  mixer: THREE.AnimationMixer | null;
-  idleAction: THREE.AnimationAction | null;
-}
-
-/** pose de reposo de cada hueso para animación aditiva */
-interface RestPose {
-  bone: THREE.Object3D;
-  x: number;
-  y: number;
-  z: number;
 }
 
 export class Animatronic {
@@ -114,8 +106,7 @@ export class Animatronic {
   twitch = 0;
   crawling = false;
   stuckTimer = 0;
-  private rests: RestPose[] = [];
-  private mixerFade = 0;
+  animator!: RigAnimator;
 
   constructor(def: AnimatronicDef, host: AIHost) {
     this.def = def;
@@ -130,8 +121,8 @@ export class Animatronic {
     this.rig.root.rotation.y = 0;
     (this.rig.root as unknown as { userData: { animatronicId?: string } }).userData.animatronicId = def.id;
     host.world.scene.add(this.rig.root);
-    // corregir T-pose: bajar los brazos insertando pivotes correctores
-    this.applyArmDownPose();
+    // animador procedural en espacio de personaje (independiente del esqueleto)
+    this.animator = new RigAnimator(this.rig.root, this.rig.model, this.rig.bones);
   }
 
   /** Construye el rig: GLTF del repo si está disponible; procedural si no */
@@ -145,18 +136,16 @@ export class Animatronic {
     }
     if (gltfRig) {
       const eyeGlow = new THREE.PointLight(def.eyeColor, 9, 5, 1.9);
-      eyeGlow.position.set(0, def.kind === 'golden' ? 1.8 : 1.6, 0.3);
+      eyeGlow.position.set(0, gltfRig.height * 0.86, 0.28);
       gltfRig.root.add(eyeGlow);
       const rig: ARig = {
         root: gltfRig.root,
+        model: gltfRig.model,
         bones: gltfRig.bones,
         eyes: gltfRig.eyes,
         eyeGlow,
         height: gltfRig.height,
-        mixer: gltfRig.mixer,
-        idleAction: gltfRig.idleAction,
       };
-      this.storeRests(rig);
       return rig;
     }
     // fallback procedural
@@ -168,85 +157,13 @@ export class Animatronic {
     );
     const rig: ARig = {
       root: char.root,
+      model: null,
       bones: char.bones,
       eyes: char.eyes,
       eyeGlow: char.eyeGlow ?? new THREE.PointLight(def.eyeColor, 0, 0.1),
       height: char.height,
-      mixer: null,
-      idleAction: null,
     };
-    this.storeRests(rig);
     return rig;
-  }
-
-  private storeRests(rig: ARig) {
-    this.rests = [];
-    for (const bone of Object.values(rig.bones)) {
-      if (bone) {
-        this.rests.push({ bone, x: bone.rotation.x, y: bone.rotation.y, z: bone.rotation.z });
-      }
-    }
-  }
-
-  private rest(bone: THREE.Object3D | undefined): RestPose | undefined {
-    if (!bone) return undefined;
-    return this.rests.find((r) => r.bone === bone);
-  }
-
-  /** rotación aditiva sobre la pose de reposo */
-  private swing(bone: THREE.Object3D | undefined, dx: number, dy = 0, dz = 0) {
-    if (!bone) return;
-    const r = this.rest(bone);
-    bone.rotation.x = (r ? r.x : 0) + dx;
-    bone.rotation.y = (r ? r.y : 0) + dy;
-    bone.rotation.z = (r ? r.z : 0) + dz;
-  }
-
-  /**
-   * Corrige la T-pose de fábrica: inserta un pivote entre el hueso del hombro
-   * y su padre, y lo rota para que el brazo caiga (con leve apertura).
-   * El pivote preserva la transformación mundial original del hueso.
-   */
-  private applyArmDownPose() {
-    const rig = this.rig;
-    if (!rig.bones.armL && !rig.bones.armR) return;
-    this.rig.root.updateMatrixWorld(true);
-    const pairs: Array<[THREE.Object3D | undefined, number]> = [
-      [rig.bones.armL, 1],
-      [rig.bones.armR, -1],
-    ];
-    for (const [arm, side] of pairs) {
-      if (!arm || !arm.parent) continue;
-      // dirección mundial actual del brazo (hombro → codo)
-      const shoulder = arm.getWorldPosition(new THREE.Vector3());
-      const child = arm.children.find((c) => c.name && /forearm|lowerarm|elbow|lower/i.test(c.name)) ?? arm.children[0];
-      if (!child) continue;
-      const elbow = child.getWorldPosition(new THREE.Vector3());
-      const armDir = elbow.sub(shoulder).normalize();
-      if (armDir.y < -0.82) continue; // ya apunta abajo
-      // objetivo: hacia abajo con ligera apertura lateral (el lado _L del personaje está en +X)
-      const target = new THREE.Vector3(side * 0.2, -1, 0).normalize();
-      const Q = new THREE.Quaternion().setFromUnitVectors(armDir, target);
-      // insertar pivote que preserva la transformación local del hueso
-      const pivot = new THREE.Object3D();
-      pivot.name = arm.name + '_pivot';
-      pivot.position.copy(arm.position);
-      pivot.quaternion.copy(arm.quaternion);
-      pivot.scale.copy(arm.scale);
-      arm.parent.add(pivot);
-      arm.position.set(0, 0, 0);
-      arm.quaternion.identity();
-      arm.scale.set(1, 1, 1);
-      pivot.add(arm);
-      // rotación correctora conjugada al espacio local del padre
-      const pivotParent = pivot.parent!;
-      const parentQ = pivotParent.getWorldQuaternion(new THREE.Quaternion());
-      const qLocal = parentQ.clone().invert().multiply(Q).multiply(parentQ);
-      pivot.quaternion.copy(qLocal.multiply(pivot.quaternion));
-    }
-    // recalcular las poses de reposo tras la corrección
-    this.storeRests(rig);
-    this.rig.root.updateMatrixWorld(true);
   }
 
   reset() {
@@ -268,13 +185,7 @@ export class Animatronic {
     this.maskLocked = false;
     this.currentSpeed = 0;
     // restaurar pose de reposo
-    for (const r of this.rests) {
-      r.bone.rotation.set(r.x, r.y, r.z);
-    }
-    if (this.rig.idleAction) {
-      this.rig.idleAction.reset().play();
-      this.mixerFade = 1;
-    }
+    this.animator.reset();
   }
 
   wake() {
@@ -304,7 +215,6 @@ export class Animatronic {
     this.stateTimer += dt;
     this.thinkTimer -= dt;
     this.vocalTimer -= dt;
-    if (this.rig.mixer) this.rig.mixer.update(dt);
 
     if (!this.active) {
       // despertar por temporizador del capítulo
@@ -312,7 +222,8 @@ export class Animatronic {
       if (delay < 900 && this.host.chapterTime >= delay) {
         this.wake();
       } else {
-        this.animateIdle(dt, player);
+        this.currentSpeed = 0;
+        this.updateAnimator(dt, player, 'dormant');
         return;
       }
     }
@@ -345,7 +256,7 @@ export class Animatronic {
       case 'stunned': this.updateStunned(dt); break;
       case 'attack': this.updateAttack(dt, player); break;
       case 'retreat': this.updateRetreat(dt, player); break;
-      default: this.animateIdle(dt, player); break;
+      default: this.currentSpeed = Math.max(0, this.currentSpeed - dt * 4); break;
     }
 
     // física mínima: y del suelo
@@ -355,7 +266,12 @@ export class Animatronic {
     if (!this.crawling) this.rig.root.rotation.set(0, this.yaw, 0);
     else this.rig.root.rotation.set(0.55, this.yaw, 0.12);
 
-    this.animate(dt, player);
+    this.updateAnimator(dt, player);
+  }
+
+  /** pose manual de agarre para la secuencia de muerte */
+  poseDying(dt: number) {
+    this.updateAnimator(dt, null, 'dying');
   }
 
   private wakeDelayForChapter(): number {
@@ -519,7 +435,7 @@ export class Animatronic {
     if (this.path.length) {
       this.followPath(dt, this.def.speedWalk * 1.15, player);
     } else {
-      this.animateIdle(dt, player);
+      this.currentSpeed = Math.max(0, this.currentSpeed - dt * 4);
     }
   }
 
@@ -785,133 +701,44 @@ export class Animatronic {
     }
   }
 
-  /* ================== ANIMACIÓN PROCEDURAL SOBRE EL ESQUELETO ================== */
+  /* ================== ANIMACIÓN (RigAnimator en espacio de personaje) ================== */
 
-  private animateIdle(dt: number, player: PlayerLike) {
-    this.currentSpeed = Math.max(0, this.currentSpeed - dt * 4);
+  private updateAnimator(dt: number, player: PlayerLike | null, stateOverride?: string) {
     const t = this.host.time;
-    const b = this.rig.bones;
-    // mezcla del clip idle (si existe)
-    this.updateMixerFade(0.35);
-    // balanceo sutil
-    if (b.torso) this.swing(b.torso, 0, 0, Math.sin(t * 0.5 + this.def.eyeColor) * 0.012);
-    const d = this.pos.distanceTo(player.pos);
-    if (d < 9 && this.active) {
-      _v1.subVectors(player.pos, this.pos);
-      const wantYaw = Math.atan2(_v1.x, _v1.z);
-      let diff = wantYaw - this.yaw;
-      while (diff > Math.PI) diff -= Math.PI * 2;
-      while (diff < -Math.PI) diff += Math.PI * 2;
-      if (b.head) this.swing(b.head, 0, Math.max(-0.9, Math.min(0.9, diff)), 0);
-    } else if (b.head) {
-      this.swing(b.head, 0, 0, 0);
-    }
-    this.stepJaw(t);
-  }
-
-  /** control de mezcla entre clip idle y pose manual */
-  private updateMixerFade(target: number) {
-    if (!this.rig.idleAction) return;
-    this.mixerFade += (target - this.mixerFade) * 0.08;
-    this.rig.idleAction.setEffectiveWeight(this.mixerFade);
-    this.rig.idleAction.paused = this.mixerFade < 0.02;
-  }
-
-  private stepJaw(t: number) {
-    const b = this.rig.bones;
-    const open = this.state === 'attack' ? 0.5 : Math.max(0, Math.sin(t * 0.7 + this.def.eyeColor * 0.001)) * 0.045;
-    if (b.jaw) this.swing(b.jaw, open);
-  }
-
-  private animate(dt: number, player: PlayerLike) {
-    const b = this.rig.bones;
-    const t = this.host.time;
-
-    if (this.crawling) {
-      this.updateMixerFade(0);
-      this.walkPhase += dt * this.currentSpeed * 3.2;
-      const s = Math.sin(this.walkPhase);
-      this.swing(b.armL, -1.2 + s * 0.45);
-      this.swing(b.armR, -1.2 - s * 0.45);
-      this.swing(b.legL, 0.5 - s * 0.3);
-      this.swing(b.legR, 0.5 + s * 0.3);
-      if (b.torso) this.swing(b.torso, 0.18, 0, 0);
-      if (b.head) this.swing(b.head, -0.4, 0, 0);
-      return;
-    }
-
-    const moving = this.currentSpeed > 0.15;
-    if (moving) {
-      this.updateMixerFade(0);
-      const freq = this.currentSpeed * 2.4;
-      this.walkPhase += dt * freq;
-      const s = Math.sin(this.walkPhase);
-      const c = Math.cos(this.walkPhase);
-      const amp = Math.min(1, this.currentSpeed / this.def.speedWalk) * (this.currentSpeed > this.def.speedWalk * 1.05 ? 0.75 : 0.5);
-      this.swing(b.legL, s * 0.55 * amp);
-      this.swing(b.legR, -s * 0.55 * amp);
-      this.swing(b.shinL, Math.max(0, -s) * 0.7 * amp);
-      this.swing(b.shinR, Math.max(0, s) * 0.7 * amp);
-      this.swing(b.armL, -s * 0.45 * amp);
-      this.swing(b.armR, s * 0.45 * amp);
-      this.swing(b.forearmL, -0.3 - Math.max(0, s) * 0.35);
-      this.swing(b.forearmR, -0.3 - Math.max(0, -s) * 0.35);
-      if (b.pelvis) {
-        const r = this.rest(b.pelvis)!;
-        b.pelvis.position.y = (b.pelvis.position.y * 0.7 + (r.bone.position.y + Math.abs(c) * 0.03 * amp) * 0.3);
+    let lookYaw = 0;
+    let lookPitch = 0;
+    if (player) {
+      const d = this.pos.distanceTo(player.pos);
+      const interested =
+        stateOverride === 'dying' || this.state === 'chase' || this.state === 'hunt' ||
+        this.state === 'checkMask' || this.state === 'stunned' || this.state === 'attack' ||
+        (d < 9 && this.currentSpeed < 0.2);
+      if (interested && d < 13) {
+        _v1.subVectors(player.pos, this.pos);
+        const wantYaw = Math.atan2(_v1.x, _v1.z);
+        let diff = wantYaw - this.yaw;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        lookYaw = Math.max(-1.0, Math.min(1.0, diff));
+        // mirar ligeramente hacia abajo: el guardia (1.6m) es más bajo
+        const headY = this.rig.height * 0.88;
+        const dHoriz = Math.max(0.4, Math.hypot(_v1.x, _v1.z));
+        lookPitch = Math.atan2(headY - 1.62, dHoriz);
       }
-      if (b.torso) this.swing(b.torso, this.currentSpeed > this.def.speedWalk * 1.05 ? 0.18 : 0.05, 0, s * 0.035 * amp);
-    } else {
-      this.walkPhase = 0;
-      this.updateMixerFade(0.35);
-      if (b.torso) this.swing(b.torso, 0, 0, Math.sin(t * 0.5) * 0.012);
-      this.swing(b.legL, 0);
-      this.swing(b.legR, 0);
-      this.swing(b.armL, -0.05 + Math.sin(t * 0.8) * 0.02);
-      this.swing(b.armR, -0.05 - Math.sin(t * 0.8) * 0.02);
     }
-
-    if (this.state === 'attack') {
-      this.swing(b.armL, -2.1);
-      this.swing(b.armR, -2.1);
-      this.swing(b.forearmL, -0.45);
-      this.swing(b.forearmR, -0.45);
-      if (b.jaw) this.swing(b.jaw, 0.55);
-      if (b.torso) this.swing(b.torso, 0.3, 0, 0);
-    } else if (this.state === 'checkMask') {
-      if (b.head) this.swing(b.head, 0, 0, 0.24);
-      if (b.jaw) this.swing(b.jaw, 0.03);
-    } else if (this.state === 'stunned') {
-      if (b.head) this.swing(b.head, 0, 0, -0.18);
-      if (b.jaw) this.swing(b.jaw, 0.1);
-    } else {
-      this.stepJaw(t);
-    }
-
-    // mirar al jugador si está cerca
-    const d = this.pos.distanceTo(player.pos);
-    const interested = this.state === 'chase' || this.state === 'hunt' || this.state === 'checkMask' || this.state === 'stunned' || (d < 9 && !moving);
-    if (b.head && interested && d < 12) {
-      _v1.subVectors(player.pos, this.pos);
-      const wantYaw = Math.atan2(_v1.x, _v1.z);
-      let diff = wantYaw - this.yaw;
-      while (diff > Math.PI) diff -= Math.PI * 2;
-      while (diff < -Math.PI) diff += Math.PI * 2;
-      this.swing(b.head, 0, Math.max(-1.0, Math.min(1.0, diff)), 0);
-    } else if (b.head) {
-      this.swing(b.head, 0, 0, 0);
-    }
-
-    // espasmo aleatorio (terror)
-    this.twitchTimer -= dt;
-    if (this.twitchTimer <= 0) {
-      this.twitchTimer = 6 + Math.random() * 18;
-      this.twitch = 0.22;
-    }
-    if (this.twitch > 0 && b.head) {
-      this.twitch -= dt;
-      b.head.rotation.z += (Math.random() - 0.5) * 0.13;
-    }
+    const ctx: AnimCtx = {
+      dt,
+      time: t,
+      speed: this.currentSpeed,
+      walkRef: this.def.speedWalk,
+      state: (stateOverride ?? this.state) as AnimCtx['state'],
+      stateTime: this.stateTimer,
+      yaw: this.yaw,
+      crawling: this.crawling,
+      lookYaw,
+      lookPitch,
+    };
+    this.animator.update(ctx);
 
     // pupilas más brillantes al cazar
     const glow = this.state === 'chase' || this.state === 'hunt' || this.state === 'attack' ? 2.6 : 1.5;
@@ -921,12 +748,7 @@ export class Animatronic {
         m.emissiveIntensity = glow;
       }
     }
-    if (this.rig.eyeGlow) this.rig.eyeGlow.intensity = this.state === 'dormant' ? 2 : glow * 4;
-  }
-
-  /** pose manual pública (usada por la secuencia de muerte) */
-  swingPublic(bone: THREE.Object3D, dx: number, dy = 0, dz = 0) {
-    this.swing(bone, dx, dy, dz);
+    if (this.rig.eyeGlow) this.rig.eyeGlow.intensity = this.active ? glow * 4 : 2;
   }
 
   dispose() {

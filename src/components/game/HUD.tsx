@@ -1,94 +1,102 @@
 'use client';
 
 /**
- * HUD del juego: objetivos, recursos, avisos, subtítulos y capas de estado.
- Sin reloj de horas ni caja musical: puro Security Breach.
+ * HUD del juego — estilo FNAF: tipografía monoespaciada, blanca sobre negro,
+ * mínima. Objetivos arriba-izquierda; batería/estado abajo-izquierda;
+ * atajos abajo-derecha. Nada de cajas genéricas de juego.
  */
 import { useHud } from '@/game/core/state';
 
-function Bar({ value, color, warn }: { value: number; color: string; warn?: boolean }) {
+function BatteryCells({ value, low }: { value: number; low: boolean }) {
+  const cells = 4;
+  const on = Math.ceil((Math.max(0, Math.min(100, value)) / 100) * cells);
   return (
-    <div className="hud-bar">
-      <div
-        className="hud-bar-fill"
-        style={{
-          width: `${Math.max(0, Math.min(100, value))}%`,
-          background: warn ? '#c83428' : color,
-          boxShadow: warn ? '0 0 8px rgba(200,52,40,0.8)' : 'none',
-        }}
-      />
+    <div className="battery-shell">
+      <div className="battery-cells">
+        {Array.from({ length: cells }).map((_, i) => (
+          <div key={i} className={`battery-cell ${i < on ? 'on' : ''} ${low ? 'low' : ''}`} />
+        ))}
+      </div>
     </div>
   );
 }
 
 export default function HUD() {
   const s = useHud();
-  const batteryWarn = s.battery < 20;
+  const batteryLow = s.battery < 22;
 
   return (
-    <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute inset-0 pointer-events-none fnaf-mono">
       {s.danger > 0.55 && <div className="danger-vignette" />}
       {s.maskOn && <div className="mask-overlay" />}
 
+      {/* punto de mira mínimo */}
       {!s.tabletOpen && !s.cinematic && (
         <div
-          className="absolute left-1/2 top-1/2 w-1 h-1 -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{ background: 'rgba(230,225,210,0.6)', boxShadow: '0 0 3px rgba(0,0,0,0.9)' }}
+          className="absolute left-1/2 top-1/2 w-[3px] h-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{ background: 'rgba(232,230,220,0.55)', boxShadow: '0 0 4px rgba(0,0,0,0.9)' }}
         />
       )}
 
-      {/* objetivos */}
-      <div className="hud-corner top-4 left-4 max-w-[300px]">
-        <p className="text-[10px] tracking-[0.3em] text-[#6a655a] mb-1">
-          CAPÍTULO {String(s.chapter).padStart(2, '0')} — {s.chapterTitle.toUpperCase()}
+      {/* objetivos — lista de tareas del turno */}
+      <div className="hud-corner top-5 left-6 fnaf-objectives">
+        <p className="text-[10px] tracking-[0.34em] fnaf-dim mb-1.5">
+          CAPÍTULO {String(s.chapter).padStart(2, '0')}
         </p>
+        <p className="text-[13px] tracking-[0.18em] fnaf-gold mb-2">{s.chapterTitle.toUpperCase()}</p>
         {s.objectives.map((o) => (
-          <p
-            key={o.id}
-            className={`text-[11px] leading-5 ${o.done ? 'objective-done text-[#5a6a55]' : 'text-[#b8b2a4]'} ${o.optional ? 'opacity-60' : ''}`}
-          >
-            <span className={o.done ? 'text-[#4a8a55]' : 'text-[#c8a13a]'}>{o.done ? '■' : '□'}</span>{' '}
+          <p key={o.id} className={`${o.done ? 'done' : ''} ${o.optional ? 'opt' : ''}`}>
+            <span className={o.done ? 'fnaf-green' : 'fnaf-dim'}>{o.done ? '■' : '□'}</span>{' '}
             {o.title}
           </p>
         ))}
       </div>
 
-      {/* recursos abajo-izquierda */}
-      <div className="hud-corner bottom-4 left-4 space-y-2">
-        <div>
-          <p className="text-[9px] tracking-[0.25em] text-[#6a655a] mb-0.5">
-            LINTERNA {s.flashlightOn ? '● ENCENDIDA' : '○ APAGADA'} — [F]
-          </p>
-          <Bar value={s.battery} color="#d8b13a" warn={batteryWarn} />
+      {/* recursos abajo-izquierda: linterna + energía del edificio */}
+      <div className="hud-corner bottom-5 left-6 space-y-2.5 text-[11px] tracking-[0.14em]">
+        <div className="battery-widget">
+          <BatteryCells value={s.battery} low={batteryLow} />
+          <span className={s.flashlightOn ? 'fnaf-gold' : 'fnaf-dim'}>
+            LINTERNA {s.flashlightOn ? 'ON' : 'OFF'}
+          </span>
+          <span className="fnaf-dim text-[10px]">[F]</span>
         </div>
-        <div>
-          <p className="text-[9px] tracking-[0.25em] text-[#6a655a] mb-0.5">
-            RESISTENCIA {s.stamina < 25 ? '— AGOTADA' : ''}
-          </p>
-          <Bar value={s.stamina} color="#4a8a55" />
+        <div className="battery-widget">
+          <div className="battery-shell" style={{ width: 46 }}>
+            <div className="battery-cells">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`battery-cell ${i < Math.ceil((s.power / 100) * 3) ? 'on' : ''} ${s.power < 20 ? 'low' : ''}`}
+                  style={{ background: i < Math.ceil((s.power / 100) * 3) ? (s.power < 20 ? '#c83428' : '#4a8a9a') : undefined }}
+                />
+              ))}
+            </div>
+          </div>
+          <span className={s.power < 20 ? 'fnaf-red' : 'fnaf-dim'}>ENERGÍA</span>
         </div>
-        <div>
-          <p className="text-[9px] tracking-[0.25em] text-[#6a655a] mb-0.5">ENERGÍA DEL EDIFICIO</p>
-          <Bar value={s.power} color="#3a7ac8" warn={s.power < 15} />
-        </div>
+        {s.stamina < 30 && (
+          <p className="fnaf-red text-[10px] tracking-[0.22em]">RESISTENCIA AGOTADA — RALENTIZADO</p>
+        )}
       </div>
 
-      {/* indicadores abajo-derecha */}
-      <div className="hud-corner bottom-4 right-6 text-right space-y-1 text-[10px] tracking-[0.2em]">
-        <p className={s.maskOn ? 'text-[#d8a13a]' : 'text-[#4a4640]'}>[Q] MÁSCARA {s.maskOn ? 'PUESTA' : ''}</p>
-        <p className="text-[#4a4640]">[C] CÁMARAS</p>
-        {s.crouching && <p className="text-[#8a8578]">AGACHADO — [CTRL]</p>}
-        {s.inVent && <p className="text-[#d8a13a]">EN CONDUCTO</p>}
+      {/* atajos abajo-derecha (discretos, se iluminan al usar) */}
+      <div className="hud-corner bottom-5 right-6 text-right space-y-1.5 text-[10px] tracking-[0.2em]">
+        <p className={s.maskOn ? 'fnaf-gold' : 'fnaf-dim'}>[Q] MÁSCARA{s.maskOn ? ' — PUESTA' : ''}</p>
+        <p className={s.tabletOpen ? 'fnaf-gold' : 'fnaf-dim'}>[C] CÁMARAS</p>
+        {s.crouching && <p className="fnaf-dim">AGACHADO [CTRL]</p>}
+        {s.inVent && <p className="fnaf-gold">EN CONDUCTO</p>}
       </div>
 
-      {s.alert && <div className="alert-toast">{s.alert}</div>}
+      {s.alert && <div className="alert-toast fnaf-mono">{s.alert}</div>}
 
       {s.prompt && !s.tabletOpen && (
-        <div className="prompt-box">
+        <div className="prompt-box fnaf-prompt fnaf-mono">
+          <span className="key-badge">E</span>
           {s.prompt}
           {s.holdProgress !== null && (
-            <div className="hud-bar mt-2" style={{ width: 180 }}>
-              <div className="hud-bar-fill" style={{ width: `${s.holdProgress * 100}%`, background: '#c8a13a' }} />
+            <div className="hud-bar ml-3" style={{ width: 120 }}>
+              <div className="hud-bar-fill" style={{ width: `${s.holdProgress * 100}%`, background: '#d8b13a' }} />
             </div>
           )}
         </div>

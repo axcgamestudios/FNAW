@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is a detailed description of the first-person horror game office view:\n\n**Environment & Atmosphere**\nThe scene depicts a dimly lit, oppressive office space with a distinct retro-horror aesthetic. The room is dominated by **vertical striped wallpaper** in dark, muted brown and maroon tones that create a claustrophobic, tunnel-like effect. The floor features a **black-and-white checkerboard pattern** that appears worn and dirty, with the white squares looking grimy or stained. The ceiling is mostly shrouded in darkness, but **exposed wires and cables** are visible hanging down, adding to the sense of decay and neglect.\n\n**Lighting**\nThe lighting is minimal and atmospheric—typical of survival horror games. A **flashlight beam** cuts through the darkness from the player's perspective (indicated by \"LINTERNA OFF [F]\" in the UI), illuminating only a small portion of the desk and floor while leaving the corners and background in deep shadow. The overall color palette is desaturated with reddish-brown tones, suggesting either emergency lighting or an unsettling ambiance.\n\n**The Desk & Props (Right Side)**\nIn the bottom-right foreground sits a **dark wooden desk** cluttered with items:\n*   **Flashlight**: A prominent flashlight rests on the desk surface, likely the interactive object the player needs to pick up.\n*   **Tablet/Green Device**: Next to the flashlight lies a green tablet or electronic device (referenced in objectives as \"la tablet\").\n*   **Cupcake**: A small pink cupcake with a cherry on top sits oddly on the desk—a surreal, out-of-place item that contrasts with the grim surroundings.\n*   **Papers/Documents**: Scattered papers are visible near the devices.\n*   **Monitor/Screen**: Though partially obscured, monitor equipment appears to be present on the desk.\n\n**Wall Details & Surveillance**\n*   **Posters/Drawings**: The striped walls appear to have some markings or possibly torn posters, though details are obscured by shadows and the texture of the wallpaper.\n*   **Security Cameras**: Small, boxy surveillance cameras are mounted on the walls (referenced in the objective \"Comprueba las cámaras de vigilancia\" and the \"[C] - CÁMARAS\" prompt), watching the player's movements.\n\n**User Interface (UI) Elements**\n*   **Top-Left Objectives**: A mission list titled \"**CAPÍTULO 01 - TURNO DE PRUEBA**\" (Chapter 01 - Trial Shift) displays checkboxes for tasks: collect flashlight/tablet, find 2 fuses, repair the office panel, check cameras, and return to the office.\n*   **Bottom-Left Status**: Shows \"LINTERNA OFF [F]\" indicating the flashlight toggle key, and a red notification button labeled \"**1Issue x**\" suggesting a problem or alert system.\n*   **Bottom-Right Prompts**: Context-sensitive options appear as \"[Q] MÁSCARA\" (Mask) and \"[C] - CÁMARAS\" (Cameras), indicating nearby interactive objects.\n\n**Overall Impression**\nThe view suggests a \"Five Nights at Freddy's\"-style security office or a similar survival horror setting where the player must manage limited light sources, complete maintenance tasks under pressure, and monitor surveillance systems while being watched by unseen threats. The combination of the checkered floor, exposed wiring, and ominous wall cameras creates a tense, foreboding atmosphere typical of indie horror titles.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792121878,
+  "id": "2026101611374596fdbfa0ceb14d90",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101611374596fdbfa0ceb14d90",
+  "usage": {
+    "completion_tokens": 724,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 943,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1667
+  }
+}

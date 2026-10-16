@@ -43,16 +43,23 @@ interface ModelConfig {
   rotY: number;
   eyeColor: number;
   eyeNames?: RegExp;
+  /** eje largo del modelo (la linterna apunta por Z, no por Y) */
+  lengthAxis?: 'x' | 'y' | 'z';
+  /** longitud objetivo cuando se normaliza por eje */
+  length?: number;
+  /** desactivar clips GLB (animación 100% procedural del RigAnimator) */
+  noClips?: boolean;
 }
 
 const CONFIGS: Record<string, ModelConfig> = {
-  freddy: { file: 'models/freddy.glb', height: 2.02, rotY: 0, eyeColor: 0x4dd2ff, eyeNames: /eye|iris|pupil/i },
-  bonnie: { file: 'models/bonnie.glb', height: 2.0, rotY: 0, eyeColor: 0xff5070, eyeNames: /eye/i },
-  chica: { file: 'models/chica.glb', height: 1.95, rotY: 0, eyeColor: 0xffe066, eyeNames: /eye/i },
-  foxy: { file: 'models/foxy.glb', height: 1.98, rotY: 0, eyeColor: 0xffbf40, eyeNames: /eye/i },
-  golden: { file: 'models/freddy.glb', height: 2.02, rotY: 0, eyeColor: 0xffdd44, eyeNames: /eye|iris|pupil/i },
+  // más grandes que el guardia (1.78 m)
+  freddy: { file: 'models/freddy.glb', height: 2.62, rotY: 0, eyeColor: 0x4dd2ff, eyeNames: /eye|iris|pupil/i, noClips: true },
+  bonnie: { file: 'models/bonnie.glb', height: 2.56, rotY: 0, eyeColor: 0xff5070, eyeNames: /eye/i, noClips: true },
+  chica: { file: 'models/chica.glb', height: 2.46, rotY: 0, eyeColor: 0xffe066, eyeNames: /eye/i, noClips: true },
+  foxy: { file: 'models/foxy.glb', height: 2.42, rotY: 0, eyeColor: 0xffbf40, eyeNames: /eye/i, noClips: true },
+  golden: { file: 'models/freddy.glb', height: 2.62, rotY: 0, eyeColor: 0xffdd44, eyeNames: /eye|iris|pupil/i, noClips: true },
   jeremy: { file: 'models/jeremy.glb', height: 1.78, rotY: 0, eyeColor: 0x000000 },
-  flashlight: { file: 'models/flashlight.glb', height: 0.26, rotY: 0, eyeColor: 0x000000 },
+  flashlight: { file: 'models/flashlight.glb', height: 0.26, rotY: 0, eyeColor: 0x000000, lengthAxis: 'z', length: 0.19 },
 };
 
 export interface GameTextures {
@@ -62,6 +69,8 @@ export interface GameTextures {
   floorWood: THREE.Texture;
   floorStone: THREE.Texture;
   wallMetal: THREE.Texture;
+  guardSkin: THREE.Texture;
+  guardUniform: THREE.Texture;
 }
 
 export class AssetLibrary {
@@ -81,6 +90,8 @@ export class AssetLibrary {
       ['floorWood', 'textures/floor_wood.jpg'],
       ['floorStone', 'textures/floor_stone.jpg'],
       ['wallMetal', 'textures/wall_metal.jpg'],
+      ['guardSkin', 'textures/guard_skin.png'],
+      ['guardUniform', 'textures/guard_uniform.png'],
     ];
     const entries = Object.entries(CONFIGS).filter(([k]) => k !== 'golden');
     const total = entries.length + texFiles.length;
@@ -178,12 +189,20 @@ export class AssetLibrary {
       }
     });
 
-    // normalizar: escala a altura objetivo, pies en y=0
+    // normalizar: escala y apoyo en el suelo.
+    // La linterna se normaliza por su eje largo (Z) para que mida ~27 cm de largo;
+    // el resto por altura Y.
     model.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
-    const scale = cfg.height / Math.max(0.0001, size.y);
-    model.scale.setScalar(scale);
+    if (cfg.lengthAxis) {
+      const axisLen = cfg.lengthAxis === 'z' ? size.z : cfg.lengthAxis === 'x' ? size.x : size.y;
+      const scale = (cfg.length ?? 0.27) / Math.max(0.0001, axisLen);
+      model.scale.setScalar(scale);
+    } else {
+      const scale = cfg.height / Math.max(0.0001, size.y);
+      model.scale.setScalar(scale);
+    }
     model.updateMatrixWorld(true);
     const box2 = new THREE.Box3().setFromObject(model);
     const center = box2.getCenter(new THREE.Vector3());
@@ -193,14 +212,14 @@ export class AssetLibrary {
     model.position.y -= box2.min.y;
     model.rotation.y = cfg.rotY;
 
-    // mixer
+    // mixer (solo para el guardia / variantes; los animatrónicos van 100% procedural)
     let mixer: THREE.AnimationMixer | null = null;
     let idleAction: THREE.AnimationAction | null = null;
     const clips = this.clips.get(kind) ?? [];
-    if (clips.length) {
+    if (clips.length && !cfg.noClips) {
       mixer = new THREE.AnimationMixer(model);
       const idle = clips.find((c) => /idle/i.test(c.name)) ?? clips[0];
-      if (idle && kind !== 'foxy') {
+      if (idle) {
         idleAction = mixer.clipAction(idle);
         idleAction.play();
       }
@@ -289,7 +308,8 @@ function findBone(model: THREE.Object3D, patterns: RegExp[]): THREE.Object3D | u
 
 function mapBones(model: THREE.Object3D, kind: string): RigBones {
   if (kind === 'freddy' || kind === 'golden') {
-    // Freddy usa nombres genéricos: mapeo estructural conocido del archivo
+    // Freddy usa nombres genéricos; three.js sanitiza los puntos de los
+    // nombres Blender ("Bone.003_14" -> "Bone003_14")
     const byName = (n: string) => {
       let found: THREE.Object3D | undefined;
       model.traverse((o) => {
@@ -299,20 +319,20 @@ function mapBones(model: THREE.Object3D, kind: string): RigBones {
     };
     return {
       pelvis: byName('Bone_35'),
-      legR: byName('Bone.003_14'),
-      shinR: byName('Bone.005_13'),
-      legL: byName('Bone.004_17'),
-      shinL: byName('Bone.006_16'),
-      torso: byName('Bone.001_34'),
-      armR: byName('Bone.010_20'),
-      forearmR: byName('Bone.012_19'),
-      armL: byName('Bone.011_23'),
-      forearmL: byName('Bone.013_22'),
-      neck: byName('Bone.002_33'),
-      head: byName('Bone.009_32'),
-      jaw: byName('Bone.017_24'),
-      earL: byName('Bone.019_30'),
-      earR: byName('Bone.024_31'),
+      legR: byName('Bone003_14'),
+      shinR: byName('Bone005_13'),
+      legL: byName('Bone004_17'),
+      shinL: byName('Bone006_16'),
+      torso: byName('Bone001_34'),
+      armR: byName('Bone010_20'),
+      forearmR: byName('Bone012_19'),
+      armL: byName('Bone011_23'),
+      forearmL: byName('Bone013_22'),
+      neck: byName('Bone002_33'),
+      head: byName('Bone009_32'),
+      jaw: byName('Bone017_24'),
+      earL: byName('Bone019_30'),
+      earR: byName('Bone024_31'),
     };
   }
   const side = (base: string, side: 'L' | 'R') => new RegExp(`bip_${base}_${side}($|_|chica|foxy|\\.)`, 'i');

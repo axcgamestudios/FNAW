@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the compact identification of each texture (indices 0–14):\n\n*   **0:** **Basecolor** – Skin (face, torso, hands, feet, eyes, teeth).\n*   **1:** **Normal** – Skin details (pores, wrinkles, facial features).\n*   **2:** **Normal** – Skin surface relief (matches Index 0 layout).\n*   **3:** **Basecolor** – Pants/Trousers (dark denim/jeans texture, pockets, stitching).\n*   **4:** **Normal** – Pants fabric relief (subtle seams and folds).\n*   **5:** **Normal** – Pants surface detail (stronger fabric folds/wrinkles).\n*   **6:** **Basecolor** – Hair (brown color, vertical fiber strands).\n*   **7:** **Basecolor** – Hair Specular/Mask (grayscale shine map for hair).\n*   **8:** **Normal** – Hair strand direction/relief.\n*   **9:** **Basecolor** – Shoes/Sneakers (black uppers with teal accents, white soles/laces).\n*   **10:** **Normal** – Shoes subtle height/bump.\n*   **11:** **Normal** – Shoes strong surface relief (stitching, tread, laces).\n*   **12:** **Basecolor** – Uniform/Jacket (black tactical/security shirt with red stripes, pants, gear).\n*   **13:** **Normal** – Uniform subtle detail/seams.\n*   **14:** **Normal** – Uniform heavy fabric folds and panel relief.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792119061,
+  "id": "202610161050538575a719c7034871",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610161050538575a719c7034871",
+  "usage": {
+    "completion_tokens": 327,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 8788,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 9115
+  }
+}

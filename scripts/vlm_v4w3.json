@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the STRIDE analysis:\n\n1.  **Legs in mid-stride?** **No.** The image shows a dark, empty hallway with a checkered floor and some furniture (a cabinet), but **there is no bear animatronic visible** in this frame.\n2.  **Arms: which one is forward?** **N/A.** Since there is no character present, arm position cannot be determined.\n3.  **Torso lean?** **N/A.** No torso is visible to analyze for leaning.\n4.  **Does this read as an animated WALK?** **No.** The image depicts a static environment (likely from a *Five Nights at Freddy's* style game) with UI elements (objectives, \"capture the mouse\" prompt) but no walking animation or character model is currently rendered in the scene.\n\n*Note: This appears to be a screenshot from a horror game (possibly a FNAF fangame given the Spanish text \"FIESTAS CUMPLEAÑOS\" and the art style) where the animatronic may be off-screen or the image captures a moment of empty suspense.*",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792124508,
+  "id": "20261016122144551e9b64468249f7",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016122144551e9b64468249f7",
+  "usage": {
+    "completion_tokens": 246,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 949,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1195
+  }
+}

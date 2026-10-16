@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the exact description of the bottom-right screen corner:\n\n*   **Flashlight Model:** **No.** There is no flashlight model visible in this specific corner. The flashlight is located in the upper-left and center of the image.\n*   **Hands/Fingers:** **No.** There are no hands or fingers visible in the bottom-right corner.\n*   **Sleeve/Forearm:** **No.** There is no sleeve or forearm visible in this area.\n*   **Skin Texture:** **No.** No skin texture is present in this corner of the screen.\n*   **Lighting:** The corner is dominated by a large, dark, blocky object (likely a piece of furniture or a box) that is cast in deep shadow. To its left, the floor surface (which appears to be dark wood or tile) catches some dim, reddish ambient light.\n\n**What IS visible:**\nInstead of a weapon or body part, the bottom-right corner contains:\n1.  A large, dark, rectangular 3D object (likely the side of a cabinet or box).\n2.  Part of the User Interface (UI): White text indicating game controls: **\"[Q] MÁSCARA\"** and **\"[C] CÂMARAS\"**.\n3.  A small portion of a reddish/orange flat surface (possibly paper or a note) at the very bottom edge.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792123462,
+  "id": "20261016120417bc7f27cedfd844fc",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016120417bc7f27cedfd844fc",
+  "usage": {
+    "completion_tokens": 297,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 687,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 984
+  }
+}

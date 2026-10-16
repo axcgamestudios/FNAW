@@ -95,7 +95,8 @@ export class Player {
   reset() {
     this.pos.set(3.0, 0, 12.3);
     this.vel.set(0, 0, 0);
-    this.yaw = 0;
+    // mirar al norte: el escritorio con la linterna y la tableta queda de frente
+    this.yaw = Math.PI;
     this.pitch = 0;
     this.crouching = false;
     this.stamina = 100;

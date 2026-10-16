@@ -166,6 +166,11 @@ export class CinematicPlayer {
     // pequeña respiración de cámara
     this.camera.position.y += Math.sin(this.t * 1.2) * 0.01;
     this.camera.lookAt(this.cineLook);
+    // actores estáticos (p. ej. el guardia): vaivén sutil de "estar vivo"
+    for (const a of this.placedActors) {
+      a.rotation.z = Math.sin(this.t * 0.85) * 0.01;
+      a.position.y = Math.sin(this.t * 1.25) * 0.008;
+    }
     if (this.t >= shot.dur) {
       this.nextShot();
     }

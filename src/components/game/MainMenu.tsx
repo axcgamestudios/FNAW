@@ -35,8 +35,8 @@ export default function MainMenu() {
       <div className="noise-bg" style={{ opacity: 0.16 }} />
       <div className="crt-vignette" />
 
-      {/* opciones estilo FNAF: columna izquierda discreta */}
-      <div className="absolute left-10 top-1/2 -translate-y-1/2 z-10 w-[280px]">
+      {/* opciones estilo FNAF: columna izquierda, bajo el título */}
+      <div className="absolute left-10 top-64 z-10 w-[280px]">
         <button className="menu-btn fnaf-item" onClick={() => launchChapter(1)}>NUEVA PARTIDA</button>
         <button className="menu-btn fnaf-item" onClick={() => launchChapter(Math.min(unlockedChapter, 4))} disabled={unlockedChapter <= 1}>
           CONTINUAR
@@ -58,11 +58,11 @@ export default function MainMenu() {
         )}
       </div>
 
-      {/* título */}
-      <div className="absolute top-12 left-10 z-10">
-        <h1 className="text-6xl font-bold tracking-[0.18em] text-[#e8e2d0] title-flicker">FNAW</h1>
-        <p className="mt-1 text-[11px] tracking-[0.55em] text-[#6a655a]">VIGILIA EN LA PIZZERÍA ESTELAR</p>
-        <p className="mt-3 text-[9px] tracking-[0.3em] text-[#3a382f]">
+      {/* título estilo FNAF */}
+      <div className="absolute top-14 left-10 z-10">
+        <h1 className="fnaf-title title-flicker">FNAW</h1>
+        <p className="fnaf-subtitle mt-3">VIGILIA EN LA PIZZERÍA ESTELAR</p>
+        <p className="mt-3 text-[9px] tracking-[0.3em] fnaf-dim">
           CINTAS {tapes.length}/11 · CAPÍTULOS {Math.min(unlockedChapter, 4)}/4
         </p>
       </div>
@@ -126,8 +126,8 @@ export default function MainMenu() {
         </div>
       )}
 
-      <p className="absolute bottom-4 right-6 text-[9px] tracking-[0.3em] text-[#2a2a2e]">v2.0 — FNAW</p>
-      <p className="absolute bottom-4 left-10 text-[9px] tracking-[0.3em] text-[#2a2a2e]">HAZ CLIC PARA ACTIVAR EL SONIDO</p>
+      <p className="absolute bottom-4 right-6 text-[9px] tracking-[0.3em] fnaf-dim">v3.0 — FNAW</p>
+      <p className="absolute bottom-4 left-10 text-[9px] tracking-[0.3em] fnaf-dim">HAZ CLIC PARA ACTIVAR EL SONIDO</p>
     </div>
   );
 }

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the security camera view provided:\n\n**No**, a red/brown fox animatronic with an eyepatch (Foxy) is **not visible** in the gap between the purple star curtains. The doorway/curtain opening shows only an empty dark corridor with a trash can visible in the distance.\n\n**Sign status:** There is **no sign** visible in this view. The image displays:\n- Pinkish-red tiled walls with dark red horizontal stripes\n- A central open doorway leading to a dark hallway\n- Checkered black-and-white flooring\n- A black crate/box on the left side\n- Cardboard boxes on the right\n- Game UI elements showing objectives in Spanish (\"CAPÍTULO 01 - TURNO DE PRUEBA\") and controls for flashlight, mask, and cameras\n\nThe area appears to be a backstage or utility room, currently clear of animatronics.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792122243,
+  "id": "202610161143593fd4c8d3e46e4a22",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610161143593fd4c8d3e46e4a22",
+  "usage": {
+    "completion_tokens": 185,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 920,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1105
+  }
+}

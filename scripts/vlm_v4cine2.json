@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is a description of what is visible:\n\n**General Description:**\nThe image displays a **chapter introduction screen** (likely from a video game) with a black background and centered text. It appears to be the title card for \"Chapter 01: Trial Shift\" (Spanish: *Capítulo 01: Turno de Prueba*).\n\n**Text Content:**\n*   **Header:** \"CAPÍTULO 01\"\n*   **Title:** \"TURNO DE PRUEBA\" (Trial Shift)\n*   **Lore Text:**\n    *   \"Pizzería Estelar Bruno – 1987.\"\n    *   \"Te contratan como guarda nocturno.\" (You are hired as a night guard.)\n    *   \"Nadie te dijo que el edificio estaba...\" (No one told you that the building was...)\n    *   \"...habitado.\" (...inhabited.)\n*   **UI Elements:** A button labeled \"EMPEZAR\" (Start), a prompt \"ENTER PARA EMPEZAR\", and an \"N\" icon in the bottom-left corner (likely indicating a narrative or note system).\n\n**Answers to your specific questions:**\n\n*   **Is a human guard model visible?** **No.** There is no 3D character model, sprite, or silhouette of a human guard visible in this screenshot. The screen consists entirely of text and UI elements on a solid black background.\n*   **Is he textured?** N/A (Since no model is present, there are no textures to evaluate).\n*   **What pose?** N/A.\n*   **Lighting?** The lighting is flat and uniform. There are no dynamic light sources, shadows, or ambient occlusion; it is simply white/grey text on a pure black (#000000) background. There is a very subtle reddish glow or border around the \"EMPEZAR\" button.\n*   **Letterbox bars?** **No.** The image fills the entire frame from edge to edge without any black bars at the top or bottom (cinematic letterboxing).",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792121466,
+  "id": "2026101611305422b8766f8555488a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101611305422b8766f8555488a",
+  "usage": {
+    "completion_tokens": 438,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 915,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1353
+  }
+}

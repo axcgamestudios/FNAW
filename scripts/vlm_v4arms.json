@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is a description focusing on the bottom-right corner and the specific details you requested:\n\n**The Guard's Arms and Flashlight**\nIn this first-person perspective, **you do not see two forearms entering from the screen edges**. Instead, the view focuses on a single hand and forearm (presumably the right hand) holding the flashlight. The arm enters from the bottom right of the screen. The sleeve appears to be a dark, possibly black or navy blue, long-sleeved uniform or jacket.\n\n**Flashlight Details**\nThe flashlight is **not small**; it is quite large, bulky, and tactical-looking. It resembles a heavy-duty industrial or police-style torch with a thick body, textured grip, and a large head. It has realistic details like red accent buttons or rings near the head and base.\n\n**The Beam**\nThe flashlight casts a **strong, concentrated cone of light** that illuminates the center of the room. The beam is bright white/yellowish and creates a distinct circle on the striped wallpaper, highlighting dust particles or texture in the air. The light fades into deep shadow at the edges, creating high contrast.\n\n**Desk Props and Environment**\nTo the far right, partially in shadow, you can see the edge of what looks like a **desk or cabinet**.\n*   **Foreground:** There are red, blocky objects on the checkered floor that look like **bricks or blood-stained boxes**.\n*   **Background:** The light shines on vertical striped wallpaper. While a fan, monitor, or cupcake aren't clearly visible *in this specific frame* (they may be off-screen to the right or in a different part of the office), the setting implies an office environment with the checkered flooring and wall paneling.\n\n**Overall Darkness**\nThe atmosphere is **extremely dark and oppressive**. The majority of the screen is pitch black, with the flashlight beam being the only source of visibility. This creates a classic horror game \"tunnel vision\" effect where the player can only see what is directly in front of them, leaving the periphery hidden in suspenseful darkness.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792123244,
+  "id": "2026101612003638c13f04b855414a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101612003638c13f04b855414a",
+  "usage": {
+    "completion_tokens": 436,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 951,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1387
+  }
+}

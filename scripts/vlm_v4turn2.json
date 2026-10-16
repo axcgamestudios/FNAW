@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the breakdown of what is shown:\n\n*   **What it shows:** This is a screenshot from a **first-person horror/survival game** (likely *Five Nights at Freddy's: Security Breach* or a similar fan game/mod). You are looking at a hallway or room with pinkish, dirty tiled walls featuring red stripes and a black-and-white checkered floor.\n*   **Desk/Monitor/Fan:** There is no clear desk with a monitor or fan in the immediate center of this view. In the middle of the room, there is a **dark, boxy object** that looks like a large pedestal, safe, or possibly a covered piece of equipment, but it does not resemble a standard office desk setup. To the right, there is a dark doorway leading to another area with a different floor pattern.\n*   **Direction:** The camera is facing **forward/down the length of the corridor**, slightly angled toward the right wall.\n*   **Text Prompt (Bottom-Center):** **Yes**, there is text in the bottom-left/center area of the screen (part of the HUD):\n    *   It displays a battery/energy bar labeled **\"ENERGÍA\"** (Energy).\n    *   Below that, it says **\"LINTERNA OFF [F]\"** (Flashlight Off [F]), indicating the prompt to toggle the flashlight.\n\nAdditionally, there is a list of objectives in the top-left corner in Spanish (e.g., \"Recoge la linterna y la tablet\" - Pick up the flashlight and tablet).",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792122617,
+  "id": "20261016115008c3d1629464f44ffd",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016115008c3d1629464f44ffd",
+  "usage": {
+    "completion_tokens": 325,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 912,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1237
+  }
+}

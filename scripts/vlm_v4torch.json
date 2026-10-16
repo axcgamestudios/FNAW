@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is a description of the elements in the bottom-right area:\n\n*   **Flashlight and Hands:** Yes, there is a **small flashlight** being held. It appears to be held by a pair of hands (or arms in sleeves) that are positioned at the bottom right, holding the light over the desk.\n*   **Light Beam:** The flashlight emits a **bright, focused beam of white/yellowish light**. This beam cuts through the darkness of the room, illuminating the checkered floor and the surface of the desk directly in front of the player.\n*   **Desk Props:**\n    *   **Fan:** There is a small, pink or reddish **desk fan** sitting on the table.\n    *   **Monitor/Screen:** To the right of the fan, there is a device with a **bright green screen** (likely a monitor or tablet).\n    *   **Cupcake:** While there isn't a traditional cupcake, there is a small, round, pink object near the fan that resembles a **cupcake or a small decorative item**.\n*   **HUD Battery Indicator:** In the bottom-left corner of the screen, there is a **battery icon** inside a yellow/gold square box. It appears to be mostly full, indicating the current power level for the flashlight.\n\nThe scene depicts a \"Trial Shift\" (Turno de Prueba) where the player must use this flashlight to navigate the dark office and complete various tasks listed on the left side of the screen.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792121909,
+  "id": "202610161138232a50b237d5484326",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610161138232a50b237d5484326",
+  "usage": {
+    "completion_tokens": 316,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 932,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1248
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the verification of the security camera tablet view details:\n\n*   **CAM 06 CALA PIRATA label:** **Yes**, it is located at the top-left of the camera feed.\n*   **Purple star curtain cove:** **Yes**, there is a dark blue/purple curtain with yellow stars in the background, forming a cove-like area.\n*   **Red fox animatronic:** **Yes**, a red/orange fox animatronic (Foxy) is standing in the gap/center of that curtain cove.\n*   **Map with numbers bottom-right:** **Yes**, there is a green grid map with numbered buttons (01-12) in the bottom-right corner, with \"06\" highlighted.\n*   **REC subtitle:** **Yes**, \"REC\" appears below the camera label (along with date/time and \"TURNO NOCTURNO SEGURIDAD\").\n*   **Static:** **No**, the feed is currently clear without visible static interference.\n*   **Feed visibility:** The feed is **fully visible** and clear, showing the room's patterned floor, tiled walls, and the animatronic.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792124997,
+  "id": "20261016122953a26a10e617f7448e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016122953a26a10e617f7448e",
+  "usage": {
+    "completion_tokens": 242,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 934,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1176
+  }
+}

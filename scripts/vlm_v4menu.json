@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is a description of the game menu screenshot:\n\n*   **3D Animatronic Bear Face:** Yes, there is a prominent 3D animatronic bear face visible in the center of the screen. It resembles Freddy Fazbear, featuring brown fur, blue eyes, a black top hat, and a black bowtie. The model has visible seams and joints typical of an animatronic.\n*   **Scene Lighting:** The scene is **dark**. The background is mostly shrouded in shadow, with the bear and the menu text being the primary light sources or focal points. There is a heavy vignette effect darkening the edges of the screen.\n*   **UI Text:** Yes, there is significant UI text visible:\n    *   **Title:** \"FNAW\" in large white letters at the top left.\n    *   **Subtitle:** \"VIGILIA EN LA PIZZERÍA ESTELAR\" (Spanish for \"Vigil at the Star Pizzeria\").\n    *   **Stats:** \"CINTAS 0/11 - CAPÍTULOS 1/4\" (Tapes 0/11 - Chapters 1/4).\n    *   **Menu Options (Left side):** \"NUEVA PARTIDA\" (New Game), \"CONTINUAR\" (Continue - appears greyed out), \"CAPÍTULOS\" (Chapters), \"AJUSTES\" (Settings), \"CONTROLES\" (Controls), and \"CRÉDITOS\" (Credits).\n    *   **Footer:** Version info \"v3.0 - FNAW\" in the bottom right and a prompt about clicking to activate sound in the bottom left.\n*   **Quality Issues:** The image has a distinct **scanline effect** (horizontal lines) overlaid on the entire screen, which appears to be an intentional stylistic choice to mimic an old CRT monitor or security camera feed, rather than a technical defect. The background textures also look somewhat low-resolution.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792120746,
+  "id": "202610161118573ab55b7ebbee4a01",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610161118573ab55b7ebbee4a01",
+  "usage": {
+    "completion_tokens": 422,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 919,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1341
+  }
+}

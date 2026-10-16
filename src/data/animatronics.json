@@ -5,9 +5,22 @@
       "name": "Freddy Fazbear",
       "kind": "freddy",
       "startRoom": "stage",
-      "startOffset": [0, 0.5],
-      "activeChapters": [1, 2, 3, 4],
-      "wakeDelay": [70, 0, 0, 0],
+      "startOffset": [
+        0,
+        0.5
+      ],
+      "activeChapters": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "wakeDelay": [
+        70,
+        0,
+        0,
+        0
+      ],
       "speedWalk": 1.7,
       "speedRun": 3.5,
       "visionDist": 13,
@@ -19,7 +32,16 @@
       "maskFoolTime": 3.0,
       "flashlight": "none",
       "ventAccess": false,
-      "patrolRooms": ["mainhall", "dining", "stage", "arcade", "westhall", "easthall", "junction", "kidscove"],
+      "patrolRooms": [
+        "mainhall",
+        "dining",
+        "stage",
+        "arcade",
+        "westhall",
+        "easthall",
+        "junction",
+        "kidscove"
+      ],
       "voice": "deep",
       "eyeColor": 10829872
     },
@@ -28,9 +50,21 @@
       "name": "Bonnie la Coneja",
       "kind": "bonnie",
       "startRoom": "stage",
-      "startOffset": [-3.7, 0.5],
-      "activeChapters": [2, 3, 4],
-      "wakeDelay": [999, 45, 0, 0],
+      "startOffset": [
+        -3.7,
+        0.5
+      ],
+      "activeChapters": [
+        2,
+        3,
+        4
+      ],
+      "wakeDelay": [
+        999,
+        45,
+        0,
+        0
+      ],
       "speedWalk": 1.9,
       "speedRun": 3.6,
       "visionDist": 11,
@@ -42,7 +76,15 @@
       "maskFoolTime": 2.2,
       "flashlight": "freeze",
       "ventAccess": true,
-      "patrolRooms": ["prize", "storageA", "kitchen", "mainhall", "kidscove", "junction", "dining"],
+      "patrolRooms": [
+        "prize",
+        "storageA",
+        "kitchen",
+        "mainhall",
+        "kidscove",
+        "junction",
+        "dining"
+      ],
       "voice": "screech",
       "eyeColor": 16729328
     },
@@ -51,9 +93,21 @@
       "name": "Chica la Gallina",
       "kind": "chica",
       "startRoom": "stage",
-      "startOffset": [2.7, 0.5],
-      "activeChapters": [2, 3, 4],
-      "wakeDelay": [999, 999, 0, 0],
+      "startOffset": [
+        2.7,
+        0.5
+      ],
+      "activeChapters": [
+        2,
+        3,
+        4
+      ],
+      "wakeDelay": [
+        999,
+        999,
+        0,
+        0
+      ],
       "speedWalk": 1.6,
       "speedRun": 3.2,
       "visionDist": 12,
@@ -65,7 +119,14 @@
       "maskFoolTime": 2.0,
       "flashlight": "none",
       "ventAccess": false,
-      "patrolRooms": ["kitchen", "dining", "mainhall", "restrooms", "storageA", "junction"],
+      "patrolRooms": [
+        "kitchen",
+        "dining",
+        "mainhall",
+        "restrooms",
+        "storageA",
+        "junction"
+      ],
       "voice": "clank",
       "eyeColor": 16771912
     },
@@ -74,9 +135,20 @@
       "name": "Foxy el Zorro",
       "kind": "foxy",
       "startRoom": "kidscove",
-      "startOffset": [0, -0.75],
-      "activeChapters": [3, 4],
-      "wakeDelay": [999, 999, 30, 0],
+      "startOffset": [
+        0,
+        -3.75
+      ],
+      "activeChapters": [
+        3,
+        4
+      ],
+      "wakeDelay": [
+        999,
+        999,
+        30,
+        0
+      ],
       "speedWalk": 2.2,
       "speedRun": 4.4,
       "visionDist": 16,
@@ -88,7 +160,15 @@
       "maskFoolTime": 0,
       "flashlight": "repel",
       "ventAccess": false,
-      "patrolRooms": ["kidscove", "arcade", "easthall", "westhall", "mainhall", "dining", "junction"],
+      "patrolRooms": [
+        "kidscove",
+        "arcade",
+        "easthall",
+        "westhall",
+        "mainhall",
+        "dining",
+        "junction"
+      ],
       "voice": "rusty",
       "eyeColor": 16761088
     },
@@ -97,9 +177,20 @@
       "name": "Freddy Dorado",
       "kind": "golden",
       "startRoom": "secret",
-      "startOffset": [0, 0.8],
-      "activeChapters": [3, 4],
-      "wakeDelay": [999, 999, 999, 0],
+      "startOffset": [
+        0,
+        0.8
+      ],
+      "activeChapters": [
+        3,
+        4
+      ],
+      "wakeDelay": [
+        999,
+        999,
+        999,
+        0
+      ],
       "scriptAwake": true,
       "speedWalk": 2.0,
       "speedRun": 3.9,
@@ -112,7 +203,16 @@
       "maskFoolTime": 0,
       "flashlight": "none",
       "ventAccess": false,
-      "patrolRooms": ["prize", "mainhall", "dining", "westhall", "easthall", "junction", "arcade", "storageA"],
+      "patrolRooms": [
+        "prize",
+        "mainhall",
+        "dining",
+        "westhall",
+        "easthall",
+        "junction",
+        "arcade",
+        "storageA"
+      ],
       "voice": "deep",
       "eyeColor": 16777215,
       "persistent": true

@@ -1,0 +1,1376 @@
+     1→/**
+     2→ * Game: orquestador principal. Motor Three.js, bucle, entrada,
+     3→ * interacciones, capítulos con cinemáticas y modelos GLTF del repo.
+     4→ */
+     5→import * as THREE from 'three';
+     6→import chaptersData from '@/data/chapters.json';
+     7→import storyData from '@/data/story.json';
+     8→import animData from '@/data/animatronics.json';
+     9→import type { ChapterDef, AnimatronicDef, Interactable, NoiseEvent } from './types';
+    10→import { WorldBuilder } from '../world/worldbuilder';
+    11→import { NavGraph } from '../ai/navgraph';
+    12→import { Animatronic, type AIHost, type PlayerLike } from '../ai/animatronic';
+    13→import { Player } from '../player/player';
+    14→import { SecurityCameras } from '../systems/cameras';
+    15→import { MissionSystem } from '../systems/missions';
+    16→import { EventDirector } from '../systems/events';
+    17→import { CinematicPlayer } from '../systems/cinematic';
+    18→import { AudioEngine } from '../audio/audio';
+    19→import { useHud } from './state';
+    20→import { loadSave, unlockChapter, addTape, addEnding } from '../systems/save';
+    21→import { mapData } from '../ai/mapdata';
+    22→import { Assets, type GltfRig } from '../world/assets';
+    23→import { disposeTextures } from '../world/textures';
+    24→import { disposeMaterials } from '../world/materials';
+    25→
+    26→type StoryTape = { id: string; title: string; location: string; text: string };
+    27→type StoryNote = { id: string; title: string; location: string; text: string };
+    28→
+    29→export class Game {
+    30→  renderer!: THREE.WebGLRenderer;
+    31→  scene = new THREE.Scene();
+    32→  camera!: THREE.PerspectiveCamera;
+    33→  canvas: HTMLCanvasElement;
+    34→  world!: WorldBuilder;
+    35→  nav = new NavGraph();
+    36→  player!: Player;
+    37→  animatronics: Animatronic[] = [];
+    38→  cams!: SecurityCameras;
+    39→  missions!: MissionSystem;
+    40→  events!: EventDirector;
+    41→  cine!: CinematicPlayer;
+    42→  audio = new AudioEngine();
+    43→  chapter = 1;
+    44→  chapterDef!: ChapterDef;
+    45→  mode = 'boot';
+    46→  time = 0; // segundos de juego del capítulo
+    47→  power = 100;
+    48→  holdInteract: { inter: Interactable; progress: number } | null = null;
+    49→  interactables: Interactable[] = [];
+    50→  noises: NoiseEvent[] = [];
+    51→  private hudTimer = 0;
+    52→  private raf = 0;
+    53→  private lastFrame = 0;
+    54→  private danger = 0;
+    55→  private dust: THREE.Points | null = null;
+    56→  private callLineIdx = 0;
+    57→  private callLineTimer = 0;
+    58→  private callQueue: string[] = [];
+    59→  private deathTimer = 0;
+    60→  private dyingAnimatronic: Animatronic | null = null;
+    61→  private jumpscareTimer = 0;
+    62→  private quality: 'low' | 'medium' | 'high' = 'high';
+    63→  private autoQuality = true;
+    64→  private fpsAcc = 0;
+    65→  private fpsCount = 0;
+    66→  private fpsLowTime = 0;
+    67→  private disposed = false;
+    68→  private windowListeners: Array<[string, EventListener]> = [];
+    69→  private interactPressed = false;
+    70→  private menuRig: GltfRig | null = null;
+    71→  private menuTwitchT = 0;
+    72→  private flashlightModel: THREE.Object3D | null = null;
+    73→  private flashlightLens: THREE.Mesh | null = null;
+    74→  private chapterEndPending = false;
+    75→
+    76→  constructor(canvas: HTMLCanvasElement) {
+    77→    this.canvas = canvas;
+    78→  }
+    79→
+    80→  /* ============ INICIALIZACIÓN ============ */
+    81→
+    82→  async init(onProgress: (frac: number, label: string) => void) {
+    83→    onProgress(0.02, 'Encendiendo motores 3D...');
+    84→    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: 'high-performance' });
+    85→    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    86→    this.renderer.shadowMap.enabled = true;
+    87→    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    88→    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    89→    this.renderer.toneMappingExposure = 1.12;
+    90→    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    91→
+    92→    const save = loadSave();
+    93→    this.quality = save.settings.quality;
+    94→    useHud.getState().setSettings(save.settings);
+    95→    useHud.getState().setProgress(save.unlockedChapter, save.tapes);
+    96→    this.audio.setVolumes(save.settings.master, save.settings.music, save.settings.sfx);
+    97→
+    98→    this.scene.background = new THREE.Color(0x030304);
+    99→    this.scene.fog = new THREE.FogExp2(0x05060a, 0.042);
+   100→    const hemi = new THREE.HemisphereLight(0x2a3040, 0x060608, 0.8);
+   101→    this.scene.add(hemi);
+   102→
+   103→    this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.08, 70);
+   104→    this.scene.add(this.camera);
+   105→
+   106→    // cargar modelos GLB y texturas del repositorio
+   107→    await Assets.loadAll((f, label) => onProgress(0.05 + f * 0.45, label));
+   108→
+   109→    onProgress(0.55, 'Construyendo la pizzería...');
+   110→    await nextFrame();
+   111→    this.world = new WorldBuilder(this.scene);
+   112→    this.world.buildAll((f, label) => onProgress(0.55 + f * 0.2, label));
+   113→    await nextFrame();
+   114→
+   115→    onProgress(0.8, 'Trazando rutas de los animatrónicos...');
+   116→    this.nav.build(this.world);
+   117→
+   118→    onProgress(0.84, 'Reclutando al guardia...');
+   119→    this.player = new Player(this.camera, {
+   120→      world: this.world,
+   121→      addNoise: (x, z, r) => this.addNoise(x, z, r),
+   122→      sfx: {
+   123→        footstep: (pos, surface, running, heavy) => this.audio.footstep(pos, surface, running, heavy),
+   124→        locker: (pos) => this.audio.locker(pos),
+   125→      },
+   126→      power: this.power,
+   127→    });
+   128→    this.attachFlashlightModel();
+   129→
+   130→    onProgress(0.9, 'Despertando a los animatrónicos...');
+   131→    const host = this.makeAIHost();
+   132→    for (const def of (animData as { animatronics: AnimatronicDef[] }).animatronics) {
+   133→      this.animatronics.push(new Animatronic(def, host));
+   134→    }
+   135→
+   136→    this.cams = new SecurityCameras(window.innerWidth / window.innerHeight, {
+   137→      camSwitch: () => this.audio.camSwitch(),
+   138→      setStatic: (l) => this.audio.setStatic(l),
+   139→    });
+   140→    this.cine = new CinematicPlayer(this.camera, this.world);
+   141→
+   142→    this.buildDust();
+   143→
+   144→    // Foxy inerte en el taller (ragdoll del propio modelo)
+   145→    const slumped = Assets.createSlumpedFoxy();
+   146→    if (slumped) {
+   147→      slumped.position.set(-17.5, 0.92, 1.2);
+   148→      slumped.rotation.y = 2.4;
+   149→      this.world.root.add(slumped);
+   150→    }
+   151→
+   152→    this.setupInput();
+   153→    onProgress(0.97, 'Listo...');
+   154→    this.enterMenu();
+   155→    this.render();
+   156→    onProgress(1, 'Completado');
+   157→  }
+   158→
+   159→  /** modelo GLB de la linterna en primera persona */
+   160→  private attachFlashlightModel() {
+   161→    const rig = Assets.rigs.get('flashlight');
+   162→    if (!rig) return;
+   163→    const model = rig.root;
+   164→    model.position.set(0.26, -0.22, -0.42);
+   165→    model.rotation.set(0.1, 0, 0);
+   166→    model.scale.setScalar(rig.height / 0.26 * 1.1);
+   167→    model.visible = false;
+   168→    this.camera.add(model);
+   169→    this.flashlightModel = model;
+   170→    // lente emisiva
+   171→    const lens = new THREE.Mesh(
+   172→      new THREE.CircleGeometry(0.035, 12),
+   173→      new THREE.MeshStandardMaterial({ color: 0xfff6d8, emissive: 0xffeeb0, emissiveIntensity: 0 })
+   174→    );
+   175→    lens.position.set(0, 0.02, -0.14);
+   176→    model.add(lens);
+   177→    this.flashlightLens = lens;
+   178→  }
+   179→
+   180→  private makeAIHost(): AIHost {
+   181→    return {
+   182→      time: 0,
+   183→      chapter: 1,
+   184→      chapterTime: 0,
+   185→      aggression: 1,
+   186→      nav: this.nav,
+   187→      world: this.world,
+   188→      noises: this.noises,
+   189→      onDeath: (ai) => this.onDeath(ai),
+   190→      sfx: {
+   191→        footstep: (pos, kind, running, heavy) => this.audio.footstep(pos, kind, running, heavy),
+   192→        servo: (pos, voice) => this.audio.servo(pos, voice),
+   193→        roar: (pos, voice) => this.audio.roar(pos, voice),
+   194→        doorCreak: (pos) => this.audio.doorCreak(pos),
+   195→        ventBang: (pos) => this.audio.ventBang(pos),
+   196→        stinger: () => this.audio.stinger(),
+   197→        vocal: (pos, voice) => this.audio.vocal(pos, voice),
+   198→      },
+   199→    };
+   200→  }
+   201→
+   202→  private buildDust() {
+   203→    const count = this.quality === 'low' ? 0 : this.quality === 'medium' ? 260 : 420;
+   204→    if (count === 0) return;
+   205→    const geo = new THREE.BufferGeometry();
+   206→    const pos = new Float32Array(count * 3);
+   207→    for (let i = 0; i < count; i++) {
+   208→      pos[i * 3] = (Math.random() - 0.5) * 16;
+   209→      pos[i * 3 + 1] = Math.random() * 3;
+   210→      pos[i * 3 + 2] = (Math.random() - 0.5) * 16;
+   211→    }
+   212→    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+   213→    const mat = new THREE.PointsMaterial({
+   214→      color: 0xbfae8a,
+   215→      size: 0.018,
+   216→      transparent: true,
+   217→      opacity: 0.42,
+   218→      depthWrite: false,
+   219→      blending: THREE.AdditiveBlending,
+   220→    });
+   221→    this.dust = new THREE.Points(geo, mat);
+   222→    this.scene.add(this.dust);
+   223→  }
+   224→
+   225→  private updateDust(_dt: number) {
+   226→    if (!this.dust) return;
+   227→    this.dust.position.set(
+   228→      Math.round(this.player.pos.x / 8) * 8,
+   229→      0,
+   230→      Math.round(this.player.pos.z / 8) * 8
+   231→    );
+   232→    const p = this.dust.geometry.getAttribute('position') as THREE.BufferAttribute;
+   233→    const arr = p.array as Float32Array;
+   234→    for (let i = 0; i < arr.length; i += 3) {
+   235→      arr[i + 1] += Math.sin(this.time * 0.6 + i) * 0.0008 + 0.0012;
+   236→      arr[i] += Math.cos(this.time * 0.4 + i * 0.7) * 0.0006;
+   237→      if (arr[i + 1] > 3.1) arr[i + 1] = 0.05;
+   238→    }
+   239→    p.needsUpdate = true;
+   240→  }
+   241→
+   242→  /* ============ MENÚ (estilo FNAF: Freddy en estática) ============ */
+   243→
+   244→  enterMenu() {
+   245→    this.mode = 'menu';
+   246→    useHud.getState().setMode('menu');
+   247→    useHud.getState().setTablet(false);
+   248→    // Freddy del menú: clon en la oficina mirando a cámara
+   249→    if (!this.menuRig && Assets.has('freddy')) {
+   250→      this.menuRig = Assets.createVariant('freddy');
+   251→      this.menuRig.root.position.set(0, 0, 11.2);
+   252→      this.menuRig.root.rotation.y = 0;
+   253→      this.scene.add(this.menuRig.root);
+   254→    } else if (this.menuRig) {
+   255→      this.scene.add(this.menuRig.root);
+   256→    }
+   257→    this.audio.setStatic(0);
+   258→    this.audio.setBreathing(false);
+   259→    this.audio.setChase(false);
+   260→    this.audio.stopPhoneVoice();
+   261→    useHud.getState().setSubtitle(null);
+   262→  }
+   263→
+   264→  private menuCamera(dt: number) {
+   265→    const t = performance.now() / 1000;
+   266→    // cámara fija frente al rostro de Freddy (que está en z=11.2 mirando al sur) con deriva sutil
+   267→    this.camera.position.set(Math.sin(t * 0.07) * 0.08, 1.72 + Math.sin(t * 0.11) * 0.02, 12.75);
+   268→    this.camera.rotation.set(0, 0, 0);
+   269→    this.camera.rotation.order = 'YXZ';
+   270→    this.camera.rotation.y = 0 + Math.sin(t * 0.05) * 0.03;
+   271→    this.camera.rotation.x = -0.04;
+   272→    // espasmos de cabeza de Freddy
+   273→    if (this.menuRig) {
+   274→      this.menuTwitchT -= dt;
+   275→      const head = this.menuRig.bones.head;
+   276→      if (head) {
+   277→        if (this.menuTwitchT <= 0) {
+   278→          this.menuTwitchT = 1.2 + Math.random() * 3.5;
+   279→        }
+   280→        const twitch = Math.max(0, this.menuTwitchT - (1.2 + Math.random() * 3.5) + 0.4);
+   281→        head.rotation.z = Math.sin(t * 0.8) * 0.03 + (Math.random() < 0.02 ? (Math.random() - 0.5) * 0.2 : 0);
+   282→        head.rotation.y = Math.sin(t * 0.33) * 0.08;
+   283→      }
+   284→      for (const e of this.menuRig.eyes) {
+   285→        const mats = Array.isArray(e.material) ? e.material : [e.material];
+   286→        for (const m of mats as THREE.MeshStandardMaterial[]) {
+   287→          m.emissiveIntensity = 1.2 + (Math.random() < 0.06 ? -1.1 : 0);
+   288→        }
+   289→      }
+   290→      this.menuRig.mixer?.update(dt);
+   291→    }
+   292→    if (this.world) this.world.update(dt, this.camera.position);
+   293→  }
+   294→
+   295→  /* ============ CAPÍTULOS ============ */
+   296→
+   297→  startChapter(n: number) {
+   298→    this.chapter = n;
+   299→    const chapters = (chaptersData as { chapters: ChapterDef[] }).chapters;
+   300→    this.chapterDef = chapters.find((x) => x.chapter === n) ?? chapters[0];
+   301→    this.time = 0;
+   302→    this.power = this.chapterDef.startPower;
+   303→    this.noises = [];
+   304→    this.danger = 0;
+   305→    this.chapterEndPending = false;
+   306→    // quitar Freddy del menú
+   307→    if (this.menuRig) this.scene.remove(this.menuRig.root);
+   308→    this.world.reset();
+   309→    this.player.reset();
+   310→    for (const a of this.animatronics) a.reset();
+   311→    this.cams.reset(n);
+   312→    this.missions = new MissionSystem(this.chapterDef, this.world, useHud, this.makeMissionHost());
+   313→    this.events = new EventDirector(this.makeEventHost());
+   314→    this.buildInteractables();
+   315→    this.callQueue = [];
+   316→    this.callLineIdx = 0;
+   317→    this.callLineTimer = 0;
+   318→    useHud.getState().syncHud({
+   319→      chapter: n,
+   320→      chapterTitle: this.chapterDef.title,
+   321→      hour: 0,
+   322→      power: this.power,
+   323→      objectives: [],
+   324→      prompt: null,
+   325→      subtitle: null,
+   326→      deadBy: null,
+   327→      chapterComplete: false,
+   328→      ending: null,
+   329→      jumpscare: null,
+   330→    });
+   331→    this.missions.syncObjectives();
+   332→    this.audio.startAmbient();
+   333→    this.audio.setChase(false);
+   334→    this.audio.resume();
+   335→    // ¿cinemática de entrada?
+   336→    if (this.chapterDef.introCinematic) {
+   337→      this.playCinematic(this.chapterDef.introCinematic, () => {
+   338→        this.beginPlay();
+   339→      });
+   340→    } else {
+   341→      this.beginPlay();
+   342→    }
+   343→  }
+   344→
+   345→  private beginPlay() {
+   346→    this.mode = 'playing';
+   347→    useHud.getState().setMode('playing');
+   348→  }
+   349→
+   350→  private makeMissionHost() {
+   351→    return {
+   352→      sfx: {
+   353→        alertBeep: () => this.audio.alertBeep(),
+   354→        switchClick: () => this.audio.switchClick(),
+   355→        keypadBeep: (ok: boolean) => this.audio.keypadBeep(ok),
+   356→        powerUp: () => this.audio.powerUp(),
+   357→        pickup: () => this.audio.pickup(),
+   358→        repairClick: () => this.audio.repairClick(),
+   359→      },
+   360→      notify: (msg: string) => this.notify(msg),
+   361→      setPower: (v: number) => {
+   362→        this.power = Math.max(0, Math.min(100, v));
+   363→      },
+   364→      getPower: () => this.power,
+   365→    };
+   366→  }
+   367→
+   368→  private makeEventHost() {
+   369→    return {
+   370→      world: this.world,
+   371→      player: this.player,
+   372→      animatronics: this.animatronics,
+   373→      time: 0,
+   374→      night: this.chapter,
+   375→      eventRate: this.chapterDef?.eventRate ?? 1,
+   376→      audio: {
+   377→        knock: (pos: { x: number; y: number; z: number }, count?: number) => this.audio.knock(pos, count),
+   378→        whisper: (pos: { x: number; y: number; z: number }) => this.audio.whisper(pos),
+   379→        childLaugh: (pos: { x: number; y: number; z: number }) => this.audio.childLaugh(pos),
+   380→        radioBurst: (pos: { x: number; y: number; z: number }) => this.audio.radioBurst(pos),
+   381→        ventBang: (pos: { x: number; y: number; z: number }) => this.audio.ventBang(pos),
+   382→        doorCreak: (pos: { x: number; y: number; z: number }) => this.audio.doorCreak(pos),
+   383→        footstep: (pos: { x: number; y: number; z: number }, surface: string, running: boolean, heavy: boolean) =>
+   384→          this.audio.footstep(pos, surface, running, heavy),
+   385→        setStatic: (l: number) => this.audio.setStatic(l),
+   386→        powerDown: () => this.audio.powerDown(),
+   387→      },
+   388→      addPowerDrain: (v: number) => {
+   389→        this.power = Math.max(0, this.power - v);
+   390→      },
+   391→      onCallStart: (lines: string[]) => this.startCall(lines),
+   392→      onKitchenNoise: () => {
+   393→        this.notify('RUIDO EN LA COCINA — COMPRUÉBALO');
+   394→      },
+   395→    };
+   396→  }
+   397→
+   398→  /* ============ CINEMÁTICAS ============ */
+   399→
+   400→  playCinematic(id: string, onEnd: () => void) {
+   401→    this.mode = 'cinematic';
+   402→    useHud.getState().setMode('cinematic');
+   403→    this.audio.setStatic(0);
+   404→    if (document.pointerLockElement === this.canvas) document.exitPointerLock();
+   405→    const ok = this.cine.play(id, onEnd);
+   406→    if (!ok) {
+   407→      this.mode = 'playing';
+   408→      useHud.getState().setMode('playing');
+   409→      onEnd();
+   410→    }
+   411→  }
+   412→
+   413→  skipCinematic() {
+   414→    if (this.cine.active) this.cine.skip();
+   415→  }
+   416→
+   417→  /* ============ ENTRADA ============ */
+   418→
+   419→  private setupInput() {
+   420→    const kd = (e: KeyboardEvent) => this.onKeyDown(e);
+   421→    const ku = (e: KeyboardEvent) => this.onKeyUp(e);
+   422→    const mm = (e: MouseEvent) => this.onMouseMove(e);
+   423→    const rs = () => this.onResize();
+   424→    window.addEventListener('keydown', kd as EventListener);
+   425→    window.addEventListener('keyup', ku as EventListener);
+   426→    window.addEventListener('mousemove', mm as EventListener);
+   427→    window.addEventListener('resize', rs);
+   428→    this.windowListeners = [
+   429→      ['keydown', kd as EventListener], ['keyup', ku as EventListener], ['mousemove', mm as EventListener], ['resize', rs],
+   430→    ];
+   431→  }
+   432→
+   433→  private onKeyDown(e: KeyboardEvent) {
+   434→    if (e.code === 'Tab') e.preventDefault();
+   435→    this.player.keys[e.code] = true;
+   436→    if (this.mode === 'cinematic') {
+   437→      if (e.code === 'KeyE' || e.code === 'Space' || e.code === 'Enter') {
+   438→        e.preventDefault();
+   439→        this.skipCinematic();
+   440→      } else if (e.code === 'Escape') {
+   441→        this.cine.stop(true);
+   442→      }
+   443→      return;
+   444→    }
+   445→    if (this.mode !== 'playing') {
+   446→      if (e.code === 'Escape' && this.mode === 'paused') this.resume();
+   447→      return;
+   448→    }
+   449→    switch (e.code) {
+   450→      case 'KeyF':
+   451→        if (!this.missions.hasFlashlight) {
+   452→          this.notify('La linterna está sobre el escritorio');
+   453→          break;
+   454→        }
+   455→        this.player.toggleFlashlight();
+   456→        this.audio.camSwitch();
+   457→        break;
+   458→      case 'KeyQ':
+   459→        this.toggleMask();
+   460→        break;
+   461→      case 'KeyC':
+   462→        this.toggleTablet();
+   463→        break;
+   464→      case 'ControlLeft':
+   465→      case 'ControlRight':
+   466→        this.player.crouching = !this.player.crouching;
+   467→        break;
+   468→      case 'KeyE':
+   469→        this.tryInteract();
+   470→        break;
+   471→      case 'Escape':
+   472→        this.pause();
+   473→        break;
+   474→      case 'ArrowLeft':
+   475→      case 'KeyA':
+   476→        if (useHud.getState().tabletOpen) this.cams.switchCam(-1);
+   477→        break;
+   478→      case 'ArrowRight':
+   479→      case 'KeyD':
+   480→        if (useHud.getState().tabletOpen) this.cams.switchCam(1);
+   481→        break;
+   482→      default:
+   483→        if (e.code.startsWith('Digit')) {
+   484→          const n = parseInt(e.code.slice(5), 10);
+   485→          const stt = useHud.getState();
+   486→          if (stt.tabletOpen && n >= 1 && n <= 9) {
+   487→            const cam = this.cams.cams.find((c) => c.index === n);
+   488→            if (cam) this.cams.setCam(n);
+   489→          }
+   490→        }
+   491→        break;
+   492→    }
+   493→  }
+   494→
+   495→  private onKeyUp(e: KeyboardEvent) {
+   496→    this.player.keys[e.code] = false;
+   497→    if (e.code === 'KeyE') this.holdInteract = null;
+   498→  }
+   499→
+   500→  private onMouseMove(e: MouseEvent) {
+   501→    if (this.mode !== 'playing') return;
+   502→    const locked = document.pointerLockElement === this.canvas;
+   503→    if (!locked) {
+   504→      if (e.buttons & 1) {
+   505→        const settings = useHud.getState().settings;
+   506→        this.player.onMouseMove(e.movementX, e.movementY, settings.sensitivity, settings.invertY);
+   507→      }
+   508→      return;
+   509→    }
+   510→    const settings = useHud.getState().settings;
+   511→    this.player.onMouseMove(e.movementX, e.movementY, settings.sensitivity, settings.invertY);
+   512→  }
+   513→
+   514→  onCanvasClick() {
+   515→    if (this.mode === 'cinematic') {
+   516→      this.skipCinematic();
+   517→      return;
+   518→    }
+   519→    if (this.mode === 'playing' && document.pointerLockElement !== this.canvas) {
+   520→      this.canvas.requestPointerLock?.();
+   521→    }
+   522→  }
+   523→
+   524→  private onResize() {
+   525→    if (!this.renderer) return;
+   526→    const w = window.innerWidth;
+   527→    const h = window.innerHeight;
+   528→    this.renderer.setSize(w, h);
+   529→    this.camera.aspect = w / h;
+   530→    this.camera.updateProjectionMatrix();
+   531→    this.cams.camera.aspect = w / h;
+   532→    this.cams.camera.updateProjectionMatrix();
+   533→  }
+   534→
+   535→  private toggleMask() {
+   536→    if (this.player.inVent) {
+   537→      this.notify('No puedes ponerte la máscara aquí');
+   538→      return;
+   539→    }
+   540→    this.player.masked = !this.player.masked;
+   541→    this.audio.setBreathing(this.player.masked);
+   542→    this.audio.servo(this.player.pos, 'deep');
+   543→  }
+   544→
+   545→  private toggleTablet() {
+   546→    const st = useHud.getState();
+   547→    if (!this.missions.hasTablet) {
+   548→      this.notify('La tableta de vigilancia está en la oficina');
+   549→      return;
+   550→    }
+   551→    if (st.note || st.keypadDoor) return;
+   552→    const open = !st.tabletOpen;
+   553→    st.setTablet(open);
+   554→    this.audio.camSwitch();
+   555→    if (open && this.chapter === 1) {
+   556→      this.missions.completeObjective('c1_cams', true);
+   557→    }
+   558→  }
+   559→
+   560→  /* ============ INTERACCIONES ============ */
+   561→
+   562→  private buildInteractables() {
+   563→    this.interactables = [];
+   564→    const world = this.world;
+   565→    const P = () => this.player;
+   566→    const ch = this.chapter;
+   567→
+   568→    // puertas
+   569→    for (const door of world.doors.values()) {
+   570→      const isStorageB = door.def.id === 'door_storageB';
+   571→      const isExit = door.def.id === 'door_exit';
+   572→      const isSecret = door.def.id === 'door_secret';
+   573→      this.interactables.push({
+   574→        id: `door_${door.def.id}`,
+   575→        label: isSecret ? 'Empujar la estantería' : door.locked ? 'Puerta bloqueada' : door.open ? 'Cerrar puerta' : 'Abrir puerta',
+   576→        pos: { x: door.def.x, y: 1.1, z: door.def.z },
+   577→        radius: 1.9,
+   578→        enabled: () => this.mode === 'playing' && !P().hidden,
+   579→        action: () => {
+   580→          if (isSecret && door.locked) {
+   581→            door.locked = false;
+   582→            this.nav.setDoorBlocked('door_secret', false);
+   583→            this.notify('La estantería se desliza hacia dentro... una sala oculta');
+   584→            this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
+   585→            door.open = true;
+   586→            door.targetAngle = door.group.rotation.y - 1.8;
+   587→            return;
+   588→          }
+   589→          if (door.locked && door.code) {
+   590→            useHud.getState().setKeypad(door.def.id);
+   591→            this.audio.alertBeep();
+   592→            return;
+   593→          }
+   594→          if (door.locked) {
+   595→            if (isExit && this.missions.hasKey) {
+   596→              this.finishGame('escape');
+   597→              return;
+   598→            }
+   599→            this.notify(door.def.lockedMsg ?? 'Bloqueada');
+   600→            this.audio.keypadBeep(false);
+   601→            return;
+   602→          }
+   603→          door.open = !door.open;
+   604→          door.targetAngle = door.group.rotation.y + (door.open ? (Math.random() > 0.5 ? 1.9 : -1.9) : door.open ? 1.9 : -1.6);
+   605→          if (!door.open) door.targetAngle = Math.round(door.group.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
+   606→          this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
+   607→          this.addNoise(door.def.x, door.def.z, 6);
+   608→        },
+   609→      });
+   610→      if (isStorageB) door.locked = ch >= 3;
+   611→    }
+   612→
+   613→    // escondites
+   614→    for (const spot of mapData.hidingSpots) {
+   615→      const [x, z] = spot.pos;
+   616→      this.interactables.push({
+   617→        id: `hide_${spot.id}`,
+   618→        label: 'Esconderse',
+   619→        pos: { x, y: 0.9, z },
+   620→        radius: 1.6,
+   621→        enabled: () => this.mode === 'playing' && !P().hidden && !P().inVent,
+   622→        action: () => {
+   623→          this.player.hide(spot.id, new THREE.Vector3(x, 0, z), 0);
+   624→          this.notify('Escondido — mantén silencio [E para salir]');
+   625→        },
+   626→      });
+   627→      this.interactables.push({
+   628→        id: `unhide_${spot.id}`,
+   629→        label: 'Salir del escondite',
+   630→        pos: { x, y: 0.9, z },
+   631→        radius: 2.4,
+   632→        requireLook: false,
+   633→        enabled: () => this.mode === 'playing' && P().hidden === true && P().hiddenSpotId === spot.id,
+   634→        action: () => {
+   635→          this.player.unhide(new THREE.Vector3(x, 0, z));
+   636→        },
+   637→      });
+   638→    }
+   639→
+   640→    // recogida de linterna y tableta
+   641→    const torch = world.anchors.get('desk_torch');
+   642→    if (torch) {
+   643→      this.interactables.push({
+   644→        id: 'pickup_torch',
+   645→        label: 'Coger la linterna',
+   646→        pos: { x: torch.pos.x, y: torch.pos.y, z: torch.pos.z },
+   647→        radius: 1.7,
+   648→        enabled: () => !this.missions.hasFlashlight,
+   649→        action: () => {
+   650→          this.missions.hasFlashlight = true;
+   651→          torch.mesh!.visible = false;
+   652→          this.audio.pickup();
+   653→          this.missions.completeObjective('c1_gear');
+   654→          this.notify('Linterna equipada [F]');
+   655→          if (this.flashlightModel) this.flashlightModel.visible = true;
+   656→        },
+   657→      });
+   658→    }
+   659→    const tabletA = world.anchors.get('desk_tablet');
+   660→    if (tabletA) {
+   661→      this.interactables.push({
+   662→        id: 'pickup_tablet',
+   663→        label: 'Coger la tableta de vigilancia',
+   664→        pos: { x: tabletA.pos.x, y: tabletA.pos.y, z: tabletA.pos.z },
+   665→        radius: 1.7,
+   666→        enabled: () => !this.missions.hasTablet,
+   667→        action: () => {
+   668→          this.missions.hasTablet = true;
+   669→          tabletA.mesh!.visible = false;
+   670→          this.audio.pickup();
+   671→          this.missions.completeObjective('c1_gear');
+   672→          this.notify('Tableta equipada [C]');
+   673→        },
+   674→      });
+   675→    }
+   676→
+   677→    // panel de la oficina (cap1)
+   678→    const officePanel = world.anchors.get('office_panel');
+   679→    if (officePanel) {
+   680→      this.interactables.push({
+   681→        id: 'office_panel',
+   682→        label: 'Reparar el panel de la oficina',
+   683→        pos: { x: officePanel.pos.x, y: officePanel.pos.y, z: officePanel.pos.z },
+   684→        radius: 1.7,
+   685→        holdTime: 5,
+   686→        holdLabel: 'REPARANDO',
+   687→        enabled: () => this.mode === 'playing' && ch === 1 && !this.missions.objectives.find((o) => o.def.id === 'c1_repair')?.done && this.missions.fusesHeld >= 2,
+   688→        action: () => {
+   689→          this.missions.fusesHeld -= 2;
+   690→          this.audio.repairClick();
+   691→          this.missions.completeObjective('c1_repair');
+   692→        },
+   693→      });
+   694→    }
+   695→
+   696→    // panel eléctrico (cap2)
+   697→    const elecPanel = world.anchors.get('electrical_panel');
+   698→    if (elecPanel) {
+   699→      this.interactables.push({
+   700→        id: 'electrical_panel',
+   701→        label: 'Insertar fusibles en el panel',
+   702→        pos: { x: elecPanel.pos.x, y: elecPanel.pos.y, z: elecPanel.pos.z },
+   703→        radius: 1.8,
+   704→        holdTime: 6,
+   705→        holdLabel: 'INSERTANDO FUSIBLES',
+   706→        enabled: () => this.mode === 'playing' && ch === 2 && this.missions.fusesHeld >= 3,
+   707→        action: () => {
+   708→          this.missions.fusesHeld -= 3;
+   709→          this.power = Math.min(100, this.power + 30);
+   710→          this.audio.powerUp();
+   711→          this.missions.completeObjective('c2_fuses');
+   712→        },
+   713→      });
+   714→    }
+   715→
+   716→    // soportes de cámara (cap2)
+   717→    for (const [anchorId, objId, camIdx] of [['cam09_mount', 'c2_cam9', 9], ['cam05_mount', 'c2_cam5', 5]] as Array<[string, string, number]>) {
+   718→      const a = world.anchors.get(anchorId);
+   719→      if (!a) continue;
+   720→      this.interactables.push({
+   721→        id: anchorId,
+   722→        label: 'Reparar la cámara',
+   723→        pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
+   724→        radius: 1.8,
+   725→        holdTime: 5,
+   726→        holdLabel: 'REPARANDO CÁMARA',
+   727→        enabled: () => this.mode === 'playing' && ch === 2 && !this.missions.objectives.find((o) => o.def.id === objId)?.done,
+   728→        action: () => {
+   729→          this.cams.repairCam(camIdx);
+   730→          this.audio.repairClick();
+   731→          this.missions.completeObjective(objId);
+   732→        },
+   733→      });
+   734→    }
+   735→
+   736→    // interruptores del fusible maestro (cap4)
+   737→    const masterX = -12.7;
+   738→    for (let i = 0; i < 4; i++) {
+   739→      const sx = masterX + 0.42 - i * 0.28;
+   740→      const switchNo = i + 1;
+   741→      this.interactables.push({
+   742→        id: `sw_master_${i}`,
+   743→        label: `Interruptor ${switchNo}`,
+   744→        pos: { x: sx, y: 1.55, z: 16.55 },
+   745→        radius: 1.4,
+   746→        enabled: () => this.mode === 'playing' && ch === 4 && !this.missions.objectives.find((o) => o.def.id === 'c4_master')?.done,
+   747→        action: () => {
+   748→          if (this.missions.sequenceTargetId !== 'master_switches') {
+   749→            this.missions.sequenceTargetId = 'master_switches';
+   750→            this.missions.sequenceTarget = [3, 1, 4, 2];
+   751→            this.missions.sequenceProgress = [];
+   752→            this.notify('FUSIBLE MAESTRO — introduce la secuencia');
+   753→          }
+   754→          this.missions.pressSwitch(switchNo);
+   755→        },
+   756→      });
+   757→    }
+   758→
+   759→    // monitor de la oficina abre la tableta
+   760→    const monitor = world.anchors.get('desk_monitor');
+   761→    if (monitor) {
+   762→      this.interactables.push({
+   763→        id: 'monitor',
+   764→        label: 'Consultar el monitor',
+   765→        pos: { x: monitor.pos.x, y: monitor.pos.y, z: monitor.pos.z },
+   766→        radius: 1.5,
+   767→        enabled: () => this.mode === 'playing' && this.missions.hasTablet && !useHud.getState().tabletOpen,
+   768→        action: () => this.toggleTablet(),
+   769→      });
+   770→    }
+   771→  }
+   772→
+   773→  private updateInteractions(dt: number) {
+   774→    const st = useHud.getState();
+   775→    if (this.mode !== 'playing' || st.tabletOpen || st.note || st.keypadDoor) {
+   776→      if (st.prompt) st.setPrompt(null);
+   777→      this.holdInteract = null;
+   778→      return;
+   779→    }
+   780→    const p = this.player;
+   781→    const look = p.lookDir;
+   782→    let best: Interactable | null = null;
+   783→    let bestScore = -1;
+   784→    for (const inter of this.interactables) {
+   785→      if (!inter.enabled()) continue;
+   786→      const dx = inter.pos.x - p.pos.x;
+   787→      const dz = inter.pos.z - p.pos.z;
+   788→      const dy = (inter.pos.y ?? 1) - (p.pos.y + 1.5);
+   789→      const d = Math.hypot(dx, dz, dy * 0.5);
+   790→      if (d > inter.radius) continue;
+   791→      let score = 1 - d / inter.radius;
+   792→      if (inter.requireLook !== false) {
+   793→        const len = Math.hypot(dx, dz) || 1;
+   794→        const dot = (dx / len) * look.x + (dz / len) * look.z;
+   795→        if (dot < 0.35) continue;
+   796→        score += dot * 0.5;
+   797→      }
+   798→      if (score > bestScore) {
+   799→        bestScore = score;
+   800→        best = inter;
+   801→      }
+   802→    }
+   803→    // recogidas automáticas (objetos de misión)
+   804→    const item = this.missions.itemAt(p.pos, 0.95);
+   805→    if (item) {
+   806→      this.pickupItem(item.id, item.kind);
+   807→    }
+   808→    if (best) {
+   809→      const holding = this.player.keys['KeyE'];
+   810→      if (best.holdTime) {
+   811→        if (holding) {
+   812→          if (!this.holdInteract || this.holdInteract.inter !== best) {
+   813→            this.holdInteract = { inter: best, progress: 0 };
+   814→          }
+   815→          this.holdInteract.progress += dt / best.holdTime;
+   816→          this.addNoise(p.pos.x, p.pos.z, 13);
+   817→          if (Math.random() < dt * 6) this.audio.repairClick();
+   818→          if (this.holdInteract.progress >= 1) {
+   819→            best.action();
+   820→            this.holdInteract = null;
+   821→            st.setPrompt(null);
+   822→          } else {
+   823→            st.setPrompt(`${best.holdLabel ?? 'MANTÉN E'} — [E]`, this.holdInteract.progress);
+   824→          }
+   825→        } else {
+   826→          if (this.holdInteract?.inter !== best) this.holdInteract = null;
+   827→          st.setPrompt(`${best.label} — mantén [E]`);
+   828→        }
+   829→      } else {
+   830→        this.holdInteract = null;
+   831→        st.setPrompt(`${best.label} [E]`);
+   832→        if (this.interactPressed) {
+   833→          best.action();
+   834→          this.interactPressed = false;
+   835→        }
+   836→      }
+   837→    } else {
+   838→      if (this.holdInteract) this.holdInteract = null;
+   839→      if (st.prompt) st.setPrompt(null);
+   840→    }
+   841→    if (this.interactPressed) this.interactPressed = false;
+   842→  }
+   843→
+   844→  private tryInteract() {
+   845→    this.interactPressed = true;
+   846→  }
+   847→
+   848→  private pickupItem(id: string, kind: string) {
+   849→    this.missions.removeItem(id);
+   850→    this.audio.pickup();
+   851→    switch (kind) {
+   852→      case 'fuse':
+   853→        this.missions.fusesHeld++;
+   854→        this.notify(`Fusible conseguido (${this.missions.fusesHeld})`);
+   855→        this.missions.progressObjective(this.chapter === 1 ? 'c1_fuses' : 'c2_fuses');
+   856→        break;
+   857→      case 'battery':
+   858→        this.player.addBattery(34);
+   859→        this.notify('Batería +34%');
+   860→        break;
+   861→      case 'key':
+   862→        this.missions.hasKey = true;
+   863→        this.notify('LLAVE MAESTRA — ve al vestíbulo de salida');
+   864→        this.missions.completeObjective('c4_key');
+   865→        break;
+   866→      case 'note': {
+   867→        const noteId = id.replace('_pick', '');
+   868→        const note = (storyData.notes as StoryNote[]).find((x) => x.id === noteId);
+   869→        if (note) {
+   870→          useHud.getState().setNote({ id: note.id, title: note.title, text: note.text });
+   871→        }
+   872→        if (noteId === 'note_code') this.notify('La nota contiene un código...');
+   873→        break;
+   874→      }
+   875→      case 'tape': {
+   876→        const tape = (storyData.tapes as StoryTape[]).find((x) => x.id === id);
+   877→        if (tape) {
+   878→          useHud.getState().setNote({ id: tape.id, title: tape.title, text: tape.text });
+   879→          const save = addTape(tape.id);
+   880→          useHud.getState().setProgress(save.unlockedChapter, save.tapes);
+   881→        }
+   882→        this.missions.progressObjective('c2_tape');
+   883→        if (id === 'tape_golden') {
+   884→          this.missions.completeObjective('c3_goldtape');
+   885→          // ¡Freddy Dorado despierta!
+   886→          const golden = this.animatronics.find((a) => a.def.id === 'golden');
+   887→          if (golden && !golden.active) {
+   888→            this.audio.stinger();
+   889→            this.audio.roar(golden.pos, 'deep');
+   890→            golden.scriptWake();
+   891→            this.notify('ALGO DORADO SE HA LEVANTADO — ¡VUELVE A LA OFICINA!');
+   892→            this.player.setShake(0.8);
+   893→          }
+   894→        }
+   895→        break;
+   896→      }
+   897→    }
+   898→  }
+   899→
+   900→  /* ============ LÓGICA DE CAPÍTULO ============ */
+   901→
+   902→  notify(msg: string) {
+   903→    const st = useHud.getState();
+   904→    st.setAlert(msg);
+   905→    window.setTimeout(() => {
+   906→      if (useHud.getState().alert === msg) useHud.getState().setAlert(null);
+   907→    }, 3200);
+   908→  }
+   909→
+   910→  private startCall(lines: string[]) {
+   911→    this.callQueue = [...lines];
+   912→    this.callLineIdx = 0;
+   913→    this.callLineTimer = 1.2;
+   914→    const totalDur = lines.reduce((s, l) => s + 2.2 + l.length * 0.036, 0);
+   915→    this.audio.phoneBeep();
+   916→    this.audio.startPhoneVoice(totalDur);
+   917→    useHud.getState().syncHud({ callActive: true });
+   918→  }
+   919→
+   920→  private updateCall(dt: number) {
+   921→    if (!this.callQueue.length) return;
+   922→    this.callLineTimer -= dt;
+   923→    if (this.callLineTimer <= 0) {
+   924→      const line = this.callQueue[this.callLineIdx];
+   925→      if (line !== undefined) {
+   926→        useHud.getState().setSubtitle(`☎ ${line}`);
+   927→        this.callLineTimer = 2.2 + line.length * 0.036;
+   928→        this.callLineIdx++;
+   929→        if (this.callLineIdx >= this.callQueue.length) {
+   930→          const dur = this.callLineTimer;
+   931→          this.callQueue = [];
+   932→          window.setTimeout(() => {
+   933→            useHud.getState().setSubtitle(null);
+   934→            useHud.getState().syncHud({ callActive: false });
+   935→            this.audio.stopPhoneVoice();
+   936→            this.audio.phoneBeep();
+   937→          }, dur * 1000);
+   938→        }
+   939→      }
+   940→    }
+   941→  }
+   942→
+   943→  keypadSubmit(code: string) {
+   944→    const st = useHud.getState();
+   945→    const doorId = st.keypadDoor;
+   946→    if (!doorId) return;
+   947→    const door = this.world.doors.get(doorId);
+   948→    if (!door) return;
+   949→    if (code === (door.code ?? '1987')) {
+   950→      door.locked = false;
+   951→      this.nav.setDoorBlocked(doorId, false);
+   952→      door.open = true;
+   953→      door.targetAngle = door.group.rotation.y + 1.9;
+   954→      this.audio.keypadBeep(true);
+   955→      this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
+   956→      st.setKeypad(null);
+   957→      this.notify('ALMACÉN SUR ABIERTO');
+   958→      this.missions.completeObjective('c3_code');
+   959→    } else {
+   960→      this.audio.keypadBeep(false);
+   961→      this.notify('Código incorrecto');
+   962→    }
+   963→  }
+   964→
+   965→  closeNote() {
+   966→    useHud.getState().setNote(null);
+   967→    this.audio.pickup();
+   968→  }
+   969→
+   970→  private addNoise(x: number, z: number, radius: number) {
+   971→    this.noises.push({ x, z, radius, worldTime: this.time });
+   972→    if (this.noises.length > 40) this.noises.shift();
+   973→  }
+   974→
+   975→  /* ============ MUERTE Y VICTORIA ============ */
+   976→
+   977→  private onDeath(ai: Animatronic) {
+   978→    if (this.mode !== 'playing') return;
+   979→    this.mode = 'dying';
+   980→    this.dyingAnimatronic = ai;
+   981→    this.deathTimer = 1.7;
+   982→    this.jumpscareTimer = 0;
+   983→    this.audio.jumpscare(ai.def.voice);
+   984→    this.audio.setChase(false);
+   985→    useHud.getState().setJumpscare(ai.def.kind);
+   986→    useHud.getState().setTablet(false);
+   987→    this.player.setShake(1.4);
+   988→    this.holdInteract = null;
+   989→    useHud.getState().setPrompt(null);
+   990→  }
+   991→
+   992→  private updateDying(dt: number) {
+   993→    this.jumpscareTimer += dt;
+   994→    const ai = this.dyingAnimatronic;
+   995→    if (ai) {
+   996→      const target = this.camera.position.clone();
+   997→      const dir = target.clone().sub(ai.pos).normalize();
+   998→      ai.pos.addScaledVector(dir, dt * 5.5);
+   999→      ai.rig.root.position.copy(ai.pos);
+  1000→      ai.yaw = Math.atan2(dir.x, dir.z);
+  1001→      ai.rig.root.rotation.y = ai.yaw;
+  1002→      const b = ai.rig.bones;
+  1003→      if (b.armL) ai.swingPublic(b.armL, -2.2);
+  1004→      if (b.armR) ai.swingPublic(b.armR, -2.2);
+  1005→      if (b.jaw) ai.swingPublic(b.jaw, 0.5);
+  1006→      this.player.setShake(1.2);
+  1007→    }
+  1008→    this.deathTimer -= dt;
+  1009→    if (this.deathTimer <= 0) {
+  1010→      this.mode = 'dead';
+  1011→      useHud.getState().setMode('dead');
+  1012→      useHud.getState().setDead(ai ? ai.def.name : 'Algo');
+  1013→      useHud.getState().setJumpscare(null);
+  1014→      useHud.getState().setSubtitle(null);
+  1015→      this.audio.setStatic(0.6);
+  1016→      this.audio.setBreathing(false);
+  1017→    }
+  1018→  }
+  1019→
+  1020→  retryChapter() {
+  1021→    this.audio.setStatic(0);
+  1022→    useHud.getState().setDead(null);
+  1023→    useHud.getState().setJumpscare(null);
+  1024→    if (this.cine.active) this.cine.stop(false);
+  1025→    this.startChapter(this.chapter);
+  1026→  }
+  1027→
+  1028→  /** fin de capítulo: cinemática de salida + pantalla de completado */
+  1029→  private completeChapter() {
+  1030→    if (this.chapterEndPending) return;
+  1031→    this.chapterEndPending = true;
+  1032→    this.audio.setChase(false);
+  1033→    this.audio.setBreathing(false);
+  1034→    const finish = () => {
+  1035→      const save = unlockChapter(this.chapter + 1);
+  1036→      useHud.getState().setProgress(save.unlockedChapter, save.tapes);
+  1037→      this.mode = 'complete';
+  1038→      useHud.getState().setMode('complete');
+  1039→      useHud.getState().syncHud({ chapterComplete: true });
+  1040→      this.audio.victory();
+  1041→    };
+  1042→    if (this.chapterDef.outroCinematic) {
+  1043→      this.playCinematic(this.chapterDef.outroCinematic, finish);
+  1044→    } else {
+  1045→      finish();
+  1046→    }
+  1047→  }
+  1048→
+  1049→  private finishGame(reason: 'escape') {
+  1050→    if (this.mode !== 'playing') return;
+  1051→    this.audio.setChase(false);
+  1052→    this.audio.setBreathing(false);
+  1053→    const save = loadSave();
+  1054→    const ending = save.tapes.length >= 10 ? 'secret' : 'normal';
+  1055→    const lines = ending === 'secret' ? storyData.endingSecret : storyData.endingNormal;
+  1056→    addEnding(ending);
+  1057→    const finale = () => {
+  1058→      useHud.getState().setEnding(ending, lines);
+  1059→      this.mode = 'ending';
+  1060→      useHud.getState().setMode('ending');
+  1061→    };
+  1062→    if (this.chapterDef.outroCinematic) {
+  1063→      this.playCinematic(this.chapterDef.outroCinematic, finale);
+  1064→    } else {
+  1065→      finale();
+  1066→    }
+  1067→  }
+  1068→
+  1069→  returnToMenu() {
+  1070→    if (this.cine.active) this.cine.stop(false);
+  1071→    this.enterMenu();
+  1072→  }
+  1073→
+  1074→  pause() {
+  1075→    if (this.mode !== 'playing') return;
+  1076→    this.mode = 'paused';
+  1077→    useHud.getState().setMode('paused');
+  1078→    this.audio.suspend();
+  1079→    if (document.pointerLockElement === this.canvas) document.exitPointerLock();
+  1080→  }
+  1081→
+  1082→  resume() {
+  1083→    if (this.mode !== 'paused') return;
+  1084→    this.mode = 'playing';
+  1085→    useHud.getState().setMode('playing');
+  1086→    this.audio.resume();
+  1087→  }
+  1088→
+  1089→  applySettings() {
+  1090→    const s = useHud.getState().settings;
+  1091→    this.audio.setVolumes(s.master, s.music, s.sfx);
+  1092→    if (s.quality !== this.quality) {
+  1093→      this.quality = s.quality;
+  1094→      this.autoQuality = false;
+  1095→      this.applyQuality();
+  1096→    }
+  1097→  }
+  1098→
+  1099→  private applyQuality() {
+  1100→    const dpr = window.devicePixelRatio || 1;
+  1101→    const pr = this.quality === 'low' ? 0.7 : this.quality === 'medium' ? Math.min(1, dpr) : Math.min(1.75, dpr);
+  1102→    this.renderer?.setPixelRatio(pr);
+  1103→    if (this.player) {
+  1104→      this.player.flashlight.castShadow = this.quality !== 'low';
+  1105→      this.renderer.shadowMap.enabled = this.quality !== 'low';
+  1106→    }
+  1107→  }
+  1108→
+  1109→  /* ============ BUCLE PRINCIPAL ============ */
+  1110→
+  1111→  private render = () => {
+  1112→    if (this.disposed) return;
+  1113→    this.raf = requestAnimationFrame(this.render);
+  1114→    const now = performance.now();
+  1115→    let dt = (now - this.lastFrame) / 1000;
+  1116→    this.lastFrame = now;
+  1117→    if (dt > 0.06) dt = 0.06;
+  1118→    if (dt <= 0) return;
+  1119→
+  1120→    // auto-ajuste de calidad
+  1121→    this.fpsAcc += dt;
+  1122→    this.fpsCount++;
+  1123→    if (this.fpsAcc > 1) {
+  1124→      const fps = this.fpsCount / this.fpsAcc;
+  1125→      this.fpsAcc = 0;
+  1126→      this.fpsCount = 0;
+  1127→      if (this.autoQuality && this.mode === 'playing') {
+  1128→        if (fps < 32) this.fpsLowTime += 1;
+  1129→        else this.fpsLowTime = Math.max(0, this.fpsLowTime - 0.5);
+  1130→        if (this.fpsLowTime >= 5) {
+  1131→          if (this.quality === 'high') this.quality = 'medium';
+  1132→          else if (this.quality === 'medium') this.quality = 'low';
+  1133→          this.applyQuality();
+  1134→          this.fpsLowTime = 0;
+  1135→        }
+  1136→      }
+  1137→    }
+  1138→
+  1139→    if (this.mode === 'playing') {
+  1140→      this.tick(dt);
+  1141→    } else if (this.mode === 'dying') {
+  1142→      this.updateDying(dt);
+  1143→      this.world.update(dt, this.player.pos);
+  1144→    } else if (this.mode === 'cinematic') {
+  1145→      this.cine.update(dt);
+  1146→      this.world.update(dt, this.camera.position);
+  1147→    } else if (this.mode === 'menu' || this.mode === 'boot') {
+  1148→      this.menuCamera(dt);
+  1149→    } else if (this.mode === 'dead' || this.mode === 'complete' || this.mode === 'ending') {
+  1150→      // escena congelada con la última cámara
+  1151→      this.world.update(dt, this.camera.position);
+  1152→    }
+  1153→
+  1154→    if (this.audio.available) {
+  1155→      this.audio.update(dt);
+  1156→      if (this.mode !== 'cinematic') {
+  1157→        this.audio.updateListener(this.camera.position, this.camera.quaternion);
+  1158→      } else {
+  1159→        this.audio.updateListener(this.camera.position, this.camera.quaternion);
+  1160→      }
+  1161→    }
+  1162→
+  1163→    const st = useHud.getState();
+  1164→    const tabletRendering = st.tabletOpen && this.mode === 'playing';
+  1165→    // la tableta renderiza con más exposición (visión nocturna de las cámaras)
+  1166→    this.renderer.toneMappingExposure = tabletRendering ? 2.15 : 1.12;
+  1167→    const activeCam = tabletRendering ? this.cams.camera : this.camera;
+  1168→    this.renderer.render(this.scene, activeCam);
+  1169→  };
+  1170→
+  1171→  private tick(dt: number) {
+  1172→    if (!this.chapterDef || !this.missions) return;
+  1173→    const st = useHud.getState();
+  1174→    this.time += dt;
+  1175→
+  1176→    // jugador (bloqueado si tablet/nota/teclado abiertos)
+  1177→    const uiBlocked = st.tabletOpen || !!st.note || !!st.keypadDoor;
+  1178→    if (!uiBlocked) {
+  1179→      this.player.update(dt);
+  1180→    } else {
+  1181→      this.player.keys = {};
+  1182→    }
+  1183→
+  1184→    // IA host actualizado
+  1185→    const host = this.animatronics[0]?.host;
+  1186→    if (host) {
+  1187→      host.time = this.time;
+  1188→      host.chapter = this.chapter;
+  1189→      host.chapterTime = this.time;
+  1190→      host.aggression = this.chapterDef.aggression;
+  1191→    }
+  1192→
+  1193→    // animatrónicos (solo los del capítulo despiertan; el resto sigue dormido)
+  1194→    const playerLike = this.player as unknown as PlayerLike;
+  1195→    for (const a of this.animatronics) {
+  1196→      if (!a.def.activeChapters.includes(this.chapter) && !a.active) {
+  1197→        a.update(dt * 0.2, playerLike); // dormido: animación mínima
+  1198→        continue;
+  1199→      }
+  1200→      a.update(dt, playerLike);
+  1201→    }
+  1202→
+  1203→    // eventos
+  1204→    this.events.update(dt);
+  1205→    this.events.checkKitchenNoise(this.time / 60);
+  1206→    if (!this.events.callDone && this.chapterDef.radio && this.time / 60 >= this.chapterDef.radio.atMinute) {
+  1207→      this.events.triggerCall(this.chapterDef.radio.lines);
+  1208→    }
+  1209→    this.updateCall(dt);
+  1210→
+  1211→    // objetivos de desplazamiento (los de "volver" solo al final)
+  1212→    const room = this.world.roomIdAt(this.player.pos.x, this.player.pos.z);
+  1213→    const othersDoneFor = (excludeId: string) =>
+  1214→      this.missions.objectives
+  1215→        .filter((o) => o.def.id !== excludeId && !o.def.optional && o.def.type !== 'survive')
+  1216→        .every((o) => o.done);
+  1217→    const gotoChecks: Array<[string, string, boolean]> = [
+  1218→      ['c2_kitchen', 'kitchen', false],
+  1219→      ['c1_return', 'office', true],
+  1220→      ['c2_return', 'office', true],
+  1221→      ['c3_survive', 'office', false],
+  1222→    ];
+  1223→    for (const [objId, roomId, requireOthers] of gotoChecks) {
+  1224→      const o = this.missions.objectives.find((x) => x.def.id === objId);
+  1225→      if (o && !o.done && room === roomId && (!requireOthers || othersDoneFor(o.def.id))) {
+  1226→        this.missions.completeObjective(objId);
+  1227→      }
+  1228→    }
+  1229→
+  1230→    // energía
+  1231→    let drain = 0.045;
+  1232→    if (st.tabletOpen) drain += 0.29;
+  1233→    if (this.player.flashlightOn) drain += 0.05;
+  1234→    if (this.player.running) drain += 0.06;
+  1235→    this.power = Math.max(0, this.power - drain * dt);
+  1236→    this.world.setPowerFactor(this.power > 25 ? 1 : this.power / 25);
+  1237→    if (this.power <= 0) {
+  1238→      for (const r of this.world.rooms.values()) r.lightOn = false;
+  1239→    } else if (this.power > 3) {
+  1240→      for (const r of this.world.rooms.values()) r.lightOn = true;
+  1241→    }
+  1242→
+  1243→    // puertas animadas
+  1244→    for (const d of this.world.doors.values()) {
+  1245→      if (d.angle !== d.targetAngle) {
+  1246→        const diff = d.targetAngle - d.group.rotation.y;
+  1247→        d.group.rotation.y += Math.max(-3.2 * dt, Math.min(3.2 * dt, diff));
+  1248→        d.angle = d.group.rotation.y;
+  1249→        d.collider.active = Math.abs(d.angle - (d.def.axis === 'x' ? 0 : Math.PI / 2)) < 0.5 && !d.open;
+  1250→        if (Math.abs(diff) < 0.02) {
+  1251→          d.angle = d.targetAngle;
+  1252→          d.group.rotation.y = d.targetAngle;
+  1253→        }
+  1254→      }
+  1255→    }
+  1256→
+  1257→    // tapas de conducto: Bonnie las tumba
+  1258→    for (const v of this.world.vents.values()) {
+  1259→      if (!v.coverClosed) continue;
+  1260→      const bonnie = this.animatronics.find((a) => a.def.id === 'bonnie');
+  1261→      if (bonnie && bonnie.active) {
+  1262→        const px = v.def.coverAt === 'a' ? v.def.a[0] : v.def.b[0];
+  1263→        const pz = v.def.coverAt === 'a' ? v.def.a[1] : v.def.b[1];
+  1264→        const d = Math.hypot(bonnie.pos.x - px, bonnie.pos.z - pz);
+  1265→        if (d < 1.6 && (bonnie.state === 'chase' || bonnie.state === 'hunt')) {
+  1266→          v.coverTimer -= dt;
+  1267→          if (v.coverTimer < 0 && Math.random() < dt * 1.4) {
+  1268→            this.audio.ventBang({ x: px, y: 0.6, z: pz });
+  1269→            v.coverTimer = 2.4;
+  1270→          }
+  1271→          if (Math.random() < dt * 0.11) {
+  1272→            v.coverClosed = false;
+  1273→            v.blocked = false;
+  1274→            if (v.coverMesh) v.coverMesh.visible = false;
+  1275→            if (v.coverCollider) v.coverCollider.active = false;
+  1276→            this.nav.setVentBlocked(v.def.id, false);
+  1277→            this.audio.doorSlam({ x: px, y: 0.6, z: pz });
+  1278→            this.notify('¡TAPA DE CONDUCTO DERRIBADA!');
+  1279→          }
+  1280→        }
+  1281→      }
+  1282→    }
+  1283→
+  1284→    // detección de escondites
+  1285→    if (this.player.hidden) {
+  1286→      for (const a of this.animatronics) {
+  1287→        if (!a.active || a.state === 'dormant') continue;
+  1288→        const d = a.pos.distanceTo(this.player.pos);
+  1289→        if (d < 2.0 && (a.state === 'search' || a.state === 'chase' || a.state === 'hunt')) {
+  1290→          if (Math.random() < dt * 0.35) {
+  1291→            const spot = mapData.hidingSpots.find((s) => s.id === this.player.hiddenSpotId);
+  1292→            this.player.unhide(new THREE.Vector3(spot ? spot.pos[0] : this.player.pos.x, 0, spot ? spot.pos[1] : this.player.pos.z));
+  1293→            a.state = 'chase';
+  1294→            a.stateTimer = 0;
+  1295→            this.notify('¡TE HAN ENCONTRADO!');
+  1296→            break;
+  1297→          }
+  1298→        }
+  1299→      }
+  1300→    }
+  1301→
+  1302→    // peligro
+  1303→    let danger = 0;
+  1304→    let chase = false;
+  1305→    for (const a of this.animatronics) {
+  1306→      if (!a.active) continue;
+  1307→      if (a.state === 'chase' || a.state === 'hunt' || a.state === 'attack') {
+  1308→        chase = true;
+  1309→        danger = Math.max(danger, 1);
+  1310→      } else {
+  1311→        const d = a.pos.distanceTo(this.player.pos);
+  1312→        danger = Math.max(danger, Math.max(0, 1 - d / 14) * 0.5);
+  1313→      }
+  1314→    }
+  1315→    this.danger = danger;
+  1316→    this.audio.danger = danger;
+  1317→    this.audio.setChase(chase);
+  1318→
+  1319→    // mundo (luces)
+  1320→    const focus = st.tabletOpen ? this.cams.camera.position : this.player.pos;
+  1321→    this.world.update(dt, focus);
+  1322→    this.updateDust(dt);
+  1323→    this.updateInteractions(dt);
+  1324→    this.cams.update(dt, this.animatronics, st.tabletOpen);
+  1325→
+  1326→    // fin de capítulo: todos los objetivos requeridos
+  1327→    if (!this.chapterEndPending && this.missions.allRequiredDone()) {
+  1328→      this.completeChapter();
+  1329→      return;
+  1330→    }
+  1331→
+  1332→    // HUD a 10 Hz
+  1333→    this.hudTimer -= dt;
+  1334→    if (this.hudTimer <= 0) {
+  1335→      this.hudTimer = 0.1;
+  1336→      useHud.getState().syncHud({
+  1337→        battery: this.player.flashlightBattery,
+  1338→        stamina: this.player.stamina,
+  1339→        power: this.power,
+  1340→        maskOn: this.player.masked,
+  1341→        flashlightOn: this.player.flashlightOn,
+  1342→        crouching: this.player.crouching,
+  1343→        inVent: this.player.inVent,
+  1344→        danger,
+  1345→        tabletGlitch: this.cams.glitchLevel > 0.55,
+  1346→      });
+  1347→    }
+  1348→  }
+  1349→
+  1350→  /* ============ LIMPIEZA ============ */
+  1351→
+  1352→  dispose() {
+  1353→    this.disposed = true;
+  1354→    cancelAnimationFrame(this.raf);
+  1355→    for (const [name, fn] of this.windowListeners) {
+  1356→      window.removeEventListener(name, fn);
+  1357→    }
+  1358→    if (document.pointerLockElement === this.canvas) document.exitPointerLock();
+  1359→    this.audio.suspend();
+  1360→    this.scene.traverse((o) => {
+  1361→      if (o instanceof THREE.Mesh) {
+  1362→        o.geometry.dispose();
+  1363→        const mats = Array.isArray(o.material) ? o.material : [o.material];
+  1364→        for (const m of mats) m.dispose();
+  1365→      }
+  1366→    });
+  1367→    disposeTextures();
+  1368→    disposeMaterials();
+  1369→    this.renderer?.dispose();
+  1370→  }
+  1371→}
+  1372→
+  1373→function nextFrame(): Promise<void> {
+  1374→  return new Promise((r) => requestAnimationFrame(() => r()));
+  1375→}
+  1376→

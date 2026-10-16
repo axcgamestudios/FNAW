@@ -514,6 +514,105 @@ export const posterParty = () => {
   return t;
 };
 
+/** Telón de la Cala del Pirata: púrpura con pliegues y estrellas doradas */
+export const pirateCurtainTex = () => {
+  const key = 'pirateCurtain';
+  if (cache.has(key)) return cache.get(key)!;
+  const [c, ctx] = makeCanvas(256);
+  ctx.fillStyle = '#3d2b63';
+  ctx.fillRect(0, 0, 256, 256);
+  // pliegues verticales (brillo/sombra alternos)
+  for (let x = 0; x < 256; x += 16) {
+    const g = ctx.createLinearGradient(x, 0, x + 16, 0);
+    g.addColorStop(0, 'rgba(0,0,0,0.35)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0.05)');
+    g.addColorStop(1, 'rgba(0,0,0,0.35)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x, 0, 16, 256);
+  }
+  // estrellas doradas
+  const star = (cx: number, cy: number, r: number) => {
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = (Math.PI / 5) * i - Math.PI / 2;
+      const rr = i % 2 === 0 ? r : r * 0.45;
+      ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#d8b13a';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  };
+  const pts: Array<[number, number, number]> = [
+    [32, 40, 13], [96, 90, 9], [170, 36, 11], [220, 110, 8], [60, 170, 10],
+    [130, 140, 12], [200, 200, 9], [30, 230, 8], [110, 220, 11], [240, 40, 7],
+  ];
+  for (const [x, y, r] of pts) star(x, y, r);
+  grain(ctx, 256, 18, 0.22);
+  const t = toTex(c, [1, 1]);
+  cache.set(key, t);
+  return t;
+};
+
+/** Cartel de madera "FUERA DE SERVICIO" de la Cala del Pirata */
+export const outOfOrderTex = () => {
+  const key = 'outOfOrder';
+  if (cache.has(key)) return cache.get(key)!;
+  const [c, ctx] = makeCanvas(512);
+  ctx.fillStyle = '#5a4028';
+  ctx.fillRect(0, 0, 512, 256);
+  // vetas de madera
+  ctx.strokeStyle = 'rgba(30,20,10,0.5)';
+  ctx.lineWidth = 2;
+  for (let y = 8; y < 256; y += 22) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.bezierCurveTo(170, y - 6, 340, y + 6, 512, y - 2);
+    ctx.stroke();
+  }
+  // marco
+  ctx.strokeStyle = '#2a1c10';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(8, 8, 496, 240);
+  ctx.fillStyle = '#e8d9b0';
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 44px monospace';
+  ctx.fillText('¡DISCULPEN!', 256, 92);
+  ctx.fillStyle = '#c83428';
+  ctx.font = 'bold 40px monospace';
+  ctx.fillText('FUERA DE', 256, 150);
+  ctx.fillText('SERVICIO', 256, 200);
+  grain(ctx, 512, 20, 0.28);
+  const t = toTex(c, [1, 1]);
+  cache.set(key, t);
+  return t;
+};
+
+/** Cartel de neón "LA CALA DEL PIRATA" */
+export const pirateCoveSignTex = () => {
+  const key = 'pirateCoveSign';
+  if (cache.has(key)) return cache.get(key)!;
+  const [c, ctx] = makeCanvas(512);
+  ctx.fillStyle = '#160f28';
+  ctx.fillRect(0, 0, 512, 128);
+  ctx.strokeStyle = '#d8b13a';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(10, 10, 492, 108);
+  ctx.fillStyle = '#e8c840';
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 52px monospace';
+  ctx.fillText('LA CALA', 256, 58);
+  ctx.font = 'bold 36px monospace';
+  ctx.fillStyle = '#9a7ad8';
+  ctx.fillText('DEL PIRATA', 256, 104);
+  grain(ctx, 512, 12, 0.15);
+  const t = toTex(c, [1, 1]);
+  cache.set(key, t);
+  return t;
+};
+
 /** Dibujos infantiles — variantes */
 export const kidDrawing = (variant: number) => {
   const key = `kidDraw_${variant}`;
@@ -561,6 +660,33 @@ export const kidDrawing = (variant: number) => {
     ctx.fillStyle = '#222';
     ctx.font = '22px monospace';
     ctx.fillText('el seno de la caja', 30, 235);
+  } else if (variant % 2 === 0) {
+    // zorro pirata: orejas puntiagudas, garfio y parche
+    ctx.strokeStyle = '#a33';
+    ctx.beginPath();
+    ctx.arc(118, 105, 42, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(84, 75); ctx.lineTo(92, 40); ctx.lineTo(104, 72);
+    ctx.moveTo(152, 75); ctx.lineTo(146, 38); ctx.lineTo(134, 72);
+    ctx.stroke();
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.arc(104, 98, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(128, 90); ctx.lineTo(148, 106); ctx.moveTo(148, 90); ctx.lineTo(128, 106);
+    ctx.stroke();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#555';
+    ctx.beginPath();
+    ctx.arc(178, 148, 16, Math.PI * 0.4, Math.PI * 1.6);
+    ctx.stroke();
+    ctx.fillStyle = '#a33';
+    ctx.font = '22px monospace';
+    ctx.fillText('foxy el pirata', 40, 235);
   } else {
     // cinco figuras de la mano
     for (let i = 0; i < 5; i++) stick(50 + i * 40, 190, 46, i === 2 ? '#a33' : '#345');

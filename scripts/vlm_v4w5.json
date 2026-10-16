@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image of the animatronic (Freddy Fazbear) in the hallway:\n\n1.  **Legs mid-stride:** **Yes.** The legs are clearly in a walking position, with one leg (the viewer's left) forward and the other back.\n2.  **Which arm forward:** The **left arm** (from the viewer's perspective, which is the bear's right arm) is positioned slightly more forward than the right arm.\n3.  **Torso leaning forward:** **Yes.** The torso is tilted forward, consistent with a walking or approaching motion.\n4.  **Jaw/mouth open:** **Yes.** The jaw is visibly open, revealing teeth and the endoskeleton inside.\n5.  **Reads as animated WALKING:** **Yes.** The combination of the stride, the forward lean, and the arm positioning clearly communicates that the character is walking toward the viewer.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792124596,
+  "id": "2026101612231206e867991b564802",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101612231206e867991b564802",
+  "usage": {
+    "completion_tokens": 194,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 953,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1147
+  }
+}

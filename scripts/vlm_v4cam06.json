@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the description of this horror game security camera view:\n\n**Camera Label & Interface:**\n*   **Label:** The camera feed does not display a \"CAM 06\" label in the center. Instead, it shows **\"CAPÍTULO 01\" (Chapter 1)** and **\"TURNO DE PRUEBA\" (Test Shift/Probationary Shift)** at the top left, indicating this is an objective list or a tablet menu rather than a standard static camera view.\n*   **Map/UI:** There is a small map or location indicator in the bottom right corner (showing text like \"[Q] MAÇCARA\" and \"[C] CÂMARAS\").\n*   **Notifications:** A red notification bubble in the bottom left reads **\"1 Issue\"** with an 'x' to close it.\n\n**The Room (Pirate Cove):**\n*   **Setting:** The room shown is clearly **Pirate Cove** (or a direct reference to it). It features the iconic **purple and dark blue vertical striped curtains** covering the back wall.\n*   **Flooring:** The floor has a distinctive black and white checkered pattern, which appears dirty or stained.\n*   **Lighting:** The feed is **very dark**, with only a spotlight or flashlight beam illuminating the center of the floor and the base of the curtains. The periphery is shrouded in shadow.\n\n**Animatronic & Props:**\n*   **Red Fox:** **No**, a red fox animatronic (Foxy) is **not visible** behind or between the curtains in this specific frame. The curtains appear closed and undisturbed.\n*   **Out of Order Sign:** **No**, there is no visible \"OUT OF ORDER\" sign on the curtains.\n*   **Other Objects:** On the floor in the light, there is a small object that looks like a **pink cupcake** (similar to the FNAF cupcake) or a small prop. To the right, there is a wooden table or desk with what appears to be a **tablet device** on it.\n\n**Visual Effects:**\n*   **Static/Noise:** Yes, there is a noticeable **film grain, noise, and static effect** overlaying the entire image, giving it a gritty, analog security camera aesthetic.\n*   **Visibility:** Due to the darkness and the spotlight effect, most of the room is **too dark to see details** clearly outside the immediate center.\n\n**Summary:** This appears to be a fan-made game or a specific mod (likely *Five Nights at Freddy's: Help Wanted* or a similar Spanish-language indie horror game) showing the Pirate Cove camera feed during a \"Test Shift.\" While the purple star curtains are present, Foxy is not currently peeking out, and the scene is heavily obscured by darkness and static.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792121987,
+  "id": "20261016113925884afe4717ef4c98",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016113925884afe4717ef4c98",
+  "usage": {
+    "completion_tokens": 591,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 958,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1549
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided:\n\n1.  **Camera View:** The camera is looking toward a **doorway** (or open entrance) in a tiled wall. Through the doorway, you can see another room with a **black trash can** on the floor. To the right of the doorway, inside the current room, there are **two stacked cardboard boxes**. The wall to the right of the view appears to be a dark, textured metal surface with some kind of panel or sign attached to it.\n\n2.  **Interaction Prompt:** **No**, there is no interaction prompt text near the screen center-bottom. The text visible at the bottom left indicates status (\"LINTERNA OFF [F]\" and \"ENERGIA\"), and the bottom right shows controls (\"[Q] MASCARA\" and \"[C] CAMARAS\"), but there is no contextual \"Press E to interact\" style prompt in the center-bottom area.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792122482,
+  "id": "2026101611475746ccc8d3e0784154",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101611475746ccc8d3e0784154",
+  "usage": {
+    "completion_tokens": 189,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 929,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1118
+  }
+}

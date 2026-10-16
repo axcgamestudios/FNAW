@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is a description of the bottom-right half of the frame:\n\n*   **Arms and Hands:** **No, there are no arms or hands visible** in the lower right (or anywhere else) of this frame. The image shows a first-person perspective, but the player's body and hands are not rendered in the view.\n*   **Flashlight Size:** The flashlight is **not compact; it is quite large and bulky**. It appears to be a heavy-duty, tactical-style flashlight with a thick barrel and a large head.\n*   **Light Beam Direction:** The light beam originates from the left side of the screen and shines **diagonally towards the center-right**, illuminating the checkered floor. The flashlight itself is lying on the floor in the foreground, rather than being held.\n\n**Note:** The text \"[Q] MÁSCARA\" and \"[C] CÁMARAS\" in the corner suggests this might be a specific game mode or state (perhaps involving a mask or cameras) where the standard handheld flashlight interaction is not currently active or visible.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792123627,
+  "id": "2026101612070410b8e7ea25044770",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101612070410b8e7ea25044770",
+  "usage": {
+    "completion_tokens": 225,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 244,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 469
+  }
+}

@@ -34,7 +34,7 @@ export interface RoomDef {
   name: string;
   /** Rectángulo [x1, z1, x2, z2] */
   rect: [number, number, number, number];
-  floor: 'tile' | 'wood' | 'concrete' | 'carpet' | 'metal' | 'checker';
+  floor: 'tile' | 'wood' | 'concrete' | 'carpet' | 'metal' | 'checker' | 'polished';
   wall: 'wallpaper' | 'concrete' | 'tile' | 'metal';
   ambientLight?: { intensity: number; color?: number; flicker?: number };
   camPos?: [number, number, number];

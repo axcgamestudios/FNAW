@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the description of the scene:\n\n*   **Flashlight Model:** **No**, a flashlight model held by hands or arms is **not visible** in the lower right (or anywhere else) of the screen. The view is unobstructed.\n*   **Light Beam:** **Yes**, there is a distinct light beam illuminating the scene. It appears to be coming from the player's perspective (head-mounted or simply a light source attached to the camera), casting light on the pinkish wall and the floor tiles ahead. The text in the bottom left corner (\"LINTERNA OFF [F]\") confirms the flashlight mechanic is active in the game.\n*   **Desk Props:** **None** of the specific desk props mentioned (fan, monitor, cupcake, posters, wall cameras) are visible in this specific screenshot. The view shows a hallway with tiled walls and flooring, a dark open doorway leading to another room, a black trash can in the distance, and some boxes/crates in the foreground. There is no desk in the immediate field of view.\n*   **Darkness Level:** The scene is **very dark**. It relies heavily on the artificial light beam to reveal the environment. The periphery of the screen and the room beyond the doorway are shrouded in blackness, creating a typical horror game atmosphere.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792121754,
+  "id": "2026101611354816ae4119b1a74d19",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101611354816ae4119b1a74d19",
+  "usage": {
+    "completion_tokens": 278,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 949,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1227
+  }
+}
