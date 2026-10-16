@@ -163,3 +163,24 @@ Work Log:
 
 Stage Summary:
 - v6 entregada: arranque estilo Security Breach escondido en la alberca de pelotas (sin oficina ni cámaras al inicio), mecánica de sigilo por ruido en el foso, guardián SOL Y LUNA con transformación día/noche, la prueba de los 5 generadores recreada (oscuridad, caza sónica, respawn en la alberca, Sol amistoso al final, rejas que se abren), mapa gigante intacto y el resto del flujo (cap 2-6) adaptado. Además: assets del usuario revisados — las 6 imágenes de fondo YA estaban integradas (floor_checker/carpet/concrete/wood/stone + wall_metal en public/textures aplicadas con PBR); NO se encontró ningún archivo de audio en el repo (la subida no llegó; el motor sintetiza todo con Web Audio).
+
+---
+Task ID: 7 (v6.1 — ASSETS REALES DEL REPO FNAW: imágenes + audio)
+Agent: Super Z (agente principal)
+Task: El usuario reportó que no había ni sonidos ni imágenes en el juego y facilitó su repo de GitHub (axcgamestudios/FNAW, token PAT). Descargar TODO el repo, localizar los assets reales (imágenes de menú/carga + jumpscare.mp3 + tema musical) e integrarlos al juego.
+
+Work Log:
+- Repo localizado vía API GitHub con el token: el usuario real es axcgamestudios (el login de las pages era axcgaestudios). Repo FNAW (34 MB) descargado como tarball y extraído.
+- Inventario: 6 texturas de suelo/pared (YA estaban en public/textures con los mismos bytes), 6 modelos GLB (YA estaban en public/models), imagen_menu.png (961×520, salón con Show Stage + 4 animatrónicos + título "FNAF: NEW WORLD" horneado), imagen_pantallacarga.jpeg (1408×768, pizzería EN LLAMAS + Freddy quemado con ojos rojo/amarillo), jumpscare.mp3 (6.8 s) y "Screen recording...mp3" (147.9 s de música, renombrado theme_music.mp3).
+- Assets copiados a public/images/{menu_bg.png,loading_bg.jpeg} y public/audio/{theme_music.mp3,jumpscare.mp3}; servidos HTTP 200 verificado.
+- audio.ts — NUEVO sistema de audio por archivo: preloadFileAudio() en init() (fetch+decodeAudioData en 2º plano con reintento), startThemeMusic()/stopThemeMusic() (loop por musicBus con fundidos de 1.4s/0.6s y hasta 8 reintentos de carga), playJumpscareFile():boolean (por sfxBus; false → el llamador cae al grito sintético). Todo el audio de archivo respeta los buses de volumen de Ajustes.
+- game.ts: onDeath → playJumpscareFile() || superScream (grito REAL del repo al ser atrapado); enterMenu y finishGame → startThemeMusic(); startChapter → stopThemeMusic(); dispose → stopThemeMusic.
+- GameShell.tsx: startAudio (primer gesto) arranca el tema si estamos en menú + watcher de modo (menú/final → música ON; intro/playing → OFF).
+- MainMenu.tsx: imagen real de fondo (menu-bg-img con drift lento 28s + sombra lateral .menu-bg-shade para legibilidad); eliminado el título FNAW gigante propio (la imagen ya trae "FNAF: NEW WORLD" horneado), se conserva MEGAPLEX + progreso arriba-izquierda; créditos actualizados (imágenes y audio: axcgamestudios); versión v4.2.
+- LoadingScreen.tsx: imagen de las llamas de fondo + sombra radial central (.load-bg-shade); título propio eliminado (la imagen trae el suyo); barra segmentada + % + tips intactos y legibles.
+- DeathScreen.tsx: la imagen de las llamas + Freddy quemado como fondo (tinte rojo con pulso de 5s .death-bg-img) + botones con contraste reforzado (.death-btn).
+- globals.css: clases .menu-bg-img/.menu-bg-shade/.load-bg-shade/.death-bg-img/.death-bg-shade/.death-btn + keyframes menu-bg-drift y death-bg-pulse.
+- VERIFICADO en navegador (agent-browser + VLM, render por software): menú muestra el salón con escenario, 4 animatrónicos y título FNAF: NEW WORLD con botones legibles (VLM confirma sin problemas de layout); pantalla de carga muestra el incendio + Freddy + barra 18% + tip legible; tras clic de activación: ctx running, themeBuf/jumpscareBuf descargados y themeSrc activo (música SONANDO en loop); NUEVA PARTIDA → tema se detiene (themeOn false); muerte forzada por Luna → jumpscare.mp3 real reproducido (buffer cargado → playJumpscareFile true) → pantalla TE ENCONTRARON con fondo en llamas y botones visibles; SALIR AL MENÚ → el tema RE-ARRANCA (themeOn+themeSrc true). tsc y eslint limpios; consola sin errores nuevos (solo warnings benignos PMREM/GLTF pre-existentes). Tarball y extracción temporales eliminados.
+
+Stage Summary:
+- v6.1 entregada: TODO el contenido del repo FNAW del usuario está ahora integrado — imagen real del menú (salón + animatrónicos), imagen real de carga y de muerte (incendio + Freddy quemado), jumpscare.mp3 real al ser atrapado (con fallback sintético) y theme_music.mp3 en loop para menú/pantalla final (con fundidos, gestión por modo y limpieza en dispose). El resto de archivos del repo (texturas y GLB) ya estaban integrados con idéntico contenido.

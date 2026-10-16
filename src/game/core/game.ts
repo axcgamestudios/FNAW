@@ -362,6 +362,8 @@ export class Game {
     this.mode = 'menu';
     useHud.getState().setMode('menu');
     useHud.getState().setTablet(false);
+    // música del tema (archivo real del repo) al volver al menú
+    this.audio.startThemeMusic();
     // Freddy del menú: clon en la oficina mirando a cámara
     const CX = -37.5;
     const CZ = 24.5;
@@ -426,6 +428,8 @@ export class Game {
     this.danger = 0;
     this.chapterEndPending = false;
     this.powerOut = false;
+    // silenciar la música del tema al entrar en juego
+    this.audio.stopThemeMusic();
     // quitar Freddy del menú y su foco
     if (this.menuRig) this.scene.remove(this.menuRig.root);
     if (this.menuSpot) this.menuSpot.intensity = 0;
@@ -1177,8 +1181,8 @@ export class Game {
     this.dyingAnimatronic = ai;
     this.deathTimer = 1.5;
     this.jumpscareTimer = 0;
-    // GRITO FNAF MULTICAPA
-    this.audio.superScream(ai.def.voice);
+    // GRITO FNAF: archivo real del repo (jumpscare.mp3) o sintético de respaldo
+    if (!this.audio.playJumpscareFile()) this.audio.superScream(ai.def.voice);
     this.audio.setChase(false);
     this.audio.setStatic(0.0);
     useHud.getState().setJumpscare(ai.def.kind);
@@ -1324,6 +1328,8 @@ export class Game {
       useHud.getState().setEnding(ending, lines);
       this.mode = 'ending';
       useHud.getState().setMode('ending');
+      // tema musical del repo en la pantalla final
+      this.audio.startThemeMusic();
     };
     if (this.chapterDef.outroCinematic) {
       this.playCinematic(this.chapterDef.outroCinematic, finale);
@@ -1654,6 +1660,7 @@ export class Game {
       window.removeEventListener(name, fn);
     }
     if (document.pointerLockElement === this.canvas) document.exitPointerLock();
+    this.audio.stopThemeMusic();
     this.audio.suspend();
     this.scene.traverse((o) => {
       if (o instanceof THREE.Mesh) {

@@ -89,6 +89,8 @@ export default function GameShell() {
       game.audio.init();
       game.audio.resume();
       game.audio.startAmbient();
+      // si estamos en el menú, arrancar también la música del tema (archivo real)
+      if (useHud.getState().mode === 'menu') game.audio.startThemeMusic();
     }
   }, []);
 
@@ -101,6 +103,14 @@ export default function GameShell() {
       window.removeEventListener('keydown', handler);
     };
   }, [startAudio]);
+
+  // Música del tema en el menú / final; silencio durante el juego
+  useEffect(() => {
+    const game = gameRef.current;
+    if (!game || !game.audio.available) return;
+    if (mode === 'menu' || mode === 'ending') game.audio.startThemeMusic();
+    else if (mode === 'playing' || mode === 'intro') game.audio.stopThemeMusic();
+  }, [mode]);
 
   const onCanvasClick = useCallback(() => {
     startAudio();

@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * Menú principal estilo FNAF: rostro de Freddy en 3D tras estática tenue,
- * título grunge gigante, opciones fantasma con marcador » y paneles a la derecha.
- * MEGAPLEX: 6 capítulos, 11 cintas.
+ * Menú principal FNAW: imagen real del repo (salón con el Show Stage y los
+ * animatrónicos) bajo estática CRT, opciones fantasma con marcador » y
+ * paneles a la derecha. MEGAPLEX: 6 capítulos, 11 cintas.
  */
 import { useState } from 'react';
 import chaptersData from '@/data/chapters.json';
@@ -36,17 +36,20 @@ export default function MainMenu() {
   const progressChapter = Math.min(unlockedChapter, TOTAL_CHAPTERS);
 
   return (
-    <div className="absolute inset-0 scanlines">
-      {/* estática tenue sobre Freddy */}
-      <div className="noise-bg" style={{ opacity: 0.1 }} />
+    <div className="absolute inset-0 scanlines overflow-hidden">
+      {/* imagen de fondo real del repo (FNAF: NEW WORLD — salón + Show Stage) */}
+      <img src="/images/menu_bg.png" alt="" className="menu-bg-img" draggable={false} />
+      <div className="menu-bg-shade" />
+
+      {/* estática tenue */}
+      <div className="noise-bg" style={{ opacity: 0.12 }} />
       <div className="crt-vignette" />
       {/* barras de seguimiento CRT */}
       <div className="menu-crt-bars" />
 
-      {/* título gigante grunge */}
-      <div className="absolute top-12 left-10 z-10">
-        <h1 className="fnaw-title title-flicker">FNAW</h1>
-        <div className="fnaw-sub">MEGAPLEX</div>
+      {/* el título FNAF: NEW WORLD viene en la propia imagen; aquí solo el subtítulo */}
+      <div className="absolute top-10 left-10 z-10">
+        <div className="fnaw-sub title-flicker" style={{ fontSize: '1.05rem' }}>MEGAPLEX</div>
         <p className="mt-4 text-[9px] tracking-[0.34em] fnaf-dim">
           COMPLEJO BRUNO · TURNO DE CIERRE
         </p>
@@ -148,10 +151,9 @@ export default function MainMenu() {
           <p className="menu-panel-title">CRÉDITOS</p>
           <div className="text-[11px] leading-7 fnaf-dim">
             <p>Diseño, programación y sistemas: Super Z</p>
-            <p>Modelos 3D: axcgamestudios (repositorio FNAW)</p>
-            <p>Texturas: axcgamestudios + generación procedural</p>
+            <p>Modelos 3D, texturas, imágenes y audio: axcgamestudios (repositorio FNAW)</p>
             <p>Motor: Three.js + Next.js + React</p>
-            <p>Audio: síntesis en tiempo real con Web Audio API</p>
+            <p>Audio: archivos del repo + síntesis en tiempo real con Web Audio API</p>
             <p className="mt-3 text-[#5a564c]">
               Inspiración: Five Nights at Freddy&apos;s (Scott Cawthon) y
               Five Nights at Freddy&apos;s: Security Breach.
@@ -161,7 +163,7 @@ export default function MainMenu() {
         </div>
       )}
 
-      <p className="absolute bottom-4 right-6 text-[9px] tracking-[0.3em] fnaf-dim">v4.1 — FNAW MEGAPLEX</p>
+      <p className="absolute bottom-4 right-6 text-[9px] tracking-[0.3em] fnaf-dim">v4.2 — FNAW MEGAPLEX</p>
       <p className="absolute bottom-4 left-10 text-[9px] tracking-[0.3em] fnaf-dim">HAZ CLIC PARA ACTIVAR EL SONIDO</p>
     </div>
   );

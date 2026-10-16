@@ -1,8 +1,9 @@
 'use client';
 
 /**
- * Pantalla de carga FNAW MEGAPLEX: estática CRT, título grunge con glitch,
- * barra segmentada roja, porcentaje y consejos reales del juego.
+ * Pantalla de carga FNAW MEGAPLEX: imagen real del repo (la pizzería en
+ * llamas con Freddy quemado) bajo estática CRT, barra segmentada roja,
+ * porcentaje y consejos reales del juego.
  */
 import { useHud } from '@/game/core/state';
 
@@ -26,14 +27,15 @@ export default function LoadingScreen({ error }: { error: string | null }) {
   const pct = Math.round(progress * 100);
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#020203] scanlines">
-      <div className="noise-bg" style={{ opacity: 0.12 }} />
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#020203] scanlines overflow-hidden">
+      {/* imagen de fondo real del repo (FNAF: NEW WORLD en llamas) */}
+      <img src="/images/loading_bg.jpeg" alt="" className="menu-bg-img" draggable={false} />
+      <div className="load-bg-shade" />
+      <div className="noise-bg" style={{ opacity: 0.14 }} />
       <div className="crt-vignette" />
       <div className="menu-crt-bars" />
 
-      <h1 className="fnaw-title title-flicker">FNAW</h1>
-      <div className="fnaw-sub">MEGAPLEX</div>
-      <p className="mt-3 mb-10 text-[9px] tracking-[0.4em] fnaf-dim">COMPLEJO BRUNO — CARGANDO INSTALACIONES</p>
+      <p className="mt-3 mb-10 text-[9px] tracking-[0.4em] fnaf-dim z-10">COMPLEJO BRUNO — CARGANDO INSTALACIONES</p>
 
       {error ? (
         <div className="text-center max-w-md z-10">

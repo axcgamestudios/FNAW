@@ -39,6 +39,13 @@ export class AudioEngine {
   private phoneVoice: { src: AudioBufferSourceNode; gain: GainNode } | null = null;
   private lastFootstepAt = 0;
 
+  // ===== audio de archivo (assets reales del repo FNAW) =====
+  private jumpscareBuf: AudioBuffer | null = null;
+  private themeBuf: AudioBuffer | null = null;
+  private themeSrc: AudioBufferSourceNode | null = null;
+  private themeGain: GainNode | null = null;
+  private themeOn = false;
+
   init(): boolean {
     if (this.ready) return true;
     try {
@@ -65,10 +72,35 @@ export class AudioEngine {
       for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
       this.ready = true;
       this.applyVolumes();
+      this.preloadFileAudio();
       return true;
     } catch {
       return false;
     }
+  }
+
+  /** Carga en segundo plano los archivos de audio reales del repo
+   *  (/public/audio/jumpscare.mp3 y /public/audio/theme_music.mp3).
+   *  Si fallan (sin red, formato...), el juego sigue con síntesis. */
+  private preloadFileAudio() {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const load = async (url: string): Promise<AudioBuffer | null> => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const buf = await res.arrayBuffer();
+        return await ctx.decodeAudioData(buf);
+      } catch {
+        return null;
+      }
+    };
+    load('/audio/jumpscare.mp3').then((b) => { if (b) this.jumpscareBuf = b; });
+    load('/audio/theme_music.mp3').then((b) => { if (b) this.themeBuf = b; });
+  }
+
+  get themeAvailable(): boolean {
+    return this.themeBuf !== null;
   }
 
   get available(): boolean {
@@ -832,6 +864,67 @@ export class AudioEngine {
       o.start(t + i * 0.22);
       o.stop(t + i * 0.22 + 1);
     });
+  }
+
+  /* ============ AUDIO DE ARCHIVO (assets reales del repo FNAW) ============ */
+
+  /** Música del tema (menú): loop de theme_music.mp3 por el bus de música
+   *  con fundido de entrada. Reintentará cada 1 s si aún está descargando. */
+  startThemeMusic() {
+    if (!this.ready || !this.ctx) return;
+    if (this.themeOn) return;
+    this.themeOn = true;
+    const tryStart = (attempt = 0) => {
+      if (!this.themeOn || this.themeSrc) return;
+      if (this.themeBuf) {
+        const ctx = this.ctx!;
+        const src = ctx.createBufferSource();
+        src.buffer = this.themeBuf;
+        src.loop = true;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.5, ctx.currentTime + 1.4);
+        src.connect(g);
+        g.connect(this.musicBus);
+        src.start();
+        this.themeSrc = src;
+        this.themeGain = g;
+      } else if (attempt < 8 && this.themeOn) {
+        setTimeout(() => tryStart(attempt + 1), 1000);
+      }
+    };
+    tryStart();
+  }
+
+  /** Detiene la música del tema con fundido de salida corto. */
+  stopThemeMusic() {
+    this.themeOn = false;
+    if (!this.ctx || !this.themeSrc || !this.themeGain) return;
+    const src = this.themeSrc;
+    const g = this.themeGain;
+    this.themeSrc = null;
+    this.themeGain = null;
+    const t = this.ctx.currentTime;
+    g.gain.cancelScheduledValues(t);
+    g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    try { src.stop(t + 0.7); } catch { /* noop */ }
+  }
+
+  /** Grito REAL de jumpscare (jumpscare.mp3 del repo) por el bus SFX.
+   *  Devuelve false si el archivo no está cargado (el llamador debe
+   *  caer al grito sintético). */
+  playJumpscareFile(): boolean {
+    if (!this.ready || !this.ctx || !this.jumpscareBuf) return false;
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource();
+    src.buffer = this.jumpscareBuf;
+    const g = ctx.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(this.sfxBus);
+    src.start();
+    return true;
   }
 
   /* ============ AMBIENTE ============ */
