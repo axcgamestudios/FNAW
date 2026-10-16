@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FNAF 2 Reimaginado — Survival Horror 3D",
+  title: "FNAW MEGAPLEX — Complejo Bruno | Survival Horror 3D",
   description:
-    "Survival horror 3D en primera persona inspirado en Five Nights at Freddy's 2. Explora la Pizzería Estelar Bruno, sobrevive cinco noches a animatrónicos con IA, repara sistemas y descubre qué pasó en 1987.",
-  keywords: ["survival horror", "FNAF", "Three.js", "juego 3D", "terror", "animatrónicos"],
+    "Survival horror 3D en primera persona inspirado en FNAF: Security Breach. Explora el MEGAPLEX Complejo Bruno, supera pruebas con respawn, completa misiones y sobrevive a los animatrónicos con IA.",
+  keywords: ["survival horror", "FNAF", "Security Breach", "Three.js", "juego 3D", "terror", "animatrónicos", "megaplex"],
   authors: [{ name: "Super Z" }],
 };
 

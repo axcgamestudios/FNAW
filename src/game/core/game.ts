@@ -9,7 +9,7 @@ import animData from '@/data/animatronics.json';
 import type { ChapterDef, AnimatronicDef, Interactable, NoiseEvent } from './types';
 import { WorldBuilder } from '../world/worldbuilder';
 import { NavGraph } from '../ai/navgraph';
-import { Animatronic, type AIHost, type PlayerLike } from '../ai/animatronic';
+import { Animatronic, setEyeGlow, type AIHost, type PlayerLike } from '../ai/animatronic';
 import { Player } from '../player/player';
 import { SecurityCameras } from '../systems/cameras';
 import { MissionSystem } from '../systems/missions';
@@ -90,10 +90,18 @@ export class Game {
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // pérdida de contexto WebGL: evitar pestaña muerta silenciosamente
+    this.canvas.addEventListener('webglcontextlost', ((e: Event) => {
+      e.preventDefault();
+      useHud.getState().setLoading(0, 'CONTEXTO 3D PERDIDO — recarga la página');
+      useHud.getState().setMode('boot');
+      this.pause();
+    }) as EventListener, false);
 
     const save = loadSave();
     this.quality = save.settings.quality;
@@ -126,6 +134,16 @@ export class Game {
     await nextFrame();
     this.world = new WorldBuilder(this.scene);
     this.world.buildAll((f, label) => onProgress(0.55 + f * 0.2, label));
+    // rendimiento: los props NO proyectan sombra (solo personajes y puertas);
+    // el pase de sombras de la linterna baja de ~1500 a ~100 meshes
+    this.world.root.traverse((o) => {
+      if (o instanceof THREE.Mesh) o.castShadow = false;
+    });
+    for (const d of this.world.doors.values()) {
+      d.group.traverse((o) => {
+        if (o instanceof THREE.Mesh) o.castShadow = true;
+      });
+    }
     await nextFrame();
 
     onProgress(0.8, 'Trazando rutas de los animatrónicos...');
@@ -159,6 +177,14 @@ export class Game {
 
     this.buildDust();
 
+    // luces de menú y estrobo creadas AHORA (nunca en caliente):
+    // añadirlas después provocaría recompilar TODOS los shaders = congelación
+    this.menuSpot = new THREE.SpotLight(0xcfd8e8, 0, 9, 0.55, 0.5, 1.6);
+    this.menuSpot.position.set(-37.1, 3.1, 25.1);
+    this.menuSpot.target.position.set(-37.5, 2.1, 23.3);
+    this.scene.add(this.menuSpot, this.menuSpot.target);
+    this.scene.add(this.jumpscareStrobe);
+
     this.setupInput();
     onProgress(0.97, 'Listo...');
     this.enterMenu();
@@ -171,18 +197,19 @@ export class Game {
     const rig = Assets.rigs.get('flashlight');
     if (!rig) return;
     const model = rig.root;
-    // el GLB ya está normalizado a ~19 cm por su eje Z (la cabeza apunta a -Z)
-    model.position.set(0.3, -0.27, -0.44);
-    model.rotation.set(0.05, -0.09, 0.02);
+    // tras la corrección de eje: el cuerpo ocupa z ∈ [-0.095, +0.095] (cabeza en -Z)
+    // y y ∈ [0, 0.062]; el origen queda en la base del cuerpo
+    model.position.set(0.3, -0.285, -0.42);
+    model.rotation.set(0.06, -0.08, 0.02);
     model.visible = false;
     this.camera.add(model);
     this.flashlightModel = model;
-    // lente emisiva en la cabeza del frontal (-Z)
+    // lente emisiva en la cabeza del frontal (-Z, altura del eje del cilindro)
     const lens = new THREE.Mesh(
-      new THREE.CircleGeometry(0.022, 16),
+      new THREE.CircleGeometry(0.024, 16),
       new THREE.MeshStandardMaterial({ color: 0xfff6d8, emissive: 0xffeeb0, emissiveIntensity: 0 })
     );
-    lens.position.set(0, 0.0, -0.1);
+    lens.position.set(0, 0.031, -0.094);
     lens.rotation.y = Math.PI;
     model.add(lens);
     this.flashlightLens = lens;
@@ -346,15 +373,8 @@ export class Game {
     } else if (this.menuRig) {
       this.scene.add(this.menuRig.root);
     }
-    // foco cenital tenue sobre Freddy (visible entre la estática)
-    if (!this.menuSpot) {
-      const spot = new THREE.SpotLight(0xcfd8e8, 60, 9, 0.55, 0.5, 1.6);
-      spot.position.set(CX + 0.4, 3.1, CZ + 0.6);
-      spot.target.position.set(CX, 2.1, CZ - 1.2);
-      this.scene.add(spot, spot.target);
-      this.menuSpot = spot;
-    }
-    this.menuSpot.intensity = 60;
+    // foco cenital tenue sobre Freddy (creado en init; solo se enciende)
+    if (this.menuSpot) this.menuSpot.intensity = 60;
     this.audio.setStatic(0);
     this.audio.setBreathing(false);
     this.audio.setChase(false);
@@ -1109,7 +1129,7 @@ export class Game {
 
   /* ============ MUERTE Y VICTORIA ============ */
 
-  private jumpscareStrobe: THREE.PointLight | null = null;
+  private jumpscareStrobe: THREE.PointLight = new THREE.PointLight(0xff2233, 0, 6, 1.6);
   private pendingTrialRespawn = false;
 
   private onDeath(ai: Animatronic) {
@@ -1129,11 +1149,7 @@ export class Game {
     useHud.getState().setPrompt(null);
     // ¿prueba activa? → respawn tras el jumpscare
     this.pendingTrialRespawn = !!this.trials.onPlayerCaught();
-    // luz estroboscópica en la cara
-    if (!this.jumpscareStrobe) {
-      this.jumpscareStrobe = new THREE.PointLight(0xff2233, 0, 6, 1.6);
-      this.scene.add(this.jumpscareStrobe);
-    }
+    // luz estroboscópica en la cara (creada en init; aquí solo se enciende)
     this.jumpscareStrobe.intensity = 40;
     // congelar al resto de animatrónicos (la escena es SUYA)
     for (const a of this.animatronics) {
@@ -1166,10 +1182,7 @@ export class Game {
       ai.yaw = ai.rig.root.rotation.y;
       ai.poseDying(dt);
       // ojos al máximo: brillo feroz durante el agarre
-      if (ai.rig.eyeGlow) {
-        ai.rig.eyeGlow.intensity = 14;
-        ai.rig.eyeGlow.distance = 2.5;
-      }
+      setEyeGlow(ai.rig, 1.6);
       for (const e of ai.rig.eyes) {
         const mats = Array.isArray(e.material) ? e.material : [e.material];
         for (const m of mats as THREE.MeshStandardMaterial[]) m.emissiveIntensity = 3.2;
@@ -1198,7 +1211,7 @@ export class Game {
       // apagar estrobo y restaurar cámara y ojos
       if (this.jumpscareStrobe) this.jumpscareStrobe.intensity = 0;
       if (ai) {
-        if (ai.rig.eyeGlow) ai.rig.eyeGlow.intensity = 0;
+        setEyeGlow(ai.rig, 0.1);
         for (const e of ai.rig.eyes) {
           const mats = Array.isArray(e.material) ? e.material : [e.material];
           for (const m of mats as THREE.MeshStandardMaterial[]) m.emissiveIntensity = 1.2;
@@ -1312,7 +1325,8 @@ export class Game {
 
   private applyQuality() {
     const dpr = window.devicePixelRatio || 1;
-    const pr = this.quality === 'low' ? 0.7 : this.quality === 'medium' ? Math.min(1, dpr) : Math.min(1.75, dpr);
+    // tope de 1.25 en alta: en pantallas retina 1.75-2.0 cuadruplica los píxeles
+    const pr = this.quality === 'low' ? 0.7 : this.quality === 'medium' ? Math.min(1, dpr) : Math.min(1.25, dpr);
     this.renderer?.setPixelRatio(pr);
     if (this.player) {
       this.player.flashlight.castShadow = this.quality !== 'low';

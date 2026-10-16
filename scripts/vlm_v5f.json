@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the exact orientation of the flashlight:\n\n*   **Orientation of the Body:** The long body of the flashlight points **FORWARD** into the scene (away from the camera). It is held in a standard aiming position.\n*   **Position of the Lens:** Yes, the glowing lens is at the **front** (the end pointing away from you).\n*   **Direction of the Light Beam:** The cone of light is projecting **forward** into the center of the room, illuminating the floor and the area around the table.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792163371,
+  "id": "20261016230929cdd33ed79cd14a5e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016230929cdd33ed79cd14a5e",
+  "usage": {
+    "completion_tokens": 116,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 979,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1095
+  }
+}

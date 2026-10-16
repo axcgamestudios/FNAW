@@ -367,6 +367,97 @@
   color: #6a655a;
 }
 
+/* título FNAW MEGAPLEX */
+.fnaw-title {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 5.4rem;
+  letter-spacing: 0.1em;
+  line-height: 0.92;
+  color: #ede6d4;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 26px rgba(255, 60, 40, 0.45),
+    3px 0 0 rgba(200, 60, 40, 0.35),
+    -3px 0 0 rgba(60, 130, 200, 0.25),
+    0 3px 0 rgba(0, 0, 0, 0.9);
+}
+.fnaw-sub {
+  margin-top: 2px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: 0.62em;
+  color: #b03428;
+  text-shadow: 0 0 14px rgba(200, 60, 40, 0.55), 0 1px 0 #000;
+}
+
+/* barras de seguimiento CRT verticales (flanco derecho) */
+.menu-crt-bars {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 46px;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(200, 60, 40, 0.16) 0 3px,
+    transparent 3px 11px
+  );
+  opacity: 0.5;
+  animation: crt-roll 7s linear infinite;
+}
+@keyframes crt-roll {
+  from { background-position-y: 0; }
+  to { background-position-y: 220px; }
+}
+
+/* marcador » de las opciones del menú */
+.menu-mark {
+  display: inline-block;
+  width: 1.1em;
+  margin-left: -0.35em;
+  color: #c83428;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: translateX(-4px);
+}
+.menu-btn:hover:not(:disabled) .menu-mark {
+  opacity: 1;
+  transform: translateX(0);
+}
+.menu-hint {
+  float: right;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: #d8b13a;
+  opacity: 0.85;
+}
+.menu-danger:hover:not(:disabled) {
+  color: #ff8a6a;
+  background: rgba(200, 60, 40, 0.16);
+  border-left-color: #ff5533;
+}
+
+/* panel flotante del menú */
+.menu-panel {
+  background: rgba(4, 4, 6, 0.94);
+  border: 1px solid #2a2a2e;
+  border-top: 2px solid #c83428;
+  padding: 1.25rem 1rem;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
+}
+.menu-panel-title {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  color: #c9c2b0;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #26262a;
+}
+
 /* HUD */
 .hud-corner {
   position: absolute;
@@ -641,18 +732,36 @@
   background: repeating-linear-gradient(to bottom, rgba(120,100,60,0.35) 0 2px, transparent 2px 6px);
 }
 
-/* Barra de carga */
+/* Barra de carga (MEGAPLEX: segmentada, roja, con brillo) */
 .load-bar {
-  width: 340px;
-  height: 8px;
-  border: 1px solid rgba(200, 60, 40, 0.5);
-  background: rgba(10, 8, 8, 0.8);
+  position: relative;
+  width: 380px;
+  height: 14px;
+  border: 1px solid rgba(200, 60, 40, 0.55);
+  background: rgba(10, 8, 8, 0.9);
+  overflow: hidden;
 }
 .load-fill {
   height: 100%;
-  background: linear-gradient(90deg, #7a2016, #c83c28);
-  transition: width 0.3s ease;
-  box-shadow: 0 0 14px rgba(200, 60, 40, 0.6);
+  background: linear-gradient(90deg, #6a1a12, #c83c28 70%, #ff7a54);
+  transition: width 0.25s ease;
+  box-shadow: 0 0 18px rgba(200, 60, 40, 0.65);
+}
+/* marcas segmentadas encima de la barra */
+.load-ticks {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 18px, rgba(0, 0, 0, 0.55) 18px 20px);
+  pointer-events: none;
+}
+.load-pct {
+  margin-top: 10px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0.3em;
+  color: #e8e2d0;
+  text-shadow: 0 0 10px rgba(200, 60, 40, 0.4);
 }
 
 /* Intro de noche */

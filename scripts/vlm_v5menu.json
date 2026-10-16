@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the screenshot provided, here is a detailed description of the game's main menu:\n\n**Title Text & Subtitle**\n*   **Title:** There is no large, prominent title logo in the center of the screen. Instead, the top-left corner displays save file information in a small, monospaced font: **\"COMPLEJO BRUNO - TURNO DE CIERRE\"** (which translates to \"Bruno Complex - Closing Shift\"). Below this, it lists progress: **\"CAPÍTULOS 1/8 · CINTAS 0/11\"** (Chapters 1/8 · Tapes 0/11).\n*   **Subtitle/Version:** The bottom-right corner displays the version number and fan-game credit: **\"v4.1 - FNAW MEGAPLEX\"**.\n\n**Menu Buttons List**\nThe menu options are listed vertically on the left side in a white, typewriter-style font, each preceded by a double arrow symbol (`»`):\n1.  **» NUEVA PARTIDA** (New Game) - *Highlighted in bright white*\n2.  » CONTINUAR (Continue) - *Greyed out*\n3.  **» CAPÍTULOS** (Chapters)\n4.  **» AJUSTES** (Settings)\n5.  **» CONTROLES** (Controls)\n6.  **» CRÉDITOS** (Credits)\n\n**3D Character Visible**\nYes, there is a prominent **3D animatronic bear character** standing in the center-foreground.\n*   **Appearance:** It is an orange/brown bear with a lighter tan belly. It wears a black top hat (tilted slightly) and a black bowtie.\n*   **Pose:** It is standing upright with its hands on its hips, facing the camera.\n*   **Style:** It strongly resembles Freddy Fazbear from the *Five Nights at Freddy's* series but appears to be a custom model for this specific game.\n\n**Overall Design Quality & Theme**\n*   **Theme:** The theme is distinctly **Dark Horror / Industrial**. The setting appears to be a dimly lit security office or backroom with dark, vertically striped wallpaper and a black-and-white checkered floor.\n*   **Atmosphere:** The lighting is very low, relying on a single harsh fluorescent light source from the ceiling that creates deep shadows. There is a noticeable **scanline/CRT monitor effect** overlaid on the entire image, giving it a gritty, retro, or surveillance-camera aesthetic.\n*   **Quality:** The graphics suggest a high-quality **fan-made game** (specifically *Five Nights at Freddy's: Wanted - Megaplex*). The 3D modeling is detailed, with visible textures on the bear's fur and suit, and the environment has a sense of depth and clutter (papers on a desk behind the character). A green \"SECURITY\" sign is faintly visible in the background darkness.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792163101,
+  "id": "20261016230436597462c7b0d14ed5",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016230436597462c7b0d14ed5",
+  "usage": {
+    "completion_tokens": 616,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 918,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1534
+  }
+}

@@ -59,7 +59,9 @@ const CONFIGS: Record<string, ModelConfig> = {
   foxy: { file: 'models/foxy.glb', height: 2.42, rotY: 0, eyeColor: 0xffbf40, eyeNames: /eye/i, noClips: true },
   golden: { file: 'models/freddy.glb', height: 2.62, rotY: 0, eyeColor: 0xffdd44, eyeNames: /eye|iris|pupil/i, noClips: true },
   jeremy: { file: 'models/jeremy.glb', height: 1.78, rotY: 0, eyeColor: 0x000000 },
-  flashlight: { file: 'models/flashlight.glb', height: 0.26, rotY: 0, eyeColor: 0x000000, lengthAxis: 'z', length: 0.19 },
+  // El GLB de la linterna mide 0.136 m por su eje X (la lente está en +X):
+  // se normaliza por X y se rota +90° para que la cabeza mire a -Z (al frente).
+  flashlight: { file: 'models/flashlight.glb', height: 0.19, rotY: Math.PI / 2, eyeColor: 0x000000, lengthAxis: 'x', length: 0.19 },
 };
 
 export interface GameTextures {

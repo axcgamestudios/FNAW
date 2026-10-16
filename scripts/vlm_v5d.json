@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, this is actually the **main menu screen** for a *Five Nights at Freddy's* fangame (specifically **FNAW: Megaplex** v4.1), not a loading screen. Here is a detailed description of its elements:\n\n**Overall Design & Atmosphere**\nThe screen uses a dark, horror-themed aesthetic with heavy scanline/interlacing effects (horizontal lines) overlaying the entire image, giving it a retro VHS or security camera monitor look. The setting is a dimly lit, grimy room with dark red/brown walls and a black-and-white checkered floor. The lighting is sparse, coming from a single fluorescent ceiling light that casts an eerie glow.\n\n**Character Model**\nDominating the center-right is a 3D model of **Freddy Fazbear** (or a similar animatronic bear). He is viewed from behind/side-angle, wearing his signature black top hat and bow tie. His texture appears worn, with visible seams and slightly dirty fur. He is standing in what looks like a security office or backstage area.\n\n**Text Elements (in Spanish)**\n\n*   **Top Left (Save Data):**\n    *   `COMPLEJO BRUNO - TURNO DE CIERRE` (Bruno Complex - Closing Shift)\n    *   `CAPÍTULOS 1/8 · CINTAS 0/11` (Chapters 1/8 · Tapes 0/11)\n\n*   **Menu Options (Left Side):**\n    *   `» NUEVA PARTIDA` (New Game) – highlighted/selected\n    *   `» CONTINUAR` (Continue) – grayed out/inactive\n    *   `» CAPÍTULOS` (Chapters)\n    *   `» AJUSTES` (Settings)\n    *   `» CONTROLES` (Controls)\n    *   `» CRÉDITOS` (Credits)\n\n*   **Background Sign:** A glowing green neon sign reading **\"SEGURIDAD\"** (Security) is visible on the back wall above a doorway.\n\n*   **Bottom Corners:**\n    *   **Bottom Left:** `N` icon with text `HAZ CLIC PARA ACTIVAR EL SONIDO` (Click to activate sound)\n    *   **Bottom Right:** Version info `v4.1 - FNAW MEGAPLEX`\n\n**Notable Absences**\nSince this is a menu and not a loading screen, there is **no progress bar, no percentage indicator, and no loading tips text** present in this image.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792163158,
+  "id": "202610162305513fba06c2e23c42f3",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610162305513fba06c2e23c42f3",
+  "usage": {
+    "completion_tokens": 546,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 909,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1455
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Yes, this is a classic FNAF-style jumpscare moment with all the key elements you described:\n\n**Large animatronic face filling the frame:** Yes - the image shows a large animatronic bear (resembling Freddy Fazbear) positioned extremely close to the camera, dominating the entire frame. You can see its full head, torso, and upper body taking up most of the visual space.\n\n**Glowing eyes:** Yes - the animatronic's eyes are glowing brightly white/cream-colored, creating an intense, staring effect that is characteristic of FNAF jumpscares.\n\n**Visual glitch/tear effects:** Yes - there are prominent horizontal glitch lines or \"tear\" effects across the screen (the light-colored stripes), which simulate static, signal interference, or camera malfunction typical of horror game aesthetics.\n\n**Dramatic lighting:** Yes - the scene uses dramatic red-tinted lighting with high contrast and shadows. The overall color palette is dominated by deep reds and dark tones, creating an ominous, threatening atmosphere. The lighting highlights the animatronic's features while keeping much of the background in shadow.\n\nThis image perfectly captures the sudden, startling moment when the player is caught by the animatronic, complete with the visual distortion effects that enhance the shock value of the jumpscare.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792163537,
+  "id": "20261016231213807c5c7b767b4622",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016231213807c5c7b767b4622",
+  "usage": {
+    "completion_tokens": 268,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 945,
+    "prompt_tokens_details": {
+      "cached_tokens": 5
+    },
+    "total_tokens": 1213
+  }
+}

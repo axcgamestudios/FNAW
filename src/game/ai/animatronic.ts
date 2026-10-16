@@ -73,8 +73,17 @@ interface ARig {
     earR?: THREE.Object3D;
   };
   eyes: THREE.Mesh[];
-  eyeGlow: THREE.PointLight;
+  /** halo de ojos: mesh emisivo aditivo (misma función visual que un PointLight, coste cero en el shader) */
+  eyeGlow: THREE.Mesh | null;
   height: number;
+}
+
+/** ajusta el brillo del halo de ojos de un rig */
+export function setEyeGlow(rig: { eyeGlow: THREE.Mesh | null }, level: number) {
+  if (!rig.eyeGlow) return;
+  const m = rig.eyeGlow.material as THREE.MeshBasicMaterial;
+  m.opacity = Math.min(1, 0.25 + level * 0.75);
+  rig.eyeGlow.scale.setScalar(1 + level * 0.9);
 }
 
 export class Animatronic {
@@ -135,8 +144,19 @@ export class Animatronic {
       gltfRig = Assets.rigs.get(assetKind) ?? null;
     }
     if (gltfRig) {
-      const eyeGlow = new THREE.PointLight(def.eyeColor, 9, 5, 1.9);
-      eyeGlow.position.set(0, gltfRig.height * 0.86, 0.28);
+      // halo de ojos emisivo (sin luz real: gratis para el shader)
+      const eyeGlow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.11, 10, 8),
+        new THREE.MeshBasicMaterial({
+          color: def.eyeColor,
+          transparent: true,
+          opacity: 0.85,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      );
+      eyeGlow.position.set(0, gltfRig.height * 0.86, 0.26);
       gltfRig.root.add(eyeGlow);
       const rig: ARig = {
         root: gltfRig.root,
@@ -160,7 +180,7 @@ export class Animatronic {
       model: null,
       bones: char.bones,
       eyes: char.eyes,
-      eyeGlow: char.eyeGlow ?? new THREE.PointLight(def.eyeColor, 0, 0.1),
+      eyeGlow: char.eyeGlow ?? null,
       height: char.height,
     };
     return rig;
@@ -777,7 +797,7 @@ export class Animatronic {
         m.emissiveIntensity = glow;
       }
     }
-    if (this.rig.eyeGlow) this.rig.eyeGlow.intensity = this.active ? glow * 4 : 2;
+    setEyeGlow(this.rig, this.active ? (glow > 2 ? 1 : 0.45) : 0.15);
   }
 
   dispose() {

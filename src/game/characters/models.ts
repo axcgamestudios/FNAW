@@ -29,7 +29,7 @@ export interface CharacterRig {
   root: THREE.Group;
   bones: RigBones;
   eyes: THREE.Mesh[];
-  eyeGlow: THREE.PointLight | null;
+  eyeGlow: THREE.Mesh | null;
   height: number;
   kind: string;
 }
@@ -112,6 +112,23 @@ function endoSpine(parent: THREE.Object3D, count: number, y0: number, y1: number
     const y = y0 + ((y1 - y0) * i) / (n - 1);
     mesh(parent, new THREE.SphereGeometry(r, 8, 8), endoMat, 0, y, -0.09);
   }
+}
+
+/* halo de ojos emisivo (sin luz real: gratis para el shader) */
+function makeEyeGlow(eyeColor: number, x: number, y: number, z: number): THREE.Mesh {
+  const glow = new THREE.Mesh(
+    new THREE.SphereGeometry(0.09, 10, 8),
+    new THREE.MeshBasicMaterial({
+      color: eyeColor,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
+    })
+  );
+  glow.position.set(x, y, z);
+  return glow;
 }
 
 /* ================= BRUNO EL OSO ================= */
@@ -208,8 +225,7 @@ function buildBruno(eyeColor: number): CharacterRig {
   const footR = pivot(shinR, 0, -0.48, 0);
   mesh(footR, new THREE.BoxGeometry(0.14, 0.09, 0.24), bodyMat, 0, -0.03, 0.05);
 
-  const glow = new THREE.PointLight(eyeColor, 8, 4, 1.9);
-  glow.position.set(0, 0.85, 0.25);
+  const glow = makeEyeGlow(eyeColor, 0, 0.85, 0.25);
   root.add(glow);
 
   return {
@@ -299,8 +315,7 @@ function buildClara(eyeColor: number): CharacterRig {
   const footR = pivot(shinR, 0, -0.46, 0);
   mesh(footR, new THREE.BoxGeometry(0.12, 0.08, 0.26), bodyMat, 0, -0.025, 0.06);
 
-  const glow = new THREE.PointLight(eyeColor, 7, 3.6, 1.9);
-  glow.position.set(0, 0.8, 0.2);
+  const glow = makeEyeGlow(eyeColor, 0, 0.8, 0.2);
   root.add(glow);
 
   return {
@@ -401,8 +416,7 @@ function buildGina(eyeColor: number): CharacterRig {
     mesh(footR, new THREE.ConeGeometry(0.014, 0.05, 5), beakMat, tx, -0.02, 0.15).rotation.x = Math.PI / 2;
   }
 
-  const glow = new THREE.PointLight(eyeColor, 7, 3.6, 1.9);
-  glow.position.set(0, 0.75, 0.2);
+  const glow = makeEyeGlow(eyeColor, 0, 0.75, 0.2);
   root.add(glow);
 
   return {
@@ -506,8 +520,7 @@ function buildRen(eyeColor: number): CharacterRig {
   const footR = pivot(shinR, 0, -0.44, 0);
   mesh(footR, new THREE.BoxGeometry(0.12, 0.07, 0.22), bodyMat, 0, -0.02, 0.05);
 
-  const glow = new THREE.PointLight(eyeColor, 9, 4.4, 1.9);
-  glow.position.set(0, 0.75, 0.25);
+  const glow = makeEyeGlow(eyeColor, 0, 0.75, 0.25);
   root.add(glow);
 
   return {
@@ -639,8 +652,7 @@ function buildPuppet(eyeColor: number): CharacterRig {
     mesh(fingersR, new THREE.CapsuleGeometry(0.009, 0.11, 4, 6), clothMat, -0.033 + i * 0.022, -0.06, 0);
   }
 
-  const glow = new THREE.PointLight(eyeColor, 11, 4.4, 1.9);
-  glow.position.set(0, 1.85, 0.2);
+  const glow = makeEyeGlow(eyeColor, 0, 1.85, 0.2);
   root.add(glow);
 
   return {

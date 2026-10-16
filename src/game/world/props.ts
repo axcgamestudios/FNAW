@@ -855,11 +855,12 @@ function buildRockstar(world: WorldBuilder) {
     g.traverse((o) => { if (o instanceof THREE.Mesh) o.castShadow = true; });
     world.root.add(g);
     world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(x, 1.4, z), new THREE.Vector3(1.4, 2.8, 1.4)), `statue_${name}`);
-    // foco tenue sobre la vitrina
-    const spot = new THREE.SpotLight(0xffd9a8, 5, 4.5, 0.5, 0.5, 1.8);
-    spot.position.set(x, 4.3, z);
-    spot.target.position.set(x, 2.0, z);
-    world.root.add(spot, spot.target);
+    // foco tenue sobre la vitrina (materializado por el pool de luces)
+    world.registerAccent({
+      pos: new THREE.Vector3(x, 4.3, z),
+      target: new THREE.Vector3(x, 2.0, z),
+      color: 0xffd9a8, intensity: 5, distance: 4.5, angle: 0.5, penumbra: 0.5, spot: true,
+    });
     return g;
   };
   starStatue(-41, -14.5, 0.5, 0x6a4a2a, 'freddy');
@@ -969,10 +970,11 @@ function buildTheater(world: WorldBuilder) {
   proj.rotation.y = -Math.PI / 2;
   world.root.add(proj);
   world.propAnims.push({ update: (_dt) => { reel.rotation.y += 0.08; reel2.rotation.y += 0.06; } });
-  const beam = new THREE.SpotLight(0x88aadd, 14, 14, 0.35, 0.6, 1.2);
-  beam.position.set(-16.8, 4.0, -13);
-  beam.target.position.set(-29.8, 2.6, -13);
-  world.root.add(beam, beam.target);
+  world.registerAccent({
+    pos: new THREE.Vector3(-16.8, 4.0, -13),
+    target: new THREE.Vector3(-29.8, 2.6, -13),
+    color: 0x88aadd, intensity: 14, distance: 14, angle: 0.35, penumbra: 0.6, spot: true,
+  });
 
   // luces de pasillo
   for (const az of [-16.2, -12.5, -9.8]) {
@@ -1274,9 +1276,10 @@ function buildPirateCove(world: WorldBuilder) {
   world.root.add(neon);
 
   // farolillo moribundo dentro de la cala (deja ver los ojos de Foxy)
-  const coveLight = new THREE.PointLight(0x8a6ad8, 4, 7, 1.9);
-  coveLight.position.set(-43.2, 2.6, 5);
-  world.root.add(coveLight);
+  world.registerAccent({
+    pos: new THREE.Vector3(-43.2, 2.6, 5),
+    color: 0x8a6ad8, intensity: 4, distance: 7, decay: 1.9,
+  });
 
   // cartel de madera "FUERA DE SERVICIO" en caballete
   const sign = new THREE.Group();
@@ -1664,10 +1667,11 @@ function buildLobby(world: WorldBuilder) {
   statue.traverse((o) => { if (o instanceof THREE.Mesh) o.castShadow = true; });
   world.root.add(statue);
   world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-5, 2.5, 27), new THREE.Vector3(2.0, 5.0, 2.0)), 'freddy_statue');
-  const statueLight = new THREE.SpotLight(0xffd9a8, 22, 9, 0.5, 0.5, 1.6);
-  statueLight.position.set(-5, 5.6, 29.5);
-  statueLight.target.position.set(-5, 3, 27);
-  world.root.add(statueLight, statueLight.target);
+  world.registerAccent({
+    pos: new THREE.Vector3(-5, 5.6, 29.5),
+    target: new THREE.Vector3(-5, 3, 27),
+    color: 0xffd9a8, intensity: 22, distance: 9, angle: 0.5, penumbra: 0.5, spot: true,
+  });
 
   // tornos de entrada (fila) entre las puertas sur
   for (let i = 0; i < 5; i++) {
@@ -1922,9 +1926,10 @@ function buildServices(world: WorldBuilder) {
     frost.position.set(38 + i * 2.0, 1.6, -33.8);
     world.root.add(frost);
   }
-  const coldLight = new THREE.PointLight(0x88bbdd, 3.2, 12, 1.8);
-  coldLight.position.set(37, 3.2, -29);
-  world.root.add(coldLight);
+  world.registerAccent({
+    pos: new THREE.Vector3(37, 3.2, -29),
+    color: 0x88bbdd, intensity: 3.2, distance: 12, decay: 1.8,
+  });
   world.anchors.set('tape_freezers', { pos: new THREE.Vector3(42.5, 1.1, -28) });
 }
 

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is a description of the security camera tablet view:\n\n**Yes, it shows a live camera feed (a rendered 3D scene).**\nThe screen displays a 3D-rendered environment showing a hallway or atrium with a checkered floor, striped walls, and a red animatronic figure standing in the distance. The view has a distinct green-tinted \"night vision\" or CRT monitor aesthetic typical of the FNAF genre.\n\n**Specific UI Elements present:**\n*   **Camera Label:** Yes, clearly visible at the top left of the feed as **\"CAM 01 – ATRIO NORTE\"** (Camera 01 - North Atrium).\n*   **REC Indicator:** Yes, there is a red **\"REC\"** blinking icon and a timestamp (e.g., `12:11:1987`) next to the camera label.\n*   **Minimap:** Yes, there is a green schematic minimap in the bottom-right corner showing the layout of the building with numbered rooms corresponding to the cameras.\n\n**Additional Details:**\n*   The screen is **not black or empty**; it is fully active.\n*   There is a list of objectives on the left side (in Spanish), such as \"Reconocer,\" \"Comprobar las cámaras,\" etc.\n*   At the bottom, there are controls for closing the tablet (`[C] CERRAR`), changing cameras (`[A/D] CAMBIAR CÁMARA`), and a camera selection grid (numbered 01–14) where **CAM 01** is currently highlighted in bright green.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792163757,
+  "id": "20261016231552848c9dd2a40e468b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016231552848c9dd2a40e468b",
+  "usage": {
+    "completion_tokens": 340,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 947,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1287
+  }
+}

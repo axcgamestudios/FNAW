@@ -60,12 +60,26 @@ export interface VentRT {
 export interface RoomRT {
   def: RoomDef;
   center: THREE.Vector3;
-  light: THREE.PointLight | null;
+  lightLevel: number; // intensidad actual (asignada por el pool de luces)
   lightBase: number;
+  lightColor: number;
   flicker: number;
   lightOn: boolean;
   fixture: THREE.Mesh | null;
   blackoutTimer: number;
+}
+
+/** definición de luz decorativa registrada por los props (las gestiona el pool) */
+export interface AccentLightDef {
+  pos: THREE.Vector3;
+  target?: THREE.Vector3;
+  color: number;
+  intensity: number;
+  distance: number;
+  angle?: number;
+  penumbra?: number;
+  decay?: number;
+  spot?: boolean;
 }
 
 const WALL_T = 0.3;
@@ -86,11 +100,24 @@ export class WorldBuilder {
   interactables: Interactable[] = [];
   anchors: AnchorMap = new Map();
   propAnims: PropAnim[] = [];
-  emergencyLights: THREE.PointLight[] = [];
-  stageSpots: THREE.SpotLight[] = [];
+  /** luces decorativas registradas por los props (las materializa el pool) */
+  accents: AccentLightDef[] = [];
   /** modo visión de cámara: la sala del feed recibe un impulso de luz tenue */
   camView = false;
-  private roomLights: RoomRT[] = [];
+  /* ============ POOL DE LUCES ============
+   * Un número FIJO de luces reales se reubica cada frame a las salas
+   * encendidas más cercanas. Nº de luces constante = shaders estables
+   * (sin recompilaciones ni límites de uniforms). */
+  private roomPool: THREE.PointLight[] = [];
+  private emergencyPool: THREE.PointLight | null = null;
+  private accentPointPool: THREE.PointLight | null = null;
+  private accentSpotPool: THREE.SpotLight[] = [];
+  private stageSpot: THREE.SpotLight | null = null;
+  private roomList: RoomRT[] = [];
+  private emPositions: Array<[number, number]> = [
+    [-37.5, 21.5], [0, 15.5], [-30, -20.5], [30, -20.5],
+    [0, 6], [-36, 5], [24, 26], [-25.5, 21],
+  ];
   private clock = 0;
   private power = 1;
 
@@ -175,8 +202,9 @@ export class WorldBuilder {
       this.rooms.set(r.id, {
         def: r,
         center: new THREE.Vector3((x1 + x2) / 2, 0, (z1 + z2) / 2),
-        light: null,
+        lightLevel: 0,
         lightBase: r.ambientLight?.intensity ?? 0.45,
+        lightColor: r.ambientLight?.color ?? 0xffd9a8,
         flicker: r.ambientLight?.flicker ?? 0.08,
         lightOn: true,
         fixture: null,
@@ -476,56 +504,75 @@ export class WorldBuilder {
     this.root.add(g);
   }
 
-  /* ================= LUCES ================= */
+  /* ================= LUCES (POOL) ================= */
+
+  /** registra una luz decorativa (la ilumina el pool cuando el jugador está cerca) */
+  registerAccent(def: AccentLightDef) {
+    this.accents.push(def);
+  }
 
   private buildLights() {
     const LM = 42;
     for (const rt of this.rooms.values()) {
       const amb = rt.def.ambientLight;
-      const color = amb?.color ?? 0xffd9a8;
       const h = rt.def.height ?? 3.6;
       const dimFactor = rt.def.id === 'office' ? 0.6 : 0.17;
-      const base = (amb?.intensity ?? 0.45) * LM * dimFactor;
-      const light = new THREE.PointLight(color, base, 15, 1.7);
-      light.position.set(rt.center.x, h - 0.55, rt.center.z);
-      this.root.add(light);
-      rt.light = light;
-      rt.lightBase = base;
+      rt.lightBase = (amb?.intensity ?? 0.45) * LM * dimFactor;
       rt.lightOn = LIGHTS_ON_DEFAULT.has(rt.def.id);
-      this.roomLights.push(rt);
+      this.roomList.push(rt);
       const fixture = new THREE.Mesh(
         new THREE.BoxGeometry(1.1, 0.08, 0.4),
-        new THREE.MeshStandardMaterial({ color: 0x9a9482, emissive: new THREE.Color(color), emissiveIntensity: 1.4 })
+        new THREE.MeshStandardMaterial({ color: 0x9a9482, emissive: new THREE.Color(rt.lightColor), emissiveIntensity: 0.02 })
       );
       fixture.position.set(rt.center.x, h - 0.06, rt.center.z);
       this.root.add(fixture);
       rt.fixture = fixture;
     }
 
-    // Focos del escenario del atrio: un azul moribundo y dos apagados
-    const spotColors = [0xff5544, 0x44ff88, 0x5588ff];
-    const spotX = [-4.5, 0, 4.5];
-    for (let i = 0; i < 3; i++) {
-      const spot = new THREE.SpotLight(spotColors[i], i === 2 ? 9 : 0, 20, 0.5, 0.45, 1.2);
-      spot.position.set(spotX[i], 7.6, -8.2);
-      spot.target.position.set(spotX[i], 1.6, -6.2);
-      spot.castShadow = i === 2;
-      this.root.add(spot);
-      this.root.add(spot.target);
-      this.stageSpots.push(spot);
+    // ---- POOL: 5 puntuales de sala ----
+    for (let i = 0; i < 5; i++) {
+      const l = new THREE.PointLight(0xffd9a8, 0, 15, 1.7);
+      l.position.set(0, 3, 0);
+      this.root.add(l);
+      this.roomPool.push(l);
     }
 
-    // Luces de emergencia (rojas) — siempre encendidas, tenues
-    const emPos: Array<[number, number]> = [
-      [-37.5, 21.5], [0, 15.5], [-30, -20.5], [30, -20.5],
-      [0, 6], [-36, 5], [24, 26], [-25.5, 21],
-    ];
-    for (const [x, z] of emPos) {
-      const l = new THREE.PointLight(0xff2211, 6, 10, 1.9);
-      l.position.set(x, 3.4, z);
-      this.root.add(l);
-      this.emergencyLights.push(l);
+    // ---- POOL: 1 roja de emergencia (sigue la más cercana) ----
+    const em = new THREE.PointLight(0xff2211, 0, 10, 1.9);
+    em.position.set(0, 3.4, 0);
+    this.root.add(em);
+    this.emergencyPool = em;
+    // luminarias rojas visibles en las 8 posiciones (meshes emisivos, baratos)
+    const emMat = new THREE.MeshStandardMaterial({ color: 0x330604, emissive: 0xff2211, emissiveIntensity: 1.6 });
+    for (const [x, z] of this.emPositions) {
+      const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.12, 0.2), emMat);
+      lamp.position.set(x, 3.55, z);
+      this.root.add(lamp);
     }
+
+    // ---- POOL: 1 puntual de acento (cala / fríos / decorativas) ----
+    const ap = new THREE.PointLight(0xffffff, 0, 8, 1.9);
+    ap.position.set(0, 2.5, 0);
+    this.root.add(ap);
+    this.accentPointPool = ap;
+
+    // ---- POOL: 2 focos de acento (vitrinas / estatua / proyector) ----
+    for (let i = 0; i < 2; i++) {
+      const s = new THREE.SpotLight(0xffd9a8, 0, 10, 0.5, 0.5, 1.6);
+      s.position.set(0, 4, 0);
+      s.target.position.set(0, 0, 0);
+      this.root.add(s);
+      this.root.add(s.target);
+      this.accentSpotPool.push(s);
+    }
+
+    // ---- foco azul moribundo del escenario del atrio (fijo) ----
+    const stage = new THREE.SpotLight(0x5588ff, 9, 20, 0.5, 0.45, 1.2);
+    stage.position.set(0, 7.6, -8.2);
+    stage.target.position.set(0, 1.6, -6.2);
+    this.root.add(stage);
+    this.root.add(stage.target);
+    this.stageSpot = stage;
   }
 
   setPowerFactor(p: number) {
@@ -545,44 +592,110 @@ export class WorldBuilder {
 
   update(dt: number, focusPos: THREE.Vector3) {
     this.clock += dt;
-    // Culling: solo las 12 luces más cercanas al foco
-    const sorted = this.roomLights
-      .map((r) => ({ r, d: r.center.distanceToSquared(focusPos) }))
-      .sort((a, b) => a.d - b.d);
-    for (let i = 0; i < sorted.length; i++) {
-      const { r } = sorted[i];
-      const enable = i < 12;
-      if (r.light) {
-        let intensity = 0;
-        if (enable && r.lightOn) {
-          intensity = r.lightBase * this.power;
-          if (r.flicker > 0.02) {
-            const t = this.clock;
-            const f =
-              0.72 +
-              0.28 * Math.sin(t * 7.3 + r.center.x) * Math.sin(t * 3.1 + r.center.z) +
-              (Math.random() < 0.004 * r.flicker * 60 ? -0.8 : 0);
-            intensity *= Math.max(0.05, f);
-          }
+    const t = this.clock;
+
+    // ---- selección de las 5 salas encendidas más cercanas (sin alocar) ----
+    // en modo cámara, la sala del feed entra SIEMPRE (impulso de visión nocturna)
+    const feed = this.camView ? this.roomAt(focusPos.x, focusPos.z) : null;
+    const chosen: RoomRT[] = [];
+    for (let slot = 0; slot < this.roomPool.length; slot++) {
+      let best: RoomRT | null = null;
+      let bestD = Infinity;
+      for (const r of this.roomList) {
+        if (!r.lightOn || chosen.includes(r)) continue;
+        const dx = r.center.x - focusPos.x;
+        const dz = r.center.z - focusPos.z;
+        let d = dx * dx + dz * dz;
+        if (r === feed) d *= 0.25; // prioridad a la sala del feed
+        if (d < bestD) { best = r; bestD = d; }
+      }
+      if (best) chosen.push(best);
+    }
+
+    // apagar las salas sin luz del pool y actualizar luminarias
+    for (const r of this.roomList) {
+      const slot = chosen.indexOf(r);
+      let intensity = 0;
+      if (slot >= 0) {
+        intensity = r.lightBase * this.power;
+        if (r.flicker > 0.02) {
+          const f =
+            0.72 +
+            0.28 * Math.sin(t * 7.3 + r.center.x) * Math.sin(t * 3.1 + r.center.z) +
+            (Math.random() < 0.004 * r.flicker * 60 ? -0.8 : 0);
+          intensity *= Math.max(0.05, f);
         }
-        r.light.intensity = intensity;
-        if (r.fixture) {
-          const fm = r.fixture.material as THREE.MeshStandardMaterial;
-          fm.emissiveIntensity = intensity > 2 ? Math.min(3, 0.8 + intensity / 26) : 0.02;
-        }
+        // impulso de la sala del feed de la tableta
+        if (r === feed) intensity = Math.max(intensity, r.lightBase * 0.55);
+        const l = this.roomPool[slot];
+        const h = r.def.height ?? 3.6;
+        l.position.set(r.center.x, h - 0.55, r.center.z);
+        l.color.setHex(r.lightColor);
+        l.intensity = intensity;
+        l.distance = r.def.id === 'atrium' ? 22 : 15;
+      }
+      r.lightLevel = intensity;
+      if (r.fixture) {
+        const fm = r.fixture.material as THREE.MeshStandardMaterial;
+        fm.emissiveIntensity = intensity > 2 ? Math.min(3, 0.8 + intensity / 26) : 0.02;
       }
     }
-    if (this.camView) {
-      const r = this.roomAt(focusPos.x, focusPos.z);
-      if (r && r.light) {
-        const boost = r.lightBase * 0.55;
-        if (r.light.intensity < boost) r.light.intensity = boost;
-        if (r.fixture) {
-          const fm = r.fixture.material as THREE.MeshStandardMaterial;
-          fm.emissiveIntensity = 0.6;
-        }
+
+    // ---- emergencia roja: la posición más cercana ----
+    if (this.emergencyPool) {
+      let bx = this.emPositions[0][0];
+      let bz = this.emPositions[0][1];
+      let bestD = Infinity;
+      for (const [x, z] of this.emPositions) {
+        const d = (x - focusPos.x) ** 2 + (z - focusPos.z) ** 2;
+        if (d < bestD) { bestD = d; bx = x; bz = z; }
+      }
+      this.emergencyPool.position.set(bx, 3.4, bz);
+      this.emergencyPool.intensity = 6;
+    }
+
+    // ---- acentos: el puntual y los 2 focos más cercanos ----
+    if (this.accentPointPool) {
+      let bestD = Infinity;
+      let best: AccentLightDef | null = null;
+      for (const a of this.accents) {
+        if (a.spot) continue;
+        const d = a.pos.distanceToSquared(focusPos);
+        if (d < bestD) { bestD = d; best = a; }
+      }
+      const l = this.accentPointPool;
+      if (best) {
+        l.position.copy(best.pos);
+        l.color.setHex(best.color);
+        l.intensity = best.intensity;
+        l.distance = best.distance;
+        l.decay = best.decay ?? 1.9;
+      } else {
+        l.intensity = 0;
       }
     }
+    for (const sp of this.accentSpotPool) {
+      let bestD = Infinity;
+      let best: AccentLightDef | null = null;
+      for (const a of this.accents) {
+        if (!a.spot) continue;
+        const d = a.pos.distanceToSquared(focusPos);
+        if (d < bestD) { bestD = d; best = a; }
+      }
+      if (best) {
+        sp.position.copy(best.pos);
+        sp.target.position.copy(best.target ?? best.pos);
+        sp.color.setHex(best.color);
+        sp.intensity = best.intensity;
+        sp.distance = best.distance;
+        sp.angle = best.angle ?? 0.5;
+        sp.penumbra = best.penumbra ?? 0.5;
+        sp.decay = best.decay ?? 1.6;
+      } else {
+        sp.intensity = 0;
+      }
+    }
+
     for (const a of this.propAnims) {
       a.update(dt, this.clock);
     }
@@ -608,6 +721,7 @@ export class WorldBuilder {
     for (const r of this.rooms.values()) {
       r.lightOn = LIGHTS_ON_DEFAULT.has(r.def.id);
       r.blackoutTimer = 0;
+      r.lightLevel = 0;
     }
     for (const c of this.colliders) {
       if (c.id?.startsWith('item_')) c.active = false;

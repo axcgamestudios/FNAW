@@ -60,11 +60,11 @@ export class Player {
     this.camera = camera;
     this.host = host;
     // linterna
-    this.flashlight = new THREE.SpotLight(0xfff2d8, 0, 22, 0.46, 0.42, 1.25);
+    this.flashlight = new THREE.SpotLight(0xfff2d8, 0, 18, 0.46, 0.42, 1.25);
     this.flashlight.castShadow = true;
-    this.flashlight.shadow.mapSize.set(1024, 1024);
+    this.flashlight.shadow.mapSize.set(512, 512);
     this.flashlight.shadow.camera.near = 0.2;
-    this.flashlight.shadow.camera.far = 22;
+    this.flashlight.shadow.camera.far = 16;
     this.flashlight.shadow.bias = -0.003;
     this.lightGroup.add(this.flashlight);
     this.lightGroup.add(this.flashTargetObj);
@@ -111,6 +111,8 @@ export class Player {
     this.hiddenSpotId = null;
     this.inVent = false;
     this.eyeH = STAND_EYE;
+    // el haz arranca alineado con la vista de reaparición (sin giro residual)
+    this.lightSway.set(0, Math.sin(this.yaw / 2), 0, Math.cos(this.yaw / 2));
   }
 
   /* ============ ACTUALIZACIÓN ============ */
@@ -307,9 +309,10 @@ export class Player {
   }
 
   private updateFlashlight(dt: number) {
-    // balanceo suave del haz (con inercia)
+    // balanceo suave del haz (con inercia): la orientación MUNDIAL del grupo
+    // (hijo de la cámara) se mantiene en lightSway, que persigue la vista
     const targetQ = this.camera.quaternion;
-    this.lightSway.slerp(targetQ, Math.min(1, dt * 9));
+    this.lightSway.slerp(targetQ, Math.min(1, dt * 14));
     this.lightGroup.quaternion.copy(this.lightSway).premultiply(this.camera.quaternion.clone().invert());
     let intensity = 0;
     if (this.flashlightOn) {
@@ -328,8 +331,8 @@ export class Player {
 
   roomLightLevel(): number {
     const room = this.host.world.roomAt(this.pos.x, this.pos.z);
-    if (!room || !room.light) return 0;
-    return Math.min(1, (room.light.intensity / Math.max(0.001, room.lightBase)) * 1.2);
+    if (!room) return 0;
+    return Math.min(1, (room.lightLevel / Math.max(0.001, room.lightBase)) * 1.2);
   }
 
   emitNoise(): void {

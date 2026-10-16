@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the text from the image, listed line by line:\n\n```\nFILM\nMEGAPLEX\n\nCOMPLEJO BRUNO · TURNO DE CIERRE\nCAPÍTULOS 1/6 · CINTAS 0/11\n\n» NUEVA PARTIDA\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792163141,
+  "id": "20261016230540e899b06a55fe45d6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261016230540e899b06a55fe45d6",
+  "usage": {
+    "completion_tokens": 66,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 857,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 923
+  }
+}
