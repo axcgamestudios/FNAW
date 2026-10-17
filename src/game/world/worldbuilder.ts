@@ -318,7 +318,8 @@ export class WorldBuilder {
     const isMetal = !isGate && (
       d.id.includes('electrical') || d.id.includes('generator') || d.id.includes('exit') ||
       d.id.includes('workshop') || d.id.includes('loading') || d.id.includes('freezers') || d.id.includes('pump') ||
-      d.id.includes('storageN') || d.id.includes('storageS') || d.id.includes('techS')
+      d.id.includes('storageN') || d.id.includes('storageS') || d.id.includes('techS') ||
+      d.id.includes('mega')
     );
     const w = d.width - 0.08;
 

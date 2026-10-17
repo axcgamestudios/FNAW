@@ -49,6 +49,10 @@ interface ModelConfig {
   length?: number;
   /** desactivar clips GLB (animación 100% procedural del RigAnimator) */
   noClips?: boolean;
+  /** rotación previa a la normalización (modelos OBJ reconvertidos "acostados") */
+  preRotX?: number;
+  /** marca de material cuyas mallas son los rayos del Sol (Luna/Sol) */
+  sunRaysMaterial?: string;
 }
 
 const CONFIGS: Record<string, ModelConfig> = {
@@ -59,6 +63,10 @@ const CONFIGS: Record<string, ModelConfig> = {
   foxy: { file: 'models/foxy.glb', height: 2.42, rotY: 0, eyeColor: 0xffbf40, eyeNames: /eye/i, noClips: true },
   golden: { file: 'models/freddy.glb', height: 2.62, rotY: 0, eyeColor: 0xffdd44, eyeNames: /eye|iris|pupil/i, noClips: true },
   jeremy: { file: 'models/jeremy.glb', height: 1.78, rotY: 0, eyeColor: 0x000000 },
+  // Luna (cara nocturna del Eclipse): GLB estático YA DE PIE (el nodo raíz
+  // Sketchfab hornea Rx+90°). La cara apunta a -Z → rotY π para mirar a +Z.
+  // MAT_DayMan = los rayos del Sol: visibles solo en modo Sol.
+  moon: { file: 'models/moon.glb', height: 2.42, rotY: Math.PI, eyeColor: 0xff3232, noClips: true, sunRaysMaterial: 'MAT_DayMan' },
   // El GLB de la linterna mide 0.136 m por su eje X (la lente está en +X):
   // se normaliza por X y se rota +90° para que la cabeza mire a -Z (al frente).
   flashlight: { file: 'models/flashlight.glb', height: 0.19, rotY: Math.PI / 2, eyeColor: 0x000000, lengthAxis: 'x', length: 0.19 },
@@ -73,6 +81,13 @@ export interface GameTextures {
   wallMetal: THREE.Texture;
   guardSkin: THREE.Texture;
   guardUniform: THREE.Texture;
+  // texturas del repo FNAW (v7 — Mega Guardería en llamas)
+  texCheckerBurned: THREE.Texture;
+  texPartyFabric: THREE.Texture;
+  texConcreteCracked: THREE.Texture;
+  texWoodOld: THREE.Texture;
+  texMetalRusty: THREE.Texture;
+  texStoneSlabs: THREE.Texture;
 }
 
 export class AssetLibrary {
@@ -94,6 +109,12 @@ export class AssetLibrary {
       ['wallMetal', 'textures/wall_metal.jpg'],
       ['guardSkin', 'textures/guard_skin.png'],
       ['guardUniform', 'textures/guard_uniform.png'],
+      ['texCheckerBurned', 'textures/tex_checker_burned.jpg'],
+      ['texPartyFabric', 'textures/tex_party_fabric.jpg'],
+      ['texConcreteCracked', 'textures/tex_concrete_cracked.jpg'],
+      ['texWoodOld', 'textures/tex_wood_old.jpg'],
+      ['texMetalRusty', 'textures/tex_metal_rusty.jpg'],
+      ['texStoneSlabs', 'textures/tex_stone_slabs.jpg'],
     ];
     const entries = Object.entries(CONFIGS).filter(([k]) => k !== 'golden');
     const total = entries.length + texFiles.length;
@@ -140,7 +161,7 @@ export class AssetLibrary {
     }
 
     // rigs normales (golden se clona bajo demanda)
-    for (const kind of ['freddy', 'bonnie', 'chica', 'foxy', 'jeremy', 'flashlight']) {
+    for (const kind of ['freddy', 'bonnie', 'chica', 'foxy', 'jeremy', 'moon', 'flashlight']) {
       if (this.raws.has(kind)) {
         this.rigs.set(kind, this.prepareRig(kind));
       }
@@ -194,6 +215,13 @@ export class AssetLibrary {
     // normalizar: escala y apoyo en el suelo.
     // La linterna se normaliza por su eje largo (Z) para que mida ~27 cm de largo;
     // el resto por altura Y.
+    // Modelos "acostados" (OBJ reconvertido, p. ej. moon.glb con la cabeza en +Z):
+    // se enderezan con preRotX ANTES de medir la caja.
+    // Orden de Euler 'YXZ': primero X (enderezar), luego Y (orientar la cara).
+    if (cfg.preRotX) {
+      model.rotation.order = 'YXZ';
+      model.rotation.x = cfg.preRotX;
+    }
     model.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
@@ -213,6 +241,26 @@ export class AssetLibrary {
     model.position.z -= center.z;
     model.position.y -= box2.min.y;
     model.rotation.y = cfg.rotY;
+
+    // Luna/Sol: memorizar colores base y marcar los rayos del Sol (MAT_DayMan)
+    if (cfg.sunRaysMaterial) {
+      model.traverse((o) => {
+        if (!(o instanceof THREE.Mesh)) return;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        const names = mats.map((mm) => (mm as THREE.MeshStandardMaterial).name || '');
+        if (names.some((n) => n === cfg.sunRaysMaterial)) {
+          (o.userData as { sunRays?: boolean }).sunRays = true;
+          o.visible = false; // nace como LUNA
+        }
+        for (const mm of mats as THREE.MeshStandardMaterial[]) {
+          (o.userData as { moonBase?: { color: number; emissive: number; ei: number } }).moonBase = {
+            color: mm.color.getHex(),
+            emissive: mm.emissive ? mm.emissive.getHex() : 0,
+            ei: mm.emissiveIntensity ?? 0,
+          };
+        }
+      });
+    }
 
     // mixer (solo para el guardia / variantes; los animatrónicos van 100% procedural)
     let mixer: THREE.AnimationMixer | null = null;
@@ -294,6 +342,35 @@ export class AssetLibrary {
       rig.mixer?.update(dt);
     }
   }
+}
+
+/* ============ LUNA / SOL (GLB estático del Eclipse) ============ */
+
+const _moonWarm = new THREE.Color(0xffc23a);
+const _moonDark = new THREE.Color(0x283468);
+
+/** Cambia la cara del guardián de la guardería entre LUNA (noche) y SOL (día).
+ *  - LUNA: cuerpo azulado y apagado, sin rayos.
+ *  - SOL: cuerpo dorado cálido con brillo, rayos del Sol visibles. */
+export function setMoonMode(rig: GltfRig, mode: 'sun' | 'moon') {
+  rig.model.traverse((o) => {
+    if (!(o instanceof THREE.Mesh)) return;
+    const ud = o.userData as { sunRays?: boolean; moonBase?: { color: number; emissive: number; ei: number } };
+    if (ud.sunRays) o.visible = mode === 'sun';
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    for (const m of mats as THREE.MeshStandardMaterial[]) {
+      const base = ud.moonBase ?? { color: m.color.getHex(), emissive: m.emissive ? m.emissive.getHex() : 0, ei: m.emissiveIntensity ?? 0 };
+      if (mode === 'sun') {
+        m.color.setHex(base.color).lerp(_moonWarm, 0.55).multiplyScalar(1.3);
+        m.emissive.setHex(0xff9a18);
+        m.emissiveIntensity = 0.3;
+      } else {
+        m.color.setHex(base.color).lerp(_moonDark, 0.2).multiplyScalar(0.85);
+        m.emissive.setHex(base.emissive);
+        m.emissiveIntensity = base.ei;
+      }
+    }
+  });
 }
 
 /* ============ MAPEO DE HUESOS ============ */

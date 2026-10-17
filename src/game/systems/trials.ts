@@ -9,6 +9,7 @@ import type { TrialDef, TrialScare, Interactable } from '../core/types';
 import type { WorldBuilder } from '../world/worldbuilder';
 import type { Animatronic } from '../ai/animatronic';
 import type { Player } from '../player/player';
+import { MEGA_FIRE } from '../world/fire';
 
 export interface TrialHudData {
   name: string | null;
@@ -44,6 +45,10 @@ export interface TrialHost {
     respawn(): void;
     moonScream(pos: THREE.Vector3): void;
     lullaby(pos: THREE.Vector3): void;
+    /** v7 — Mega Guardería en llamas */
+    extinguisherSpray(): void;
+    setFireAmbience(on: boolean): void;
+    setDaycareSong(on: boolean): void;
   };
 }
 
@@ -145,6 +150,12 @@ export class TrialSystem {
     this.host.world.setRoomLight(t.room, !dark);
     if (dark) this.host.sfx.powerDown();
     this.resetGeneratorLights(t);
+    // v7 — el infierno: reencender todos los fuegos + ambiente
+    if (t.room === 'megadaycare') {
+      MEGA_FIRE?.begin();
+      this.host.sfx.setFireAmbience(true);
+      this.host.sfx.setDaycareSong(true);
+    }
     this.fireScares('start');
     this.syncHud();
   }
@@ -177,14 +188,15 @@ export class TrialSystem {
     if (!this.active) return;
     this.host.clearTrialInteractables();
     const t = this.active;
+    const isFire = t.room === 'megadaycare';
     t.tasks.forEach((task, i) => {
       this.host.registerInteractable({
         id: `trial_${t.id}_${task.id}`,
-        label: `${task.label}${i > 0 && !this.tasksDone.includes(t.tasks[i - 1].id) ? '' : ''}`,
-        pos: { x: task.at[0], y: 1.2, z: task.at[1] },
-        radius: 1.6,
+        label: task.label,
+        pos: { x: task.at[0], y: 1.1, z: task.at[1] },
+        radius: isFire ? 2.3 : 1.6,
         holdTime: task.hold,
-        holdLabel: 'TRABAJANDO',
+        holdLabel: isFire ? 'APAGANDO EL FUEGO' : 'TRABAJANDO',
         enabled: () => this.active === t && !this.tasksDone.includes(task.id) && this.isNextTask(task.id),
         action: () => {
           this.completeTask(task.id);
@@ -207,14 +219,21 @@ export class TrialSystem {
   completeTask(taskId: string) {
     if (!this.active || this.tasksDone.includes(taskId)) return;
     this.tasksDone.push(taskId);
-    this.host.sfx.switchClick();
+    // v7 — extintor: chorro de CO2 + el fuego de esa zona muere
+    if (this.active.room === 'megadaycare') {
+      MEGA_FIRE?.extinguish(taskId);
+      this.host.sfx.extinguisherSpray();
+      this.host.addNoise(this.host.player.pos.x, this.host.player.pos.z, 9); // Luna lo oye
+    } else {
+      this.host.sfx.switchClick();
+    }
     this.setGeneratorDone(taskId);
     const idx = this.tasksDone.length;
     if (this.active.tasks.length > 1) {
       this.host.notify(`TAREA ${idx}/${this.active.tasks.length} — ${this.nextTask()?.label ?? ''}`);
     }
-    // disparar susto por número de tarea
-    const key = `task${Math.min(idx, 4)}` as 'task1' | 'task2' | 'task3' | 'task4';
+    // disparar susto por número de tarea (hasta task7)
+    const key = `task${Math.min(idx, 7)}` as 'task1' | 'task2' | 'task3' | 'task4' | 'task5' | 'task6' | 'task7';
     this.fireScares(key);
     if (this.tasksDone.length >= this.active.tasks.length) {
       this.succeed();
@@ -233,7 +252,11 @@ export class TrialSystem {
       // SOL Y LUNA: la luz lo cambia — se vuelve amable y se retira para siempre
       hunter.setDayNight('sun');
       hunter.retire();
-      hunter.teleportTo(-20.5, 3.0, 0); // junto al borde norte de la alberca, sonriendo
+      if (t.room === 'megadaycare') {
+        hunter.teleportTo(0, -46, 0.4); // junto a la alberca gigante, sonriendo
+      } else {
+        hunter.teleportTo(-20.5, 3.0, 0); // junto al borde norte de la alberca, sonriendo
+      }
       // rejas de la guardería abiertas de nuevo
       for (const gid of ['gate_daycare_n', 'gate_daycare_e', 'gate_daycare_s', 'gate_daycare_w']) {
         this.host.unlockDoor(gid);
@@ -247,6 +270,12 @@ export class TrialSystem {
       }
     }
     this.host.world.setRoomLight(t.room, true);
+    // v7 — apagar el infierno restante y callar la nana
+    if (t.room === 'megadaycare') {
+      MEGA_FIRE?.extinguishAll();
+      this.host.sfx.setFireAmbience(false);
+      this.host.sfx.setDaycareSong(false);
+    }
     this.host.completeObjective(`c${t.chapter}_trial`);
     this.host.notify(t.successMsg);
     this.host.onTrialSuccess(t);
@@ -267,6 +296,10 @@ export class TrialSystem {
     this.attempts++;
     const t = this.active;
     this.tasksDone = []; // la prueba se reinicia de cero (puro estilo prueba)
+    // v7 — el infierno vuelve a arder entero
+    if (t.room === 'megadaycare') {
+      MEGA_FIRE?.begin();
+    }
     // el cazador se recoloca lejos
     const hunter = this.hunter;
     if (hunter) {
@@ -311,7 +344,7 @@ export class TrialSystem {
 
   /* ============ SUSTOS ============ */
 
-  private fireScares(at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end') {
+  private fireScares(at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'task5' | 'task6' | 'task7' | 'end') {
     if (!this.active) return;
     for (const s of this.active.scares as TrialScare[]) {
       if (s.at !== at) continue;
@@ -389,6 +422,19 @@ export class TrialSystem {
         player.setShake(1.0);
         // acude a mirar dónde estabas (sin perseguir aún)
         if (hunter) hunter.investigateAt(new THREE.Vector3(player.pos.x, 0, player.pos.z));
+        break;
+      }
+      case 'moonDescend': {
+        // LUNA cae del techo de la Mega Guardería y despierta
+        if (hunter) {
+          hunter.hanging = false;
+          hunter.teleportTo(s.pos[0], s.pos[1], Math.atan2(player.pos.x - s.pos[0], player.pos.z - s.pos[1]));
+          hunter.wake();
+          hunter.calmDown();
+        }
+        this.host.sfx.moonScream(player.pos);
+        this.host.sfx.stinger();
+        player.setShake(1.2);
         break;
       }
       case 'lullaby': {

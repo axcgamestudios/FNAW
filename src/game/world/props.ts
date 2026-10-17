@@ -340,6 +340,7 @@ export function buildProps(world: WorldBuilder) {
   buildGolf(world);
   buildPirateCove(world);
   buildDaycare(world);
+  buildMegaDaycare(world);
   buildFoodcourt(world);
   buildRestrooms(world);
   buildProms(world);
@@ -1441,7 +1442,11 @@ function buildDaycare(world: WorldBuilder) {
   const rows = Math.floor(PD / hexDz);
   const BALL_N = cols * rows * 3 + 220;  // 3 capas + derrame
   const ballGeo = new THREE.SphereGeometry(R, 18, 14);
-  const ballMat = new THREE.MeshStandardMaterial({ roughness: 0.26, metalness: 0.0, envMapIntensity: 0.7 });
+  // plástico brillante con clearcoat (v7): las bolas atrapan la luz
+  const ballMat = new THREE.MeshPhysicalMaterial({
+    roughness: 0.24, metalness: 0.0, clearcoat: 0.85, clearcoatRoughness: 0.25,
+    envMapIntensity: 1.1,
+  });
   const ballsIM = new THREE.InstancedMesh(ballGeo, ballMat, BALL_N);
   ballsIM.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   const dummy = new THREE.Object3D();
@@ -2458,3 +2463,539 @@ export function createPickupMesh(kind: 'fuse' | 'tape' | 'note' | 'battery' | 'c
   }
 }
 
+
+/* ============ MEGA GUARDERÍA EN LLAMAS (v7 — capítulo 4) ============ */
+/* Sala: x[-44,44] z[-62,-34], techo 9 m. La guardería GIGANTE arde:
+   alberca chamuscada, castillo de juegos calcinado, piano gigante,
+   arcoíris semi-fundido, carrusel roto... y LUNA colgando del techo. */
+
+import { FireSystem, MEGA_EXTINTORES, setMegaFire, sharedSmokeTexture } from './fire';
+
+/** rectángulo de la ALBERCA GIGANTE quemada (zona de ruido/sigilo) */
+export const MEGA_PIT = { x1: -7.5, z1: -47, x2: 7.5, z2: -38 };
+
+/** material "chamuscado": plástico negro-grisáceo mate */
+function charMat(rough = 0.92): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({ color: 0x1c1815, roughness: rough, metalness: 0.05 });
+}
+
+function buildMegaDaycare(world: WorldBuilder) {
+  const charred = charMat();
+  const charWood = charMat(0.85);
+
+  /* ---- techo ennegrecido (plano de hollín bajo el techo real) ---- */
+  const soot = new THREE.Mesh(
+    new THREE.PlaneGeometry(88, 28),
+    new THREE.MeshStandardMaterial({ color: 0x0c0a09, roughness: 1 })
+  );
+  soot.rotation.x = Math.PI / 2;
+  soot.position.set(0, 8.92, -48);
+  world.root.add(soot);
+
+  /* ---- vigas metálicas calcinadas cruzando el techo ---- */
+  const beamMat = new THREE.MeshStandardMaterial({ color: 0x241d18, roughness: 0.6, metalness: 0.7 });
+  for (let i = 0; i < 7; i++) {
+    const bz = -35.5 - i * 4.2;
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(88, 0.5, 0.34), beamMat);
+    beam.position.set(0, 8.3, bz);
+    world.root.add(beam);
+    // tirantes colgantes torcidos
+    if (i % 2 === 0) {
+      for (const hx of [-30, -6, 14, 34]) {
+        const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.4 + Math.random() * 1.2, 6), beamMat);
+        rod.position.set(hx + (Math.random() - 0.5) * 2, 7.5, bz + 0.2);
+        rod.rotation.z = (Math.random() - 0.5) * 0.5;
+        world.root.add(rod);
+      }
+    }
+  }
+
+  /* ---- percha de LUNA en el centro del techo ---- */
+  const perch = new THREE.Group();
+  const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, 2.0, 10), charred);
+  cord.position.y = -1.0;
+  perch.add(cord);
+  // anillo-percha
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.55, 0.05, 8, 22),
+    new THREE.MeshStandardMaterial({ color: 0x3a2a20, roughness: 0.5, metalness: 0.8 })
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = -2.0;
+  perch.add(ring);
+  // resplandor rojo tenue bajo la percha (la "presencia" de Luna)
+  const aura = new THREE.Mesh(
+    new THREE.SphereGeometry(0.9, 14, 10),
+    new THREE.MeshBasicMaterial({ color: 0x881510, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false })
+  );
+  aura.position.y = -2.0;
+  perch.add(aura);
+  perch.position.set(0, 8.9, -48);
+  world.root.add(perch);
+  world.propAnims.push({
+    update: (_dt, t) => {
+      ring.rotation.z = Math.sin(t * 0.4) * 0.08;
+      aura.scale.setScalar(1 + Math.sin(t * 2.2) * 0.12);
+    },
+  });
+
+  /* ---- estrellas del techo (rojo-mortecinas, casi todas fundidas) ---- */
+  const starGeo = new THREE.BufferGeometry();
+  const starPos: number[] = [];
+  for (let i = 0; i < 120; i++) {
+    starPos.push(-43 + Math.random() * 86, 8.4 + Math.random() * 0.3, -61 + Math.random() * 26);
+  }
+  starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+  world.root.add(new THREE.Points(starGeo, new THREE.PointsMaterial({
+    color: 0xff6a4a, size: 0.06, transparent: true, opacity: 0.5,
+  })));
+
+  /* ---- ALBERCA DE PELOTAS GIGANTE (15 × 9 m), medio chamuscada ---- */
+  const pit = new THREE.Group();
+  const PX = 0, PZ = -42.5;
+  const PW = 15, PD = 9;
+  const WALL_H2 = 0.66;
+  // fondo interior oscuro
+  const floor2 = new THREE.Mesh(
+    new THREE.BoxGeometry(PW, 0.06, PD),
+    new THREE.MeshStandardMaterial({ color: 0x201812, roughness: 0.7 })
+  );
+  floor2.position.set(PX, 0.03, PZ);
+  floor2.receiveShadow = true;
+  pit.add(floor2);
+  // muros acolchados con la tela de fiesta (algunos paneles calcinados)
+  const padTex = Assets.textures?.texPartyFabric;
+  const padMat = (burnedPanel: boolean) => {
+    if (!burnedPanel && padTex) {
+      const m = padTex.clone();
+      m.wrapS = m.wrapT = THREE.RepeatWrapping;
+      m.repeat.set(2, 0.5);
+      m.needsUpdate = true;
+      return new THREE.MeshStandardMaterial({ map: m, roughness: 0.8, color: 0x6a5a4a });
+    }
+    return charMat();
+  };
+  function wallRun2(x0: number, z0: number, x1: number, z1: number, segs: number) {
+    const dx = (x1 - x0) / segs, dz = (z1 - z0) / segs;
+    const horiz = Math.abs(dx) > Math.abs(dz);
+    const len = horiz ? Math.abs(dx) : Math.abs(dz);
+    for (let i = 0; i < segs; i++) {
+      const cx = x0 + dx * (i + 0.5), cz = z0 + dz * (i + 0.5);
+      const burnedPanel = Math.random() < 0.3;
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(horiz ? len * 0.98 : 0.36, WALL_H2, horiz ? 0.36 : len * 0.98),
+        padMat(burnedPanel)
+      );
+      body.position.set(cx, WALL_H2 / 2, cz);
+      body.castShadow = true;
+      pit.add(body);
+      const cap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.18, 0.18, len * 0.98, 10),
+        burnedPanel ? charMat() : plasticMaterial(0xd8842a, 0.7, 0.3)
+      );
+      cap.rotation.z = Math.PI / 2;
+      if (!horiz) cap.rotation.y = Math.PI / 2;
+      cap.position.set(cx, WALL_H2 + 0.02, cz);
+      pit.add(cap);
+    }
+  }
+  wallRun2(PX - PW / 2, PZ - PD / 2, PX + PW / 2, PZ - PD / 2, 12);
+  wallRun2(PX - PW / 2, PZ + PD / 2, PX + PW / 2, PZ + PD / 2, 12);
+  wallRun2(PX - PW / 2, PZ - PD / 2, PX - PW / 2, PZ + PD / 2, 7);
+  wallRun2(PX + PW / 2, PZ - PD / 2, PX + PW / 2, PZ + PD / 2, 7);
+
+  // MAR DE BOLAS: 3 capas hexagonales, paleta viva + bolas fundidas negras
+  const ballColors2 = [
+    0xe8382e, 0x2e6ee8, 0xf2d030, 0x38c24a, 0xf27a20, 0xf0ead8, 0xd838a8, 0x35c8c8,
+    0x181210, 0x2a1410, 0x351a08,
+  ];
+  const R2 = 0.125;
+  const hexDx2 = R2 * 2 * 0.88;
+  const hexDz2 = R2 * 2 * 0.78;
+  const cols2 = Math.floor(PW / hexDx2);
+  const rows2 = Math.floor(PD / hexDz2);
+  const BALL_N2 = cols2 * rows2 * 3 + 260;
+  const ballGeo2 = new THREE.SphereGeometry(R2, 18, 14);
+  // plástico brillante con clearcoat: las bolas brillan con la luz del fuego
+  const ballMat2 = new THREE.MeshPhysicalMaterial({
+    roughness: 0.28, metalness: 0.0, clearcoat: 0.9, clearcoatRoughness: 0.22,
+    envMapIntensity: 1.3,
+  });
+  const ballsIM2 = new THREE.InstancedMesh(ballGeo2, ballMat2, BALL_N2);
+  ballsIM2.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const dummy2 = new THREE.Object3D();
+  const col2 = new THREE.Color();
+  let bi2 = 0;
+  for (let layer = 0; layer < 3; layer++) {
+    const ly = 0.10 + layer * R2 * 1.55;
+    const off = (layer % 2) * (hexDx2 / 2);
+    for (let r = 0; r < rows2; r++) {
+      for (let c = 0; c < cols2; c++) {
+        if (bi2 >= BALL_N2 - 260) break;
+        dummy2.position.set(
+          PX - PW / 2 + R2 + 0.12 + c * hexDx2 + off + (Math.random() - 0.5) * 0.03,
+          ly + (Math.random() - 0.5) * 0.012,
+          PZ - PD / 2 + R2 + 0.12 + r * hexDz2 + (Math.random() - 0.5) * 0.03
+        );
+        dummy2.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+        const sc = 0.93 + Math.random() * 0.2;
+        dummy2.scale.set(sc, sc, sc);
+        dummy2.updateMatrix();
+        ballsIM2.setMatrixAt(bi2, dummy2.matrix);
+        // la esquina sureste "ardió": mezcla de bolas fundidas
+        const melt = c > cols2 * 0.55 && r < rows2 * 0.35;
+        ballsIM2.setColorAt(
+          bi2,
+          col2.setHex(melt ? ballColors2[8 + (Math.random() * 3 | 0)] : ballColors2[(layer * 5 + r * 3 + c) % 8])
+        );
+        bi2++;
+      }
+    }
+  }
+  // bolas derramadas por la sala quemada
+  const spill: Array<[number, number]> = [
+    [PX + 8.4, PZ - 3.6], [PX + 9.1, PZ - 1.8], [PX + 8.8, PZ + 1.0], [PX + 8.6, PZ + 3.4],
+    [PX - 8.3, PZ - 2.2], [PX - 8.9, PZ + 1.4], [PX - 8.5, PZ + 3.6],
+    [PX - 2.0, PZ - 5.2], [PX + 2.4, PZ - 5.4], [PX + 5.0, PZ - 5.6],
+    [PX - 4.4, PZ + 5.4], [PX + 1.2, PZ + 5.8],
+  ];
+  for (let s = 0; s < 260 && bi2 < BALL_N2; s++) {
+    const [ox, oz] = spill[s % spill.length];
+    const far = 0.3 + Math.random() * 1.6;
+    const ang = Math.random() * Math.PI * 2;
+    dummy2.position.set(ox + Math.cos(ang) * far, R2 * 0.9, oz + Math.sin(ang) * far);
+    dummy2.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+    dummy2.scale.set(1, 1, 1);
+    dummy2.updateMatrix();
+    ballsIM2.setMatrixAt(bi2, dummy2.matrix);
+    ballsIM2.setColorAt(bi2, col2.setHex(ballColors2[Math.random() < 0.4 ? 8 + (Math.random() * 3 | 0) : (Math.random() * 8 | 0)]));
+    bi2++;
+  }
+  while (bi2 < BALL_N2) {
+    dummy2.position.set(PX + (Math.random() - 0.5) * PW * 0.9, 0.1, PZ + (Math.random() - 0.5) * PD * 0.9);
+    dummy2.scale.set(1, 1, 1);
+    dummy2.updateMatrix();
+    ballsIM2.setMatrixAt(bi2, dummy2.matrix);
+    ballsIM2.setColorAt(bi2, col2.setHex(0x2e6ee8));
+    bi2++;
+  }
+  pit.add(ballsIM2);
+  world.root.add(pit);
+  world.propAnims.push({ update: (_dt, t) => { ballsIM2.position.y = Math.sin(t * 0.55) * 0.014; } });
+
+  /* ---- CASTILLO DE JUEGOS CALCINADO (oeste, x[-40,-27] z[-50,-39]) ---- */
+  const castle = new THREE.Group();
+  const postMat = charMat();
+  const plast = (c: number) => plasticMaterial(c, 0.72, 0.15);
+  // torres en las esquinas
+  const towers: Array<[number, number, number]> = [
+    [-39.2, -49.2, 5.6], [-28.0, -49.2, 5.0], [-39.2, -39.5, 4.2], [-28.0, -39.5, 3.4],
+  ];
+  for (const [tx, tz, th] of towers) {
+    const tw = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.36, th, 10), postMat);
+    tw.position.set(tx - (-33.5), th / 2, tz - (-44.5));
+    tw.castShadow = true;
+    castle.add(tw);
+    // tejado cónico quemado
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.7, 8), charMat());
+    roof.position.set(tx - (-33.5), th + 0.35, tz - (-44.5));
+    castle.add(roof);
+  }
+  // plataformas multi-nivel
+  const plats: Array<[number, number, number, number, number]> = [
+    [-36.5, 1.6, -47.0, 5.0, 4.0],   // nivel 1 norte
+    [-36.5, 3.2, -47.0, 3.6, 3.0],   // nivel 2 norte
+    [-34.0, 1.6, -41.5, 8.0, 3.6],   // nivel 1 sur
+  ];
+  for (const [px, py, pz, pw, pd] of plats) {
+    const plat = new THREE.Mesh(new THREE.BoxGeometry(pw, 0.14, pd), charWood);
+    plat.position.set(px - (-33.5), py, pz - (-44.5));
+    plat.castShadow = true;
+    castle.add(plat);
+    // vallas rotas
+    for (const sz of [-1, 1]) {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(pw * 0.9, 0.07, 0.07), charred);
+      rail.position.set(px - (-33.5), py + 0.55, pz - (-44.5) + (sz * pd) / 2);
+      rail.rotation.z = Math.random() * 0.06;
+      castle.add(rail);
+    }
+  }
+  // rampa-tobogán derrumbada
+  const slide2 = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.09, 5.6), plasticMaterial(0x8a2a1a, 0.65, 0.2));
+  slide2.position.set(-30.2 - (-33.5), 1.9, -43.8 - (-44.5));
+  slide2.rotation.set(-0.34, 0.25, 0.12);
+  castle.add(slide2);
+  // tubo-túnel (medio derretido)
+  const tube = new THREE.Mesh(
+    new THREE.TorusGeometry(1.15, 0.62, 12, 24, Math.PI * 1.15),
+    plasticMaterial(0x6a2018, 0.8, 0.1)
+  );
+  tube.position.set(-37.5 - (-33.5), 1.15, -41.2 - (-44.5));
+  tube.rotation.y = Math.PI / 2;
+  castle.add(tube);
+  castle.position.set(-33.5, 0, -44.5);
+  world.root.add(castle);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-36.5, 2.4, -47.0), new THREE.Vector3(5.4, 4.8, 4.4)), 'mega_castle_n');
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-34.0, 0.9, -41.5), new THREE.Vector3(8.4, 1.8, 3.9)), 'mega_castle_s');
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-37.5, 1.2, -41.2), new THREE.Vector3(1.6, 2.4, 2.4)), 'mega_tube');
+
+  /* ---- PIANO GIGANTE (norte centro) — teclas de colores pisables ---- */
+  const piano2 = new THREE.Group();
+  const keyColors = [0xd84040, 0xd8a040, 0xd8d840, 0x40d860, 0x40a0d8, 0x8040d8];
+  for (let i = 0; i < 16; i++) {
+    const key = new THREE.Mesh(
+      new THREE.BoxGeometry(0.86, 0.12, 1.7),
+      plasticMaterial(keyColors[i % 6], 0.6, 0.3)
+    );
+    key.position.set(-7.2 + i * 0.96, 0.06, 0);
+    key.castShadow = true;
+    piano2.add(key);
+  }
+  // costados del piano
+  for (const sx of [-7.8, 7.8]) {
+    const side = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 1.9), plasticMaterial(0x3a3a3a, 0.45, 0.4));
+    side.position.set(sx, 0.45, 0);
+    piano2.add(side);
+  }
+  piano2.position.set(1.2, 0, -59.4);
+  piano2.rotation.y = 0;
+  world.root.add(piano2);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(1.2, 0.45, -59.4), new THREE.Vector3(16.6, 0.9, 1.9)), 'mega_piano');
+
+  /* ---- ESTANTERÍA GIGANTE CAÍDA (noreste, apoyada en la pared) ---- */
+  const shelf = new THREE.Group();
+  const shMat = charMat(0.8);
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(11, 0.5, 2.6), shMat);
+  frame.position.y = 1.2;
+  shelf.add(frame);
+  for (const bx of [-5.2, 5.2]) {
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.5, 6.5, 0.4), shMat);
+    back.position.set(bx, 3.2, -1.15);
+    shelf.add(back);
+  }
+  // peluches calcinados esparcidos
+  for (let i = 0; i < 14; i++) {
+    const pl = new THREE.Mesh(
+      new THREE.SphereGeometry(0.22 + Math.random() * 0.14, 10, 8),
+      charMat(0.95)
+    );
+    pl.position.set((Math.random() - 0.5) * 10, 1.5 + Math.random() * 0.3, (Math.random() - 0.5) * 1.6);
+    pl.scale.y = 0.7;
+    shelf.add(pl);
+  }
+  shelf.position.set(35, 0, -58.5);
+  shelf.rotation.z = 0.12;
+  shelf.rotation.y = -0.08;
+  world.root.add(shelf);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(35, 1.6, -58.5), new THREE.Vector3(11.5, 3.4, 2.8)), 'mega_shelf');
+
+  /* ---- ARCOÍRIS SEMI-FUNDIDO (corredor este, sobre la ruta e5→e6) ---- */
+  const rainbowColors2 = [0x8a3030, 0x8a6828, 0x38702f, 0x2f5570, 0x523070];
+  for (let i = 0; i < 5; i++) {
+    const arc = new THREE.Mesh(
+      new THREE.TorusGeometry(3.4 - i * 0.45, 0.16, 10, 30, Math.PI),
+      plasticMaterial(rainbowColors2[i], 0.6, 0.3)
+    );
+    arc.position.set(21.5, 0.05, -50 + i * 3.4);
+    arc.rotation.y = -Math.PI / 2;
+    arc.rotation.z = 0;
+    world.root.add(arc);
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(21.5, 1.0, -50 + i * 3.4), new THREE.Vector3(0.5, 2.0, 2.0)), `mega_rainbow_${i}`, false);
+  }
+  // un arco desprendido en el suelo
+  const fallen = new THREE.Mesh(
+    new THREE.TorusGeometry(2.8, 0.15, 10, 26, Math.PI * 0.9),
+    plasticMaterial(0x6a2020, 0.75, 0.15)
+  );
+  fallen.position.set(16, 0.15, -55);
+  fallen.rotation.set(Math.PI / 2, 0.3, 0);
+  world.root.add(fallen);
+
+  /* ---- CARRUSEL ROTO (este) ---- */
+  const carousel = new THREE.Group();
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.4, 0.55, 22), charMat(0.75));
+  base.position.y = 0.28;
+  base.castShadow = true;
+  carousel.add(base);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 6.4, 12), beamMat);
+  pole.position.y = 3.4;
+  carousel.add(pole);
+  const roof2 = new THREE.Mesh(new THREE.ConeGeometry(4.8, 1.6, 18), plasticMaterial(0x5a1a1a, 0.8, 0.1));
+  roof2.position.y = 7.0;
+  carousel.add(roof2);
+  // caballitos torcidos colgando de cadenas
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2;
+    const r = 3.4;
+    const cx = Math.cos(a) * r, cz = Math.sin(a) * r;
+    const hh = 1.4 + (i % 3) * 0.7;
+    for (const [chx, chz] of [[cx - 0.16, cz], [cx + 0.16, cz]] as Array<[number, number]>) {
+      const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, hh + 1.2, 6), beamMat);
+      chain.position.set(chx, (5.6 + hh) / 2, chz);
+      carousel.add(chain);
+    }
+    const horse2 = new THREE.Group();
+    const hb = new THREE.Mesh(new THREE.CapsuleGeometry(0.2, 0.42, 6, 10), plasticMaterial(i % 2 ? 0x7a3a5a : 0x3a5a7a, 0.7));
+    hb.rotation.z = Math.PI / 2 + (Math.random() - 0.5) * 0.7;
+    horse2.add(hb);
+    const hh2 = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), plasticMaterial(i % 2 ? 0x7a3a5a : 0x3a5a7a, 0.7));
+    hh2.position.set(0.42, 0.12, 0);
+    horse2.add(hh2);
+    horse2.position.set(cx, hh, cz);
+    horse2.rotation.y = -a + Math.PI / 2;
+    carousel.add(horse2);
+  }
+  carousel.position.set(36, 0, -46);
+  world.root.add(carousel);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(36, 1.2, -46), new THREE.Vector3(8.6, 2.4, 8.6)), 'mega_carousel');
+  world.propAnims.push({ update: (_dt, t) => { carousel.rotation.y = Math.sin(t * 0.11) * 0.04; } });
+
+  /* ---- COFIRES DE JUGUETES (escondites) ---- */
+  const chestMat = plasticMaterial(0x8a5a2a, 0.75, 0.1);
+  const chests: Array<[number, number, number]> = [
+    [-25, -39, 0], [-8, -52, 0.5], [26, -38.5, -0.4], [10, -57, 0.2],
+  ];
+  for (const [cx, cz, ry] of chests) {
+    const ch = new THREE.Group();
+    const body3 = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.8, 0.9), chestMat);
+    body3.position.y = 0.4;
+    body3.castShadow = true;
+    ch.add(body3);
+    const lid = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.22, 0.94), charMat(0.8));
+    lid.position.set(0, 0.9, -0.42);
+    lid.rotation.x = -1.9;
+    ch.add(lid);
+    ch.position.set(cx, 0, cz);
+    ch.rotation.y = ry;
+    world.root.add(ch);
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(cx, 0.5, cz), new THREE.Vector3(1.8, 1.0, 1.0)), `megachest_${cx}`);
+  }
+
+  /* ---- 7 ESTACIONES DE EXTINTORES (anclas dcgen_eN para el sistema de pruebas) ---- */
+  MEGA_EXTINTORES.forEach(([ex, ez, ery], i) => {
+    const g = new THREE.Group();
+    // cuerpo rojo con banda
+    const body4 = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.11, 0.13, 0.62, 14),
+      plasticMaterial(0xc22018, 0.45, 0.35)
+    );
+    body4.position.y = 0.62;
+    body4.castShadow = true;
+    g.add(body4);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.125, 0.1, 14), plasticMaterial(0xe8e2d2, 0.5));
+    band.position.y = 0.66;
+    g.add(band);
+    // cabeza + palanca + manguera
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.12, 0.1), darkMetalMaterial());
+    head.position.y = 0.98;
+    g.add(head);
+    for (const lx of [-0.07, 0.07]) {
+      const lever = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.02, 0.18), darkMetalMaterial());
+      lever.position.set(lx, 1.05, 0);
+      g.add(lever);
+    }
+    const hose = new THREE.Mesh(
+      new THREE.TorusGeometry(0.14, 0.022, 8, 16, Math.PI * 1.4),
+      plasticMaterial(0x1a1a1a, 0.85)
+    );
+    hose.position.set(0.1, 0.78, 0.05);
+    g.add(hose);
+    // manómetro
+    const gauge = new THREE.Mesh(
+      new THREE.SphereGeometry(0.045, 10, 8),
+      new THREE.MeshStandardMaterial({ color: 0xd8d0b0, emissive: 0x807850, emissiveIntensity: 0.4 })
+    );
+    gauge.position.set(-0.1, 0.94, 0.03);
+    g.add(gauge);
+    // cartel verde sobre el soporte
+    const sign = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.2, 0.04),
+      new THREE.MeshStandardMaterial({ color: 0x0a2a10, emissive: 0x22c840, emissiveIntensity: 1.1 })
+    );
+    sign.position.set(0, 1.65, 0.02);
+    g.add(sign);
+    // LUZ DE ESTADO (roja → verde al usarse; mismo convenio que generadores)
+    const status = new THREE.Mesh(
+      new THREE.SphereGeometry(0.085, 12, 10),
+      new THREE.MeshStandardMaterial({ color: 0x5a0808, emissive: 0xff2020, emissiveIntensity: 2.6 })
+    );
+    status.position.set(0, 1.9, 0);
+    g.add(status);
+    world.propAnims.push({
+      update: (_dt, t) => {
+        const m = status.material as THREE.MeshStandardMaterial;
+        if (m.emissive.getHex() === 0xff2020) m.emissiveIntensity = 1.8 + Math.sin(t * 5 + i * 1.7) * 0.9;
+      },
+    });
+    g.position.set(ex, 0, ez);
+    g.rotation.y = ery;
+    world.root.add(g);
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(ex, 0.8, ez), new THREE.Vector3(0.5, 1.6, 0.5)), `dcext_${i}`);
+    // ancla con el MISMO convenio que los generadores (dcgen_<taskId>)
+    world.anchors.set(`dcgen_e${i + 1}`, { pos: new THREE.Vector3(ex, 1.1, ez), mesh: status });
+  });
+
+  /* ---- decoración: dibujos quemados, letreros, lámparas caídas ---- */
+  addDrawing(world, 1, -43.8, 1.8, -40, Math.PI / 2);
+  addDrawing(world, 3, -43.8, 1.8, -48, Math.PI / 2);
+  addDrawing(world, 5, 43.8, 1.8, -44, -Math.PI / 2);
+  addDrawing(world, 2, 20, 1.8, -61.8, 0);
+  neonSign(world, 'MEGA GUARDERÍA', 0xff7030, 0, 8.0, -34.35, 0, 5.0, 0.7);
+  neonSign(world, 'SALIDA DE EMERGENCIA', 0x40ff70, -37, 3.1, -34.35, 0, 2.6, 0.5);
+  neonSign(world, 'SALIDA DE EMERGENCIA', 0x40ff70, -22, 3.1, -34.35, 0, 2.6, 0.5);
+  neonSign(world, 'SALIDA DE EMERGENCIA', 0x40ff70, -6, 3.1, -34.35, 0, 2.6, 0.5);
+  // lámparas-luna colgando torcidas (una se balancea)
+  const moonLamp2 = new THREE.MeshStandardMaterial({ color: 0x4a4a5a, emissive: 0x901810, emissiveIntensity: 0.7 });
+  const swingLamps: THREE.Group[] = [];
+  for (const [lx, lz] of [[-20, -37.5], [12, -38.5], [-32, -52], [26, -59], [40, -40]] as Array<[number, number]>) {
+    const lamp = new THREE.Group();
+    const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.6, 6), charred);
+    wire.position.y = -0.8;
+    lamp.add(wire);
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.24, 0.12, 14), moonLamp2);
+    disc.position.y = -1.66;
+    lamp.add(disc);
+    lamp.position.set(lx, 6.4, lz);
+    lamp.rotation.z = (Math.random() - 0.5) * 0.6;
+    world.root.add(lamp);
+    swingLamps.push(lamp);
+  }
+  world.propAnims.push({
+    update: (_dt, t) => {
+      for (let i = 0; i < swingLamps.length; i++) {
+        swingLamps[i].rotation.z = Math.sin(t * (0.5 + i * 0.13) + i) * 0.16 + (i % 2 ? 0.2 : -0.15);
+      }
+    },
+  });
+
+  /* ---- quemaduras en el suelo (circulos de hollín) ---- */
+  const scorchMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45, depthWrite: false });
+  for (let i = 0; i < 16; i++) {
+    const sc = new THREE.Mesh(new THREE.CircleGeometry(0.8 + Math.random() * 2.2, 18), scorchMat);
+    sc.rotation.x = -Math.PI / 2;
+    sc.position.set(-40 + Math.random() * 80, 0.06, -60 + Math.random() * 24);
+    world.root.add(sc);
+  }
+
+  /* ---- capa de humo flotando cerca del techo ---- */
+  for (let i = 0; i < 6; i++) {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: sharedSmokeTexture(), color: 0x181410, transparent: true, opacity: 0.28, depthWrite: false,
+    }));
+    s.scale.set(24 + Math.random() * 16, 12 + Math.random() * 8, 1);
+    s.position.set(-36 + i * 14, 7.2 + Math.random() * 0.8, -58 + Math.random() * 20);
+    s.userData.vx = 0.14 + Math.random() * 0.1;
+    world.root.add(s);
+    const smokeDrift = s;
+    world.propAnims.push({
+      update: (dt, t) => {
+        smokeDrift.position.x += (smokeDrift.userData.vx as number) * dt;
+        if (smokeDrift.position.x > 46) smokeDrift.position.x = -46;
+        (smokeDrift.material as THREE.SpriteMaterial).opacity = 0.22 + Math.sin(t * 0.3 + i) * 0.07;
+      },
+    });
+  }
+
+  /* ---- el FUEGO: sistema de zonas (fuente única de posiciones) ---- */
+  setMegaFire(new FireSystem(world));
+}

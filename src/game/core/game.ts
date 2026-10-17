@@ -15,6 +15,7 @@ import { SecurityCameras } from '../systems/cameras';
 import { MissionSystem } from '../systems/missions';
 import { EventDirector } from '../systems/events';
 import { CinematicPlayer } from '../systems/cinematic';
+import { MEGA_FIRE } from '../world/fire';
 import { TrialSystem, type TrialHudData } from '../systems/trials';
 import { AudioEngine } from '../audio/audio';
 import { useHud } from './state';
@@ -78,6 +79,8 @@ export class Game {
   private flashlightModel: THREE.Object3D | null = null;
   private flashlightLens: THREE.Mesh | null = null;
   private chapterEndPending = false;
+  /** v7 — acumulador de daño por fuego (Mega Guardería) */
+  private fireBurnT = 0;
   private powerOut = false;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -382,6 +385,10 @@ export class Game {
     this.audio.setBreathing(false);
     this.audio.setChase(false);
     this.audio.stopPhoneVoice();
+    // v7 — al salir al menú, el infierno se calla
+    this.audio.setDaycareSong(false);
+    this.audio.setFireAmbience(false);
+    MEGA_FIRE?.setEnabled(false);
     useHud.getState().setSubtitle(null);
   }
 
@@ -431,6 +438,9 @@ export class Game {
     this.powerOut = false;
     // silenciar la música del tema al entrar en juego
     this.audio.stopThemeMusic();
+    // v7 — y la nana del incendio (la prueba la reactivará)
+    this.audio.setDaycareSong(false);
+    this.audio.setFireAmbience(false);
     // quitar Freddy del menú y su foco
     if (this.menuRig) this.scene.remove(this.menuRig.root);
     if (this.menuSpot) this.menuSpot.intensity = 0;
@@ -450,12 +460,32 @@ export class Game {
     // === ARRANQUE EN LA ALBERCA (cap 1) ===
     const luna = this.animatronics.find((a) => a.def.id === 'luna');
     if (luna) {
-      // cap 1: LUNA vela la guardería oscura · cap 2+: ya la superaste → SOL inofensivo
-      luna.setDayNight(n === 1 ? 'moon' : 'sun');
-      if (n > 1) luna.retire();
-      // reposición: luna despierta en su esquina
-      luna.teleportTo(-18, 10.5, 0.8);
+      if (n === 1) {
+        // cap 1: LUNA vela la guardería pequeña, a oscuras
+        luna.setDayNight('moon');
+        luna.teleportTo(-18, 10.5, 0.8);
+      } else if (n === 4) {
+        // cap 4 — EL INFIERNO: LUNA cuelga boca abajo del centro del techo
+        luna.setDayNight('moon');
+        luna.teleportTo(0, -48, 0.6);
+        luna.hangFromCeiling(6.55);
+        // puertas cortafuego abiertas por la alarma
+        for (const gid of ['door_mega_w', 'door_mega_c', 'door_mega_e']) {
+          this.forceUnlockDoor(gid);
+        }
+      } else {
+        // resto de noches: la guardería ya fue superada → SOL inofensivo
+        luna.setDayNight('sun');
+        luna.retire();
+        luna.teleportTo(-20.5, 3.0, 0.3);
+        // su reja queda abierta
+        for (const gid of ['gate_daycare_n', 'gate_daycare_e', 'gate_daycare_s', 'gate_daycare_w']) {
+          this.forceUnlockDoor(gid);
+        }
+      }
     }
+    // el infierno solo arde en el cap 4
+    MEGA_FIRE?.setEnabled(n === 4);
     if (n === 1) {
       // escondido en la alberca: agachado y sin linterna
       this.player.crouching = true;
@@ -587,7 +617,7 @@ export class Game {
       unlockDoor: (id: string) => this.forceUnlockDoor(id),
       onTrialSuccess: () => {
         // el Freddy Dorado despierta al superar la prueba de generadores
-        if (this.chapter === 5) {
+        if (this.chapter === 6) {
           const golden = this.animatronics.find((a) => a.def.id === 'golden');
           if (golden && !golden.active) {
             this.audio.stinger();
@@ -610,6 +640,10 @@ export class Game {
         respawn: () => this.audio.respawn(),
         moonScream: (pos: THREE.Vector3) => this.audio.moonScream(pos),
         lullaby: (pos: THREE.Vector3) => this.audio.lullaby(pos),
+        // v7 — Mega Guardería en llamas
+        extinguisherSpray: () => this.audio.extinguisherSpray(),
+        setFireAmbience: (on: boolean) => this.audio.setFireAmbience(on),
+        setDaycareSong: (on: boolean) => this.audio.setDaycareSong(on),
       },
     };
   }
@@ -817,8 +851,8 @@ export class Game {
             return;
           }
           if (isGenerator && door.locked) {
-            // la sala de generadores se abre en el capítulo 5
-            if (ch >= 5) {
+            // la sala de generadores se abre en el capítulo 6
+            if (ch >= 6) {
               door.locked = false;
               this.nav.setDoorBlocked(door.def.id, false);
               this.notify('SALA DE GENERADORES ABIERTA');
@@ -830,11 +864,11 @@ export class Game {
             return;
           }
           if (door.locked) {
-            if (isExit && ch === 6 && this.missions.keycards >= 3) {
+            if (isExit && ch === 7 && this.missions.keycards >= 3) {
               this.finishGame('escape');
               return;
             }
-            if (isExit && ch === 6) {
+            if (isExit && ch === 7) {
               this.notify(`NECESITAS 3 TARJETAS (${this.missions.keycards}/3)`);
             } else {
               this.notify(door.def.lockedMsg ?? 'Bloqueada');
@@ -892,9 +926,15 @@ export class Game {
           torch.mesh!.visible = false;
           this.audio.pickup();
           this.missions.completeObjective('c1_torch');
-          this.notify('Linterna equipada [F]');
+          this.notify('Linterna equipada [F] — RULO ABRE LAS REJAS');
           if (this.flashlightModel) this.flashlightModel.visible = true;
           if (this.guardArms) this.guardArms.visible = true;
+          // cap 1: con la linterna en la mano, Rulo abre las rejas de la guardería
+          if (this.chapter === 1) {
+            for (const gid of ['gate_daycare_n', 'gate_daycare_e', 'gate_daycare_s', 'gate_daycare_w']) {
+              this.forceUnlockDoor(gid);
+            }
+          }
         },
       });
     }
@@ -938,9 +978,9 @@ export class Game {
 
     // tarjetas de acceso (cap6)
     for (const [anchorId, objId, label] of [
-      ['key_rockstar', 'c6_key1', 'Galería Estelar'],
-      ['key_theater', 'c6_key2', 'Teatro Bruno'],
-      ['key_foodcourt', 'c6_key3', 'Plaza de Comida'],
+      ['key_rockstar', 'c7_key1', 'Galería Estelar'],
+      ['key_theater', 'c7_key2', 'Teatro Bruno'],
+      ['key_foodcourt', 'c7_key3', 'Plaza de Comida'],
     ] as Array<[string, string, string]>) {
       const a = world.anchors.get(anchorId);
       if (!a) continue;
@@ -955,7 +995,7 @@ export class Game {
         label: `Coger tarjeta — ${label}`,
         pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
         radius: 1.6,
-        enabled: () => this.mode === 'playing' && ch === 6 && mesh.visible,
+        enabled: () => this.mode === 'playing' && ch === 7 && mesh.visible,
         action: () => {
           mesh.visible = false;
           this.missions.keycards++;
@@ -1090,8 +1130,8 @@ export class Game {
           const save = addTape(tape.id);
           useHud.getState().setProgress(save.unlockedChapter, save.tapes);
         }
-        if (this.chapter === 4) {
-          this.missions.progressObjective('c4_tape');
+        if (this.chapter === 5) {
+          this.missions.progressObjective('c5_tape');
         }
         break;
       }
@@ -1437,6 +1477,9 @@ export class Game {
       this.world.update(dt, this.camera.position);
     }
 
+    // v7 — el infierno arde en TODOS los modos (también en cinemáticas)
+    if (MEGA_FIRE?.enabled) MEGA_FIRE.update(dt, this.camera.position);
+
     if (this.audio.available) {
       this.audio.update(dt);
       if (this.mode !== 'cinematic') {
@@ -1640,6 +1683,24 @@ export class Game {
     this.world.camView = st.tabletOpen;
     const focus = st.tabletOpen ? this.cams.camera.position : this.player.pos;
     this.world.update(dt, focus);
+    // v7 — daño por llamas (la animación del fuego vive en el render loop)
+    if (MEGA_FIRE?.enabled && this.mode === 'playing') {
+      const h = MEGA_FIRE.hazardAt(this.player.pos.x, this.player.pos.z);
+      if (h > 0.5) {
+        this.fireBurnT += dt;
+        this.player.setShake(Math.max(0.5, h));
+        if (this.fireBurnT > 0.55) {
+          this.fireBurnT = 0;
+          const luna = this.animatronics.find((a) => a.def.id === 'luna');
+          if (luna) {
+            this.notify('¡LAS LLAMAS TE ENVUELVEN — Y LUNA TE ARRASTRA!');
+            this.onDeath(luna);
+          }
+        }
+      } else {
+        this.fireBurnT = Math.max(0, this.fireBurnT - dt * 2);
+      }
+    }
     this.updateDust(dt);
     this.updateInteractions(dt);
     this.cams.update(dt, this.animatronics, st.tabletOpen);

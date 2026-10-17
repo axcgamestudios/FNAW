@@ -54,7 +54,7 @@ export function writeSave(save: GameSave) {
 
 export function unlockChapter(n: number): GameSave {
   const s = loadSave();
-  if (n > s.unlockedChapter) s.unlockedChapter = Math.min(5, n);
+  if (n > s.unlockedChapter) s.unlockedChapter = Math.min(7, n);
   writeSave(s);
   return s;
 }

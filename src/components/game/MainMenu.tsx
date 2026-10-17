@@ -14,7 +14,7 @@ import SettingsPanel from './SettingsPanel';
 
 type Panel = 'none' | 'chapters' | 'settings' | 'controls' | 'credits';
 
-const TOTAL_CHAPTERS = 6;
+const TOTAL_CHAPTERS = 7;
 const TOTAL_TAPES = 11;
 
 export default function MainMenu() {

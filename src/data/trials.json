@@ -2,108 +2,137 @@
   "trials": [
     {
       "id": "sunmoon",
-      "name": "PRUEBA SOL Y LUNA",
-      "chapter": 1,
-      "room": "daycare",
+      "name": "EL INFIERNO — SOL Y LUNA",
+      "chapter": 4,
+      "room": "megadaycare",
       "hunter": "luna",
-      "respawnRoom": "daycare",
+      "respawnRoom": "megadaycare",
       "respawnPos": [
-        -22.5,
-        6.5
+        -36.0,
+        -36.4
       ],
-      "respawnYaw": 0,
-      "hunterResetRoom": "daycare",
+      "respawnYaw": 3.14159,
+      "hunterResetRoom": "megadaycare",
       "hunterResetPos": [
-        -18.0,
-        0.6
+        -10.0,
+        -60.0
       ],
-      "aggression": 1.55,
+      "aggression": 1.9,
       "darkFromStart": true,
       "sunnyTransform": true,
-      "requiresObjectives": [
-        "c1_sneak",
-        "c1_torch"
-      ],
-      "introMsg": "LA REJA SE CIERRA — LUNA TE HA OÍDO. Arranca los 5 generadores para devolver la luz. No dejes de moverte. Agáchate. NO CORRAS SI TE OYE.",
+      "introMsg": "EL HUMO SE TRAGA LA MEGA GUARDERÍA — LUNA CAE DEL TECHO. Encuentra los 7 EXTINTORES y mata los incendios. Agáchate: te OYE. Y el fuego TAMBIÉN muerde.",
       "tasks": [
         {
-          "id": "g1",
-          "label": "Arrancar generador — dentro de la alberca",
+          "id": "e1",
+          "label": "Extintor — base del castillo de juegos (O)",
           "at": [
-            -26.2,
-            9.3
+            -30.0,
+            -41.2
           ],
-          "hold": 3.5
+          "hold": 4.0
         },
         {
-          "id": "g2",
-          "label": "Arrancar generador — juguetería (SO)",
+          "id": "e2",
+          "label": "Extintor — rincón noroeste",
           "at": [
-            -26.2,
-            0.9
+            -38.0,
+            -56.0
           ],
-          "hold": 3.5
+          "hold": 4.0
         },
         {
-          "id": "g3",
-          "label": "Arrancar generador — piano gigante (NO)",
+          "id": "e3",
+          "label": "Extintor — junto a la alberca gigante (O)",
           "at": [
-            -26.4,
-            11.6
+            -16.0,
+            -46.2
           ],
-          "hold": 3.5
+          "hold": 4.0
         },
         {
-          "id": "g4",
-          "label": "Arrancar generador — torre de juegos (NE)",
+          "id": "e4",
+          "label": "Extintor — piano gigante (N)",
           "at": [
-            -17.9,
-            11.9
+            2.0,
+            -58.6
           ],
-          "hold": 3.5
+          "hold": 4.0
         },
         {
-          "id": "g5",
-          "label": "Arrancar generador — bajo el arcoíris (E)",
+          "id": "e5",
+          "label": "Extintor — bajo el arcoíris (E)",
           "at": [
-            -17.4,
-            5.2
+            18.0,
+            -43.0
           ],
-          "hold": 3.5
+          "hold": 4.0
+        },
+        {
+          "id": "e6",
+          "label": "Extintor — carrusel roto (E)",
+          "at": [
+            34.0,
+            -46.2
+          ],
+          "hold": 4.0
+        },
+        {
+          "id": "e7",
+          "label": "Extintor — rincón noreste",
+          "at": [
+            24.0,
+            -59.2
+          ],
+          "hold": 4.0
         }
       ],
       "scares": [
         {
           "at": "start",
-          "type": "moonScream",
-          "msg": "LUNA CHILLA EN LA OSCURIDAD — HA SENTIDO LAS PELOTAS MOVERSE"
+          "type": "moonDescend",
+          "pos": [
+            -24.0,
+            -44.0
+          ],
+          "msg": "LUNA SE SUELTA DEL TECHO Y CAE A POCOS METROS — EL JUEGO EMPIEZA"
         },
         {
           "at": "task1",
           "type": "lullaby",
-          "msg": "UNA NANA SUENA DESDE EL TECHO... CADA VEZ MÁS CERCA"
+          "msg": "UNA NANA SUENA ENTRE LAS LLAMAS... CADA VEZ MÁS CERCA"
         },
         {
           "at": "task2",
           "type": "fakeSteps",
-          "msg": "PASOS SUAVES... BOSOSOS... RODEÁNDOTE"
+          "msg": "PASOS SUAVES... RODEÁNDOTE... ENTRE EL HUMO"
         },
         {
           "at": "task3",
           "type": "hunterAppear",
           "pos": [
-            -22.5,
-            12.2
+            6.0,
+            -57.0
           ],
-          "msg": "LUNA CUELGA DEL TECHO JUNTO A LA REJA NORTE — SONRÍE"
+          "msg": "LUNA CUERDA EL CARRUSEL — GIRO LENTO — SONRÍE DESDE ARRIBA"
         },
         {
           "at": "task4",
+          "type": "moonScream",
+          "msg": "LUNA CHILLA — SABE DÓNDE ESTÁS — EL HUMO TE DELATA"
+        },
+        {
+          "at": "task5",
+          "type": "lightsOut",
+          "dur": 9,
+          "msg": "EL RUIDO DEL FUEGO SE CALLA UN SEGUNDO — SOLO QUEDA TU LINTERNA"
+        },
+        {
+          "at": "task6",
           "type": "hunterChase",
-          "msg": "¡ÚLTIMO GENERADOR — LUNA YA NO SE ESCONDE — CORRE!"
+          "msg": "¡ÚLTIMO EXTINTOR — LUNA YA NO SE ESCONDE — CORRE!"
         }
       ],
-      "successMsg": "LUZ — Los cinco generadores rugen. LUNA se retira... y SOL despierta. Las rejas se abren. La guardería vuelve a ser un lugar para niños."
+      "successMsg": "EL ÚLTIMO FUEGO MUERE. La sala respira... LUNA se retira y SOL despierta entre el vapor. Las puertas cortafuego se abren de golpe."
     },
     {
       "id": "bowling",
@@ -254,7 +283,7 @@
     {
       "id": "cove",
       "name": "PRUEBA DE LA CALA DEL PIRATA",
-      "chapter": 4,
+      "chapter": 5,
       "room": "pirateCove",
       "hunter": "foxy",
       "respawnRoom": "westPromN",
@@ -327,7 +356,7 @@
     {
       "id": "generators",
       "name": "PRUEBA DE LOS GENERADORES",
-      "chapter": 5,
+      "chapter": 6,
       "room": "generator",
       "hunter": "freddy",
       "respawnRoom": "promS",

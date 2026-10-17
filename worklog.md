@@ -204,3 +204,34 @@ Work Log:
 
 Stage Summary:
 - v6.2 entregada: (1) alberca de pelotas rediseñada a lo Security Breach (mar denso hexagonal de 2800 bolas + muros acolchados + escalera + bolas derramadas); (2) Sol/Luna rehechos de cero con caras 512 texturizadas, trajes a rayas, campanas y brillo en penumbra (VLM 7.5-8/10 de fidelidad); (3) cinco SFX ORIGINALES de FNAF 1 (ventilador, estática, blip de cámara, Marcha Toreador del apagón, cocina) + jumpscare real + tema musical; (4) VOZ REAL EN ESPAÑOL de Rulo en las 6 llamadas de radio (TTS + filtro de radio, 30 líneas sincronizadas por duración real); (5) pasos y puertas resintetizados con capas físicas realistas.
+
+---
+Task ID: 8
+Agent: Super Z (agente principal)
+Task: v7 — "El Infierno de la Mega Guardería": rediseño total de la parte Sol/Luna como sala GIGANTE en llamas con 7 EXTINTORES (no generadores), muy difícil/oscura/larga, movida a la MITAD del juego (cap 4 de 7), con el modelo GLB de Moon añadido por el usuario al repo.
+
+Work Log:
+- Descargados del repo FNAW: moon.glb (13.5 MB, "take_2_of_moon_side_of_eclips", estático, sin rig; nodo raíz Sketchfab hornea Rx+90° → ya de pie; cara a -Z) + 6 texturas IMG_29xx (checker quemado, tela de fiesta, concreto agrietado, madera vieja, metal oxidado, losas de piedra) + "Screen recording" (2.5 min = canción fan FNAF → daycare_song.mp3).
+- VLM: identificadas las imágenes como texturas; ASR: la grabación es una canción ("we're waiting every night... come and play with us").
+- map.json: edificio extendido minZ -62; sala megadaycare x[-44,44] z[-62,-34] (88×28 m, techo 9 m); muro norte z=-34 convertido en pared interior de 9 m con 3 huecos; 3 puertas cortafuego (door_mega_w/c/e, bloqueadas hasta cap4); CAM 13; 4 escondites-cofre; batería.
+- assets.ts: CONFIGS.moon (rotY π por cara a -Z, preRotX eliminado al estar ya erguido), sunRaysMaterial MAT_DayMan (rayos del Sol), texturas nuevas en GameTextures, setMoonMode() (tinte dorado + rayos visibles en modo Sol).
+- materials.ts: floors burned/slabs/oldwood + walls party/rusty/cracked con las texturas reales del repo.
+- fire.ts NUEVO: FireSystem — 7 zonas de tarea (con barrera física al jugador vía colliders "vent_cover_fire_" que la rejilla de nav ignora → Luna atraviesa el fuego) + 7 decorativas; partículas de llamas (Points aditivos con colores por vértice), brasas, humo (sprites), charco de luz, pool de 4 PointLights persiguiendo las zonas más cercanas (añadidas al grafo SOLO mientras arde — evita recompilar shaders), extinción con vapor, hazardAt() para daño.
+- props.ts: buildMegaDaycare — alberca GIGANTE quemada 15×9 (9600 bolas InstancedMesh clearcoat brillante + paleta viva/fundida), castillo de juegos calcinado multi-nivel, piano gigante de 16 teclas, estantería caída con peluches quemados, arcoíris semicaldo, carrusel roto con caballitos, percha de Luna en el techo, vigas, hollín, lámparas colgantes balanceándose, 7 estaciones de extintor (anclas dcgen_eN con luz roja→verde), letreros neón, humo flotante. Alberca pequeña mejorada (clearcoat).
+- animatronic.ts: luna usa el rig GLB moon; planeo (giro de muñeco, inclinación al avanzar), hangFromCeiling/descendAndWake (vuelco boca abajo π↔0), setDayNight GLB vía setMoonMode, wakeDelay 7 entradas.
+- trials.ts: scares hasta task7, tipo moonDescend (Luna cae del techo), radio 2.3 en el infierno, extinción+spray+ruído al completar, relight en respawn, extinguishAll al triunfar.
+- trials.json: sunmoon → cap 4 EL INFIERNO (7 extintores, agresión 1.9, oscura, respawns); cove→5; generators→6.
+- chapters.json: 7 capítulos; cap1 sin prueba (escape puro: sigilo+linterna+salir; rejas abiertas por Rulo al coger la linterna); cap4 nuevo con cine_inferno/cine_sunrise(v2); cap5-7 renumerados; radio nueva de cap1 y cap4.
+- cinematics.json: cine_exit_daycare, cine_inferno (4 tomas), cine_sunrise reescrito para el fuego.
+- game.ts: lógica de cap4 (Luna colgante + puertas cortafuego + MEGA_FIRE solo en cap4), daño por fuego (0.55 s en el núcleo → muerte por Luna), fire.update en TODOS los modos, dorado→cap6, llaves→c7, exit→cap7, limpieza de canción en menú/capítulo.
+- audio.ts: setDaycareSong (daycare_song.mp3 en loop tenue), setFireAmbience (rugido+retumbo+chasquidos), extinguisherSpray (CO2), tickFire en update.
+- save.ts + MainMenu: 7 capítulos.
+- TTS: copiadas cap4→5→6→7 (líneas idénticas), regeneradas cap1_l5 y las 7 líneas del cap4 (37 líneas, 7 caps en manifest).
+- Pruebas (navegador + sondas eval): arranque a menú ✓; cap4: Luna colgada (0,-48,6.55) ✓, puertas abiertas ✓; prueba activa con 7 tareas ✓, moonDescend la despierta en (-24,-44) ✓; extintor e1 → collider apagado + luz verde + 1/7 ✓; las 7 → Sol retirado en (0,-46), sala iluminada, barreras fuera, rejas abiertas, objetivo c4 ✓; muerte → intento 1, tareas a 0, fuegos reencendidos, Luna al fondo ✓; cap1: jugador en alberca agachado, rejas cerradas → al coger linterna se abren ✓. Capturas verificadas con VLM: infierno oscuro con resplandores naranjas y partículas ✓, Luna de pie cara a cámara con gorro ✓, colgada boca abajo con cordón ✓, Sol dorado con rayos y brillo ✓.
+- next build falla solo por Google Fonts (Turbopack/network, preexistente); tsc y eslint limpios.
+
+Stage Summary:
+- La parte Sol/Luna es ahora "EL INFIERNO DE LA MEGA GUARDERÍA": sala de 2464 m² con techo de 9 m ardiendo, en la MITAD del juego (cap 4 de 7), con 7 extintores que apagan otros tantos incendios-barrera, Luna GLB (planea, cuelga del techo boca abajo, cae al empezar), canción real del repo sonando entre las llamas, daño por fuego, y transformación final a Sol dorado con rayos.
+- Luna ya NO es un modelo procedural: GLB del Eclipse del usuario con doble cara Luna/Sol.
+- Texturas reales del repo integradas (suelo quemado, tela de fiesta, metal oxidado...).
+- v7 conserva: bolera (cap2), plaza (cap3), cala (cap5), generadores (cap6), fuga (cap7).

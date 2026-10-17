@@ -87,6 +87,10 @@ export class CinematicPlayer {
           child.position.set(a.pos[0], a.pos[1], a.pos[2]);
           child.rotation.y = a.yaw ?? 0;
           child.visible = true;
+          // LUNA: deshacer el vuelco del techo para que actúe DE PIE
+          if (a.id === 'luna' && child.children[0]) {
+            child.children[0].rotation.x = 0;
+          }
           return null;
         }
       }

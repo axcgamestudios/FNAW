@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import type { WorldBuilder } from '../world/worldbuilder';
 import { mapData } from '../ai/mapdata';
-import { BALL_PIT } from '../world/props';
+import { BALL_PIT, MEGA_PIT } from '../world/props';
 export interface PlayerHost {
   world: WorldBuilder;
   addNoise(x: number, z: number, radius: number): void;
@@ -195,10 +195,12 @@ export class Player {
       }
     }
 
-    // zona de la ALBERCA DE PELOTAS (ruido ×2.5 y vaivén)
+    // zona de la ALBERCA DE PELOTAS (ruido ×2.5 y vaivén) — y la GIGANTE de la Mega Guardería
     this.inBallPit =
-      this.pos.x > BALL_PIT.x1 && this.pos.x < BALL_PIT.x2 &&
-      this.pos.z > BALL_PIT.z1 && this.pos.z < BALL_PIT.z2;
+      (this.pos.x > BALL_PIT.x1 && this.pos.x < BALL_PIT.x2 &&
+        this.pos.z > BALL_PIT.z1 && this.pos.z < BALL_PIT.z2) ||
+      (this.pos.x > MEGA_PIT.x1 && this.pos.x < MEGA_PIT.x2 &&
+        this.pos.z > MEGA_PIT.z1 && this.pos.z < MEGA_PIT.z2);
 
     // movimiento con colisión
     this.moveWithCollisions(dt);

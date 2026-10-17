@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import type { AnimatronicDef, NoiseEvent } from '../core/types';
 import { buildAnimatronic, setSolLunaMode, type CharacterRig } from '../characters/models';
-import { Assets, type GltfRig } from '../world/assets';
+import { Assets, setMoonMode, type GltfRig } from '../world/assets';
 import { RigAnimator, type AnimCtx } from '../characters/animation';
 import type { NavGraph } from './navgraph';
 import { GRID_W, GRID_H } from './navgraph';
@@ -117,8 +117,13 @@ export class Animatronic {
   stuckTimer = 0;
   animator!: RigAnimator;
   private charRig: CharacterRig | null = null;
+  /** rig GLB de Luna (para el cambio de cara Sol/Luna) */
+  private moonRig: GltfRig | null = null;
   /** retirado: el guardián Sol/Luna dejó de cazar para siempre */
   retired = false;
+  /** LUNA colgando del techo de la Mega Guardería (dormida, boca abajo) */
+  hanging = false;
+  private hangY = 0;
 
   constructor(def: AnimatronicDef, host: AIHost) {
     this.def = def;
@@ -139,10 +144,13 @@ export class Animatronic {
 
   /** Construye el rig: GLTF del repo si está disponible; procedural si no */
   private buildRig(def: AnimatronicDef): ARig {
-    const assetKind = def.kind; // 'freddy' | 'bonnie' | 'chica' | 'foxy' | 'golden'
+    const assetKind = def.kind; // 'freddy' | 'bonnie' | 'chica' | 'foxy' | 'golden' | 'luna'
     let gltfRig: GltfRig | null = null;
     if (assetKind === 'golden') {
       gltfRig = Assets.createVariant('golden', 0xc8a028);
+    } else if (assetKind === 'luna') {
+      // LUNA: modelo GLB estático del Eclipse (moon.glb) — vuela/rueda, no camina
+      gltfRig = Assets.rigs.get('moon') ?? null;
     } else if (Assets.has(assetKind)) {
       gltfRig = Assets.rigs.get(assetKind) ?? null;
     }
@@ -159,7 +167,7 @@ export class Animatronic {
           toneMapped: false,
         })
       );
-      eyeGlow.position.set(0, gltfRig.height * 0.86, 0.26);
+      eyeGlow.position.set(0, gltfRig.height * 0.84, 0.26);
       gltfRig.root.add(eyeGlow);
       const rig: ARig = {
         root: gltfRig.root,
@@ -169,6 +177,7 @@ export class Animatronic {
         eyeGlow,
         height: gltfRig.height,
       };
+      this.moonRig = def.kind === 'luna' ? gltfRig : null;
       return rig;
     }
     // fallback procedural
@@ -195,6 +204,7 @@ export class Animatronic {
     this.state = 'dormant';
     this.active = false;
     this.retired = false;
+    this.hanging = false;
     const room = this.host.world.rooms.get(this.def.startRoom);
     const [ox, oz] = this.def.startOffset ?? [0, 0];
     this.pos.set((room ? room.center.x : 0) + ox, 0, (room ? room.center.z : 0) + oz);
@@ -236,6 +246,7 @@ export class Animatronic {
   /** teletransporte (pruebas / sustos guionizados) */
   teleportTo(x: number, z: number, yaw?: number) {
     this.pos.set(x, 0, z);
+    this.hanging = false;
     this.rig.root.position.copy(this.pos);
     if (yaw !== undefined) {
       this.yaw = yaw;
@@ -276,6 +287,33 @@ export class Animatronic {
   setDayNight(mode: 'sun' | 'moon') {
     if (this.def.kind !== 'luna') return;
     if (this.charRig) setSolLunaMode(this.charRig, mode);
+    else if (this.moonRig) {
+      // GLB del Eclipse: recoloreado + rayos del Sol solo en modo día
+      setMoonMode(this.moonRig, mode);
+      if (this.rig.eyeGlow) {
+        (this.rig.eyeGlow.material as THREE.MeshBasicMaterial).color.setHex(mode === 'sun' ? 0xffe58a : this.def.eyeColor);
+      }
+    }
+  }
+
+  /** cuelga del techo de la Mega Guardería (intro del capítulo 4) */
+  hangFromCeiling(y: number) {
+    this.hanging = true;
+    this.hangY = y;
+    this.active = false;
+    this.state = 'dormant';
+    this.currentSpeed = 0;
+    this.path = [];
+  }
+
+  /** desciende del techo y despierta (la prueba comienza) */
+  descendAndWake() {
+    if (!this.hanging) {
+      this.wake();
+      return;
+    }
+    this.hanging = false;
+    this.wake();
   }
 
   /** se retira para siempre (prueba superada): ni caza ni despierta */
@@ -352,8 +390,26 @@ export class Animatronic {
     const fy = this.host.world.floorHeightAt(this.pos.x, this.pos.z);
     this.pos.y += (fy - this.pos.y) * Math.min(1, dt * 10);
     this.rig.root.position.copy(this.pos);
+    if (this.hanging) this.rig.root.position.y = this.hangY;
     if (!this.crawling) this.rig.root.rotation.set(0, this.yaw, 0);
     else this.rig.root.rotation.set(0.55, this.yaw, 0.12);
+
+    // LUNA (GLB del Eclipse): no camina — PLANEA. Flotación del RigAnimator
+    // + giro de muñeco y vuelco completo cuando cuelga del techo.
+    if (this.def.kind === 'luna' && this.rig.model) {
+      const m = this.rig.model;
+      const t = this.host.time;
+      const speedT = Math.min(1, this.currentSpeed / Math.max(0.1, this.def.speedWalk));
+      // vuelco: colgada boca abajo (π) ↔ de pie (0, pose del GLB ya erguido)
+      const wantX = this.hanging ? Math.PI : 0;
+      m.rotation.x += (wantX - m.rotation.x) * Math.min(1, dt * 2.2);
+      // giro de muñeco (sacudida espasmódica al cazar)
+      m.rotation.z = this.hanging
+        ? Math.sin(t * 0.7) * 0.55
+        : Math.sin(t * 0.85) * 0.2 + (this.state === 'chase' ? Math.sin(t * 14) * 0.06 : 0);
+      // se inclina hacia delante al avanzar (planeo)
+      if (!this.crawling) this.rig.root.rotation.x = this.hanging ? 0 : speedT * 0.17;
+    }
 
     this.updateAnimator(dt, player);
   }
@@ -364,7 +420,8 @@ export class Animatronic {
   }
 
   private wakeDelayForChapter(): number {
-    const c = Math.min(Math.max(this.host.chapter, 1), 4);
+    const len = this.def.wakeDelay?.length ?? 1;
+    const c = Math.min(Math.max(this.host.chapter, 1), Math.max(1, len));
     return this.def.wakeDelay?.[c - 1] ?? 0;
   }
 

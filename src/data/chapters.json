@@ -5,18 +5,17 @@
       "id": "cap1",
       "title": "La Alberca de Pelotas",
       "enemies": [
-        "luna",
-        "freddy"
+        "luna"
       ],
       "aggression": 0.5,
       "eventRate": 0.6,
       "startPower": 100,
       "introCinematic": "cine_ballpit",
-      "outroCinematic": "cine_sunrise",
+      "outroCinematic": "cine_exit_daycare",
       "lines": [
         "Complejo Bruno MEGAPLEX — 11:58 PM.",
         "Te colaste a medianoche. Mal idea.",
-        "Ahora las luces mueren, las rejas bajan...",
+        "Las luces mueren, las rejas bajan...",
         "y LUNA escucha cada pelota que se mueve."
       ],
       "radio": {
@@ -27,8 +26,8 @@
           "LUNA patrulla ahí dentro. Casi no ve... pero lo oye TODO. En las pelotas, cada paso tuyo suena al doble y medio.",
           "Primero: sal de la alberca AGACHADO [Ctrl] y sin correr. Cuando pases, no mires atrás.",
           "Segundo: alguien perdió una LINTERNA en la torre de juegos, al fondo. Súbete a por ella. Sin luz, esta guardería es una tumba.",
-          "Tercero: hay CINCO generadores en la sala. Arráncalos TODOS y vuelve la luz... y LUNA se convierte en SOL. Inofensivo. Casi.",
-          "Si te atrapa, despertarás de nuevo en la alberca. Lo he visto antes. Y otra vez. Y otra vez.",
+          "Tercero: cuando la tengas, ve a cualquier reja. La abriré desde aquí. Sal al paseo y no pares.",
+          "Si te atrapa... despertarás de nuevo en la alberca. Lo he visto antes. Y otra vez. Y otra vez.",
           "Ve. Ahora. Mientras cante la nana."
         ]
       },
@@ -49,16 +48,9 @@
           "target": "daycare_torch"
         },
         {
-          "id": "c1_trial",
-          "title": "SUPERA LA PRUEBA: Sol y Luna",
-          "hint": "Arranca los 5 generadores de la guardería",
-          "type": "trial",
-          "target": "sunmoon"
-        },
-        {
           "id": "c1_exit",
           "title": "Sal de la Guardería",
-          "hint": "Cualquiera de las rejas abiertas",
+          "hint": "Cualquiera de las rejas — Rulo las abrirá",
           "type": "system",
           "target": "daycare_escaped"
         }
@@ -165,6 +157,46 @@
     {
       "chapter": 4,
       "id": "cap4",
+      "title": "El Infierno de la Mega Guardería",
+      "enemies": [
+        "luna",
+        "freddy"
+      ],
+      "aggression": 1.05,
+      "eventRate": 1.1,
+      "startPower": 70,
+      "introCinematic": "cine_inferno",
+      "outroCinematic": "cine_sunrise",
+      "lines": [
+        "La noche ya lleva tres pruebas encima.",
+        "Y ahora el MEGAPLEX huele a plástico quemado.",
+        "La MEGA GUARDERÍA arde. Y LUNA canta entre las llamas."
+      ],
+      "radio": {
+        "atMinute": 0.22,
+        "lines": [
+          "*clic* — ¡¿Sigues vivo?! Escucha: la MEGA GUARDERÍA está ARDIENDO. Alguien la encendió hace media hora.",
+          "Es la guardería GIGANTE del fondo norte, tras el taller. Las puertas cortafuego están abiertas de par en par.",
+          "LUNA vive ahí. Y esta noche está... feliz. Canta. El incendio es SU fiesta de cumpleaños.",
+          "Hay SIETE extintores anclados por la sala. Úsalos TODOS. Cada fuego que apagues... la enfadará un poco más.",
+          "Reglas: no corras, te oye. No toques las llamas, muerden de verdad. Y si te coge... ya sabes dónde despertarás.",
+          "Cuando muera el último fuego, volverá la luz. Y LUNA se convertirá en SOL. Ese es el truco. Siempre lo ha sido.",
+          "Ve. Y chico... la nana que oigas ahí dentro NO es para ti."
+        ]
+      },
+      "objectives": [
+        {
+          "id": "c4_trial",
+          "title": "APAGA EL INFIERNO: 7 extintores",
+          "hint": "Mega Guardería — 7 fuegos, ni uno menos",
+          "type": "trial",
+          "target": "sunmoon"
+        }
+      ]
+    },
+    {
+      "chapter": 5,
+      "id": "cap5",
       "title": "La Cala del Pirata",
       "enemies": [
         "freddy",
@@ -193,14 +225,14 @@
       },
       "objectives": [
         {
-          "id": "c4_trial",
+          "id": "c5_trial",
           "title": "SUPERA LA PRUEBA: Cala del Pirata",
           "hint": "3 interruptores de la atracción, en orden",
           "type": "trial",
           "target": "cove"
         },
         {
-          "id": "c4_tape",
+          "id": "c5_tape",
           "title": "Recupera la cinta del barco",
           "hint": "Cerca del barco pirata de la Cala",
           "type": "collect",
@@ -210,8 +242,8 @@
       ]
     },
     {
-      "chapter": 5,
-      "id": "cap5",
+      "chapter": 6,
+      "id": "cap6",
       "title": "Los Generadores",
       "enemies": [
         "freddy",
@@ -240,7 +272,7 @@
       },
       "objectives": [
         {
-          "id": "c5_trial",
+          "id": "c6_trial",
           "title": "SUPERA LA PRUEBA: Generadores (3·1·4·2)",
           "hint": "Sala de Generadores, panel maestro",
           "type": "trial",
@@ -249,8 +281,8 @@
       ]
     },
     {
-      "chapter": 6,
-      "id": "cap6",
+      "chapter": 7,
+      "id": "cap7",
       "title": "La Fuga",
       "enemies": [
         "freddy",
@@ -281,7 +313,7 @@
       },
       "objectives": [
         {
-          "id": "c6_key1",
+          "id": "c7_key1",
           "title": "Tarjeta de acceso — Galería Estelar",
           "hint": "Sobre el pedestal de la estatua",
           "type": "interact",
@@ -289,7 +321,7 @@
           "target": "key_rockstar"
         },
         {
-          "id": "c6_key2",
+          "id": "c7_key2",
           "title": "Tarjeta de acceso — Teatro Bruno",
           "hint": "En la primera fila de butacas",
           "type": "interact",
@@ -297,7 +329,7 @@
           "target": "key_theater"
         },
         {
-          "id": "c6_key3",
+          "id": "c7_key3",
           "title": "Tarjeta de acceso — Plaza de Comida",
           "hint": "En una mesa central",
           "type": "interact",
@@ -305,7 +337,7 @@
           "target": "key_foodcourt"
         },
         {
-          "id": "c6_escape",
+          "id": "c7_escape",
           "title": "ESCAPA por los tornos del vestíbulo",
           "hint": "Puerta doble del vestíbulo sur",
           "type": "interact",

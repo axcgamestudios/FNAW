@@ -61,6 +61,14 @@ export class AudioEngine {
   private callFiles: string[] = [];
   private callChapter: string | null = null;
   private activeCallLine: AudioBufferSourceNode | null = null;
+  // v7 — Mega Guardería en llamas: canción del repo + crepitar del fuego
+  private daycareBuf: AudioBuffer | null = null;
+  private daycareSrc: AudioBufferSourceNode | null = null;
+  private daycareGain: GainNode | null = null;
+  private daycareSongOn = false;
+  private daycareRetries = 0;
+  private fireGain: GainNode | null = null;
+  private firePopT = 0;
 
   init(): boolean {
     if (this.ready) return true;
@@ -114,6 +122,7 @@ export class AudioEngine {
     };
     load('/audio/jumpscare.mp3').then((b) => { if (b) this.jumpscareBuf = b; });
     load('/audio/theme_music.mp3').then((b) => { if (b) this.themeBuf = b; });
+    load('/audio/daycare_song.mp3').then((b) => { if (b) this.daycareBuf = b; });
     const sfxFiles: SfxFileName[] = ['static_loop', 'fan_ambience', 'cam_blip', 'toreador', 'kitchen_clatter'];
     for (const name of sfxFiles) {
       load(`/audio/${name}.mp3`).then((b) => { if (b) this.sfxBufs.set(name, b); });
@@ -1436,12 +1445,154 @@ export class AudioEngine {
 
   /* ============ ACTUALIZACIÓN POR FOTOGRAMA ============ */
 
+  /* ============ V7 — MEGA GUARDERÍA EN LLAMAS ============ */
+
+  /** nana/canción REAL del repo (daycare_song.mp3) en loop, tenue, por el bus musical.
+   *  La canción infantil sonando entre las llamas: puro Security Breach. */
+  setDaycareSong(on: boolean) {
+    if (!this.ready || !this.ctx) return;
+    if (on === this.daycareSongOn) return;
+    this.daycareSongOn = on;
+    const ctx = this.ctx;
+    if (!on) {
+      if (this.daycareSrc && this.daycareGain) {
+        const t = ctx.currentTime;
+        this.daycareGain.gain.cancelScheduledValues(t);
+        this.daycareGain.gain.setValueAtTime(Math.max(0.0001, this.daycareGain.gain.value), t);
+        this.daycareGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+        try { this.daycareSrc.stop(t + 0.9); } catch { /* noop */ }
+        this.daycareSrc = null;
+        this.daycareGain = null;
+      }
+      return;
+    }
+    const tryStart = () => {
+      if (!this.daycareSongOn || !this.ctx || this.daycareSrc || !this.daycareBuf) return;
+      const c = this.ctx;
+      const src = c.createBufferSource();
+      src.buffer = this.daycareBuf;
+      src.loop = true;
+      const g = c.createGain();
+      g.gain.value = 0.0001;
+      const t = c.currentTime;
+      g.gain.setTargetAtTime(0.34, t, 1.8);
+      src.connect(g);
+      g.connect(this.musicBus);
+      src.start();
+      this.daycareSrc = src;
+      this.daycareGain = g;
+    };
+    tryStart();
+    // si el mp3 aún no decodificó, reintentar (máx 8)
+    if (!this.daycareSrc && this.daycareRetries < 8) {
+      this.daycareRetries++;
+      window.setTimeout(() => { if (this.daycareSongOn) this.setDaycareSong(true); }, 700);
+    }
+  }
+
+  /** crepitar del fuego: colchón de ruido filtrado + chasquidos aleatorios (pops) */
+  setFireAmbience(on: boolean) {
+    if (!this.ready || !this.ctx) return;
+    const ctx = this.ctx;
+    if (on && !this.fireGain) {
+      // base: ruido con bandpass ancho y LFO de amplitud
+      const n = this.noiseSrc(9999);
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 1400;
+      bp.Q.value = 0.35;
+      const g = ctx.createGain();
+      g.gain.value = 0.0001;
+      g.gain.setTargetAtTime(0.3, ctx.currentTime, 1.2);
+      // LFO: vaivén del rugido
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.23;
+      const lfoG = ctx.createGain();
+      lfoG.gain.value = 0.11;
+      lfo.connect(lfoG);
+      lfoG.connect(g.gain);
+      lfo.start();
+      // retumbo grave
+      const n2 = this.noiseSrc(9999);
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 95;
+      const g2 = ctx.createGain();
+      g2.gain.value = 0.32;
+      n2.connect(lp); lp.connect(g2);
+      n.connect(bp); bp.connect(g);
+      g.connect(this.ambientBus);
+      g2.connect(this.ambientBus);
+      this.fireGain = g;
+      this.firePopT = 0.2;
+    } else if (!on && this.fireGain) {
+      const g = this.fireGain;
+      g.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.6);
+      window.setTimeout(() => { try { g.disconnect(); } catch { /* noop */ } }, 1600);
+      this.fireGain = null;
+    }
+  }
+
+  /** chasquidos aleatorios del fuego (llamado desde update) */
+  private tickFire(dt: number) {
+    if (!this.fireGain || !this.ctx) return;
+    this.firePopT -= dt;
+    if (this.firePopT > 0) return;
+    this.firePopT = 0.06 + Math.random() * 0.34;
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource();
+    src.buffer = this.noiseBuf;
+    src.playbackRate.value = 0.7 + Math.random() * 1.1;
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 700 + Math.random() * 2600;
+    bp.Q.value = 1.2 + Math.random() * 4;
+    const g = ctx.createGain();
+    const t = ctx.currentTime;
+    const vol = 0.14 + Math.random() * 0.5;
+    const dur = 0.02 + Math.random() * 0.07;
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(bp); bp.connect(g);
+    g.connect(this.ambientBus);
+    src.start(t, Math.random() * 1.5, dur + 0.02);
+  }
+
+  /** descarga del extintor: CO2 a presión (ruido agudo con ataque violento) */
+  extinguisherSpray() {
+    if (!this.ready || !this.ctx) return;
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource();
+    src.buffer = this.noiseBuf;
+    src.loop = true;
+    src.playbackRate.value = 1.35;
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 1400;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 7200;
+    const g = ctx.createGain();
+    const t = ctx.currentTime;
+    // pssshh: ataque brusco, cuerpo de 2.6 s y caída
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.5, t + 0.05);
+    g.gain.setValueAtTime(0.5, t + 2.0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 2.9);
+    src.connect(hp); hp.connect(lp); lp.connect(g);
+    g.connect(this.sfxBus);
+    src.start(t);
+    src.stop(t + 3.0);
+  }
+
   update(dt: number) {
     if (!this.ready || !this.ctx) return;
     this.tickMusicBox(dt);
     this.tickChase(dt);
     this.tickHeartbeat(dt);
     this.tickBreathing(dt);
+    this.tickFire(dt);
     // estática: si el archivo REAL de FNAF 1 está activo, se usa; si no, síntesis
     if (!this.staticFileGain) this.ensureStatic();
     if (this.staticFileGain) {

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Sí, esto es una **pantalla de carga** (no exactamente el menú principal, sino una transición de carga) del juego **FNAF: New World** (un fan-game de Five Nights at Freddy's).\n\nAquí está el detalle de lo que se ve:\n\n## Textos principales:\n- **Título grande arriba:** \"FNAF: NEW WORLD\"\n- **Subtítulo:** \"LOAD YOUR SAVES\" (Carga tus partidas guardadas)\n- **Estado de carga:** \"COMPLEJO BRUNO... CARGANDO INSTALACIONES\"\n- **Porcentaje:** \"**46%**\" (en blanco grande)\n- **Mensaje de carga:** \"Cargando modelo: jeremy...\"\n- **Texto de flavor/lore (abajo):** *\"La bótera de Bruno es su territorio. Si las luces se funden, no estas solo en el carril.\"*\n\n## Elementos visuales:\n- **Barra de progreso:** Una barra horizontal roja/naranja que está aproximadamente a la mitad (coincidiendo con el 46%)\n- **Personaje:** A la derecha aparece **Freddy Fazbear** (el animatrónico oso con sombrero de copa), con apariencia oscura/deteriorada y ojos brillantes\n- **Fondo:** Imagen del restaurante \"Freddy Fazbear's Pizza\" en llamas o con atmósfera de incendio, muy oscuro y con tonos rojizos/naranjas\n- **Esquina inferior izquierda:** Letra \"N\" dentro de un círculo (probablemente un logo o indicador de control)\n\n## Contexto:\nNo es el menú principal con opciones como \"Jugar\" o \"Opciones\", sino específicamente la pantalla que aparece cuando el juego está **cargando una partida guardada**, específicamente cargando el modelo 3D de un personaje llamado \"Jeremy\" (posiblemente Jeremy from The Afton Family o un personaje original de este fan-game). El texto sobre \"Bruno\" sugiere que estás en una ubicación llamada \"Complejo Bruno\".",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792201793,
+  "id": "20261017094941b0f9eb38ec1a4f54",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261017094941b0f9eb38ec1a4f54",
+  "usage": {
+    "completion_tokens": 455,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 908,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1363
+  }
+}

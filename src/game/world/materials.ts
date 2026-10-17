@@ -78,6 +78,12 @@ export const floorMaterials = {
   concrete: (rep: [number, number]) => texPbr('f_conc', realTex(Assets.textures?.floorConcrete, rep), () => floorConcrete(), rep, { roughness: 0.92, bumpScale: 0.05 }),
   carpet: (rep: [number, number]) => texPbr('f_carpet', realTex(Assets.textures?.floorCarpet, rep), () => floorCarpet(), rep, { roughness: 0.95, bumpScale: 0.06 }),
   metal: (rep: [number, number]) => texPbr('f_metal', realTex(Assets.textures?.wallMetal, rep), () => floorMetal(), rep, { roughness: 0.45, metalness: 0.7, bumpScale: 0.04 }),
+  /** baldosas ajedrez SUCIAS Y QUEMADAS (repo FNAW) — suelo de la Mega Guardería */
+  burned: (rep: [number, number]) => texPbr('f_burned', realTex(Assets.textures?.texCheckerBurned, rep), () => floorChecker(), rep, { roughness: 0.62, bumpScale: 0.05 }),
+  /** losas de piedra clara (repo FNAW) */
+  slabs: (rep: [number, number]) => texPbr('f_slabs', realTex(Assets.textures?.texStoneSlabs, rep), () => floorTile(), rep, { roughness: 0.8, bumpScale: 0.06 }),
+  /** tablones de madera vieja (repo FNAW) */
+  oldwood: (rep: [number, number]) => texPbr('f_oldwood', realTex(Assets.textures?.texWoodOld, rep), () => floorWood(), rep, { roughness: 0.85, bumpScale: 0.06 }),
   /** baldosa encerada de la oficina: refleja la linterna y las luces */
   polished: (rep: [number, number]) => {
     const base = texPbr('f_checker', realTex(Assets.textures?.floorChecker, rep), () => floorChecker(), rep, { roughness: 0.5, bumpScale: 0.03 });
@@ -97,6 +103,12 @@ export const wallMaterials = {
   wallpaper: (rep: [number, number]) => pbrMaterial('w_wp', wallWallpaper(), { repeat: rep }),
   concrete: (rep: [number, number]) => pbrMaterial('w_conc', wallConcrete(), { repeat: rep }),
   metal: (rep: [number, number]) => texPbr('w_metal', realTex(Assets.textures?.wallMetal, rep), () => wallMetal(), rep, { roughness: 0.42, metalness: 0.7, bumpScale: 0.05 }),
+  /** tela de fiesta de la guardería (repo FNAW) — colorida, húmeda de humo */
+  party: (rep: [number, number]) => texPbr('w_party', realTex(Assets.textures?.texPartyFabric, rep), () => wallWallpaper(), rep, { roughness: 0.88, bumpScale: 0.05 }),
+  /** chapa industrial remachada y oxidada (repo FNAW) */
+  rusty: (rep: [number, number]) => texPbr('w_rusty', realTex(Assets.textures?.texMetalRusty, rep), () => wallMetal(), rep, { roughness: 0.6, metalness: 0.5, bumpScale: 0.06 }),
+  /** concreto agrietado (repo FNAW) */
+  cracked: (rep: [number, number]) => texPbr('w_cracked', realTex(Assets.textures?.texConcreteCracked, rep), () => wallConcrete(), rep, { roughness: 0.9, bumpScale: 0.06 }),
 };
 
 export const ceilingMaterial = (rep: [number, number]) => pbrMaterial('ceil', ceilingTex(), { repeat: rep });

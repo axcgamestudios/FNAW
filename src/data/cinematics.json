@@ -595,55 +595,161 @@
       {
         "id": "luna",
         "pos": [
-          -20.5,
           0,
-          3.0
+          0,
+          -46
         ],
-        "yaw": 0.3
+        "yaw": 0.4
       }
     ],
     "shots": [
       {
         "pos": [
-          -18.4,
-          1.7,
-          1.8
+          -4.5,
+          2.3,
+          -40.5
         ],
         "look": [
-          -20.5,
-          1.8,
-          3.0
+          0,
+          1.9,
+          -46
         ],
-        "dur": 4,
-        "text": "Los cinco generadores rugen. La luz vuelve a la guardería."
+        "dur": 4.2,
+        "text": "El último fuego muere con un siseo. La Mega Guardería respira."
       },
       {
         "pos": [
-          -19.3,
-          1.9,
-          3.9
+          -1.8,
+          2.0,
+          -44.6
         ],
         "look": [
-          -20.5,
-          2.05,
-          3.0
+          0,
+          2.1,
+          -46
         ],
-        "dur": 4.5,
-        "text": "LUNA se retira... y SOL despierta. Sonríe. Casi es peor."
+        "dur": 4.4,
+        "text": "LUNA se retira... y SOL despierta entre el vapor. Sonríe. Casi es peor."
+      },
+      {
+        "pos": [
+          0,
+          2.7,
+          -52.5
+        ],
+        "look": [
+          0,
+          1.6,
+          -40
+        ],
+        "dur": 4.2,
+        "text": "Las puertas cortafuego se abren de golpe. El MEGAPLEX sigue esperando."
+      }
+    ]
+  },
+  "cine_exit_daycare": {
+    "letterbox": true,
+    "actors": [],
+    "shots": [
+      {
+        "pos": [
+          -22.5,
+          1.9,
+          10.0
+        ],
+        "look": [
+          -22.5,
+          1.2,
+          -1.0
+        ],
+        "dur": 4.2,
+        "text": "Las rejas se abren con un gemido. El paseo norte te traga."
       },
       {
         "pos": [
           -22.5,
-          2.2,
-          8.5
+          2.3,
+          -1.5
         ],
         "look": [
-          -22,
-          1.2,
-          -3.2
+          -10,
+          3.5,
+          -6.0
         ],
-        "dur": 4,
-        "text": "Las rejas se abren. El MEGAPLEX entero espera a oscuras."
+        "dur": 4.5,
+        "text": "El MEGAPLEX entero espera a oscuras. Y algo, ahí fuera, ya sabe tu nombre."
+      }
+    ]
+  },
+  "cine_inferno": {
+    "letterbox": true,
+    "actors": [
+      {
+        "id": "luna",
+        "pos": [
+          -24,
+          0,
+          -44
+        ],
+        "yaw": 0.9
+      }
+    ],
+    "shots": [
+      {
+        "pos": [
+          -38,
+          2.6,
+          -36.5
+        ],
+        "look": [
+          0,
+          2.5,
+          -50
+        ],
+        "dur": 5.0,
+        "text": "La MEGA GUARDERÍA. Dos mil quinientos metros cuadrados de infierno."
+      },
+      {
+        "pos": [
+          -24.5,
+          2.0,
+          -41.5
+        ],
+        "look": [
+          -24,
+          1.7,
+          -44
+        ],
+        "dur": 4.2,
+        "text": "Entre el humo, LUNA te espera. Quieta. Sonriendo. Cantando."
+      },
+      {
+        "pos": [
+          0,
+          1.8,
+          -40.0
+        ],
+        "look": [
+          0,
+          7.0,
+          -48
+        ],
+        "dur": 4.2,
+        "text": "Sobre el centro del techo cuelga su percha. Por si quiere volver a subir."
+      },
+      {
+        "pos": [
+          -30,
+          2.2,
+          -37.5
+        ],
+        "look": [
+          -30,
+          1.0,
+          -39.2
+        ],
+        "dur": 4.0,
+        "text": "Siete incendios. Siete extintores. Ninguna salida hasta el último."
       }
     ]
   }

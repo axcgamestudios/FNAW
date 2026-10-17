@@ -152,16 +152,20 @@ export interface TrialTaskDef {
   /** requerir mirar el objeto */
 }
 
+export type TrialScareAt =
+  | 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'task5' | 'task6' | 'task7' | 'end';
+
 export type TrialScare =
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'stingerClose'; msg?: string }
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'hunterAppear'; pos: [number, number]; msg?: string }
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'lightsOut'; dur: number; msg?: string }
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'fakeSteps'; msg?: string }
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'childLaugh'; msg?: string }
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'hunterChase'; msg?: string }
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'ventBang'; msg?: string }
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'moonScream'; msg?: string }
-  | { at: 'start' | 'task1' | 'task2' | 'task3' | 'task4' | 'end'; type: 'lullaby'; msg?: string };
+  | { at: TrialScareAt; type: 'stingerClose'; msg?: string }
+  | { at: TrialScareAt; type: 'hunterAppear'; pos: [number, number]; msg?: string }
+  | { at: TrialScareAt; type: 'lightsOut'; dur: number; msg?: string }
+  | { at: TrialScareAt; type: 'fakeSteps'; msg?: string }
+  | { at: TrialScareAt; type: 'childLaugh'; msg?: string }
+  | { at: TrialScareAt; type: 'hunterChase'; msg?: string }
+  | { at: TrialScareAt; type: 'ventBang'; msg?: string }
+  | { at: TrialScareAt; type: 'moonScream'; msg?: string }
+  | { at: TrialScareAt; type: 'moonDescend'; pos: [number, number]; msg?: string }
+  | { at: TrialScareAt; type: 'lullaby'; msg?: string };
 
 export interface TrialDef {
   id: string;
