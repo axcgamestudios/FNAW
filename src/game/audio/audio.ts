@@ -7,6 +7,10 @@ import * as THREE from 'three';
 
 type Vec = { x: number; y: number; z: number };
 
+type SfxFileName = 'static_loop' | 'fan_ambience' | 'cam_blip' | 'toreador' | 'kitchen_clatter';
+
+interface CallManifestEntry { file: string; dur: number }
+
 const MELODY = [
   659.25, 523.25, 587.33, 493.88, 523.25, 440.0, 392.0, 440.0,
   659.25, 523.25, 587.33, 493.88, 523.25, 659.25, 440.0, 440.0,
@@ -39,12 +43,24 @@ export class AudioEngine {
   private phoneVoice: { src: AudioBufferSourceNode; gain: GainNode } | null = null;
   private lastFootstepAt = 0;
 
-  // ===== audio de archivo (assets reales del repo FNAW) =====
+  // ===== audio de archivo (assets reales del repo FNAW + FN1) =====
   private jumpscareBuf: AudioBuffer | null = null;
   private themeBuf: AudioBuffer | null = null;
   private themeSrc: AudioBufferSourceNode | null = null;
   private themeGain: GainNode | null = null;
   private themeOn = false;
+  // SFX originales de FNAF 1 (repo FN1)
+  private sfxBufs: Map<SfxFileName, AudioBuffer> = new Map();
+  private fanSrc: AudioBufferSourceNode | null = null;
+  private fanGain: GainNode | null = null;
+  private staticFileSrc: AudioBufferSourceNode | null = null;
+  private staticFileGain: GainNode | null = null;
+  // llamada de radio con voz real (TTS)
+  private callManifest: Record<string, CallManifestEntry[]> | null = null;
+  private callBufs: Map<string, AudioBuffer> = new Map();
+  private callFiles: string[] = [];
+  private callChapter: string | null = null;
+  private activeCallLine: AudioBufferSourceNode | null = null;
 
   init(): boolean {
     if (this.ready) return true;
@@ -79,8 +95,9 @@ export class AudioEngine {
     }
   }
 
-  /** Carga en segundo plano los archivos de audio reales del repo
-   *  (/public/audio/jumpscare.mp3 y /public/audio/theme_music.mp3).
+  /** Carga en segundo plano los archivos de audio reales:
+   *  - /audio/jumpscare.mp3 y /audio/theme_music.mp3 (repo FNAW)
+   *  - /audio/{static_loop,fan_ambience,cam_blip,toreador,kitchen_clatter}.mp3 (repo FN1)
    *  Si fallan (sin red, formato...), el juego sigue con síntesis. */
   private preloadFileAudio() {
     const ctx = this.ctx;
@@ -97,6 +114,10 @@ export class AudioEngine {
     };
     load('/audio/jumpscare.mp3').then((b) => { if (b) this.jumpscareBuf = b; });
     load('/audio/theme_music.mp3').then((b) => { if (b) this.themeBuf = b; });
+    const sfxFiles: SfxFileName[] = ['static_loop', 'fan_ambience', 'cam_blip', 'toreador', 'kitchen_clatter'];
+    for (const name of sfxFiles) {
+      load(`/audio/${name}.mp3`).then((b) => { if (b) this.sfxBufs.set(name, b); });
+    }
   }
 
   get themeAvailable(): boolean {
@@ -209,40 +230,131 @@ export class AudioEngine {
     const t = ctx.currentTime;
     const pan = this.panner(pos);
     pan.connect(this.sfxBus);
-    const vol = (heavy ? 0.9 : 0.35) * (running ? 1.3 : 1);
-    const s = this.noiseSrc(0.14);
-    const bp = ctx.createBiquadFilter();
-    let f = 900;
-    switch (surface) {
-      case 'wood': f = 300; break;
-      case 'carpet': f = 420; break;
-      case 'concrete': f = 700; break;
-      case 'metal': f = 1500; break;
-      case 'balls': f = 850; break;
-      default: f = 950;
-    }
-    bp.type = surface === 'carpet' || surface === 'balls' ? 'lowpass' : 'bandpass';
-    bp.frequency.value = f * (0.9 + Math.random() * 0.25);
-    bp.Q.value = 1.6;
-    const g = ctx.createGain();
+    const vol = (heavy ? 1.0 : 0.42) * (running ? 1.35 : 1);
+    const jitter = 0.86 + Math.random() * 0.28; // cada paso suena distinto
+
+    // firma por superficie: frecuencia de cuerpo y carácter
+    const prof: Record<string, { f: number; q: number; thump: number; bright: number }> = {
+      wood: { f: 310, q: 2.6, thump: 92, bright: 1.4 },
+      carpet: { f: 380, q: 1.2, thump: 78, bright: 0.5 },
+      concrete: { f: 660, q: 2.0, thump: 68, bright: 1.8 },
+      stone: { f: 540, q: 2.2, thump: 64, bright: 1.6 },
+      metal: { f: 1350, q: 3.4, thump: 110, bright: 2.4 },
+      tile: { f: 900, q: 2.8, thump: 96, bright: 2.0 },
+      balls: { f: 1500, q: 0.8, thump: 140, bright: 1.2 },
+      default: { f: 800, q: 2.0, thump: 84, bright: 1.5 },
+    };
+    const p = prof[surface] ?? prof.default;
+
     if (surface === 'balls') {
-      // vaivén entre pelotas: susurro plástico más largo + chasquidos
-      this.env(g, t, 0.01, vol * 0.55, 0.26);
-      for (let b = 0; b < 3; b++) {
-        this.osc('sine', 1700 + Math.random() * 900, 1400, 0.03, 0.05 * vol, pan);
+      // CHAPOTEO PLÁSTICO: susurro + chasquidos escalonados de pelotas
+      const g = ctx.createGain();
+      this.env(g, t, 0.014, vol * 0.5, 0.30);
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = (1100 + Math.random() * 700) * jitter;
+      bp.Q.value = 0.7;
+      const n = this.noiseSrc(0.34);
+      n.connect(bp); bp.connect(g); g.connect(pan);
+      n.stop(t + 0.36);
+      for (let b = 0; b < 6; b++) {
+        const dt = b * 0.032 + Math.random() * 0.022;
+        const f = 1400 + Math.random() * 1800;
+        const o = ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, t + dt);
+        o.frequency.exponentialRampToValueAtTime(f * 0.68, t + dt + 0.03);
+        const cg = ctx.createGain();
+        cg.gain.setValueAtTime(0.0001, t + dt);
+        cg.gain.exponentialRampToValueAtTime(0.055 * vol * jitter, t + dt + 0.006);
+        cg.gain.exponentialRampToValueAtTime(0.0001, t + dt + 0.04);
+        o.connect(cg); cg.connect(pan);
+        o.start(t + dt); o.stop(t + dt + 0.06);
       }
-    } else {
-      this.env(g, t, 0.004, vol * (surface === 'carpet' ? 0.5 : 0.8), 0.13);
+      if (heavy) {
+        // pelotas desplazándose bajo algo pesado (Luna vadeando)
+        const sub = ctx.createOscillator();
+        sub.type = 'sine';
+        sub.frequency.setValueAtTime(120, t);
+        sub.frequency.exponentialRampToValueAtTime(58, t + 0.2);
+        const sg = ctx.createGain();
+        this.env(sg, t, 0.02, vol * 0.5, 0.22);
+        sub.connect(sg); sg.connect(pan);
+        sub.start(t); sub.stop(t + 0.25);
+      }
+      return;
     }
-    s.connect(bp);
-    bp.connect(g);
-    g.connect(pan);
-    s.stop(t + 0.2);
+
+    // 1) GOLPE DE TALÓN: grave breve con caída de tono
+    const thump = ctx.createOscillator();
+    thump.type = 'sine';
+    thump.frequency.setValueAtTime(p.thump * jitter, t);
+    thump.frequency.exponentialRampToValueAtTime(Math.max(30, p.thump * 0.5), t + 0.09);
+    const tg = ctx.createGain();
+    this.env(tg, t, 0.002, vol * 0.55 * (surface === 'carpet' ? 0.5 : 1), 0.11);
+    thump.connect(tg); tg.connect(pan);
+    thump.start(t); thump.stop(t + 0.13);
+
+    // 2) CUERPO: ruido filtrado resonante (el "carácter" de la superficie)
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = p.f * jitter;
+    bp.Q.value = p.q;
+    const g = ctx.createGain();
+    this.env(g, t, 0.003, vol * 0.8 * (surface === 'carpet' ? 0.55 : 1), 0.12);
+    const n = this.noiseSrc(0.15);
+    n.connect(bp); bp.connect(g); g.connect(pan);
+    n.stop(t + 0.17);
+
+    // 3) BRILLO: agudos breves al rozar la suela (no en moqueta)
+    if (p.bright > 0.8) {
+      const hp = ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 2600;
+      const hg = ctx.createGain();
+      this.env(hg, t, 0.002, vol * 0.2 * p.bright, 0.05);
+      const hn = this.noiseSrc(0.07);
+      hn.connect(hp); hp.connect(hg); hg.connect(pan);
+      hn.stop(t + 0.09);
+    }
+
+    // 4) DESLIZAMIENTO del pie (solo caminando): suave, 55 ms después
+    if (!running) {
+      const sc = ctx.createBiquadFilter();
+      sc.type = 'highpass';
+      sc.frequency.value = 700;
+      const scg = ctx.createGain();
+      this.env(scg, t + 0.055, 0.02, vol * 0.14, 0.13);
+      const sn = this.noiseSrc(0.15);
+      sn.connect(sc); sc.connect(scg); scg.connect(pan);
+      sn.stop(t + 0.2);
+    }
+
+    // 5) metal: parciales inarmónicos que "cantan" (rejillas, placas)
+    if (surface === 'metal') {
+      for (const pf of [1730, 2570, 3610]) {
+        const o = ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.value = pf * (0.97 + Math.random() * 0.06);
+        const og = ctx.createGain();
+        this.env(og, t, 0.002, vol * 0.07, 0.16 + Math.random() * 0.08);
+        o.connect(og); og.connect(pan);
+        o.start(t); o.stop(t + 0.28);
+      }
+    }
+
+    // 6) animatrónico: peso brutal + retumbo de sala
     if (heavy) {
-      // golpe grave de animatrónico
-      this.osc('sine', 82, 40, 0.18, vol * 0.8, pan);
+      const boom = ctx.createOscillator();
+      boom.type = 'sine';
+      boom.frequency.setValueAtTime(64, t);
+      boom.frequency.exponentialRampToValueAtTime(34, t + 0.24);
+      const bg = ctx.createGain();
+      this.env(bg, t, 0.004, vol * 0.85, 0.26);
+      boom.connect(bg); bg.connect(pan);
+      boom.start(t); boom.stop(t + 0.3);
       if (surface === 'metal' || surface === 'tile') {
-        this.osc('triangle', 240, 170, 0.1, vol * 0.2, pan);
+        this.osc('triangle', 240, 165, 0.1, vol * 0.2, pan);
       }
     }
   }
@@ -431,27 +543,51 @@ export class AudioEngine {
     pan.connect(this.sfxBus);
     const ctx = this.ctx!;
     const t = ctx.currentTime;
-    const o = ctx.createOscillator();
-    o.type = 'sawtooth';
-    o.frequency.setValueAtTime(180, t);
-    o.frequency.linearRampToValueAtTime(320, t + 0.9);
+    // FRICCIÓN de bisagra: ruido de banda estrecha modulado (chirrido seco)
     const bp = ctx.createBiquadFilter();
     bp.type = 'bandpass';
-    bp.frequency.value = 900;
-    bp.Q.value = 12;
+    bp.frequency.setValueAtTime(700, t);
+    bp.frequency.linearRampToValueAtTime(1300, t + 0.85);
+    bp.Q.value = 14;
     const lfo = ctx.createOscillator();
-    lfo.frequency.value = 13;
+    lfo.frequency.value = 11 + Math.random() * 5;
     const lg = ctx.createGain();
-    lg.gain.value = 160;
+    lg.gain.value = 220;
     lfo.connect(lg);
     lg.connect(bp.frequency);
     const g = ctx.createGain();
-    this.env(g, t, 0.12, 0.14, 0.95);
-    o.connect(bp);
-    bp.connect(g);
-    g.connect(pan);
-    o.start(t); o.stop(t + 1);
-    lfo.start(t); lfo.stop(t + 1);
+    this.env(g, t, 0.1, 0.16, 0.9);
+    const n = this.noiseSrc(1.0);
+    n.connect(bp); bp.connect(g); g.connect(pan);
+    n.stop(t + 1.05);
+    lfo.start(t); lfo.stop(t + 1.0);
+    // peso de la puerta: grave arrastrándose
+    const w = ctx.createOscillator();
+    w.type = 'sawtooth';
+    w.frequency.setValueAtTime(120, t);
+    w.frequency.linearRampToValueAtTime(240, t + 0.9);
+    const wlp = ctx.createBiquadFilter();
+    wlp.type = 'lowpass'; wlp.frequency.value = 480;
+    const wg = ctx.createGain();
+    this.env(wg, t, 0.14, 0.07, 0.95);
+    w.connect(wlp); wlp.connect(wg); wg.connect(pan);
+    w.start(t); w.stop(t + 1.0);
+    // CERROJO: doble clack metálico al final
+    const clack = (dt: number, f: number, v: number) => {
+      const o = ctx.createOscillator();
+      o.type = 'square';
+      o.frequency.setValueAtTime(f, t + dt);
+      o.frequency.exponentialRampToValueAtTime(f * 0.55, t + dt + 0.05);
+      const cg = ctx.createGain();
+      cg.gain.setValueAtTime(0.0001, t + dt);
+      cg.gain.exponentialRampToValueAtTime(v, t + dt + 0.004);
+      cg.gain.exponentialRampToValueAtTime(0.0001, t + dt + 0.09);
+      o.connect(cg); cg.connect(pan);
+      o.start(t + dt); o.stop(t + dt + 0.12);
+    };
+    clack(0.88, 950, 0.22);
+    clack(0.97, 640, 0.16);
+    this.noiseBurst(pan, 0.08, 2000, 0.14, 'highpass');
   }
 
   doorSlam(pos: Vec) {
@@ -473,6 +609,8 @@ export class AudioEngine {
 
   camSwitch() {
     if (!this.ready) return;
+    // blip REAL de cámara de FNAF 1; síntesis de respaldo
+    if (this.playSfxFile('cam_blip', 0.9)) return;
     this.noiseBurst(this.sfxBus, 0.08, 3000, 0.12, 'highpass');
     this.osc('square', 1100, 900, 0.06, 0.05, this.sfxBus);
   }
@@ -927,12 +1065,130 @@ export class AudioEngine {
     return true;
   }
 
+  /* ============ SFX DE ARCHIVO (FN1 — sonidos originales de FNAF 1) ============ */
+
+  /** dispara un SFX de archivo; pos opcional para audio 3D */
+  playSfxFile(name: SfxFileName, volume = 1.0, pos?: Vec): boolean {
+    if (!this.ready || !this.ctx) return false;
+    const buf = this.sfxBufs.get(name);
+    if (!buf) return false;
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const g = ctx.createGain();
+    g.gain.value = volume;
+    src.connect(g);
+    if (pos) {
+      const pan = this.panner(pos);
+      g.connect(pan);
+      pan.connect(this.sfxBus);
+    } else {
+      g.connect(this.sfxBus);
+    }
+    src.start();
+    return true;
+  }
+
+  /** Marcha Toreador REAL del apagón de FNAF 1 (22 s). */
+  playToreador(): boolean {
+    return this.playSfxFile('toreador', 0.85);
+  }
+
+  /** ruido de cocina (ollas y sartenes) posicional */
+  kitchenClatter(pos: Vec): boolean {
+    return this.playSfxFile('kitchen_clatter', 0.9, pos);
+  }
+
+  /* ============ LLAMADA DE RADIO CON VOZ REAL (TTS español) ============ */
+
+  /** carga el manifiesto y los búferes de las líneas del capítulo.
+   *  devuelve las duraciones reales por línea, o null si no hay voz. */
+  async loadCall(chapter: number): Promise<number[] | null> {
+    if (!this.ctx) return null;
+    try {
+      if (!this.callManifest) {
+        const res = await fetch('/audio/calls/manifest.json');
+        if (!res.ok) return null;
+        this.callManifest = await res.json() as Record<string, Array<{ file: string; dur: number }>>;
+      }
+      const key = `cap${chapter}`;
+      const lines = this.callManifest[key];
+      if (!lines || !lines.length) return null;
+      const durs: number[] = [];
+      for (const l of lines) {
+        if (!this.callBufs.has(l.file)) {
+          const res = await fetch(`/audio/calls/${l.file}`);
+          if (!res.ok) return null;
+          const buf = await this.ctx.decodeAudioData(await res.arrayBuffer());
+          this.callBufs.set(l.file, buf);
+        }
+        durs.push(l.dur);
+      }
+      this.callChapter = key;
+      this.callFiles = lines.map((l) => l.file);
+      return durs;
+    } catch {
+      return null;
+    }
+  }
+
+  /** reproduce la línea i de la llamada del capítulo cargado,
+   *  filtrada como radio (banda telefónica + saturación suave) */
+  playCallLine(idx: number): boolean {
+    if (!this.ready || !this.ctx) return false;
+    const file = this.callFiles[idx];
+    const buf = file ? this.callBufs.get(file) : undefined;
+    if (!buf) return false;
+    this.stopCallVoice();
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    // cadena de radio
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 300; hp.Q.value = 0.6;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 3200; lp.Q.value = 0.7;
+    const sat = ctx.createWaveShaper();
+    const curve = new Float32Array(256);
+    for (let i = 0; i < 256; i++) curve[i] = Math.tanh(((i / 128) - 1) * 1.8);
+    sat.curve = curve;
+    const g = ctx.createGain();
+    g.gain.value = 1.45;
+    src.connect(hp); hp.connect(lp); lp.connect(sat); sat.connect(g);
+    g.connect(this.sfxBus);
+    src.start();
+    this.activeCallLine = src;
+    return true;
+  }
+
+  stopCallVoice() {
+    if (this.activeCallLine) {
+      try { this.activeCallLine.stop(); } catch { /* noop */ }
+      this.activeCallLine = null;
+    }
+  }
+
   /* ============ AMBIENTE ============ */
 
   startAmbient() {
     if (!this.ready || !this.ctx) return;
     const ctx = this.ctx;
     const t = ctx.currentTime;
+    // VENTILADOR REAL de FNAF 1 (fan_ambience.mp3) en loop por el bus ambiental
+    const fanBuf = this.sfxBufs.get('fan_ambience');
+    if (fanBuf && !this.fanSrc) {
+      const src = ctx.createBufferSource();
+      src.buffer = fanBuf;
+      src.loop = true;
+      const g = ctx.createGain();
+      g.gain.value = 0.0;
+      g.gain.setTargetAtTime(0.55, t, 1.5);
+      src.connect(g);
+      g.connect(this.ambientBus);
+      src.start();
+      this.fanSrc = src;
+      this.fanGain = g;
+    }
     // colchón de ruido pardo
     const n = this.noiseSrc(9999);
     const lp = ctx.createBiquadFilter();
@@ -956,6 +1212,23 @@ export class AudioEngine {
 
   setStatic(level: number) {
     this.staticTarget = level;
+    // estática REAL de FNAF 1 (static_loop.mp3) si está cargada
+    if (this.ready && this.ctx && !this.staticFileSrc && this.sfxBufs.get('static_loop')) {
+      const ctx = this.ctx;
+      const src = ctx.createBufferSource();
+      src.buffer = this.sfxBufs.get('static_loop')!;
+      src.loop = true;
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      src.connect(g);
+      g.connect(this.sfxBus);
+      src.start();
+      this.staticFileSrc = src;
+      this.staticFileGain = g;
+    }
+    if (this.staticFileGain && this.ctx) {
+      this.staticFileGain.gain.setTargetAtTime(level * 0.5, this.ctx.currentTime, 0.12);
+    }
   }
 
   private ensureStatic() {
@@ -1169,8 +1442,11 @@ export class AudioEngine {
     this.tickChase(dt);
     this.tickHeartbeat(dt);
     this.tickBreathing(dt);
-    this.ensureStatic();
-    if (this.staticGain) {
+    // estática: si el archivo REAL de FNAF 1 está activo, se usa; si no, síntesis
+    if (!this.staticFileGain) this.ensureStatic();
+    if (this.staticFileGain) {
+      this.staticFileGain.gain.setTargetAtTime(this.staticTarget * 0.5, this.ctx.currentTime, 0.12);
+    } else if (this.staticGain) {
       this.staticGain.gain.setTargetAtTime(this.staticTarget * 0.16, this.ctx.currentTime, 0.1);
     }
   }

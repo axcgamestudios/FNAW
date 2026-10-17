@@ -25,6 +25,7 @@ export interface EventHost {
     footstep(pos: { x: number; y: number; z: number }, surface: string, running: boolean, heavy: boolean): void;
     setStatic(l: number): void;
     powerDown(): void;
+    kitchenClatter(pos: { x: number; y: number; z: number }): boolean;
   };
   addPowerDrain(v: number): void;
   onCallStart(lines: string[]): void;
@@ -235,13 +236,15 @@ export class EventDirector {
     this.host.onCallStart(lines);
   }
 
-  /** ruido de cocina (noche 2) */
+  /** ruido de cocina (noche 2) — CLATTER real de FNAF 1 */
   checkKitchenNoise(minute: number) {
     if (!this.kitchenNoiseDone && this.host.night === 2 && minute >= this.kitchenNoiseAt) {
       this.kitchenNoiseDone = true;
       const pos = new THREE.Vector3(-18, 1.2, -13);
-      this.host.audio.knock(pos, 5);
-      this.host.audio.ventBang(pos);
+      if (!this.host.audio.kitchenClatter(pos)) {
+        this.host.audio.knock(pos, 5);
+        this.host.audio.ventBang(pos);
+      }
       this.host.onKitchenNoise();
     }
   }

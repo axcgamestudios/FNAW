@@ -60,6 +60,7 @@ export class Game {
   private callLineIdx = 0;
   private callLineTimer = 0;
   private callQueue: string[] = [];
+  private callDurations: number[] | null = null;
   private deathTimer = 0;
   private dyingAnimatronic: Animatronic | null = null;
   private jumpscareTimer = 0;
@@ -538,6 +539,7 @@ export class Game {
         radioBurst: (pos: { x: number; y: number; z: number }) => this.audio.radioBurst(pos),
         ventBang: (pos: { x: number; y: number; z: number }) => this.audio.ventBang(pos),
         doorCreak: (pos: { x: number; y: number; z: number }) => this.audio.doorCreak(pos),
+        kitchenClatter: (pos: { x: number; y: number; z: number }) => this.audio.kitchenClatter(pos),
         footstep: (pos: { x: number; y: number; z: number }, surface: string, running: boolean, heavy: boolean) =>
           this.audio.footstep(pos, surface, running, heavy),
         setStatic: (l: number) => this.audio.setStatic(l),
@@ -1113,6 +1115,13 @@ export class Game {
     const totalDur = lines.reduce((s, l) => s + 2.2 + l.length * 0.036, 0);
     this.audio.phoneBeep();
     this.audio.startPhoneVoice(totalDur);
+    // cargar la VOZ REAL (TTS) de las líneas de este capítulo
+    this.callDurations = null;
+    this.audio.loadCall(this.chapter).then((durs) => {
+      if (durs && durs.length === lines.length && this.callQueue.length) {
+        this.callDurations = durs;
+      }
+    });
     useHud.getState().syncHud({ callActive: true });
   }
 
@@ -1123,7 +1132,10 @@ export class Game {
       const line = this.callQueue[this.callLineIdx];
       if (line !== undefined) {
         useHud.getState().setSubtitle(`☎ ${line}`);
-        this.callLineTimer = 2.2 + line.length * 0.036;
+        // voz REAL de Rulo (TTS) si está cargada
+        const realDur = this.callDurations?.[this.callLineIdx];
+        this.audio.playCallLine(this.callLineIdx);
+        this.callLineTimer = realDur != null ? realDur + 0.55 : 2.2 + line.length * 0.036;
         this.callLineIdx++;
         if (this.callLineIdx >= this.callQueue.length) {
           const dur = this.callLineTimer;
@@ -1132,6 +1144,7 @@ export class Game {
             useHud.getState().setSubtitle(null);
             useHud.getState().syncHud({ callActive: false });
             this.audio.stopPhoneVoice();
+            this.audio.stopCallVoice();
             this.audio.phoneBeep();
           }, dur * 1000);
         }
@@ -1534,8 +1547,12 @@ export class Game {
     this.world.setPowerFactor(this.power > 25 ? 1 : this.power / 25);
     if (this.power <= 0) {
       // apagón total: solo quedan las rojas de emergencia
+      if (!this.powerOut) {
+        this.powerOut = true;
+        // Marcha Toreador REAL de FNAF 1 mientras muere la luz
+        this.audio.playToreador();
+      }
       for (const r of this.world.rooms.values()) r.lightOn = false;
-      this.powerOut = true;
     } else if (this.powerOut && this.power > 30) {
       // red recuperada: vuelve la tenue luz de la oficina
       this.powerOut = false;

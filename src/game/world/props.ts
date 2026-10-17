@@ -1373,60 +1373,131 @@ export const DAYCARE_GEN_SPOTS: Array<[number, number, number]> = [
 function buildDaycare(world: WorldBuilder) {
   // Sala: x[-29,-16] z[-3,13], h 4.5
 
-  /* ---- ALBERCA DE PELOTAS GIGANTE (9 × 7 m) ---- */
+  /* ---- ALBERCA DE PELOTAS GIGANTE (9 × 7 m) — estilo Security Breach ---- */
   const pit = new THREE.Group();
-  // base acolchada
-  const padMat = plasticMaterial(0x2a4aa8, 0.8, 0.3);
-  const pad = new THREE.Mesh(new THREE.BoxGeometry(9.4, 0.12, 7.4), padMat);
-  pad.position.set(-22.5, 0.06, 6.5);
-  pad.receiveShadow = true;
-  pit.add(pad);
-  // borde acolchado de colores (bajo, SIN colisionador: el jugador vadea dentro)
+  const PX = -22.5, PZ = 6.5;            // centro
+  const PW = 9, PD = 7;                  // ancho × fondo interior
+  const WALL_H = 0.55;                   // altura del muro acolchado
+
+  // suelo interior azul oscuro (fondo de la alberca)
+  const floorMat = plasticMaterial(0x1a2a6a, 0.95, 0.2);
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(PW, 0.06, PD), floorMat);
+  floor.position.set(PX, 0.03, PZ);
+  floor.receiveShadow = true;
+  pit.add(floor);
+
+  // muros acolchados de colores con canto redondeado (SIN colisionador: se vadea)
   const rimColors = [0xd84a4a, 0x4ad84a, 0xd8d84a, 0x4a8fd8, 0xd84ad8, 0xd8842a];
-  const rimH = 0.3;
-  for (let i = 0; i < 10; i++) {
-    const rx = -27 + (i / 9) * 9;
-    const seg = new THREE.Mesh(new THREE.BoxGeometry(0.98, rimH, 0.28), plasticMaterial(rimColors[i % 6], 0.85, 0.25));
-    seg.position.set(rx, 0.15, 2.95);
-    pit.add(seg);
-    const seg2 = seg.clone();
-    seg2.position.z = 10.05;
-    seg2.material = plasticMaterial(rimColors[(i + 3) % 6], 0.85, 0.25);
-    pit.add(seg2);
+  const padSide = (i: number) => plasticMaterial(rimColors[i % 6], 0.9, 0.15);
+  function wallRun(x0: number, z0: number, x1: number, z1: number, segs: number) {
+    const dx = (x1 - x0) / segs, dz = (z1 - z0) / segs;
+    const horiz = Math.abs(dx) > Math.abs(dz);
+    const len = horiz ? Math.abs(dx) : Math.abs(dz);
+    for (let i = 0; i < segs; i++) {
+      const cx = x0 + dx * (i + 0.5), cz = z0 + dz * (i + 0.5);
+      const mat = padSide(i + Math.floor(Math.random() * 3));
+      // cuerpo del muro
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(horiz ? len * 0.98 : 0.34, WALL_H, horiz ? 0.34 : len * 0.98),
+        mat
+      );
+      body.position.set(cx, WALL_H / 2, cz);
+      body.castShadow = true;
+      pit.add(body);
+      // canto superior redondeado
+      const cap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.17, 0.17, horiz ? len * 0.98 : len * 0.98, 10),
+        plasticMaterial(rimColors[(i + 3) % 6], 0.85, 0.2)
+      );
+      cap.rotation.z = Math.PI / 2;
+      if (!horiz) cap.rotation.y = Math.PI / 2;
+      cap.position.set(cx, WALL_H + 0.02, cz);
+      pit.add(cap);
+    }
   }
-  for (let i = 0; i < 7; i++) {
-    const rz = 3 + (i / 6) * 7;
-    const seg = new THREE.Mesh(new THREE.BoxGeometry(0.28, rimH, 0.98), plasticMaterial(rimColors[(i + 2) % 6], 0.85, 0.25));
-    seg.position.set(-27.05, 0.15, rz);
-    pit.add(seg);
-    const seg2 = seg.clone();
-    seg2.position.x = -17.95;
-    seg2.material = plasticMaterial(rimColors[(i + 5) % 6], 0.85, 0.25);
-    pit.add(seg2);
+  wallRun(PX - PW / 2, PZ - PD / 2, PX + PW / 2, PZ - PD / 2, 9);   // norte
+  wallRun(PX - PW / 2, PZ + PD / 2, PX + PW / 2, PZ + PD / 2, 9);   // sur
+  wallRun(PX - PW / 2, PZ - PD / 2, PX - PW / 2, PZ + PD / 2, 7);   // oeste
+  wallRun(PX + PW / 2, PZ - PD / 2, PX + PW / 2, PZ + PD / 2, 7);   // este
+
+  // escalón de gomaespuma de entrada (lado este, hacia la guardería)
+  for (let s = 0; s < 2; s++) {
+    const step = new THREE.Mesh(
+      new THREE.BoxGeometry(0.55, 0.16 + s * 0.16, 2.0),
+      plasticMaterial(s === 0 ? 0xd84a4a : 0x4a8fd8, 0.9, 0.15)
+    );
+    step.position.set(PX + PW / 2 + 0.34 + s * 0.55, (0.16 + s * 0.16) / 2, PZ);
+    pit.add(step);
   }
-  // mar de bolas: InstancedMesh (≈700 bolas en un solo draw call)
-  const BALL_N = 700;
-  const ballGeo = new THREE.SphereGeometry(0.105, 10, 8);
-  const ballMat = new THREE.MeshStandardMaterial({ roughness: 0.32, metalness: 0.05 });
+
+  // MAR DE BOLAS: 3 capas en empaquetado hexagonal denso (1 draw call)
+  const ballColors = [
+    0xe8382e, 0x2e6ee8, 0xf2d030, 0x38c24a, 0xf27a20, 0xf0ead8, 0xd838a8, 0x35c8c8,
+  ];
+  const R = 0.115;                       // radio de bola
+  const hexDx = R * 2 * 0.88;            // paso horizontal (apretado)
+  const hexDz = R * 2 * 0.78;            // paso vertical (hex)
+  const cols = Math.floor(PW / hexDx);
+  const rows = Math.floor(PD / hexDz);
+  const BALL_N = cols * rows * 3 + 220;  // 3 capas + derrame
+  const ballGeo = new THREE.SphereGeometry(R, 18, 14);
+  const ballMat = new THREE.MeshStandardMaterial({ roughness: 0.26, metalness: 0.0, envMapIntensity: 0.7 });
   const ballsIM = new THREE.InstancedMesh(ballGeo, ballMat, BALL_N);
   ballsIM.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  const ballColors = [0xd84a4a, 0x4ad84a, 0xd8d84a, 0x4a8fd8, 0xd84ad8, 0xe8e2d2, 0xd8842a];
   const dummy = new THREE.Object3D();
   const col = new THREE.Color();
-  for (let i = 0; i < BALL_N; i++) {
-    // densidad alta en el centro, más rala en bordes; 2-3 capas
-    const layer = i / BALL_N;
-    const rad = Math.sqrt(Math.random()) * 0.94;
+  let bi = 0;
+  const topY = WALL_H - 0.10;
+  for (let layer = 0; layer < 3; layer++) {
+    const ly = 0.10 + layer * R * 1.55;
+    const off = (layer % 2) * (hexDx / 2);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (bi >= BALL_N - 220) break;
+        const jx = (Math.random() - 0.5) * 0.03;
+        const jz = (Math.random() - 0.5) * 0.03;
+        dummy.position.set(
+          PX - PW / 2 + R + 0.1 + c * hexDx + off + jx,
+          ly + (Math.random() - 0.5) * 0.012,
+          PZ - PD / 2 + R + 0.1 + r * hexDz + jz
+        );
+        dummy.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+        const sc = 0.94 + Math.random() * 0.18;
+        dummy.scale.set(sc, sc, sc);
+        dummy.updateMatrix();
+        ballsIM.setMatrixAt(bi, dummy.matrix);
+        ballsIM.setColorAt(bi, col.setHex(ballColors[(layer * 5 + r * 3 + c) % ballColors.length]));
+        bi++;
+      }
+    }
+  }
+  // bolas derramadas fuera de la alberca (suelo de la guardería)
+  const outside: Array<[number, number]> = [
+    [PX + PW / 2 + 1.6, PZ - 1.5], [PX + PW / 2 + 2.1, PZ + 0.6], [PX + PW / 2 + 1.4, PZ + 2.2],
+    [PX - PW / 2 - 1.2, PZ + 1.0], [PX - PW / 2 - 1.8, PZ - 0.8], [PX - PW / 2 - 1.1, PZ + 2.4],
+    [PX + 1.0, PZ + PD / 2 + 1.3], [PX - 2.0, PZ + PD / 2 + 1.7], [PX + 3.2, PZ + PD / 2 + 1.1],
+    [PX + 0.4, PZ - PD / 2 - 1.4], [PX - 3.1, PZ - PD / 2 - 1.1],
+  ];
+  for (let s = 0; s < 220 && bi < BALL_N; s++) {
+    const [ox, oz] = outside[s % outside.length];
+    const far = 0.4 + Math.random() * 1.4;
     const ang = Math.random() * Math.PI * 2;
-    dummy.position.set(
-      -22.5 + Math.cos(ang) * rad * 4.35,
-      0.14 + Math.floor(layer * 3) * 0.105 + Math.random() * 0.03,
-      6.5 + Math.sin(ang) * rad * 3.35
-    );
+    dummy.position.set(ox + Math.cos(ang) * far, R * 0.9, oz + Math.sin(ang) * far);
     dummy.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+    dummy.scale.set(1, 1, 1);
     dummy.updateMatrix();
-    ballsIM.setMatrixAt(i, dummy.matrix);
-    ballsIM.setColorAt(i, col.setHex(ballColors[i % ballColors.length]));
+    ballsIM.setMatrixAt(bi, dummy.matrix);
+    ballsIM.setColorAt(bi, col.setHex(ballColors[s % ballColors.length]));
+    bi++;
+  }
+  // rellenar instancias restantes por si la capa no llenó (invisibles bajo la superficie)
+  while (bi < BALL_N) {
+    dummy.position.set(PX + (Math.random() - 0.5) * PW * 0.9, 0.1, PZ + (Math.random() - 0.5) * PD * 0.9);
+    dummy.scale.set(1, 1, 1);
+    dummy.updateMatrix();
+    ballsIM.setMatrixAt(bi, dummy.matrix);
+    ballsIM.setColorAt(bi, col.setHex(0x2e6ee8));
+    bi++;
   }
   ballsIM.castShadow = false;
   ballsIM.receiveShadow = false;
@@ -1434,6 +1505,7 @@ function buildDaycare(world: WorldBuilder) {
   world.root.add(pit);
   // vaivén sutil del mar de bolas (respiración)
   world.propAnims.push({ update: (_dt, t) => { ballsIM.position.y = Math.sin(t * 0.6) * 0.012; } });
+
 
   /* ---- TORRE DE JUEGOS con tobogán (este) — la linterna brilla arriba ---- */
   const tower = new THREE.Group();
