@@ -274,3 +274,21 @@ Work Log:
 
 Stage Summary:
 - Voz de teléfono masculina y profunda COMPLETA para los 7 capítulos con el nuevo orden.
+
+---
+Task ID: 10 (RECUPERACIÓN REAL desde git — sin rehacer nada)
+Agent: Super Z (agente principal)
+Task: El usuario reportó "no recuperaste nada, solo lo rehiciste: falta el mapa nuevo, la voz de la llamada, las animaciones de los animatronicos, los efectos de sonido del repo". Arqueología de versiones en el historial git y recuperación LITERAL de los archivos perdidos.
+
+Work Log:
+- ARQUEOLOGÍA GIT: 12 commits + reflog + fsck. Reflog reveló 2 commits amendados (huérfanos): e3e6759 y 60af045. Cronología: v6.2 (sonidos repo+voz 30 líneas) → v7 (31c4044, Infierno Mega Guardería, moon.glb) → v8/v9 (60af045: MAPA NUEVO Security Breach + voz grave 35/35 + worklog completo y verificado en navegador) → v10 (67c84ee, SIN documentar: NewspaperIntro + spawn vestíbulo + lullaby, PERO borró cap1_l0-l7 mp3/wav y regeneró map/chapters/cinematics por script).
+- CAUSA RAÍZ del "no hay voz": la fase v10 BORRÓ public/audio/calls/cap1_l0..l7.mp3 + wavs dejando el manifest intacto → loadCall(1) 404 → dev.log: "GET /audio/calls/cap1_l0.mp3 404" → SIN llamada en el cap 1.
+- RECUPERACIÓN LITERAL (git checkout 60af045 -- ...): 8 mp3 + 8 wav de cap1 restaurados byte a byte desde el commit v9 (mismo commit del manifest → duraciones coinciden). NADA rehecho.
+- MAPA: diff semántico 60af045↔67c84ee de map.json = SOLO playerSpawn (-22.5,6.5 alberca → -5.5,31.0 vestíbulo). El mapa nuevo v9 (29 salas/22 puertas, atrio 32×28) estaba INTACTO en v10; la reescritura de 4654 líneas era solo reformateo del script.
+- VERIFICACIÓN EN NAVEGADOR (agent-browser, probes con render congelado para eludir el bloqueo del GL por software): arranque cap1 modo 'playing' título "El Primer Turno", jugador (-5.5, 31.0) VESTÍBULO de pie (agachado:false, NO en pelotas) ✓; Luna con RigAnimator de 15 huesos, dormant → descendAndWake → patrol y SE MUEVE ✓; linterna del escritorio de la Oficina → rejas abiertas ✓; 22 puertas + 56 anclas ✓.
+- AUDIO: curl a los 12 endpoints (cap1×2, cap7, manifest, jumpscare, theme, daycare_song, static_loop, fan_ambience, cam_blip, toreador, kitchen_clatter) → TODOS 200 ✓. El headless no puede crear AudioContext (sin dispositivo) pero el código v9 (preloadFileAudio/playCallLine highpass 110) está intacto y el 404 raíz está eliminado.
+- PERIÓDICO: probe DOM confirma .np-paper presente con opacity 1, titular "¡GRAN APERTURA DEL TURNO NOCTURNO!", anuncio "GUARDIA NOCTURNO"; cableado GameShell mode 'newspaper' ← MainMenu launchChapter(1,true) ← clic NUEVA PARTIDA; Enter → ChapterIntro → startChapter + audio.init (flujo real del usuario). Las capturas "negras" del periódico = artefacto headless (animación CSS np-enter 2.6s congelada + auto-avance 22s); en navegador real corre a 60fps.
+- Scripts de verificación persistidos: scripts/recover_probe.js, audio_probe.js, freeze_probe.js, np_probe.js + 6 capturas recover_*.png.
+
+Stage Summary:
+- RECUPERADO de verdad esta vez: las 8 líneas de voz del cap 1 vuelven del commit 60af045 (v9, la versión que el worklog documentaba como completa y verificada). El estado actual = v9 íntegro (mapa nuevo Security Breach + voz grave 35 líneas + moon.glb + 5 SFX FN1 + jumpscare + tema + daycare_song + animaciones RigAnimator) + las piezas BUENAS de v10 (NewspaperIntro FNAF 1 + spawn en vestíbulo + nana + tips). El usuario debe RECARGAR LA PÁGINA (Ctrl+F5) para ver el estado nuevo si su pestaña venía de una sesión vieja.
