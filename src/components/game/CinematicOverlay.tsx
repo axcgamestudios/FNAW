@@ -52,7 +52,7 @@ export default function CinematicOverlay() {
         className="absolute bottom-[3%] right-8 text-[10px] tracking-[0.3em] text-[#5a564c] pointer-events-auto cursor-pointer hover:text-[#b8b2a4]"
         onClick={() => getGame()?.skipCinematic()}
       >
-        SALTAR [E] · ESC PARA OMITIR TODA
+        SKIP [E] · ESC TO SKIP ALL
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
   {
    "chapter": 1,
    "id": "cap1",
-   "title": "El Primer Turno",
+   "title": "The First Shift",
    "enemies": [
     "luna"
    ],
@@ -13,43 +13,43 @@
    "introCinematic": "cine_arrival",
    "outroCinematic": "cine_first_dawn",
    "lines": [
-    "Complejo Bruno MEGAPLEX — 11:47 PM.",
-    "Primer turno como guardia nocturno. Primer error: presentarse.",
-    "El contrato lo firmaste tú. Las normas las escribió otra cosa.",
-    "Y en la GUARDERÍA ESTRELLITA... algo canta una nana."
+    "Bruno MEGAPLEX — 11:47 PM.",
+    "First shift as the night guard. First mistake: showing up.",
+    "You signed the contract. The rules were written by something else.",
+    "And in the STELLAR DAYCARE... something is singing a lullaby."
    ],
    "radio": {
     "atMinute": 0.25,
     "lines": [
-     "*clic* — ¿Hola? ¿Hola-hola?... ¿El guardia nuevo? Soy RULO, del turno anterior.",
-     "Escucha, tengo poco tiempo. Primera norma: los animatrónicos DEAMBULAN de noche. Algo en sus servos... no preguntes.",
-     "Tu LINTERNA está en el escritorio de la Oficina de Seguridad, al oeste del vestíbulo. Cógela antes de dar un solo paso más.",
-     "Segunda norma: la GUARDERÍA ESTRELLITA, al oeste del atrio, está... ocupada. LUNA, el cuidador. Casi no ve, pero lo oye TODO.",
-     "Hemos oído ruidos en la alberca esta noche. Revisa el fondo. Y camina por el borde: las pelotas suenan como fuegos artificiales.",
-     "Si la nana se detiene... ya te ha oído. Agáchate, espera un momento, y vuelve al vestíbulo sin correr.",
-     "Termina el turno con vida y hablamos mañana. Ciento veinte dólares a la semana. Vaya sueldo, ¿eh?"
+     "*click* — Hello? Hello-hello?... The new guard? This is RULO, from the last shift.",
+     "Listen, I don't have much time. Rule one: the animatronics WANDER at night. Something in their servos... don't ask.",
+     "Your FLASHLIGHT is on the Security Office desk, west of the lobby. Grab it before you take another single step.",
+     "Rule two: the STELLAR DAYCARE, west of the atrium, is... occupied. MOON, the caretaker. It can barely see, but it hears EVERYTHING.",
+     "We've heard noises in the ball pit tonight. Check the bottom of it. And walk along the edge: the balls sound like fireworks.",
+     "If the lullaby stops... it has already heard you. Crouch, hold still for a moment, and walk back to the lobby. Don't run.",
+     "Finish the shift alive and we'll talk tomorrow. A hundred and twenty dollars a week. Some paycheck, huh?"
     ]
    },
    "objectives": [
     {
      "id": "c1_torch",
-     "title": "Recoge tu LINTERNA en la Oficina de Seguridad",
-     "hint": "Escritorio — oeste del vestíbulo [E]",
+     "title": "Pick up your FLASHLIGHT at the Security Office",
+     "hint": "Desk — west of the lobby [E]",
      "type": "interact",
      "room": "office",
      "target": "desk_torch"
     },
     {
      "id": "c1_check",
-     "title": "Revisa la alberca de la GUARDERÍA ESTRELLITA",
-     "hint": "Oeste del atrio — camina por el borde de las pelotas",
+     "title": "Inspect the ball pit at the STELLAR DAYCARE",
+     "hint": "West of the atrium — walk along the edge of the balls",
      "type": "system",
      "target": "pit_checked"
     },
     {
      "id": "c1_exit",
-     "title": "Vuelve con vida a la Oficina de Seguridad",
-     "hint": "Rulo cerrará las rejas a tu paso",
+     "title": "Return alive to the Security Office",
+     "hint": "Rulo will lock the gates as you pass",
      "type": "system",
      "target": "office_returned"
     }
@@ -58,7 +58,7 @@
   {
    "chapter": 2,
    "id": "cap2",
-   "title": "La Bolera",
+   "title": "Bonnie Bowl",
    "enemies": [
     "freddy",
     "bonnie"
@@ -69,40 +69,40 @@
    "introCinematic": "cine_cap2",
    "outroCinematic": "cine_camstare",
    "lines": [
-    "La guardería quedó atrás. El MEGAPLEX entero sigue a oscuras.",
-    "La Bolera tiene las máquinas de chapa fundidas.",
-    "Y la coneja del recreativo ha aprendido a usar los conductos."
+    "The daycare is behind you. The whole MEGAPLEX is still dark.",
+    "The bowling alley has its pinsetters fried.",
+    "And the rabbit from the arcade has learned to use the vents."
    ],
    "radio": {
     "atMinute": 0.3,
     "lines": [
-     "¿Sigues vivo? Bien. Escucha: en la OFICINA DE SEGURIDAD del Paseo Sur dejé una tableta con las cámaras. Con ella los ves venir. Cógela.",
-     "La Bolera tiene los pinsetters fundidos. Tres. El jefe quiere la bolera viva para el evento de mañana.",
-     "Y sí: es una PRUEBA. Las luces morirán, ella vendrá. Si te atrapa, despiertas en el paseo. Inténtalo otra vez.",
-     "Bonnie — la coneja — sale del Salón Recreativo. La linterna la congela si le das de lleno en la cara.",
-     "Antes de entrar, recoge 3 fichas doradas del recreativo. Las necesitarás para las máquinas."
+     "Still alive? Good. Listen: in the SECURITY OFFICE on the South Promenade I left a tablet with the cameras. With it, you'll see them coming. Take it.",
+     "The bowling alley has three fried pinsetters. Three. The boss wants the alley alive for tomorrow's event.",
+     "And yes: it's a TRIAL. The lights will die, and she will come for you. If she catches you, you wake up on the promenade. Try again.",
+     "Bonnie — the rabbit — comes out of the Arcade Hall. The flashlight freezes her if you hit her straight in the face.",
+     "Before you go in, collect 3 golden tokens from the arcade. You'll need them for the machines."
     ]
    },
    "objectives": [
     {
      "id": "c2_tablet",
-     "title": "Recoge la tableta de vigilancia",
-     "hint": "Oficina de Seguridad — Paseo Sur [C]",
+     "title": "Pick up the surveillance tablet",
+     "hint": "Security Office — South Promenade [C]",
      "type": "interact",
      "room": "office",
      "target": "desk_tablet"
     },
     {
      "id": "c2_tokens",
-     "title": "Reúne 3 fichas doradas",
-     "hint": "Caídas por el Salón Recreativo",
+     "title": "Collect 3 golden tokens",
+     "hint": "Scattered around the Arcade Hall",
      "type": "collect",
      "count": 3
     },
     {
      "id": "c2_trial",
-     "title": "SUPERA LA PRUEBA: Bolera",
-     "hint": "Entra en la Bolera y reinicia las 3 máquinas de chapa",
+     "title": "CLEAR THE TRIAL: Bowling Alley",
+     "hint": "Enter the alley and restart the 3 pinsetters",
      "type": "trial",
      "target": "bowling"
     }
@@ -111,7 +111,7 @@
   {
    "chapter": 3,
    "id": "cap3",
-   "title": "La Plaza de Comida",
+   "title": "The Food Court",
    "enemies": [
     "freddy",
     "bonnie",
@@ -123,31 +123,31 @@
    "introCinematic": "cine_cap3",
    "outroCinematic": "cine_golden",
    "lines": [
-    "La Bolera canta. La night sigue.",
-    "La Plaza de Comida debe abrir mañana con los tres puestos vivos.",
-    "La gallina ya ronda las mesas. Y huele el horno."
+    "The bowling alley sings. The night goes on.",
+    "The Food Court must open tomorrow with all three stands running.",
+    "The chicken is already circling the tables. And she can smell the oven."
    ],
    "radio": {
     "atMinute": 0.3,
     "lines": [
-     "Chica — la gallina — caza en la Plaza de Comida desde esta night. Le precede el olor a pizza quemada... y a pluma.",
-     "Tres puestos fundidos: PIZZA, PATATAS y HELADOS. Rearranca los tres. Las notas de servicio dicen que se reactivan solos... casi.",
-     "Chica no esquiva la linterna. La oye TODO. Camina agachado con Ctrl y no corras dentro.",
-     "Cuando la pases, pásate por la Cala del Pirata. Alguien dejó un cartel ahí... y algo se mueve tras el telón."
+     "Chica — the chicken — has been hunting in the Food Court since tonight. Burnt pizza and feathers come before her.",
+     "Three fried stands: PIZZA, FRIES and ICE CREAM. Restart all three. The service notes say they reboot on their own... mostly.",
+     "Chica does not dodge the flashlight. She hears EVERYTHING. Crouch with Ctrl and never run in there.",
+     "When you're done, swing by Pirate's Cove. Someone left a sign there... and something moves behind the curtain."
     ]
    },
    "objectives": [
     {
      "id": "c3_trial",
-     "title": "SUPERA LA PRUEBA: Plaza de Comida",
-     "hint": "Rearranca los 3 puestos de comida",
+     "title": "CLEAR THE TRIAL: Food Court",
+     "hint": "Restart the 3 food stands",
      "type": "trial",
      "target": "foodcourt"
     },
     {
      "id": "c3_cove",
-     "title": "Investiga la Cala del Pirata",
-     "hint": "Oeste del Paseo Oeste",
+     "title": "Investigate Pirate's Cove",
+     "hint": "West end of the West Promenade",
      "type": "goto",
      "room": "pirateCove"
     }
@@ -156,7 +156,7 @@
   {
    "chapter": 4,
    "id": "cap5",
-   "title": "La Cala del Pirata",
+   "title": "Pirate's Cove",
    "enemies": [
     "freddy",
     "bonnie",
@@ -169,31 +169,31 @@
    "introCinematic": "cine_cap4",
    "outroCinematic": "cine_cap5",
    "lines": [
-    "La atracción de la Cala lleva años apagada.",
-    "El zorro de detrás del telón ha empezado a correr de verdad.",
-    "Enciende los 3 interruptores. Y no pares de moverte."
+    "The Cove attraction has been shut down for years.",
+    "The fox behind the curtain has started to really run.",
+    "Flip the 3 switches. And never stop moving."
    ],
    "radio": {
     "atMinute": 0.25,
     "lines": [
-     "Foxy. El zorro. Es el más rápido y el único al que la máscara no engaña. Si te persigue: sprint y giros.",
-     "La linterna lo REPELE — directamente a la cara, sin piedad, hasta que retroceda.",
-     "Tres interruptores en la pared sur de la Cala, en orden. Si te atrapa, reapareces en el paseo. Es su juego favorito: el gato y el zorro.",
-     "Cuando la atracción ruge, él vuelve a su telón. Siempre vuelve. Nunca sabrás si duerme o finge."
+     "Foxy. The fox. He's the fastest, and the only one the mask can't fool. If he chases you: sprint and weave.",
+     "The flashlight REPELS him — straight in the face, no mercy, until he backs off.",
+     "Three switches on the south wall of the Cove, in order. If he catches you, you respawn on the promenade. His favorite game: cat and fox.",
+     "When the attraction roars, he goes back behind his curtain. He always comes back. You'll never know if he's sleeping... or pretending."
     ]
    },
    "objectives": [
     {
      "id": "c4_trial",
-     "title": "SUPERA LA PRUEBA: Cala del Pirata",
-     "hint": "3 interruptores de la atracción, en orden",
+     "title": "CLEAR THE TRIAL: Pirate's Cove",
+     "hint": "3 attraction switches, in order",
      "type": "trial",
      "target": "cove"
     },
     {
      "id": "c4_tape",
-     "title": "Recupera la cinta del barco",
-     "hint": "Cerca del barco pirata de la Cala",
+     "title": "Recover the ship's tape",
+     "hint": "Near the pirate ship in the Cove",
      "type": "collect",
      "count": 1,
      "optional": true
@@ -203,7 +203,7 @@
   {
    "chapter": 5,
    "id": "cap6",
-   "title": "Los Generadores",
+   "title": "The Generators",
    "enemies": [
     "freddy",
     "bonnie",
@@ -216,24 +216,24 @@
    "introCinematic": null,
    "outroCinematic": null,
    "lines": [
-    "El fusible maestro está fundido. Toda la red depende de él.",
-    "La energía del complejo entero se decide en la Sala de Generadores.",
-    "Orden 3 · 1 · 4 · 2. Y todos despiertos."
+    "The master fuse is blown. The whole grid depends on it.",
+    "The complex's power will be decided in the Generator Room.",
+    "Order 3 · 1 · 4 · 2. And everyone wide awake."
    ],
    "radio": {
     "atMinute": 0.2,
     "lines": [
-     "La nota que dejé en el Cuarto Eléctrico lo dice: 3, 1, 4, 2. El orden del fusible maestro de la Sala de Generadores.",
-     "La puerta del generador está al este del Paseo Sur. La abrí para ti. No me preguntes cómo.",
-     "Uno más: hay un TRAJE DORADO en la Sala Técnica Sur, bajo tu oficina. Si sientes que te mira... corre. No luches. CORRE.",
-     "Cuando la red vuelva, las puertas exteriores del vestíbulo se armarán. Corre al sur. No mires atrás."
+     "The note I left in the Electrical Room says it: 3, 1, 4, 2. The master fuse order for the Generator Room.",
+     "The generator door is east of the South Promenade. I unlocked it for you. Don't ask how.",
+     "One more thing: there's a GOLDEN SUIT in the South Technical Room, right under your office. If you feel it watching you... run. Don't fight. RUN.",
+     "When the grid comes back, the lobby's outer doors will unlock. Run south. Don't look back."
     ]
    },
    "objectives": [
     {
      "id": "c5_trial",
-     "title": "SUPERA LA PRUEBA: Generadores (3·1·4·2)",
-     "hint": "Sala de Generadores, panel maestro",
+     "title": "CLEAR THE TRIAL: Generators (3·1·4·2)",
+     "hint": "Generator Room, master panel",
      "type": "trial",
      "target": "generators"
     }
@@ -242,7 +242,7 @@
   {
    "chapter": 6,
    "id": "c6_sounds",
-   "title": "El Pasillo de los Sonidos",
+   "title": "The Hallway of Sounds",
    "enemies": [
     "freddy",
     "bonnie"
@@ -251,33 +251,33 @@
    "eventRate": 1.25,
    "startPower": 65,
    "lines": [
-    "*clic* …Rulo otra vez. La red se va cayendo por zonas.",
-    "Toda la GALERÍA TÉCNICA está a oscuras. Solo quedan las rojas de emergencia.",
-    "No puedes ver qué hay detrás de cada puerta de servicio… pero PUEDES OÍRLO.",
-    "Escucha el sonido de cada puerta. Yo te diré a cuál entrar. Si te equivocas…",
-    "…bueno. Conoces a los de dentro. Buena suerte."
+    "*click* …Rulo again. The grid is failing zone by zone.",
+    "The whole TECHNICAL GALLERY is pitch black. Only the red emergency lights are left.",
+    "You can't see what's behind each service door... but you CAN hear it.",
+    "Listen to the sound at each door. I'll tell you which one to enter. If you get it wrong...",
+    "...well. You already know the ones inside. Good luck."
    ],
    "radio": {
     "atMinute": 0.18,
     "lines": [
-     "*clic* ¿Sigues ahí? Soy Rulo. La galería técnica se ha quedado a oscuras.",
-     "Seis puertas de servicio y solo UNA forma de saber qué hay detrás: el SONIDO.",
-     "Un VENTILADOR zumba donde no hay nadie. Las OLLAS suenan donde Chica desmonta la cocina.",
-     "Si oyes pasos pesados o una risa metálica… esa puerta NO. No la abras. Jamás.",
-     "Te guiaré ronda a ronda. Escucha antes de moverte. Confía en las orejas, no en los ojos."
+     "*click* Still there? It's Rulo. The technical gallery just went dark.",
+     "Six service doors, and only ONE way to know what's behind them: SOUND.",
+     "A FAN hums where nobody is. POTS AND PANS clang where Chica is tearing the kitchen apart.",
+     "If you hear heavy footsteps or a metallic laugh... NOT that door. Don't open it. Ever.",
+     "I'll walk you through round by round. Listen before you move. Trust your ears, not your eyes."
     ]
    },
    "objectives": [
     {
      "id": "c6_enter",
      "type": "goto",
-     "label": "Llega a la Galería Técnica (a oscuras)",
+     "label": "Reach the Technical Gallery (pitch black)",
      "room": "techHall"
     },
     {
      "id": "c6_trial",
      "type": "trial",
-     "label": "Supera las rondas de sonidos (3)"
+     "label": "Clear the rounds of sounds (3)"
     }
    ],
    "introCinematic": null,
@@ -286,7 +286,7 @@
   {
    "chapter": 7,
    "id": "c7_basement",
-   "title": "El Sótano en Llamas",
+   "title": "The Burning Basement",
    "enemies": [
     "luna",
     "freddy"
@@ -297,32 +297,32 @@
    "introCinematic": "cine_inferno",
    "outroCinematic": "cine_sunrise",
    "lines": [
-    "La noche ya lleva tres pruebas encima.",
-    "Y ahora el MEGAPLEX huele a plástico quemado.",
-    "La MEGA GUARDERÍA arde. Y LUNA canta entre las llamas."
+    "The night has already piled three trials on your back.",
+    "And now the MEGAPLEX smells of burnt plastic.",
+    "The MEGA DAYCARE is on fire. And MOON is singing in the flames."
    ],
    "radio": {
     "atMinute": 0.2,
     "lines": [
-     "*clic* …Rulo. Lo has encontrado. El SÓTANO. Lo que queda de la pizzería ORIGINAL.",
-     "El fuego lleva AÑOS comiéndoselo. Y algo con una cara de luna vive ahí abajo.",
-     "Siete fuegos, siete extintores. Mátalos todos y la luz lo cambiará todo.",
-     "Cuando brille el Sol… CORRE A LA SALIDA DEL VESTÍBULO. No mires atrás.",
-     "Sea lo que sea lo que fuiste esta noche… termina AQUÍ."
+     "*click* …Rulo. You found it. THE BASEMENT. What's left of the ORIGINAL pizzeria.",
+     "The fire has been eating it for YEARS. And something with a moon for a face lives down there.",
+     "Seven fires, seven extinguishers. Put them all out, and the light will change everything.",
+     "When the SUN rises... RUN TO THE LOBBY EXIT. Don't look back.",
+     "Whatever you were before tonight... it ends HERE."
     ]
    },
    "objectives": [
     {
      "id": "c7_trial",
-     "title": "APAGA EL INFIERNO: 7 extintores",
-     "hint": "Mega Guardería — 7 fuegos, ni uno menos",
+     "title": "KILL THE INFERNO: 7 extinguishers",
+     "hint": "Mega Daycare — 7 fires, not one less",
      "type": "trial",
      "target": "sunmoon"
     },
     {
      "id": "c7_escape",
      "type": "goto",
-     "label": "CORRE a la SALIDA del vestíbulo",
+     "label": "RUN to the lobby EXIT",
      "room": "lobby"
     }
    ]

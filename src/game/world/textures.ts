@@ -479,8 +479,8 @@ export const posterBruno = () => {
   ctx.fillStyle = '#5a1d1d';
   ctx.font = 'bold 30px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('¡BRUNO Y SUS', 128, 205);
-  ctx.fillText('AMIGOS!', 128, 236);
+  ctx.fillText("BRUNO AND", 128, 205);
+  ctx.fillText("HIS FRIENDS!", 128, 236);
   grain(ctx, 256, 26, 0.3);
   const t = toTex(c, [1, 1]);
   cache.set(key, t);
@@ -505,9 +505,9 @@ export const posterParty = () => {
   ctx.fillStyle = '#f0e6cc';
   ctx.font = 'bold 34px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('FIESTAS', 128, 60);
+  ctx.fillText('PARTIES', 128, 60);
   ctx.font = 'bold 22px monospace';
-  ctx.fillText('CUMPLEAÑOS', 128, 92);
+  ctx.fillText('BIRTHDAY', 128, 92);
   grain(ctx, 256, 24, 0.3);
   const t = toTex(c, [1, 1]);
   cache.set(key, t);
@@ -579,11 +579,11 @@ export const outOfOrderTex = () => {
   ctx.fillStyle = '#e8d9b0';
   ctx.textAlign = 'center';
   ctx.font = 'bold 44px monospace';
-  ctx.fillText('¡DISCULPEN!', 256, 92);
+  ctx.fillText('SORRY!', 256, 92);
   ctx.fillStyle = '#c83428';
   ctx.font = 'bold 40px monospace';
-  ctx.fillText('FUERA DE', 256, 150);
-  ctx.fillText('SERVICIO', 256, 200);
+  ctx.fillText('OUT of', 256, 150);
+  ctx.fillText('Order', 256, 200);
   grain(ctx, 512, 20, 0.28);
   const t = toTex(c, [1, 1]);
   cache.set(key, t);
@@ -603,10 +603,10 @@ export const pirateCoveSignTex = () => {
   ctx.fillStyle = '#e8c840';
   ctx.textAlign = 'center';
   ctx.font = 'bold 52px monospace';
-  ctx.fillText('LA CALA', 256, 58);
+  ctx.fillText("THE", 256, 58);
   ctx.font = 'bold 36px monospace';
   ctx.fillStyle = '#9a7ad8';
-  ctx.fillText('DEL PIRATA', 256, 104);
+  ctx.fillText('PIRATE COVE', 256, 104);
   grain(ctx, 512, 12, 0.15);
   const t = toTex(c, [1, 1]);
   cache.set(key, t);
@@ -642,7 +642,7 @@ export const kidDrawing = (variant: number) => {
     stick(160, 190, 60, '#7a3a5a');
     ctx.fillStyle = '#c33';
     ctx.font = '26px monospace';
-    ctx.fillText('bruno y yo', 40, 235);
+    ctx.fillText('bruno and me', 40, 235);
   } else if (variant === 1) {
     // figura con ojos negros grandes
     ctx.strokeStyle = '#222';
@@ -659,7 +659,7 @@ export const kidDrawing = (variant: number) => {
     ctx.stroke();
     ctx.fillStyle = '#222';
     ctx.font = '22px monospace';
-    ctx.fillText('el seno de la caja', 30, 235);
+    ctx.fillText('the music box spring', 30, 235);
   } else if (variant % 2 === 0) {
     // zorro pirata: orejas puntiagudas, garfio y parche
     ctx.strokeStyle = '#a33';
@@ -686,7 +686,7 @@ export const kidDrawing = (variant: number) => {
     ctx.stroke();
     ctx.fillStyle = '#a33';
     ctx.font = '22px monospace';
-    ctx.fillText('foxy el pirata', 40, 235);
+    ctx.fillText('foxy the pirate', 40, 235);
   } else {
     // cinco figuras de la mano
     for (let i = 0; i < 5; i++) stick(50 + i * 40, 190, 46, i === 2 ? '#a33' : '#345');

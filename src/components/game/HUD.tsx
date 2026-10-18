@@ -7,23 +7,8 @@
  */
 import { useHud } from '@/game/core/state';
 
-function BatteryCells({ value, low }: { value: number; low: boolean }) {
-  const cells = 4;
-  const on = Math.ceil((Math.max(0, Math.min(100, value)) / 100) * cells);
-  return (
-    <div className="battery-shell">
-      <div className="battery-cells">
-        {Array.from({ length: cells }).map((_, i) => (
-          <div key={i} className={`battery-cell ${i < on ? 'on' : ''} ${low ? 'low' : ''}`} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function HUD() {
   const s = useHud();
-  const batteryLow = s.battery < 22;
 
   return (
     <div className="absolute inset-0 pointer-events-none fnaf-mono">
@@ -41,7 +26,7 @@ export default function HUD() {
       {/* objetivos — lista de tareas del turno */}
       <div className="hud-corner top-5 left-6 fnaf-objectives">
         <p className="text-[10px] tracking-[0.34em] fnaf-dim mb-1.5">
-          CAPÍTULO {String(s.chapter).padStart(2, '0')}
+          CHAPTER {String(s.chapter).padStart(2, '0')}
         </p>
         <p className="text-[13px] tracking-[0.18em] fnaf-gold mb-2">{s.chapterTitle.toUpperCase()}</p>
         {s.objectives.map((o) => (
@@ -55,7 +40,7 @@ export default function HUD() {
       {/* panel de PRUEBA activa (arriba-derecha) */}
       {s.trialActive && (
         <div className="hud-corner top-5 right-6 text-right trial-panel">
-          <p className="text-[10px] tracking-[0.3em] fnaf-red">⚠ PRUEBA ACTIVA</p>
+          <p className="text-[10px] tracking-[0.3em] fnaf-red">⚠ TRIAL ACTIVE</p>
           <p className="text-[12px] tracking-[0.16em] fnaf-gold mt-1">{s.trialName}</p>
           <div className="mt-2 flex gap-1.5 justify-end">
             {Array.from({ length: s.trialTasks }).map((_, i) => (
@@ -65,7 +50,7 @@ export default function HUD() {
             ))}
           </div>
           <p className="text-[10px] tracking-[0.22em] fnaf-dim mt-1.5">
-            INTENTO #{Math.max(1, s.trialAttempts)} · ATRAPADO = REAPARECES
+            ATTEMPT #{Math.max(1, s.trialAttempts)} · CAUGHT = RESPAWN
           </p>
         </div>
       )}
@@ -73,9 +58,9 @@ export default function HUD() {
       {/* recursos abajo-izquierda: linterna + energía del edificio */}
       <div className="hud-corner bottom-5 left-6 space-y-2.5 text-[11px] tracking-[0.14em]">
         <div className="battery-widget">
-          <BatteryCells value={s.battery} low={batteryLow} />
+          <span className="fnaf-gold text-[13px] tracking-[0.1em]" style={{ textShadow: '0 0 8px rgba(216,177,58,0.4)' }}>∞</span>
           <span className={s.flashlightOn ? 'fnaf-gold' : 'fnaf-dim'}>
-            LINTERNA {s.flashlightOn ? 'ON' : 'OFF'}
+            FLASHLIGHT {s.flashlightOn ? 'ON' : 'OFF'}
           </span>
           <span className="fnaf-dim text-[10px]">[F]</span>
         </div>
@@ -91,19 +76,19 @@ export default function HUD() {
               ))}
             </div>
           </div>
-          <span className={s.power < 20 ? 'fnaf-red' : 'fnaf-dim'}>ENERGÍA</span>
+          <span className={s.power < 20 ? 'fnaf-red' : 'fnaf-dim'}>POWER</span>
         </div>
         {s.stamina < 30 && (
-          <p className="fnaf-red text-[10px] tracking-[0.22em]">RESISTENCIA AGOTADA — RALENTIZADO</p>
+          <p className="fnaf-red text-[10px] tracking-[0.22em]">STAMINA DEPLETED — SLOWED DOWN</p>
         )}
       </div>
 
       {/* atajos abajo-derecha (discretos, se iluminan al usar) */}
       <div className="hud-corner bottom-5 right-6 text-right space-y-1.5 text-[10px] tracking-[0.2em]">
-        <p className={s.maskOn ? 'fnaf-gold' : 'fnaf-dim'}>[Q] MÁSCARA{s.maskOn ? ' — PUESTA' : ''}</p>
-        <p className={s.tabletOpen ? 'fnaf-gold' : 'fnaf-dim'}>[C] CÁMARAS</p>
-        {s.crouching && <p className="fnaf-dim">AGACHADO [CTRL]</p>}
-        {s.inVent && <p className="fnaf-gold">EN CONDUCTO</p>}
+        <p className={s.maskOn ? 'fnaf-gold' : 'fnaf-dim'}>[Q] MASK{s.maskOn ? ' — ON' : ''}</p>
+        <p className={s.tabletOpen ? 'fnaf-gold' : 'fnaf-dim'}>[C] CAMERAS</p>
+        {s.crouching && <p className="fnaf-dim">CROUCHED [CTRL]</p>}
+        {s.inVent && <p className="fnaf-gold">IN VENT</p>}
       </div>
 
       {s.alert && <div className="alert-toast fnaf-mono">{s.alert}</div>}

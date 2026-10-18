@@ -48,7 +48,7 @@ export default function GameShell() {
         if (cancelled) return;
         store.setMode('menu');
       } catch (err) {
-        console.error('Error de inicialización del juego:', err);
+        console.error('Game initialization error:', err);
         setBootError(err instanceof Error ? err.message : 'Error desconocido');
       }
     })();
@@ -143,7 +143,7 @@ export default function GameShell() {
           style={{ background: 'rgba(8,8,10,0.85)', border: '1px solid #a8402a' }}
           onClick={onCanvasClick}
         >
-          HAZ CLIC PARA CAPTURAR EL RATÓN — o mantén clic y arrastra para mirar
+          CLICK TO CAPTURE THE MOUSE — or hold click and drag to look
         </button>
       )}
 

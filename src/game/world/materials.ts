@@ -28,7 +28,7 @@ function texPbr(
   real: THREE.Texture | null,
   procedural: () => PbrSet,
   rep: [number, number],
-  opts: { roughness: number; metalness?: number; bumpScale?: number }
+  opts: { roughness: number; metalness?: number; bumpScale?: number; envMapIntensity?: number }
 ): THREE.MeshStandardMaterial {
   const ck = `${key}_${rep[0]}_${rep[1]}`;
   if (matCache.has(ck)) return matCache.get(ck)!;
@@ -43,6 +43,9 @@ function texPbr(
       bumpScale: opts.bumpScale ?? 0.04,
       roughness: opts.roughness,
       metalness: opts.metalness ?? 0,
+      // v11: reflejos especulares del entorno — los metales y suelos duros
+      // brillan bajo la linterna con reflejos realistas
+      envMapIntensity: opts.envMapIntensity ?? 0.55,
     });
     matCache.set(ck, m);
     return m;
@@ -72,18 +75,18 @@ function pbrMaterial(key: string, s: PbrSet, opts: { color?: number; repeat?: [n
 }
 
 export const floorMaterials = {
-  tile: (rep: [number, number]) => texPbr('f_stone', realTex(Assets.textures?.floorStone, rep), () => floorTile(), rep, { roughness: 0.55, bumpScale: 0.035 }),
-  checker: (rep: [number, number]) => texPbr('f_checker', realTex(Assets.textures?.floorChecker, rep), () => floorChecker(), rep, { roughness: 0.5, bumpScale: 0.03 }),
-  wood: (rep: [number, number]) => texPbr('f_wood', realTex(Assets.textures?.floorWood, rep), () => floorWood(), rep, { roughness: 0.7, bumpScale: 0.035 }),
-  concrete: (rep: [number, number]) => texPbr('f_conc', realTex(Assets.textures?.floorConcrete, rep), () => floorConcrete(), rep, { roughness: 0.92, bumpScale: 0.05 }),
-  carpet: (rep: [number, number]) => texPbr('f_carpet', realTex(Assets.textures?.floorCarpet, rep), () => floorCarpet(), rep, { roughness: 0.95, bumpScale: 0.06 }),
-  metal: (rep: [number, number]) => texPbr('f_metal', realTex(Assets.textures?.wallMetal, rep), () => floorMetal(), rep, { roughness: 0.45, metalness: 0.7, bumpScale: 0.04 }),
+  tile: (rep: [number, number]) => texPbr('f_stone', realTex(Assets.textures?.floorStone, rep), () => floorTile(), rep, { roughness: 0.55, bumpScale: 0.035, envMapIntensity: 0.6 }),
+  checker: (rep: [number, number]) => texPbr('f_checker', realTex(Assets.textures?.floorChecker, rep), () => floorChecker(), rep, { roughness: 0.5, bumpScale: 0.03, envMapIntensity: 0.8 }),
+  wood: (rep: [number, number]) => texPbr('f_wood', realTex(Assets.textures?.floorWood, rep), () => floorWood(), rep, { roughness: 0.7, bumpScale: 0.035, envMapIntensity: 0.45 }),
+  concrete: (rep: [number, number]) => texPbr('f_conc', realTex(Assets.textures?.floorConcrete, rep), () => floorConcrete(), rep, { roughness: 0.92, bumpScale: 0.05, envMapIntensity: 0.3 }),
+  carpet: (rep: [number, number]) => texPbr('f_carpet', realTex(Assets.textures?.floorCarpet, rep), () => floorCarpet(), rep, { roughness: 0.95, bumpScale: 0.06, envMapIntensity: 0.2 }),
+  metal: (rep: [number, number]) => texPbr('f_metal', realTex(Assets.textures?.wallMetal, rep), () => floorMetal(), rep, { roughness: 0.45, metalness: 0.7, bumpScale: 0.04, envMapIntensity: 1.0 }),
   /** baldosas ajedrez SUCIAS Y QUEMADAS (repo FNAW) — suelo de la Mega Guardería */
-  burned: (rep: [number, number]) => texPbr('f_burned', realTex(Assets.textures?.texCheckerBurned, rep), () => floorChecker(), rep, { roughness: 0.62, bumpScale: 0.05 }),
+  burned: (rep: [number, number]) => texPbr('f_burned', realTex(Assets.textures?.texCheckerBurned, rep), () => floorChecker(), rep, { roughness: 0.62, bumpScale: 0.05, envMapIntensity: 0.55 }),
   /** losas de piedra clara (repo FNAW) */
-  slabs: (rep: [number, number]) => texPbr('f_slabs', realTex(Assets.textures?.texStoneSlabs, rep), () => floorTile(), rep, { roughness: 0.8, bumpScale: 0.06 }),
+  slabs: (rep: [number, number]) => texPbr('f_slabs', realTex(Assets.textures?.texStoneSlabs, rep), () => floorTile(), rep, { roughness: 0.8, bumpScale: 0.06, envMapIntensity: 0.35 }),
   /** tablones de madera vieja (repo FNAW) */
-  oldwood: (rep: [number, number]) => texPbr('f_oldwood', realTex(Assets.textures?.texWoodOld, rep), () => floorWood(), rep, { roughness: 0.85, bumpScale: 0.06 }),
+  oldwood: (rep: [number, number]) => texPbr('f_oldwood', realTex(Assets.textures?.texWoodOld, rep), () => floorWood(), rep, { roughness: 0.85, bumpScale: 0.06, envMapIntensity: 0.4 }),
   /** baldosa encerada de la oficina: refleja la linterna y las luces */
   polished: (rep: [number, number]) => {
     const base = texPbr('f_checker', realTex(Assets.textures?.floorChecker, rep), () => floorChecker(), rep, { roughness: 0.5, bumpScale: 0.03 });
@@ -102,7 +105,7 @@ export const wallMaterials = {
   tile: (rep: [number, number]) => pbrMaterial('w_tile', wallTile(), { repeat: rep }),
   wallpaper: (rep: [number, number]) => pbrMaterial('w_wp', wallWallpaper(), { repeat: rep }),
   concrete: (rep: [number, number]) => pbrMaterial('w_conc', wallConcrete(), { repeat: rep }),
-  metal: (rep: [number, number]) => texPbr('w_metal', realTex(Assets.textures?.wallMetal, rep), () => wallMetal(), rep, { roughness: 0.42, metalness: 0.7, bumpScale: 0.05 }),
+  metal: (rep: [number, number]) => texPbr('w_metal', realTex(Assets.textures?.wallMetal, rep), () => wallMetal(), rep, { roughness: 0.42, metalness: 0.7, bumpScale: 0.05, envMapIntensity: 1.0 }),
   /** tela de fiesta de la guardería (repo FNAW) — colorida, húmeda de humo */
   party: (rep: [number, number]) => texPbr('w_party', realTex(Assets.textures?.texPartyFabric, rep), () => wallWallpaper(), rep, { roughness: 0.88, bumpScale: 0.05 }),
   /** chapa industrial remachada y oxidada (repo FNAW) */

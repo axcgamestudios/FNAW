@@ -165,7 +165,7 @@ export class MissionSystem {
     o.done = true;
     if (!silent) {
       this.game.sfx.alertBeep();
-      this.game.notify('OBJETIVO COMPLETADO');
+      this.game.notify('OBJECTIVE COMPLETE');
     }
     this.syncObjectives();
   }
@@ -214,7 +214,7 @@ export class MissionSystem {
         } else {
           this.game.setPower(100);
           this.completeObjective('c4_master');
-          this.game.notify('ENERGÍA RESTAURADA — LA SALIDA TIENE LUZ');
+          this.game.notify('POWER RESTORED — THE EXIT HAS LIGHT');
         }
         this.sequenceTargetId = '';
         return 'done';
@@ -224,7 +224,7 @@ export class MissionSystem {
     // error: reinicio
     this.sequenceProgress = [];
     this.game.sfx.keypadBeep(false);
-    this.game.notify('SECUENCIA INCORRECTA — DIFERENCIAL SALTADO');
+    this.game.notify('WRONG SEQUENCE — BREAKER TRIPPED');
     this.game.setPower(Math.max(3, this.game.getPower() - 8));
     return 'wrong';
   }

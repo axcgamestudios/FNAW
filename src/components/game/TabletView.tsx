@@ -10,9 +10,9 @@ import { useHud } from '@/game/core/state';
 import { getGame } from '@/game/core/instance';
 
 const CAM_NAMES: Record<number, string> = {
-  1: 'ATRIO NORTE', 2: 'ATRIO SUR', 3: 'PASEO OESTE', 4: 'PASEO ESTE', 5: 'PASEO SUR',
-  6: 'PASILLO TÉCNICO', 7: 'RECREATIVO', 8: 'COCINA', 9: 'BOLERA', 10: 'GUARDERÍA',
-  11: 'CALA PIRATA', 12: 'GALERÍA', 13: 'TEATRO', 14: 'VESTÍBULO',
+  1: 'NORTH ATRIUM', 2: 'SOUTH ATRIUM', 3: 'WEST PROMENADE', 4: 'EAST PROMENADE', 5: 'SOUTH PROMENADE',
+  6: 'TECHNICAL HALLWAY', 7: 'ARCADE', 8: 'KITCHEN', 9: 'BOWLING ALLEY', 10: 'DAYCARE',
+  11: "PIRATE'S COVE", 12: 'ROCKSTAR ROW', 13: 'THEATER', 14: 'LOBBY',
 };
 
 export default function TabletView() {
@@ -43,7 +43,7 @@ export default function TabletView() {
 
         {audioOnly && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#040705]">
-            <p className="cam-label" style={{ color: '#7dcf8a' }}>SEÑAL DE VÍDEO PERDIDA</p>
+            <p className="cam-label" style={{ color: '#7dcf8a' }}>VIDEO SIGNAL LOST</p>
             <div className="flex items-end gap-1 h-12 mt-6">
               {Array.from({ length: 28 }).map((_, i) => (
                 <div
@@ -56,7 +56,7 @@ export default function TabletView() {
                 />
               ))}
             </div>
-            <p className="cam-sub mt-6">SOLO AUDIO DISPONIBLE — CAM 08</p>
+            <p className="cam-sub mt-6">AUDIO ONLY — CAM 08</p>
           </div>
         )}
 
@@ -67,7 +67,7 @@ export default function TabletView() {
           </span>
         </div>
         <div className="absolute top-9 left-5 z-10 cam-sub">
-          REC ● 12-11-1987 · TURNO NOCTURNO · SEGURIDAD
+          REC ● 12-11-1987 · NIGHT SHIFT · SECURITY
         </div>
 
         {/* mapa y selector de cámaras */}
@@ -122,13 +122,13 @@ export default function TabletView() {
         </div>
 
         <div className="absolute bottom-3 left-5 z-10 cam-sub">
-          [C] CERRAR · [A/D] CAMBIAR CÁMARA · [1-9] RÁPIDA · 14 CÁMARAS
+          [C] CLOSE · [A/D] SWITCH CAMERA · [1-9] QUICK · 14 CAMERAS
         </div>
       </div>
 
       {glitch && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 text-[#ff5544] text-xs tracking-[0.4em] z-30">
-          ⚠ INTERFERENCIA EN LA SEÑAL — ALGO SE MUEVE AQUÍ
+          ⚠ SIGNAL INTERFERENCE — SOMETHING IS MOVING HERE
         </div>
       )}
     </div>

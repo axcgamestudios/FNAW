@@ -65,21 +65,22 @@ export class Player {
     this.camera = camera;
     this.host = host;
     // linterna (v8): sombras más nítidas con radio de suavizado PCF
-    this.flashlight = new THREE.SpotLight(0xfff2d8, 0, 18, 0.46, 0.42, 1.25);
+    this.flashlight = new THREE.SpotLight(0xfff2d8, 0, 20, 0.48, 0.5, 1.25);
     this.flashlight.castShadow = true;
-    this.flashlight.shadow.mapSize.set(1024, 1024);
+    // v11: sombras nítidas y suaves a la vez — 2048² + PCFSoft
+    this.flashlight.shadow.mapSize.set(2048, 2048);
     this.flashlight.shadow.camera.near = 0.2;
-    this.flashlight.shadow.camera.far = 16;
-    this.flashlight.shadow.bias = -0.0018;
-    this.flashlight.shadow.normalBias = 0.02;
-    this.flashlight.shadow.radius = 2.5;
+    this.flashlight.shadow.camera.far = 20;
+    this.flashlight.shadow.bias = -0.0006;
+    this.flashlight.shadow.normalBias = 0.025;
+    this.flashlight.shadow.radius = 3.0;
     this.lightGroup.add(this.flashlight);
     this.lightGroup.add(this.flashTargetObj);
     this.flashlight.target = this.flashTargetObj;
     this.flashTargetObj.position.set(0, 0, -6);
     // luz de relleno tenue alrededor del jugador: caída clásica de terror,
     // lo justo para intuir lo que rodea al cono de la linterna
-    this.fillLight = new THREE.PointLight(0xbfc8d8, 0.35, 3.2, 2.2);
+    this.fillLight = new THREE.PointLight(0xbfc8d8, 0.05, 2.2, 2.2);
     this.fillLight.position.set(0, 0, -0.2);
     this.lightGroup.add(this.fillLight);
     camera.add(this.lightGroup);
@@ -218,15 +219,9 @@ export class Player {
     const targetEye = this.crouching || this.inVent ? CROUCH_EYE : STAND_EYE;
     this.eyeH += (targetEye - this.eyeH) * Math.min(1, dt * 9);
 
-    // batería de la linterna
-    if (this.flashlightOn) {
-      this.flashlightBattery -= dt * 1.05;
-      if (this.flashlightBattery <= 0) {
-        this.flashlightBattery = 0;
-        this.flashlightOn = false;
-        this.host.sfx.footstep(this.pos, 'metal', false, false);
-      }
-    }
+    // v11: LINTERNA INFINITA — ya no consume batería. El foco del juego
+    // es la oscuridad y el sigilo, no gestionar pilas.
+    this.flashlightBattery = 100;
 
     // ruido de pasos
     const speed = Math.hypot(this.vel.x, this.vel.z);
@@ -343,14 +338,7 @@ export class Player {
     let intensity = 0;
     if (this.flashlightOn) {
       intensity = 46;
-      const b = this.flashlightBattery;
-      if (b < 18) {
-        // parpadeo con batería baja
-        if (Math.random() < 0.09) this.ventFlash = 0.09;
-        this.ventFlash = Math.max(0, this.ventFlash - dt);
-        if (this.ventFlash > 0) intensity = 4;
-        else intensity *= 0.7 + (b / 18) * 0.35;
-      }
+      // v11: sin parpadeo de batería baja — la linterna es infinita
     }
     this.flashlight.intensity = intensity;
   }
@@ -386,7 +374,7 @@ export class Player {
   }
 
   toggleFlashlight() {
-    if (!this.flashlightOn && this.flashlightBattery <= 1) return false;
+    // v11: linterna infinita — siempre se puede encender
     this.flashlightOn = !this.flashlightOn;
     return this.flashlightOn;
   }

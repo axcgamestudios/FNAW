@@ -650,7 +650,7 @@ function buildOffice(world: WorldBuilder) {
   walkieAnt.position.set(CX + 0.12, 1.03, 22.09);
   world.root.add(walkieAnt);
   // Aviso de turnos en la pared norte
-  neonSign(world, 'SEGURIDAD', 0x44ff88, CX, 2.9, 19.2, 0, 2.0, 0.45);
+  neonSign(world, 'SECURITY', 0x44ff88, CX, 2.9, 19.2, 0, 2.0, 0.45);
 }
 
 /* ============ ATRIO CENTRAL (el corazón del MEGAPLEX) ============ */
@@ -885,7 +885,7 @@ function buildAtrium(world: WorldBuilder) {
   /* letreros de neón de las zonas nuevas sobre los arcos del norte */
   neonSign(world, 'FAZER BLAST', 0x4ad8ff, -9, 5.0, -8.6, 0, 3.2, 0.6);
   neonSign(world, 'BONNIE BOWL', 0xff5ad8, 5, 5.0, -8.6, 0, 3.2, 0.6);
-  neonSign(world, 'GALERÍAS', 0xd8b13a, 0, 6.2, 18.4, Math.PI, 3.4, 0.6);
+  neonSign(world, 'GALLERIES', 0xd8b13a, 0, 6.2, 18.4, Math.PI, 3.4, 0.6);
 }
 
 /* ============ GALERÍA ESTELAR (Rockstar Row) ============ */
@@ -972,7 +972,7 @@ function buildRockstar(world: WorldBuilder) {
 
   // póster dorado de la banda
   addPoster(world, posterBruno(), -30.15, 2.2, -13, Math.PI / 2, 1.3, 1.7);
-  neonSign(world, 'GALERÍA ESTELAR', 0xff8844, -37, 3.6, -9.6, 0, 3.2, 0.55);
+  neonSign(world, 'ROCKSTAR ROW', 0xff8844, -37, 3.6, -9.6, 0, 3.2, 0.55);
   world.anchors.set('key_rockstar', { pos: new THREE.Vector3(-41, 2.1, -14.5) });
   world.anchors.set('tape_rockstar', { pos: new THREE.Vector3(-35, 2.1, -14.5) });
 }
@@ -1051,7 +1051,7 @@ function buildTheater(world: WorldBuilder) {
     world.root.add(strip);
   }
 
-  neonSign(world, 'TEATRO BRUNO', 0xff4466, -23, 4.9, -9.6, 0, 3.0, 0.55);
+  neonSign(world, 'BRUNO THEATER', 0xff4466, -23, 4.9, -9.6, 0, 3.0, 0.55);
   world.anchors.set('key_theater', { pos: new THREE.Vector3(-27.5, 1.0, -15.5) });
   world.anchors.set('tape_theater', { pos: new THREE.Vector3(-17.5, 1.0, -15.5) });
 }
@@ -1092,7 +1092,7 @@ function buildArcade(world: WorldBuilder) {
   box(1.6, 0.75, 0.9, plasticMaterial(0x224433, 0.6, 0.4), -9, 0.38, -13.5, 0.2, true, world);
 
   // alfombra ajedrezada ya está (suelo). Neón y carteles
-  neonSign(world, 'SALÓN RECREATIVO', 0x37ff88, -9, 3.9, -9.6, 0, 3.4, 0.55);
+  neonSign(world, 'ARCADE HALL', 0x37ff88, -9, 3.9, -9.6, 0, 3.4, 0.55);
   neonSign(world, 'FLIPER', 0xff8844, -15.85, 2.6, -13.5, Math.PI / 2, 1.6, 0.4);
   // cabina de fotos (escondite)
   const booth = new THREE.Group();
@@ -1174,7 +1174,7 @@ function buildBowling(world: WorldBuilder) {
   // mostrador de zapatos y bancos al sur (despejado del portal x[8,11])
   box(4.0, 1.0, 0.8, woodMaterial([2, 0.8]), 2.5, 0.5, -9.9, 0, true, world);
   mallBench(world, -1, -10.6, Math.PI);
-  neonSign(world, 'BOLERA BRUNO', 0x4aafff, 5, 4.2, -9.6, 0, 3.2, 0.55);
+  neonSign(world, 'BRUNO BOWLING', 0x4aafff, 5, 4.2, -9.6, 0, 3.2, 0.55);
   ceilingFan(world, 5, -13, 4.7);
   addPoster(world, posterParty(), 11.85, 2.0, -13, -Math.PI / 2);
   world.anchors.set('tape_bowling', { pos: new THREE.Vector3(11, 0.08, -11.5) });
@@ -1206,7 +1206,7 @@ function buildPrize(world: WorldBuilder) {
   world.root.add(claw);
   world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(23.5, 0.9, -12), new THREE.Vector3(1.3, 1.8, 1.1)), 'claw2');
   // caja musical de la guardería vieja (deco)
-  neonSign(world, 'PREMIOS', 0xd8b13a, 19, 3.4, -9.6, 0, 2.4, 0.5);
+  neonSign(world, 'PRIZES', 0xd8b13a, 19, 3.4, -9.6, 0, 2.4, 0.5);
   addPoster(world, posterBruno(), 12.15, 2.0, -13, Math.PI / 2);
   addDrawing(world, 3, 14, 1.6, -16.85, 0);
   addDrawing(world, 1, 16, 1.6, -16.85, 0);
@@ -1287,7 +1287,7 @@ function buildGolf(world: WorldBuilder) {
   world.root.add(gator);
   world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(43.4, 0.8, -13), new THREE.Vector3(0.7, 1.6, 2.5)), 'gator');
 
-  neonSign(world, 'GOLF DEL CAIMÁN', 0x4ad86e, 35, 3.9, -9.6, 0, 3.4, 0.55);
+  neonSign(world, 'MONTY GOLF', 0x4ad86e, 35, 3.9, -9.6, 0, 3.4, 0.55);
   planter(world, 28, -10.5);
   planter(world, 42, -16);
   world.anchors.set('tape_golf', { pos: new THREE.Vector3(35.7, 0.08, -12) });
@@ -1806,8 +1806,8 @@ function buildDaycare(world: WorldBuilder) {
   addDrawing(world, 4, -24, 1.5, -2.82, 0);
   addDrawing(world, 5, -22, 2.2, 12.85, Math.PI);
 
-  neonSign(world, 'SUPER GUARDERÍA', 0xffd070, -22.5, 3.9, -2.7, 0, 3.4, 0.5);
-  neonSign(world, 'ALBERCA DE PELOTAS', 0x70d0ff, -22.5, 1.9, 2.75, 0, 3.2, 0.42);
+  neonSign(world, 'SUPER DAYCARE', 0xffd070, -22.5, 3.9, -2.7, 0, 3.4, 0.5);
+  neonSign(world, 'BALL PIT', 0x70d0ff, -22.5, 1.9, 2.75, 0, 3.2, 0.42);
 
   // juguete de piano enorme
   const piano = new THREE.Group();
@@ -1848,7 +1848,7 @@ function buildFoodcourt(world: WorldBuilder) {
   // mostradores de comida (pared norte)
   const counters: Array<[number, number, string, number]> = [
     [20, -2.2, 'PIZZA', 0xd8442a],
-    [25, -2.2, 'PATATAS', 0xd8a83a],
+    [25, -2.2, 'FRIES', 0xd8a83a],
   ];
   for (const [cx, cz, label, color] of counters) {
     box(3.6, 1.05, 0.9, plasticMaterial(0x33363c, 0.5, 0.3), cx, 0.525, cz, 0, true, world);
@@ -1943,12 +1943,12 @@ function buildProms(world: WorldBuilder) {
   // carteles direcciones
   neonSign(world, 'ATRIO →', 0x44ff88, -16.3, 2.9, -6, Math.PI / 2, 1.5, 0.4);
   neonSign(world, '← ATRIO', 0x44ff88, 16.3, 2.9, -6, -Math.PI / 2, 1.5, 0.4);
-  neonSign(world, 'CALA DEL PIRATA', 0x9a7ad8, -36.5, 2.9, -3.5, Math.PI, 2.8, 0.45);
-  neonSign(world, 'GUARDERÍA', 0xffd070, -22, 2.9, -3.5, Math.PI, 1.8, 0.45);
+  neonSign(world, "PIRATE'S COVE", 0x9a7ad8, -36.5, 2.9, -3.5, Math.PI, 2.8, 0.45);
+  neonSign(world, 'DAYCARE', 0xffd070, -22, 2.9, -3.5, Math.PI, 1.8, 0.45);
   neonSign(world, 'COMIDA', 0xff8844, 23, 2.9, -3.5, Math.PI, 1.5, 0.45);
-  neonSign(world, 'BAÑOS', 0x88aaff, 37, 2.9, -3.5, Math.PI, 1.2, 0.4);
-  neonSign(world, 'VESTÍBULO', 0x44ff88, 0, 3.1, 13.4, 0, 2.0, 0.45);
-  neonSign(world, 'OFICINA', 0xffd070, -37.5, 2.9, 18.7, Math.PI, 1.5, 0.4);
+  neonSign(world, 'RESTROOMS', 0x88aaff, 37, 2.9, -3.5, Math.PI, 1.2, 0.4);
+  neonSign(world, 'LOBBY', 0x44ff88, 0, 3.1, 13.4, 0, 2.0, 0.45);
+  neonSign(world, 'OFFICE', 0xffd070, -37.5, 2.9, 18.7, Math.PI, 1.5, 0.4);
   // pósters
   addPoster(world, posterBruno(), -30, 2.0, -8.85, 0);
   addPoster(world, posterParty(), -24, 2.0, -8.85, 0);
@@ -2080,7 +2080,7 @@ function buildLobby(world: WorldBuilder) {
   planter(world, -28, 20.5);
   trashBin(world, 0, 30);
   trashBin(world, -12, 25);
-  neonSign(world, 'COMPLEJO BRUNO', 0xffc83a, -5, 5.2, 33.8, Math.PI, 6.0, 1.0);
+  neonSign(world, 'BRUNO COMPLEX', 0xffc83a, -5, 5.2, 33.8, Math.PI, 6.0, 1.0);
   neonSign(world, 'SALIDA', 0x22ff44, -5.5, 2.9, 33.8, Math.PI, 1.6, 0.5);
   addPoster(world, posterBruno(), 19.85, 2.4, 27, -Math.PI / 2, 1.4, 1.8);
   addDrawing(world, 3, -18, 1.7, 33.85, Math.PI);
@@ -2997,10 +2997,10 @@ function buildMegaDaycare(world: WorldBuilder) {
   addDrawing(world, 3, -43.8, 1.8, -48, Math.PI / 2);
   addDrawing(world, 5, 43.8, 1.8, -44, -Math.PI / 2);
   addDrawing(world, 2, 20, 1.8, -61.8, 0);
-  neonSign(world, 'MEGA GUARDERÍA', 0xff7030, 0, 8.0, -34.35, 0, 5.0, 0.7);
-  neonSign(world, 'SALIDA DE EMERGENCIA', 0x40ff70, -37, 3.1, -34.35, 0, 2.6, 0.5);
-  neonSign(world, 'SALIDA DE EMERGENCIA', 0x40ff70, -22, 3.1, -34.35, 0, 2.6, 0.5);
-  neonSign(world, 'SALIDA DE EMERGENCIA', 0x40ff70, -6, 3.1, -34.35, 0, 2.6, 0.5);
+  neonSign(world, 'MEGA DAYCARE', 0xff7030, 0, 8.0, -34.35, 0, 5.0, 0.7);
+  neonSign(world, 'EMERGENCY EXIT', 0x40ff70, -37, 3.1, -34.35, 0, 2.6, 0.5);
+  neonSign(world, 'EMERGENCY EXIT', 0x40ff70, -22, 3.1, -34.35, 0, 2.6, 0.5);
+  neonSign(world, 'EMERGENCY EXIT', 0x40ff70, -6, 3.1, -34.35, 0, 2.6, 0.5);
   // lámparas-luna colgando torcidas (una se balancea)
   const moonLamp2 = new THREE.MeshStandardMaterial({ color: 0x4a4a5a, emissive: 0x901810, emissiveIntensity: 0.7 });
   const swingLamps: THREE.Group[] = [];

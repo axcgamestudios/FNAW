@@ -25,7 +25,7 @@ export default function EndingScreen() {
         className={`text-3xl tracking-[0.4em] mb-10 ${ending === 'secret' ? 'text-[#d8b13a]' : 'text-[#d8c8a0]'}`}
         style={{ textShadow: '0 0 30px rgba(216,177,58,0.35)' }}
       >
-        {ending === 'secret' ? 'LA ÚLTIMA CUERDA' : 'AMANECER'}
+        {ending === 'secret' ? 'THE LAST SPRING' : 'DAYBREAK'}
       </p>
 
       <div className="max-w-xl px-8 space-y-4 mb-12">
@@ -41,11 +41,11 @@ export default function EndingScreen() {
       </div>
 
       <p className="text-[10px] tracking-[0.3em] text-[#5a564c] mb-8">
-        CINTAS RECUPERADAS: {tapes.length}/10 {tapes.length < 10 ? '— HAY OTRO FINAL...' : ''}
+        TAPES RECOVERED: {tapes.length}/10 {tapes.length < 10 ? '— THERE IS ANOTHER ENDING...' : ''}
       </p>
 
       <button className="big-btn" onClick={() => getGame()?.returnToMenu()}>
-        VOLVER AL MENÚ
+        BACK TO MENU
       </button>
     </div>
   );

@@ -53,12 +53,14 @@ interface ModelConfig {
   preRotX?: number;
   /** marca de material cuyas mallas son los rayos del Sol (Luna/Sol) */
   sunRaysMaterial?: string;
+  /** nodos residuales del editor 3D (Cube/Lamp/Camera) que deben ELIMINARSE */
+  stripNodes?: string[];
 }
 
 const CONFIGS: Record<string, ModelConfig> = {
   // más grandes que el guardia (1.78 m)
   freddy: { file: 'models/freddy.glb', height: 2.62, rotY: 0, eyeColor: 0x4dd2ff, eyeNames: /eye|iris|pupil/i, noClips: true },
-  bonnie: { file: 'models/bonnie.glb', height: 2.56, rotY: 0, eyeColor: 0xff5070, eyeNames: /eye/i, noClips: true },
+  bonnie: { file: 'models/bonnie.glb', height: 2.56, rotY: 0, eyeColor: 0xff5070, eyeNames: /eye/i, noClips: true, stripNodes: ['Cube', 'Lamp', 'Camera'] },
   chica: { file: 'models/chica.glb', height: 2.46, rotY: 0, eyeColor: 0xffe066, eyeNames: /eye/i, noClips: true },
   foxy: { file: 'models/foxy.glb', height: 2.42, rotY: 0, eyeColor: 0xffbf40, eyeNames: /eye/i, noClips: true },
   golden: { file: 'models/freddy.glb', height: 2.62, rotY: 0, eyeColor: 0xffdd44, eyeNames: /eye|iris|pupil/i, noClips: true },
@@ -181,8 +183,23 @@ export class AssetLibrary {
     const root = new THREE.Group();
     root.add(model);
 
+    // v11: eliminar nodos residuales del editor (Cube/Lamp/Camera) que el
+    // exportador Sketchfab arrastró dentro del GLB de Bonnie y que se
+    // renderizaban como una bola extraña pegada al cuerpo.
+    if (cfg.stripNodes?.length) {
+      const doomed: THREE.Object3D[] = [];
+      model.traverse((o) => {
+        if (o.name && (cfg.stripNodes as string[]).includes(o.name)) doomed.push(o);
+      });
+      for (const node of doomed) node.parent?.remove(node);
+    }
+
     // materiales: clonar y preparar (sombras + ojos emisivos)
     const eyes: THREE.Mesh[] = [];
+    // v11: los nodos GLTF a veces pierden el nombre ("Object_112") pero los
+    // MATERIALES conservan el suyo ("Eyes") → se comprueban ambos
+    const eyeMatch = (meshName: string, matNames: string[]): boolean =>
+      !!cfg.eyeNames && (cfg.eyeNames.test(meshName) || matNames.some((n) => cfg.eyeNames!.test(n)));
     model.traverse((o) => {
       if (o instanceof THREE.Mesh) {
         o.castShadow = true;
@@ -202,7 +219,7 @@ export class AssetLibrary {
           return cm;
         });
         o.material = Array.isArray(o.material) ? newMats : newMats[0];
-        if (cfg.eyeNames && cfg.eyeNames.test(o.name)) {
+        if (eyeMatch(o.name, mats.map((m) => (m as THREE.MeshStandardMaterial).name || ''))) {
           for (const m of (Array.isArray(o.material) ? o.material : [o.material]) as THREE.MeshStandardMaterial[]) {
             m.emissive = new THREE.Color(cfg.eyeColor);
             m.emissiveIntensity = 1.6;

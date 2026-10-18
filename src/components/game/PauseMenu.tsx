@@ -45,13 +45,13 @@ export default function PauseMenu() {
       <div className="scanlines absolute inset-0 pointer-events-none" />
       <div className="flex gap-12 items-start">
         <div className="w-[300px]">
-          <p className="text-[10px] tracking-[0.5em] text-[#5a564c] mb-1">PAUSA — CAPÍTULO {String(night).padStart(2, '0')} · {chapterTitle.toUpperCase()}</p>
-          <h2 className="text-2xl tracking-[0.3em] text-[#c9c2b0] mb-8">TURNO DETENIDO</h2>
-          <button className="menu-btn" onClick={resume}>REANUDAR</button>
-          <button className="menu-btn" onClick={restart}>REINICIAR CAPÍTULO</button>
-          <button className="menu-btn" onClick={() => setPanel(panel === 'settings' ? 'none' : 'settings')}>AJUSTES</button>
-          <button className="menu-btn" onClick={() => setPanel(panel === 'controls' ? 'none' : 'controls')}>CONTROLES</button>
-          <button className="menu-btn" onClick={quit}>SALIR AL MENÚ</button>
+          <p className="text-[10px] tracking-[0.5em] text-[#5a564c] mb-1">PAUSED — CHAPTER {String(night).padStart(2, '0')} · {chapterTitle.toUpperCase()}</p>
+          <h2 className="text-2xl tracking-[0.3em] text-[#c9c2b0] mb-8">SHIFT ON HOLD</h2>
+          <button className="menu-btn" onClick={resume}>RESUME</button>
+          <button className="menu-btn" onClick={restart}>RESTART CHAPTER</button>
+          <button className="menu-btn" onClick={() => setPanel(panel === 'settings' ? 'none' : 'settings')}>SETTINGS</button>
+          <button className="menu-btn" onClick={() => setPanel(panel === 'controls' ? 'none' : 'controls')}>CONTROLS</button>
+          <button className="menu-btn" onClick={quit}>EXIT TO MENU</button>
         </div>
 
         {panel === 'settings' && (
@@ -66,20 +66,20 @@ export default function PauseMenu() {
 
         {panel === 'controls' && (
           <div className="w-[340px] text-[11px] leading-6 text-[#8a8578] bg-[rgba(8,8,10,0.85)] border border-[#2a2a2e] p-5">
-            <p className="text-[#c9c2b0] tracking-[0.25em] mb-3">CONTROLES</p>
+            <p className="text-[#c9c2b0] tracking-[0.25em] mb-3">CONTROLS</p>
             <div className="grid grid-cols-[110px_1fr] gap-y-1">
-              <span className="text-[#d8b13a]">W A S D</span><span>Moverse</span>
-              <span className="text-[#d8b13a]">RATÓN</span><span>Mirar</span>
-              <span className="text-[#d8b13a]">SHIFT</span><span>Correr</span>
-              <span className="text-[#d8b13a]">CTRL</span><span>Agacharse</span>
-              <span className="text-[#d8b13a]">E</span><span>Interactuar / reparar</span>
-              <span className="text-[#d8b13a]">F</span><span>Linterna</span>
-              <span className="text-[#d8b13a]">Q</span><span>Máscara</span>
-              <span className="text-[#d8b13a]">C</span><span>Cámaras</span>
-              <span className="text-[#d8b13a]">ESPACIO</span><span>Dar cuerda (CAM 04)</span>
+              <span className="text-[#d8b13a]">W A S D</span><span>Move</span>
+              <span className="text-[#d8b13a]">MOUSE</span><span>Look</span>
+              <span className="text-[#d8b13a]">SHIFT</span><span>Sprint</span>
+              <span className="text-[#d8b13a]">CTRL</span><span>Crouch</span>
+              <span className="text-[#d8b13a]">E</span><span>Interact / repair</span>
+              <span className="text-[#d8b13a]">F</span><span>Flashlight</span>
+              <span className="text-[#d8b13a]">Q</span><span>Mask</span>
+              <span className="text-[#d8b13a]">C</span><span>Cameras</span>
+              <span className="text-[#d8b13a]">SPACE</span><span>Wind the music box (CAM 04)</span>
             </div>
             <p className="mt-4 text-[10px] text-[#5a564c]">
-              El juego está completamente pausado: enemigos, temporizadores y audio.
+              The game is fully paused: enemies, timers and audio.
             </p>
           </div>
         )}

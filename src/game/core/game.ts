@@ -26,6 +26,10 @@ import { Assets, type GltfRig } from '../world/assets';
 import { disposeTextures } from '../world/textures';
 import { disposeMaterials } from '../world/materials';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 
 type StoryTape = { id: string; title: string; location: string; text: string };
 type StoryNote = { id: string; title: string; location: string; text: string };
@@ -58,6 +62,10 @@ export class Game {
   private lastFrame = 0;
   private danger = 0;
   private dust: THREE.Points | null = null;
+  /* post-processing: bloom sutil para luces de neón, ojos y fuego (alta calidad) */
+  private composer: EffectComposer | null = null;
+  private bloomPass: UnrealBloomPass | null = null;
+  private renderPass: RenderPass | null = null;
   private callLineIdx = 0;
   private callLineTimer = 0;
   private callQueue: string[] = [];
@@ -94,11 +102,12 @@ export class Game {
   /* ============ INICIALIZACIÓN ============ */
 
   async init(onProgress: (frac: number, label: string) => void) {
-    onProgress(0.02, 'Encendiendo motores 3D...');
+    onProgress(0.02, 'Starting 3D engines...');
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    // v11: sombras suaves de alta calidad (PCFSoft) + tone mapping cinematográfico
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -106,7 +115,7 @@ export class Game {
     // pérdida de contexto WebGL: evitar pestaña muerta silenciosamente
     this.canvas.addEventListener('webglcontextlost', ((e: Event) => {
       e.preventDefault();
-      useHud.getState().setLoading(0, 'CONTEXTO 3D PERDIDO — recarga la página');
+      useHud.getState().setLoading(0, '3D CONTEXT LOST — reload the page');
       useHud.getState().setMode('boot');
       this.pause();
     }) as EventListener, false);
@@ -119,9 +128,9 @@ export class Game {
 
     // noche cerrada: fondo casi negro + niebla densa
     this.scene.background = new THREE.Color(0x010102);
-    this.scene.fog = new THREE.FogExp2(0x030407, 0.052);
+    this.scene.fog = new THREE.FogExp2(0x030407, 0.058);
     // hemisferio casi nulo: el edificio está a oscuras, la linterna es esencial
-    const hemi = new THREE.HemisphereLight(0x11131c, 0x020203, 0.05);
+    const hemi = new THREE.HemisphereLight(0x11131c, 0x020203, 0.022);
     this.scene.add(hemi);
 
     // entorno PMREM sutil: reflejos especulares realistas en metales y suelos
@@ -129,16 +138,21 @@ export class Game {
     const envScene = new RoomEnvironment();
     const envRT = pmrem.fromScene(envScene, 0.06);
     this.scene.environment = envRT.texture;
-    (this.scene as THREE.Scene & { environmentIntensity: number }).environmentIntensity = 0.12;
+    (this.scene as THREE.Scene & { environmentIntensity: number }).environmentIntensity = 0.07;
     pmrem.dispose();
 
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.08, 95);
     this.scene.add(this.camera);
 
+    // v11: CADENA DE POST-PROCESADO (tras crear la cámara) — render + bloom
+    // sutil + salida con tone mapping. Da "glow" real a neones, ojos emisivos
+    // y llamas. Solo en calidad alta; media/baja renderizan directo.
+    this.setupPostProcessing();
+
     // cargar modelos GLB y texturas del repositorio
     await Assets.loadAll((f, label) => onProgress(0.05 + f * 0.45, label));
 
-    onProgress(0.55, 'Construyendo el MEGAPLEX...');
+    onProgress(0.55, 'Building the MEGAPLEX...');
     await nextFrame();
     this.world = new WorldBuilder(this.scene);
     this.world.buildAll((f, label) => onProgress(0.55 + f * 0.2, label));
@@ -150,10 +164,10 @@ export class Game {
     });
     await nextFrame();
 
-    onProgress(0.8, 'Trazando rutas de los animatrónicos...');
+    onProgress(0.8, 'Charting animatronic routes...');
     this.nav.build(this.world);
 
-    onProgress(0.84, 'Reclutando al guardia...');
+    onProgress(0.84, 'Recruiting the guard...');
     this.player = new Player(this.camera, {
       world: this.world,
       addNoise: (x, z, r) => this.addNoise(x, z, r),
@@ -166,7 +180,7 @@ export class Game {
     this.attachFlashlightModel();
     this.buildGuardArms();
 
-    onProgress(0.9, 'Despertando a los animatrónicos...');
+    onProgress(0.9, 'Waking the animatronics...');
     const host = this.makeAIHost();
     for (const def of (animData as { animatronics: AnimatronicDef[] }).animatronics) {
       this.animatronics.push(new Animatronic(def, host));
@@ -190,10 +204,10 @@ export class Game {
     this.scene.add(this.jumpscareStrobe);
 
     this.setupInput();
-    onProgress(0.97, 'Listo...');
+    onProgress(0.97, 'Ready...');
     this.enterMenu();
     this.render();
-    onProgress(1, 'Completado');
+    onProgress(1, 'Complete');
   }
 
   /** modelo GLB de la linterna en primera persona (tamaño real, mano derecha) */
@@ -316,6 +330,7 @@ export class Game {
         ventBang: (pos) => this.audio.ventBang(pos),
         stinger: () => this.audio.stinger(),
         vocal: (pos, voice) => this.audio.vocal(pos, voice),
+        playHunterRun: (pos) => this.audio.playHunterRun(pos),
       },
     };
   }
@@ -583,7 +598,7 @@ export class Game {
       },
       onCallStart: (lines: string[]) => this.startCall(lines),
       onKitchenNoise: () => {
-        this.notify('RUIDO EN LA COCINA — COMPRUÉBALO');
+        this.notify('NOISE IN THE KITCHEN — CHECK IT OUT');
       },
     };
   }
@@ -625,14 +640,14 @@ export class Game {
           if (golden && !golden.active) {
             this.audio.stinger();
             golden.scriptWake();
-            this.notify('EL TRAJE DORADO SE HA LEVANTADO — CORRE AL VESTÍBULO');
+            this.notify('THE GOLDEN SUIT HAS RISEN — RUN TO THE LOBBY');
             this.player.setShake(0.9);
           }
         }
         // cap 7 — SOL Y LUNA superado: la salida se abre de par en par
         if (this.chapter === 7) {
           this.exitUnlocked = true;
-          this.notify('LA SALIDA ESTÁ ABIERTA — CORRE, NO MIRES ATRÁS');
+          this.notify("THE EXIT IS OPEN — RUN, DON'T LOOK BACK");
           this.audio.stinger();
         }
       },
@@ -724,11 +739,12 @@ export class Game {
     switch (e.code) {
       case 'KeyF':
         if (!this.missions.hasFlashlight) {
-          this.notify('La linterna está sobre el escritorio');
+          this.notify('The flashlight is on the desk');
           break;
         }
         this.player.toggleFlashlight();
-        this.audio.camSwitch();
+        // v11: CLICK REAL de linterna del repo (con fallback al blip)
+        if (!this.audio.flashlightClick(this.player.flashlightOn)) this.audio.camSwitch();
         break;
       case 'KeyQ':
         this.toggleMask();
@@ -801,15 +817,29 @@ export class Game {
     const w = window.innerWidth;
     const h = window.innerHeight;
     this.renderer.setSize(w, h);
+    this.composer?.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.cams.camera.aspect = w / h;
     this.cams.camera.updateProjectionMatrix();
   }
 
+  /** v11: cadena de post-procesado (solo calidad alta) */
+  private setupPostProcessing() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.composer = new EffectComposer(this.renderer);
+    this.renderPass = new RenderPass(this.scene, this.camera);
+    this.composer.addPass(this.renderPass);
+    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.38, 0.55, 0.86);
+    this.composer.addPass(this.bloomPass);
+    this.composer.addPass(new OutputPass());
+    this.composer.setSize(w, h);
+  }
+
   private toggleMask() {
     if (this.player.inVent) {
-      this.notify('No puedes ponerte la máscara aquí');
+      this.notify("You can't put the mask on here");
       return;
     }
     this.player.masked = !this.player.masked;
@@ -820,7 +850,7 @@ export class Game {
   private toggleTablet() {
     const st = useHud.getState();
     if (!this.missions.hasTablet) {
-      this.notify('La tableta de vigilancia está en la oficina');
+      this.notify('The surveillance tablet is in the office');
       return;
     }
     if (st.note || st.keypadDoor) return;
@@ -844,7 +874,7 @@ export class Game {
       const isGenerator = door.def.id === 'door_generator' || door.def.id === 'door_generator2';
       this.interactables.push({
         id: `door_${door.def.id}`,
-        label: isSecret ? 'Empujar la estantería' : door.locked ? 'Puerta bloqueada' : door.open ? 'Cerrar puerta' : 'Abrir puerta',
+        label: isSecret ? 'Push the shelf' : door.locked ? 'Locked door' : door.open ? 'Close door' : 'Open door',
         pos: { x: door.def.x, y: 1.1, z: door.def.z },
         radius: 1.9,
         enabled: () => this.mode === 'playing' && !P().hidden,
@@ -852,7 +882,7 @@ export class Game {
           if (isSecret && door.locked) {
             door.locked = false;
             this.nav.setDoorBlocked('door_techS', false);
-            this.notify('La estantería se desliza hacia dentro... la sala técnica');
+            this.notify('The shelf slides inward... the technical room');
             this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
             door.open = true;
             door.targetAngle = door.baseAngle + door.swing * door.openAngle;
@@ -863,11 +893,11 @@ export class Game {
             if (ch >= 5) {
               door.locked = false;
               this.nav.setDoorBlocked(door.def.id, false);
-              this.notify('SALA DE GENERADORES ABIERTA');
+              this.notify('GENERATOR ROOM OPEN');
               this.audio.keypadBeep(true);
               return;
             }
-            this.notify(door.def.lockedMsg ?? 'Bloqueada');
+            this.notify(door.def.lockedMsg ?? 'Locked');
             this.audio.keypadBeep(false);
             return;
           }
@@ -880,11 +910,11 @@ export class Game {
             if (isExit && ch === 7) {
               this.notify(
                 this.exitUnlocked
-                  ? 'LA PUERTA ESTÁ ABIERTA — ¡EMPÚJALA!'
-                  : `GANA LA PRUEBA DEL SÓTANO (tarjetas: ${this.missions.keycards}/3)`
+                  ? 'THE DOOR IS OPEN — PUSH IT!'
+                  : `CLEAR THE BASEMENT TRIAL (keycards: ${this.missions.keycards}/3)`
               );
             } else {
-              this.notify(door.def.lockedMsg ?? 'Bloqueada');
+              this.notify(door.def.lockedMsg ?? 'Locked');
             }
             this.audio.keypadBeep(false);
             return;
@@ -904,18 +934,18 @@ export class Game {
       const [x, z] = spot.pos;
       this.interactables.push({
         id: `hide_${spot.id}`,
-        label: 'Esconderse',
+        label: 'Hide',
         pos: { x, y: 0.9, z },
         radius: 1.6,
         enabled: () => this.mode === 'playing' && !P().hidden && !P().inVent,
         action: () => {
           this.player.hide(spot.id, new THREE.Vector3(x, 0, z), 0);
-          this.notify('Escondido — mantén silencio [E para salir]');
+          this.notify('Hidden — stay quiet [E to come out]');
         },
       });
       this.interactables.push({
         id: `unhide_${spot.id}`,
-        label: 'Salir del escondite',
+        label: 'Leave hiding spot',
         pos: { x, y: 0.9, z },
         radius: 2.4,
         requireLook: false,
@@ -931,7 +961,7 @@ export class Game {
     if (torch) {
       this.interactables.push({
         id: 'pickup_torch',
-        label: 'Coger la linterna',
+        label: 'Take the flashlight',
         pos: { x: torch.pos.x, y: torch.pos.y, z: torch.pos.z },
         radius: 1.9,
         enabled: () => !this.missions.hasFlashlight,
@@ -940,7 +970,7 @@ export class Game {
           torch.mesh!.visible = false;
           this.audio.pickup();
           this.missions.completeObjective('c1_torch');
-          this.notify('LINTERNA EQUIPADA [F] — RULO ABRE LAS REJAS DE LA GUARDERÍA');
+          this.notify('FLASHLIGHT EQUIPPED [F] — RULO UNLOCKS THE DAYCARE GATES');
           if (this.flashlightModel) this.flashlightModel.visible = true;
           if (this.guardArms) this.guardArms.visible = true;
           // cap 1: con la linterna en la mano, Rulo abre las rejas de la guardería
@@ -956,7 +986,7 @@ export class Game {
     if (tabletA) {
       this.interactables.push({
         id: 'pickup_tablet',
-        label: 'Coger la tableta de vigilancia',
+        label: 'Take the surveillance tablet',
         pos: { x: tabletA.pos.x, y: tabletA.pos.y, z: tabletA.pos.z },
         radius: 1.7,
         enabled: () => !this.missions.hasTablet,
@@ -965,7 +995,7 @@ export class Game {
           tabletA.mesh!.visible = false;
           this.audio.pickup();
           this.missions.completeObjective('c2_tablet');
-          this.notify('Tableta equipada [C]');
+          this.notify('Tablet equipped [C]');
         },
       });
     }
@@ -976,7 +1006,7 @@ export class Game {
       if (!a) continue;
       this.interactables.push({
         id: anchorId,
-        label: 'Rearranca el breaker',
+        label: 'Reset the breaker',
         pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
         radius: 1.8,
         holdTime: 5,
@@ -992,9 +1022,9 @@ export class Game {
 
     // tarjetas de acceso (cap6)
     for (const [anchorId, objId, label] of [
-      ['key_rockstar', 'c7_key1', 'Galería Estelar'],
-      ['key_theater', 'c7_key2', 'Teatro Bruno'],
-      ['key_foodcourt', 'c7_key3', 'Plaza de Comida'],
+      ['key_rockstar', 'c7_key1', 'Rockstar Row'],
+      ['key_theater', 'c7_key2', 'Bruno Theater'],
+      ['key_foodcourt', 'c7_key3', 'Food Court'],
     ] as Array<[string, string, string]>) {
       const a = world.anchors.get(anchorId);
       if (!a) continue;
@@ -1006,7 +1036,7 @@ export class Game {
       world.propAnims.push({ update: (_dt, t) => { if (mesh.visible) mesh.position.y = y0 + Math.sin(t * 2 + a!.pos.x) * 0.02; } });
       this.interactables.push({
         id: `pickup_${anchorId}`,
-        label: `Coger tarjeta — ${label}`,
+        label: `Take keycard — ${label}`,
         pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
         radius: 1.6,
         enabled: () => this.mode === 'playing' && ch === 7 && mesh.visible,
@@ -1015,7 +1045,7 @@ export class Game {
           this.missions.keycards++;
           this.audio.pickup();
           this.missions.completeObjective(objId);
-          this.notify(`TARJETA ${this.missions.keycards}/3 — ${label}`);
+          this.notify(`KEYCARD ${this.missions.keycards}/3 — ${label}`);
         },
       });
     }
@@ -1025,7 +1055,7 @@ export class Game {
     if (monitor) {
       this.interactables.push({
         id: 'monitor',
-        label: 'Consultar el monitor',
+        label: 'Check the monitor',
         pos: { x: monitor.pos.x, y: monitor.pos.y, z: monitor.pos.z },
         radius: 1.5,
         enabled: () => this.mode === 'playing' && this.missions.hasTablet && !useHud.getState().tabletOpen,
@@ -1084,11 +1114,11 @@ export class Game {
             this.holdInteract = null;
             st.setPrompt(null);
           } else {
-            st.setPrompt(`${best.holdLabel ?? 'MANTÉN E'} — [E]`, this.holdInteract.progress);
+            st.setPrompt(`${best.holdLabel ?? 'HOLD E'} — [E]`, this.holdInteract.progress);
           }
         } else {
           if (this.holdInteract?.inter !== best) this.holdInteract = null;
-          st.setPrompt(`${best.label} — mantén [E]`);
+          st.setPrompt(`${best.label} — hold [E]`);
         }
       } else {
         this.holdInteract = null;
@@ -1115,19 +1145,20 @@ export class Game {
     switch (kind) {
       case 'fuse':
         this.missions.fusesHeld++;
-        this.notify(`Fusible conseguido (${this.missions.fusesHeld})`);
+        this.notify(`Fuse acquired (${this.missions.fusesHeld})`);
         break;
       case 'token':
         this.missions.progressObjective('c2_tokens');
-        this.notify('Ficha dorada conseguida');
+        this.notify('Golden token acquired');
         break;
       case 'battery':
-        this.player.addBattery(34);
-        this.notify('Batería +34%');
+        // v11: linterna infinita — las pilas del mapa ahora dan un impulso de energía al edificio
+        this.power = Math.min(100, this.power + 12);
+        this.notify('POWER +12%');
         break;
       case 'key':
         this.missions.hasKey = true;
-        this.notify('LLAVE MAESTRA');
+        this.notify('MASTER KEY');
         break;
       case 'note': {
         const noteId = id.replace('_pick', '');
@@ -1220,10 +1251,10 @@ export class Game {
       this.audio.keypadBeep(true);
       this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
       st.setKeypad(null);
-      this.notify('PUERTA ABIERTA');
+      this.notify('DOOR OPEN');
     } else {
       this.audio.keypadBeep(false);
-      this.notify('Código incorrecto');
+      this.notify('Wrong code');
     }
   }
 
@@ -1341,7 +1372,7 @@ export class Game {
         this.audio.setStatic(0);
         this.trials.respawnPlayer();
         const t = this.trials;
-        this.notify(`REAPARECES — PRUEBA REINICIADA (INTENTO #${Math.max(1, t.attempts + 1)})`);
+        this.notify(`RESPAWNED — TRIAL RESET (ATTEMPT #${Math.max(1, t.attempts + 1)})`);
         this.player.setShake(0.4);
       } else {
         this.mode = 'dead';
@@ -1440,6 +1471,11 @@ export class Game {
     // tope de 1.25 en alta: en pantallas retina 1.75-2.0 cuadruplica los píxeles
     const pr = this.quality === 'low' ? 0.7 : this.quality === 'medium' ? Math.min(1, dpr) : Math.min(1.25, dpr);
     this.renderer?.setPixelRatio(pr);
+    this.composer?.setPixelRatio?.(pr);
+    // el bloom solo en ALTA (y sombras completas); MEDIA conserva sombras de
+    // la linterna sin post-procesado, BAJA lo apaga todo
+    if (this.bloomPass) this.bloomPass.enabled = this.quality === 'high';
+    if (this.renderPass) this.renderPass.enabled = this.quality !== 'low';
     if (this.player) {
       this.player.flashlight.castShadow = this.quality !== 'low';
       this.renderer.shadowMap.enabled = this.quality !== 'low';
@@ -1510,7 +1546,14 @@ export class Game {
     // brazos del guardia en primera persona
     if (this.mode === 'playing') this.updateGuardArms(dt);
     const activeCam = tabletRendering ? this.cams.camera : this.camera;
-    this.renderer.render(this.scene, activeCam);
+    // v11: render con post-procesado (bloom) en alta calidad; directo en el resto.
+    // RenderPass apunta a la cámara ACTIVA (tableta o jugador).
+    if (this.composer && this.quality === 'high' && this.renderPass) {
+      this.renderPass.camera = activeCam;
+      this.composer.render();
+    } else {
+      this.renderer.render(this.scene, activeCam);
+    }
   };
 
   private tick(dt: number) {
@@ -1577,13 +1620,13 @@ export class Game {
           if (foxy && !foxy.active) {
             this.audio.stinger();
             this.player.setShake(0.6);
-            this.notify('ALGO SE MUEVE TRAS EL TELÓN DE LA CALA...');
+            this.notify("SOMETHING MOVES BEHIND THE COVE'S CURTAIN...");
           }
         }
         if (objId === 'c6_enter') {
           this.audio.stinger();
           this.player.setShake(0.4);
-          this.notify('LA GALERÍA TÉCNICA — A CIEGAS. ESCUCHA LAS PUERTAS…');
+          this.notify('THE TECHNICAL GALLERY — PITCH BLACK. LISTEN TO THE DOORS...');
         }
       }
     }
@@ -1594,7 +1637,7 @@ export class Game {
       if (room === 'daycare' && !this.daycareLullaby) {
         this.daycareLullaby = true;
         this.audio.lullaby({ x: -22.5, y: 1.5, z: 6.5 });
-        this.notify('LA NANA SUENA DESDE EL FONDO... LA GUARDERÍA NO ESTÁ VACÍA');
+        this.notify('THE LULLABY PLAYS FROM THE BACK... THE DAYCARE IS NOT EMPTY');
       }
       const oCheck = this.missions.objectives.find((x) => x.def.id === 'c1_check');
       if (oCheck && !oCheck.done && this.player.inBallPit) {
@@ -1604,13 +1647,13 @@ export class Game {
         this.player.setShake(0.5);
         const luna = this.animatronics.find((a) => a.def.id === 'luna');
         luna?.investigateAt(new THREE.Vector3(-22.5, 0, 6.5));
-        this.notify('LAS PELOTAS CHIRRIAN. LA NANA SE DETIENE. VUELVE A LA OFICINA.');
+        this.notify('THE BALLS SQUEAK. THE LULLABY STOPS. GO BACK TO THE OFFICE.');
       }
       const oExit = this.missions.objectives.find((x) => x.def.id === 'c1_exit');
       const checkDone = this.missions.objectives.find((x) => x.def.id === 'c1_check')?.done;
       if (oExit && !oExit.done && room === 'office' && checkDone) {
         this.missions.completeObjective('c1_exit');
-        this.notify('LA REJA SE CIERRA A TU ESPALDA. RULO: «BIEN, NOVEL... APAGA LA LINTERNA»');
+        this.notify('THE GATE LOCKS BEHIND YOU. RULO: "GOOD, ROOKIE... KILL THE FLASHLIGHT"');
       }
     }
 
@@ -1671,7 +1714,7 @@ export class Game {
             if (v.coverCollider) v.coverCollider.active = false;
             this.nav.setVentBlocked(v.def.id, false);
             this.audio.doorSlam({ x: px, y: 0.6, z: pz });
-            this.notify('¡TAPA DE CONDUCTO DERRIBADA!');
+            this.notify('VENT COVER KNOCKED DOWN!');
           }
         }
       }
@@ -1688,7 +1731,7 @@ export class Game {
             this.player.unhide(new THREE.Vector3(spot ? spot.pos[0] : this.player.pos.x, 0, spot ? spot.pos[1] : this.player.pos.z));
             a.state = 'chase';
             a.stateTimer = 0;
-            this.notify('¡TE HAN ENCONTRADO!');
+            this.notify('THEY FOUND YOU!');
             break;
           }
         }
@@ -1726,7 +1769,7 @@ export class Game {
           this.fireBurnT = 0;
           const luna = this.animatronics.find((a) => a.def.id === 'luna');
           if (luna) {
-            this.notify('¡LAS LLAMAS TE ENVUELVEN — Y LUNA TE ARRASTRA!');
+            this.notify('THE FLAMES WRAP AROUND YOU — AND MOON DRAGS YOU IN!');
             this.onDeath(luna);
           }
         }

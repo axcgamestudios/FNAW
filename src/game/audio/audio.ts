@@ -7,7 +7,14 @@ import * as THREE from 'three';
 
 type Vec = { x: number; y: number; z: number };
 
-type SfxFileName = 'static_loop' | 'fan_ambience' | 'cam_blip' | 'toreador' | 'kitchen_clatter';
+type SfxFileName =
+  | 'static_loop' | 'fan_ambience' | 'cam_blip' | 'toreador' | 'kitchen_clatter'
+  // v11: SFX nuevos del repo FNAW del usuario
+  | 'flashlight_click_on' | 'flashlight_click_off'
+  | 'foxy_run'
+  | 'step_player_1' | 'step_player_2' | 'step_player_3' | 'step_player_4'
+  | 'step_anim_1' | 'step_anim_2' | 'step_anim_3' | 'step_anim_4'
+  | 'freddy_laugh';
 
 interface CallManifestEntry { file: string; dur: number }
 
@@ -123,7 +130,14 @@ export class AudioEngine {
     load('/audio/jumpscare.mp3').then((b) => { if (b) this.jumpscareBuf = b; });
     load('/audio/theme_music.mp3').then((b) => { if (b) this.themeBuf = b; });
     load('/audio/daycare_song.mp3').then((b) => { if (b) this.daycareBuf = b; });
-    const sfxFiles: SfxFileName[] = ['static_loop', 'fan_ambience', 'cam_blip', 'toreador', 'kitchen_clatter'];
+    const sfxFiles: SfxFileName[] = [
+      'static_loop', 'fan_ambience', 'cam_blip', 'toreador', 'kitchen_clatter',
+      // v11: sonidos nuevos del repo del usuario
+      'flashlight_click_on', 'flashlight_click_off', 'foxy_run',
+      'step_player_1', 'step_player_2', 'step_player_3', 'step_player_4',
+      'step_anim_1', 'step_anim_2', 'step_anim_3', 'step_anim_4',
+      'freddy_laugh',
+    ];
     for (const name of sfxFiles) {
       load(`/audio/${name}.mp3`).then((b) => { if (b) this.sfxBufs.set(name, b); });
     }
@@ -235,11 +249,39 @@ export class AudioEngine {
     const now = performance.now();
     if (now - this.lastFootstepAt < 40) return;
     this.lastFootstepAt = now;
+
+    // v11: PASOS REALES del repo del usuario.
+    // - Jugador (heavy=false): Pasos_jugador.mp3 troceado en 4 variantes,
+    //   con pitch aleatorio para que cada paso suene distinto.
+    // - Animatrónico (heavy=true): Pasosanimatronico.mp3, pasos pesados.
+    // La capa sintética por superficie se mantiene a volumen BAJO como
+    // "carácter del material" (madera/metal/moqueta) bajo el paso real.
+    const stepFiles = heavy
+      ? (['step_anim_1', 'step_anim_2', 'step_anim_3', 'step_anim_4'] as SfxFileName[])
+      : (['step_player_1', 'step_player_2', 'step_player_3', 'step_player_4'] as SfxFileName[]);
+    const stepFile = stepFiles[Math.floor(Math.random() * stepFiles.length)];
+    const realBuf = this.sfxBufs.get(stepFile);
+    if (realBuf && surface !== 'balls') {
+      const ctx = this.ctx;
+      const t = ctx.currentTime;
+      const src = ctx.createBufferSource();
+      src.buffer = realBuf;
+      src.playbackRate.value = 0.92 + Math.random() * 0.16; // variación natural
+      const g = ctx.createGain();
+      const realVol = heavy ? 1.0 * (running ? 1.15 : 1) : 0.5 * (running ? 1.3 : 1);
+      g.gain.value = realVol;
+      const pan = this.panner(pos);
+      pan.connect(this.sfxBus);
+      src.connect(g);
+      g.connect(pan);
+      src.start(t);
+    }
+
     const ctx = this.ctx;
     const t = ctx.currentTime;
     const pan = this.panner(pos);
     pan.connect(this.sfxBus);
-    const vol = (heavy ? 1.0 : 0.42) * (running ? 1.35 : 1);
+    const vol = (heavy ? 0.5 : 0.16) * (running ? 1.35 : 1); // capa sintética de apoyo
     const jitter = 0.86 + Math.random() * 0.28; // cada paso suena distinto
 
     // firma por superficie: frecuencia de cuerpo y carácter
@@ -1103,6 +1145,17 @@ export class AudioEngine {
     return this.playSfxFile('toreador', 0.85);
   }
 
+  /** v11: CLICK REAL de la linterna del repo (encender / apagar) */
+  flashlightClick(on: boolean): boolean {
+    return this.playSfxFile(on ? 'flashlight_click_on' : 'flashlight_click_off', 0.8);
+  }
+
+  /** v11: CARRERA DE FOXY REAL del repo ("Dumdum") — un disparo de 9.3 s
+   *  posicional; se usa cuando un animatrónico entra en persecución. */
+  playHunterRun(pos: Vec): boolean {
+    return this.playSfxFile('foxy_run', 0.8, pos);
+  }
+
   /** ruido de cocina (ollas y sartenes) posicional */
   kitchenClatter(pos: Vec): boolean {
     return this.playSfxFile('kitchen_clatter', 0.9, pos);
@@ -1142,6 +1195,8 @@ export class AudioEngine {
   /** v9 — RISA DE FREDDY: "ho-ho-ho" grave y metálico (puzzle auditivo).
    *  Cada carcajada baja de tono y trastabilla como cinta vieja. */
   freddyLaugh(pos: Vec) {
+    // v11: RISA REAL de Freddy del repo del usuario (con fallback sintético)
+    if (this.playSfxFile('freddy_laugh', 0.95, pos)) return;
     if (!this.ready || !this.ctx) return;
     const pan = this.panner(pos);
     const ctx = this.ctx;
@@ -1202,10 +1257,9 @@ export class AudioEngine {
   }
 
   /** reproduce la línea i de la llamada del capítulo cargado.
-   *  v8: los MP3 ya salen con voz masculina grave (pitch -22% + EQ de pecho);
-   *  aquí solo un filtro de radio SUAVE que conserva los graves (highpass 110)
-   *  y una pizca de saturación de válvula — antes el highpass a 300 Hz
-   *  adelgazaba la voz y sonaba aguda/invertida. */
+   *  v11: la voz TTS es INGLESA y masculina natural (sin pitch-down —
+   *  el usuario pidió menos grave). Los MP3 ya vienen filtrados de radio;
+   *  aquí solo una pizca de saturación de válvula y límite de banda. */
   playCallLine(idx: number): boolean {
     if (!this.ready || !this.ctx) return false;
     const file = this.callFiles[idx];
@@ -1215,14 +1269,14 @@ export class AudioEngine {
     const ctx = this.ctx;
     const src = ctx.createBufferSource();
     src.buffer = buf;
-    // cadena de radio grave
+    // cadena de radio suave (la voz ya viene equalizada)
     const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 110; hp.Q.value = 0.5;
+    hp.type = 'highpass'; hp.frequency.value = 140; hp.Q.value = 0.4;
     const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 3400; lp.Q.value = 0.6;
+    lp.type = 'lowpass'; lp.frequency.value = 3600; lp.Q.value = 0.5;
     const sat = ctx.createWaveShaper();
     const curve = new Float32Array(256);
-    for (let i = 0; i < 256; i++) curve[i] = Math.tanh(((i / 128) - 1) * 1.05);
+    for (let i = 0; i < 256; i++) curve[i] = Math.tanh(((i / 128) - 1) * 0.85);
     sat.curve = curve;
     const g = ctx.createGain();
     g.gain.value = 1.2;

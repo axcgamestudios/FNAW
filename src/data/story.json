@@ -2,90 +2,90 @@
   "tapes": [
     {
       "id": "tape_w1",
-      "title": "Cinta de mantenimiento #1",
+      "title": "Maintenance Tape #1",
       "location": "workshop",
-      "text": "09/01/1993 — Registro del técnico. El MEGAPLEX ya no es nuevo y los animatrónicos de la Banda Bruno se activan solos tras el cierre. Dirección lo llama 'modo de deambulación nocturna'. Los deambuladores no se quedan veinte minutos mirando fijamente la cámara del Atrio. He desconectado el modo nocturno del oso. Sigue moviéndose."
+      "text": "09/01/1993 — Technician's log. The MEGAPLEX isn't new anymore, and the Bruno Band animatronics activate on their own after closing. Management calls it 'nighttime free-roam mode'. Free-roamers don't spend twenty minutes staring into the Atrium camera. I've disconnected the bear's night mode. He keeps moving anyway."
     },
     {
       "id": "tape_w2",
-      "title": "Cinta de mantenimiento #2",
+      "title": "Maintenance Tape #2",
       "location": "tech",
-      "text": "15/03/1993 — La coneja no responde a los comandos de apagado. Aparece por los conductos de servicio. Encontré huellas de aceite en las rejillas del Pasillo Técnico, a sesenta metros de donde la dejé. El oso huele a... cadáver viejo y desinfectante. Dirección dice que es el material de los trajes. Seguro. Claro que sí."
+      "text": "03/15/1993 — The rabbit won't respond to shutdown commands. She shows up in the service vents. I found oil prints on the Technical Hallway grilles, sixty meters from where I left her. The bear smells like... old corpse and disinfectant. Management says it's the suit material. Sure. Of course it is."
     },
     {
       "id": "tape_w3",
-      "title": "Cinta de mantenimiento #3",
+      "title": "Maintenance Tape #3",
       "location": "cove",
-      "text": "02/07/1993 — Al zorro de la Cala del Pirata lo destropearon unos niños en la reinauguración. Le falta media cara y le tiembla el brazo. Pedí piezas. No llegarán. Dirección lo quiere 'en exhibición, roto o no'. Dice que a los niños les encanta. A los niños no les encanta. Huyen de él. Yo también."
+      "text": "07/02/1993 — The fox at Pirate's Cove got torn up by some kids at the reopening. Half his face is gone and his arm twitches. I ordered parts. They won't come. Management wants him 'on display, broken or not'. Says the kids love it. Kids don't love it. They run from him. So do I."
     },
     {
       "id": "tape_w4",
-      "title": "Cinta de mantenimiento #4",
+      "title": "Maintenance Tape #4",
       "location": "daycare",
-      "text": "11/11/1993 — La caja musical de la Guardería se para sola a mitad de melodía. Cuando se para, la gallina se levanta del foso de bolas y camina. La encontré junto a la puerta, de pie, mirando la pared. La devolví. El mecanismo estaba intacto. La cuerda seguía dada. La melodía la calma. Mientras dure."
+      "text": "11/11/1993 — The Daycare's music box stops by itself mid-melody. When it stops, the chicken gets up from the ball pit and walks. I found her by the door, standing, facing the wall. I put her back. The mechanism was intact. The spring was still wound. The melody calms her. For as long as it lasts."
     },
     {
       "id": "tape_w5",
-      "title": "Cinta de mantenimiento #5",
+      "title": "Maintenance Tape #5",
       "location": "kitchen",
-      "text": "27/02/1994 — La gallina abre la nevera de la Cocina Industrial. No hay comida dentro. Solo herramientas mías que había perdido. Están ordenadas. Mejor ordenadas de lo que las dejo yo. No pienso comentárselo a dirección. Renuncio uno de estos días. Renuncio. Juro que renuncio."
+      "text": "02/27/1994 — The chicken opens the Industrial Kitchen fridge. There's no food in there. Only tools of mine I'd lost. They're sorted. Sorted better than I ever leave them. I'm not telling management. I quit one of these days. I quit. I swear I quit."
     },
     {
       "id": "tape_w6",
-      "title": "Informe policial — fragmento",
+      "title": "Police Report — Fragment",
       "location": "restrooms",
-      "text": "18/06/1994 — Cuatro menores reportados desaparecidos durante el Festival de Verano del Complejo Bruno. Testigos describen a un adulto con el traje dorado 'Spring Bruno' acompañando a los menores hacia el Pasillo Técnico. Sin cámaras en la zona de servicio. El traje nunca fue localizado. Investigación archivada por falta de testigos. Todos los testigos dimitieron."
+      "text": "06/18/1994 — Four minors reported missing during Bruno Complex's Summer Festival. Witnesses describe an adult in the golden 'Spring Bruno' suit leading the children toward the Technical Hallway. No cameras in the service area. The suit was never found. Case closed for lack of witnesses. Every witness resigned."
     },
     {
       "id": "tape_w7",
-      "title": "Cinta de seguridad #7",
+      "title": "Security Tape #7",
       "location": "rockstar",
-      "text": "04/04/1995 — El guardia nocturno anterior dejó este registro en la vitrina de la Galería. 'Si lees esto: las PRUEBAS no son tuyas. El complejo te pone a prueba. Bolera, Guardería, Cala, Generadores. Cuatro puertas, cuatro despertares. Cada prueba que superas los vuelve más listos. Ellos aprenden. Tú solo te cansas.'"
+      "text": "04/04/1995 — The previous night guard left this log in the Gallery display case. 'If you're reading this: the TRIALS aren't yours. The complex is testing you. Bowling, Daycare, Cove, Generators. Four doors, four awakenings. Every trial you clear makes them smarter. They learn. You just get tired.'"
     },
     {
       "id": "tape_w8",
-      "title": "Cinta de mantenimiento #8",
+      "title": "Maintenance Tape #8",
       "location": "generator",
-      "text": "22/09/1995 — El fusible maestro salta cada noche a la misma hora. Lo rearranco y amanece fundido otra vez. Algo alimenta la red con la energía de los generadores durante la noche. Algo que necesita MUCHA corriente. No quiero saber para qué. Cambio de turno. Se lo dejo al siguiente."
+      "text": "09/22/1995 — The master fuse blows every night at the same hour. I reset it, and by dawn it's fried again. Something is feeding off the generator grid at night. Something that needs a LOT of current. I don't want to know what for. Shift's over. I'm leaving it to the next one."
     },
     {
       "id": "tape_w9",
-      "title": "Cinta del personal #9",
+      "title": "Staff Tape #9",
       "location": "foodcourt",
-      "text": "30/12/1995 — Última reunión del personal, Plaza de Comida, tras el cierre. Dirección recorta el turno de seguridad a UN guardia. Uno. Para 6000 metros cuadrados. 'Los animatrónicos dan más confianza que las personas', dijo el gerente. Nadie se rió. Todos firmaron el nuevo convenio. Todos menos yo."
+      "text": "12/30/1995 — Last staff meeting, Food Court, after closing. Management is cutting the security shift down to ONE guard. One. For six thousand square meters. 'The animatronics are more trustworthy than people,' the manager said. Nobody laughed. Everyone signed the new agreement. Everyone but me."
     },
     {
       "id": "tape_golden",
-      "title": "CINTA DORADA — Sesión de hipnoterapia",
+      "title": "GOLDEN TAPE — Hypnotherapy Session",
       "location": "golden",
-      "text": "??/??/???? — 'Repita conmigo: yo no vi nada en el Pasillo Técnico. Yo no oí risas en los conductos. El traje dorado está vacío. El traje dorado está vacío. El traje dorado ESTÁ vacío. — Paciente: y sin embargo... me está escuchando. Ahora. Detrás de la pared. Siempre detrás de la pared.'"
+      "text": "??/??/???? — 'Repeat after me: I saw nothing in the Technical Hallway. I heard no laughter in the vents. The golden suit is empty. The golden suit is empty. The golden suit IS empty. — Patient: and yet... it is listening to me. Right now. Behind the wall. Always behind the wall.'"
     }
   ],
   "notes": [
     {
       "id": "note_order",
-      "title": "Nota arrugada — orden maestro",
-      "text": "El fusible maestro solo acepta su secuencia: 3 · 1 · 4 · 2. Si te equivocas, el diferencial salta y pierdes potencia. No lo preguntéis otra vez. — R."
+      "title": "Crumpled Note — Master Order",
+      "text": "The master fuse only accepts its sequence: 3 · 1 · 4 · 2. Get it wrong and the breaker trips and you lose power. Don't ask again. — R."
     },
     {
       "id": "note_master",
-      "title": "Nota de Rulo — última página",
-      "text": "Chico: si has llegado hasta aquí, ya sabes que no hay cinco noches. Hay una noche eterna y tú decides cuándo termina. Las tarjetas de servicio están donde la banda tocaba, donde proyectan las películas y donde la gente cena. Corre. No mires atrás. Yo no lo hice y por eso esta nota existe."
+      "title": "Rulo's Note — Last Page",
+      "text": "Kid: if you made it this far, you already know there aren't five nights. There's one endless night, and you decide when it ends. The service keycards are where the band used to play, where they screen the movies, and where people eat dinner. Run. Don't look back. I didn't — and that's why this note exists."
     }
   ],
   "endingNormal": [
-    "Los tornos giran por última vez.",
-    "El aire de la noche te golpea la cara con la llave del mundo entero.",
-    "Detrás, el Complejo Bruno queda a oscuras, en silencio, como si nunca hubiera estado despierto.",
-    "En tu bolsillo, la tableta emite un pitido. Un único mensaje del técnico ausente:",
-    "\"Bien hecho, chico. Yo salí por la puerta de carga. Tú... tú saliste por la puerta grande.\""
+    "The lathes spin for the last time.",
+    "The night air hits your face holding the key to the whole world.",
+    "Behind you, the Bruno Complex goes dark and silent, as if it had never been awake at all.",
+    "In your pocket, the tablet beeps. A single message from the missing technician:",
+    "\"Well done, kid. I left through the loading dock. You... you walked out through the big door.\""
   ],
   "endingSecret": [
-    "Los tornos giran por última vez.",
-    "Pero al cruzar el umbral, el vestíbulo cambia: las luces se encienden TODAS.",
-    "La estatua de Freddy del vestíbulo ha girado la cabeza hacia ti.",
-    "El traje dorado está de pie junto a la fuente. Vacío por dentro. Todavía lo está.",
-    "\"Las diez cintas\", dice algo con tu propia voz. \"Ahora sabes lo que dejamos aquí abajo.\"",
-    "El complejo te deja salir. Esta vez. El complejo siempre deja salir a los que saben."
+    "The lathes spin for the last time.",
+    "But as you cross the threshold, the lobby changes: ALL the lights come on.",
+    "The Freddy statue in the lobby has turned its head toward you.",
+    "The golden suit stands by the fountain. Empty inside. It still is.",
+    "\"The ten tapes,\" something says in your own voice. \"Now you know what we left down here.\"",
+    "The complex lets you out. This time. The complex always lets out the ones who know."
   ]
 }

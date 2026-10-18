@@ -28,8 +28,8 @@ export default function KeypadDialog() {
   return (
     <div className="absolute inset-0 z-30 flex items-center justify-center" style={{ background: 'rgba(2,2,4,0.7)' }}>
       <div className="bg-[#0c0e12] border border-[#2c3036] p-6 w-[260px]" style={{ boxShadow: '0 20px 80px rgba(0,0,0,0.9)' }}>
-        <p className="text-[10px] tracking-[0.35em] text-[#8a8578] mb-1">CERROJO DIGITAL</p>
-        <p className="text-[9px] tracking-[0.2em] text-[#4a4640] mb-4">ALMACÉN SUR — INTRODUCE 4 DÍGITOS</p>
+        <p className="text-[10px] tracking-[0.35em] text-[#8a8578] mb-1">DIGITAL LOCK</p>
+        <p className="text-[9px] tracking-[0.2em] text-[#4a4640] mb-4">SOUTH STORAGE — ENTER 4 DIGITS</p>
 
         <div className="flex justify-center mb-5">
           <div className="px-6 py-2 bg-[#04060a] border border-[#1a3a22] text-[#7dcf8a] text-2xl tracking-[0.5em] min-w-[140px] text-center">
@@ -58,7 +58,7 @@ export default function KeypadDialog() {
           className="mt-4 w-full text-[10px] tracking-[0.3em] text-[#6a655a] hover:text-[#c9c2b0] py-2"
           onClick={() => useHud.getState().setKeypad(null)}
         >
-          CERRAR [ESC]
+          CLOSE [ESC]
         </button>
       </div>
     </div>

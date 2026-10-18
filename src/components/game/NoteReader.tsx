@@ -29,7 +29,7 @@ export default function NoteReader() {
       {isTape ? (
         <div className="relative max-w-xl w-[92%] bg-[#0a0c10] border border-[#2a2e34] p-8" style={{ boxShadow: '0 30px 90px rgba(0,0,0,0.95)' }}>
           <div className="scanlines absolute inset-0 pointer-events-none opacity-60" />
-          <p className="text-[10px] tracking-[0.4em] text-[#7dcf8a] mb-4">REPRODUCIENDO CINTA...</p>
+          <p className="text-[10px] tracking-[0.4em] text-[#7dcf8a] mb-4">PLAYING TAPE...</p>
           <h3 className="text-lg text-[#c9c2b0] tracking-[0.15em] mb-6">{note.title.toUpperCase()}</h3>
           <div className="mb-6 h-1 bg-[#0e1810] relative overflow-hidden">
             <div className="absolute inset-y-0 bg-[#2d8a42] left-0" style={{ animation: 'glitch-slide 14s linear forwards', width: '100%' }} />
@@ -39,7 +39,7 @@ export default function NoteReader() {
             className="mt-8 text-[10px] tracking-[0.3em] text-[#6a655a] hover:text-[#c9c2b0]"
             onClick={() => getGame()?.closeNote()}
           >
-            DETENER [E]
+            STOP [E]
           </button>
         </div>
       ) : (
@@ -50,12 +50,12 @@ export default function NoteReader() {
             className="mt-7 text-[10px] tracking-[0.3em] text-[#6a5a40] hover:text-[#2a2620] border border-[#6a5a40] px-4 py-2"
             onClick={() => getGame()?.closeNote()}
           >
-            GUARDAR Y CERRAR [E]
+            SAVE & CLOSE [E]
           </button>
         </div>
       )}
       <p className="absolute bottom-10 text-[10px] tracking-[0.3em] text-[#8a8578]">
-        EL JUEGO CONTINÚA MIENTRAS LEEES — NO TE DETENGAS MUCHO TIEMPO
+        THE GAME KEEPS RUNNING WHILE YOU READ — DON'T STAY TOO LONG
       </p>
     </div>
   );

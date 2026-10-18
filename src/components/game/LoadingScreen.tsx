@@ -8,18 +8,18 @@
 import { useHud } from '@/game/core/state';
 
 const TIPS = [
-  'Eres el nuevo GUARDIA NOCTURNO: $120 a la semana. Tu LINTERNA espera en el escritorio de la Oficina.',
-  'En la GUARDERÍA ESTRELLITA, camina por el borde de la alberca: las pelotas suenan como fuegos artificiales.',
-  'El ATRIO CENTRAL es el corazón del MEGAPLEX: la estatua dorada de Freddy te vigila desde el sur.',
-  'La bolera de Bruno es su territorio. Si las luces se funden, no estás solo en el carril.',
-  'El telón de la Cala del Pirata se mueve solo. Cuenta las veces. Tres es mal número.',
-  'Los generadores maestros arrancan en orden 3 · 1 · 4 · 2. Dorado despierta al tercero.',
-  'GALERÍA TÉCNICA a ciegas: escucha el ZUMBIDO del ventilador y las OLLAS antes de abrir puerta.',
-  'La risa metálica tras una puerta de servicio no es una invitación. No la abras. Jamás.',
-  'El SÓTANO guarda la pizzería ORIGINAL ardiendo. Siete extintores. Luna cae del techo.',
-  'Si superas a SOL Y LUNA, la SALIDA se abre. Corre al vestíbulo. No mires atrás.',
-  'Correr hace ruido. El ruido los atrae. A veces es mejor quedarse quieto.',
-  'Si te atrapan durante una prueba, reapareces: las tareas se reinician, el miedo no.',
+  "You're the new NIGHT GUARD: $120 a week. Your FLASHLIGHT is waiting on the Security Office desk.",
+  "In the STELLAR DAYCARE, walk along the edge of the ball pit: the balls sound like fireworks.",
+  "The CENTRAL ATRIUM is the heart of the MEGAPLEX: Freddy's golden statue watches you from the south.",
+  "Bruno's bowling alley is her territory. If the lights die, you're not alone on the lane.",
+  "The curtain at Pirate's Cove moves on its own. Count the times. Three is a bad number.",
+  "The master generators start in order 3 · 1 · 4 · 2. The Golden one wakes on the third.",
+  "TECHNICAL GALLERY pitch black: listen for the FAN'S HUM and the POTS before opening a door.",
+  "A metallic laugh behind a service door is not an invitation. Don't open it. Ever.",
+  "The BASEMENT holds the ORIGINAL pizzeria burning. Seven extinguishers. Moon drops from the ceiling.",
+  "If you survive SUN AND MOON, the EXIT opens. Run to the lobby. Don't look back.",
+  "Running makes noise. Noise draws them in. Sometimes it's better to hold still.",
+  "If they catch you during a trial, you respawn: tasks reset, the fear doesn't.",
 ];
 
 export default function LoadingScreen({ error }: { error: string | null }) {
@@ -37,20 +37,20 @@ export default function LoadingScreen({ error }: { error: string | null }) {
       <div className="crt-vignette" />
       <div className="menu-crt-bars" />
 
-      <p className="mt-3 mb-10 text-[9px] tracking-[0.4em] fnaf-dim z-10">COMPLEJO BRUNO — CARGANDO INSTALACIONES</p>
+      <p className="mt-3 mb-10 text-[9px] tracking-[0.4em] fnaf-dim z-10">BRUNO COMPLEX — LOADING FACILITIES</p>
 
       {error ? (
         <div className="text-center max-w-md z-10">
-          <p className="text-[#ff6a4a] mb-4">Error al iniciar el motor 3D: {error}</p>
+          <p className="text-[#ff6a4a] mb-4">Error starting the 3D engine: {error}</p>
           <p className="text-sm text-[#8a8578]">
-            Tu navegador puede no soportar WebGL. Prueba con Chrome, Edge o Firefox actualizados
-            y con la aceleración de hardware activada.
+            Your browser may not support WebGL. Try an updated Chrome, Edge or Firefox
+            with hardware acceleration enabled.
           </p>
           <button
             className="big-btn mt-8"
             onClick={() => window.location.reload()}
           >
-            REINTENTAR
+            RETRY
           </button>
         </div>
       ) : (

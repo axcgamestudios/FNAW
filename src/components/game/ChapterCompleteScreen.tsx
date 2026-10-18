@@ -16,13 +16,13 @@ export default function ChapterCompleteScreen() {
   const doneCount = objectives.filter((o) => o.done).length;
   const hasNext = chapter < 7 && unlockedChapter > chapter;
   const CHAPTER_WORDS: Record<number, string> = {
-    1: 'AMANECE',
+    1: 'DAWN',
     2: 'STRIKE',
-    3: 'CON HAMBRE',
-    4: 'MAR ADENTRO',
-    5: 'ENERGÍA',
-    6: 'EN SILENCIO',
-    7: 'LIBRE',
+    3: 'HUNGRY',
+    4: 'DEEP WATER',
+    5: 'POWER',
+    6: 'IN SILENCE',
+    7: 'FREE',
   };
 
   const nextChapter = () => {
@@ -38,23 +38,23 @@ export default function ChapterCompleteScreen() {
   return (
     <div className="absolute inset-0 z-50 flex flex-col items-center justify-center" style={{ background: 'radial-gradient(ellipse at 50% 45%, #101018 0%, #020203 75%)' }}>
       <div className="scanlines absolute inset-0 pointer-events-none" />
-      <p className="text-[10px] tracking-[0.6em] text-[#5a564c] mb-4">CAPÍTULO {String(chapter).padStart(2, '0')} SUPERADO</p>
+      <p className="text-[10px] tracking-[0.6em] text-[#5a564c] mb-4">CHAPTER {String(chapter).padStart(2, '0')} CLEARED</p>
       <h2 className="text-4xl font-bold tracking-[0.2em] text-[#d8c8a0] mb-10" style={{ textShadow: '0 0 40px rgba(216,177,58,0.4)' }}>
-        {CHAPTER_WORDS[chapter] ?? 'SUPERADO'}
+        {CHAPTER_WORDS[chapter] ?? 'CLEARED'}
       </h2>
 
       <div className="mb-10 text-center">
         <p className="text-[11px] tracking-[0.3em] text-[#8a8578] mb-2">
-          OBJETIVOS COMPLETADOS: {doneCount}/{objectives.length}
+          OBJECTIVES COMPLETED: {doneCount}/{objectives.length}
         </p>
         <p className="text-[11px] tracking-[0.3em] text-[#8a8578]">
-          CINTAS RECUPERADAS EN TOTAL: {tapes.length}/11
+          TAPES RECOVERED IN TOTAL: {tapes.length}/11
         </p>
       </div>
 
       <div className="flex gap-6">
-        {hasNext && <button className="big-btn" onClick={nextChapter}>CAPÍTULO SIGUIENTE</button>}
-        <button className="big-btn" onClick={() => getGame()?.returnToMenu()}>MENÚ PRINCIPAL</button>
+        {hasNext && <button className="big-btn" onClick={nextChapter}>NEXT CHAPTER</button>}
+        <button className="big-btn" onClick={() => getGame()?.returnToMenu()}>MAIN MENU</button>
       </div>
 
       <p className="mt-10 text-[10px] text-[#4a4640] tracking-[0.2em]">El turno de día empieza. Los niños llegan a las 10.</p>

@@ -355,7 +355,7 @@ function buildGina(eyeColor: number): CharacterRig {
   bctx.fillStyle = '#202018';
   bctx.font = 'bold 22px monospace';
   bctx.textAlign = 'center';
-  bctx.fillText('¡PIZZA', 64, 40);
+  bctx.fillText('PIZZA', 64, 40);
   bctx.fillText('TIME!', 64, 68);
   const bibTex = new THREE.CanvasTexture(bibCanvas);
   (bib.material as THREE.MeshStandardMaterial).map = bibTex;

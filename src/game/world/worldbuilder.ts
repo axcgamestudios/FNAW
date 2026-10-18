@@ -909,7 +909,7 @@ export class WorldBuilder {
     for (const rt of this.rooms.values()) {
       const amb = rt.def.ambientLight;
       const h = rt.def.height ?? 3.6;
-      const dimFactor = rt.def.id === 'office' ? 0.6 : 0.17;
+      const dimFactor = rt.def.id === 'office' ? 0.85 : 0.17;
       rt.lightBase = (amb?.intensity ?? 0.45) * LM * dimFactor;
       rt.lightOn = LIGHTS_ON_DEFAULT.has(rt.def.id);
       this.roomList.push(rt);
@@ -920,6 +920,27 @@ export class WorldBuilder {
       fixture.position.set(rt.center.x, h - 0.06, rt.center.z);
       this.root.add(fixture);
       rt.fixture = fixture;
+    }
+
+    // ---- v11: LA OFICINA ES EL ÚNICO REFUGIO ILUMINADO ----
+    // 3 luces cálidas permanentes y distribuidas (la del pool + estas) para
+    // que toda la sala quede clara: escritorio, estantería y rincón de cámaras.
+    {
+      const office = this.rooms.get('office');
+      if (office) {
+        const cx = office.center.x;
+        const cz = office.center.z;
+        const spots: Array<[number, number, number]> = [
+          [cx + 2.6, cz - 2.8, 24],   // lado del escritorio
+          [cx - 3.4, cz + 2.6, 20],   // zona de estanterías
+          [cx + 3.6, cz + 2.6, 18],   // rincón de la puerta
+        ];
+        for (const [x, z, it] of spots) {
+          const l = new THREE.PointLight(0xffe9c0, it, 17, 1.35);
+          l.position.set(x, 2.92, z);
+          this.root.add(l);
+        }
+      }
     }
 
     // ---- POOL: 5 puntuales de sala ----
@@ -1026,6 +1047,15 @@ export class WorldBuilder {
         l.color.setHex(r.lightColor);
         l.intensity = intensity;
         l.distance = r.def.id === 'atrium' ? 22 : 15;
+        // v11: la OFICINA es el único refugio iluminado del juego — su luz
+        // es más intensa y con caída más suave para llenar toda la sala
+        if (r.def.id === 'office') {
+          l.intensity = intensity * 2.2;
+          l.decay = 1.15;
+          l.distance = 20;
+        } else {
+          l.decay = 1.7;
+        }
       }
       r.lightLevel = intensity;
       if (r.fixture) {

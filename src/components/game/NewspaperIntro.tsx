@@ -62,36 +62,36 @@ export default function NewspaperIntro() {
           {/* cabecera */}
           <div className="np-masthead">
             <p className="np-paper-name">THE MEGAPLEX BUGLE</p>
-            <p className="np-date">EDICIÓN NOCTURNA — OCTUBRE DE 1996 — 25¢</p>
+            <p className="np-date">NIGHT EDITION — OCTOBER 1996 — 25¢</p>
             <div className="np-rule" />
           </div>
 
           {/* titular */}
-          <h1 className="np-headline">¡GRAN APERTURA DEL TURNO NOCTURNO!</h1>
+          <h1 className="np-headline">GRAND OPENING OF THE NIGHT SHIFT!</h1>
           <p className="np-subhead">
-            El Complejo Bruno MEGAPLEX busca personal valiente — o despistado — para su nueva plantilla nocturna
+            The Bruno MEGAPLEX is looking for brave staff — or clueless ones — for its brand-new night crew
           </p>
 
           {/* anuncio clasificado */}
           <div className="np-ad">
-            <p className="np-ad-tag">CLASIFICADOS — 112</p>
-            <p className="np-ad-title">SE BUSCA</p>
-            <p className="np-ad-role">GUARDIA NOCTURNO</p>
+            <p className="np-ad-tag">CLASSIFIEDS — 112</p>
+            <p className="np-ad-title">WANTED</p>
+            <p className="np-ad-role">NIGHT GUARD</p>
             <div className="np-ad-body">
               <p>
-                <span className="np-bold">Complejo Bruno MEGAPLEX</span>. Turno de 12 AM a 6 AM.
-                Vigilar las instalaciones, los equipos y a los <span className="np-bold">animatrónicos</span> durante
-                la noche.
+                <span className="np-bold">Bruno MEGAPLEX</span>. Shift runs 12 AM to 6 AM.
+                Watch over the facilities, the equipment and the <span className="np-bold">animatronics</span> during
+                the night.
               </p>
-              <p className="np-pay">$120 POR SEMANA</p>
+              <p className="np-pay">$120 PER WEEK</p>
               <p>
-                No nos hacemos responsables de daños, desapariciones, mutilaciones o desmembramiento.
-                La empresa denegará toda compensación si el empleado es encontrado — total o parcialmente —
-                tras su turno.
+                We are not liable for damages, disappearances, mutilations or dismemberment.
+                The company will deny all compensation should the employee be found — whole or in part —
+                after their shift.
               </p>
               <p>
-                Presentarse en el <span className="np-bold">VESTÍBULO PRINCIPAL</span> a las 11:45 PM.
-                Preguntar por <span className="np-bold">RULO</span>. Plaza única. Última oferta.
+                Report to the <span className="np-bold">MAIN LOBBY</span> at 11:45 PM.
+                Ask for <span className="np-bold">RULO</span>. One position only. Final offer.
               </p>
             </div>
           </div>
@@ -104,13 +104,13 @@ export default function NewspaperIntro() {
           </div>
 
           <div className="np-rule" />
-          <p className="np-foot">SOBREVIVIR EL PRIMER TURNO ES REQUISITO PARA EL SEGUNDO</p>
+          <p className="np-foot">SURVIVING THE FIRST SHIFT IS REQUIRED FOR THE SECOND</p>
         </div>
       </div>
 
       {/* subtítulo de capítulo + indicación */}
-      <p className="np-next">CAPÍTULO {String(chapter).padStart(2, '0')} — {chapterTitle.toUpperCase()}</p>
-      <p className="np-hint">{introLines.length ? 'ENTER PARA CONTINUAR' : 'ENTER PARA CONTINUAR'}</p>
+      <p className="np-next">CHAPTER {String(chapter).padStart(2, '0')} — {chapterTitle.toUpperCase()}</p>
+      <p className="np-hint">{introLines.length ? 'PRESS ENTER TO CONTINUE' : 'PRESS ENTER TO CONTINUE'}</p>
       <div className="noise-bg" style={{ opacity: 0.07 }} />
     </div>
   );

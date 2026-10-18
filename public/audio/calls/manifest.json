@@ -2,190 +2,185 @@
  "cap1": [
   {
    "file": "cap1_l0.mp3",
-   "text": " ¿Hola? ¿Hay alguien...? ¡Un crío! ¿Cómo demonios entraste?",
-   "dur": 3.97
+   "text": " Hello? Hello-hello?... The new guard? This is Rulo, from the last shift.",
+   "dur": 12.62
   },
   {
    "file": "cap1_l1.mp3",
-   "text": "Soy Rulo, del turno anterior. Escucha bien: estás en la Super Guardería, escondido en la alberca de pelotas.",
-   "dur": 12.15
+   "text": "Listen, I don't have much time. Rule one: the animatronics Wander at night. Something in their servos... don't ask.",
+   "dur": 10.97
   },
   {
    "file": "cap1_l2.mp3",
-   "text": "Luna patrulla ahí dentro. Casi no ve... pero lo oye Todo. En las pelotas, cada paso tuyo suena al doble y medio.",
-   "dur": 16.98
+   "text": "Your Flashlight is on the Security Office desk, west of the lobby. Grab it before you take another single step.",
+   "dur": 6.56
   },
   {
    "file": "cap1_l3.mp3",
-   "text": "Primero: sal de la alberca Agachado [Ctrl] y sin correr. Cuando pases, no mires atrás.",
-   "dur": 9.46
+   "text": "Rule two: the Stellar Daycare, west of the atrium, is... occupied. Moon, the caretaker. It can barely see, but it hears Everything.",
+   "dur": 13.14
   },
   {
    "file": "cap1_l4.mp3",
-   "text": "Segundo: alguien perdió una Linterna en la torre de juegos, al fondo. Súbete a por ella. Sin luz, esta guardería es una tumba.",
-   "dur": 15.7
+   "text": "We've heard noises in the ball pit tonight. Check the bottom of it. And walk along the edge: the balls sound like fireworks.",
+   "dur": 9.46
   },
   {
    "file": "cap1_l5.mp3",
-   "text": "Tercero: cuando la tengas, ve a cualquier reja. La abriré desde aquí. Sal al paseo y no pares.",
-   "dur": 13.66
+   "text": "If the lullaby stops... it has already heard you. Crouch, hold still for a moment, and walk back to the lobby. Don't run.",
+   "dur": 11.13
   },
   {
    "file": "cap1_l6.mp3",
-   "text": "Si te atrapa... despertarás de nuevo en la alberca. Lo he visto antes. Y otra vez. Y otra vez.",
-   "dur": 9.87
-  },
-  {
-   "file": "cap1_l7.mp3",
-   "text": "Ve. Ahora. Mientras cante la nana.",
-   "dur": 8.59
+   "text": "Finish the shift alive and we'll talk tomorrow. A hundred and twenty dollars a week. Some paycheck, huh?",
+   "dur": 9.61
   }
  ],
  "cap2": [
   {
    "file": "cap2_l0.mp3",
-   "text": "¿Sigues vivo? Bien. Escucha: en la Oficina DE Seguridad del Paseo Sur dejé una tableta con las cámaras. Con ella los ves venir. Cógela.",
-   "dur": 16.59
+   "text": "Still alive? Good. Listen: in the Security Office on the South Promenade I left a tablet with the cameras. With it, you'll see them coming. Take it.",
+   "dur": 13.84
   },
   {
    "file": "cap2_l1.mp3",
-   "text": "La Bolera tiene los pinsetters fundidos. Tres. El jefe quiere la bolera viva para el evento de mañana.",
-   "dur": 12.46
+   "text": "The bowling alley has three fried pinsetters. Three. The boss wants the alley alive for tomorrow's event.",
+   "dur": 8.05
   },
   {
    "file": "cap2_l2.mp3",
-   "text": "Y sí: es una Prueba. Las luces morirán, ella vendrá. Si te atrapa, despiertas en el paseo. Inténtalo otra vez.",
-   "dur": 10.61
+   "text": "And yes: it's a Trial. The lights will die, and she will come for you. If she catches you, you wake up on the promenade. Try again.",
+   "dur": 11.05
   },
   {
    "file": "cap2_l3.mp3",
-   "text": "Bonnie , la coneja , sale del Salón Recreativo. La linterna la congela si le das de lleno en la cara.",
-   "dur": 11.99
+   "text": "Bonnie , the rabbit , comes out of the Arcade Hall. The flashlight freezes her if you hit her straight in the face.",
+   "dur": 6.27
   },
   {
    "file": "cap2_l4.mp3",
-   "text": "Antes de entrar, recoge 3 fichas doradas del recreativo. Las necesitarás para las máquinas.",
-   "dur": 10.19
+   "text": "Before you go in, collect 3 golden tokens from the arcade. You'll need them for the machines.",
+   "dur": 5.96
   }
  ],
  "cap3": [
   {
    "file": "cap3_l0.mp3",
-   "text": "Chica , la gallina , caza en la Plaza de Comida desde esta night. Le precede el olor a pizza quemada... y a pluma.",
-   "dur": 17.4
+   "text": "Chica , the chicken , has been hunting in the Food Court since tonight. Burnt pizza and feathers come before her.",
+   "dur": 8.12
   },
   {
    "file": "cap3_l1.mp3",
-   "text": "Tres puestos fundidos: Pizza, Patatas y Helados. Rearranca los tres. Las notas de servicio dicen que se reactivan solos... casi.",
-   "dur": 14.11
+   "text": "Three fried stands: Pizza, Fries and Ice Cream. Restart all three. The service notes say they reboot on their own... mostly.",
+   "dur": 10.21
   },
   {
    "file": "cap3_l2.mp3",
-   "text": "Chica no esquiva la linterna. La oye Todo. Camina agachado con Ctrl y no corras dentro.",
-   "dur": 10.5
+   "text": "Chica does not dodge the flashlight. She hears Everything. Crouch with Ctrl and never run in there.",
+   "dur": 7.78
   },
   {
    "file": "cap3_l3.mp3",
-   "text": "Cuando la pases, pásate por la Cala del Pirata. Alguien dejó un cartel ahí... y algo se mueve tras el telón.",
-   "dur": 11.23
+   "text": "When you're done, swing by Pirate's Cove. Someone left a sign there... and something moves behind the curtain.",
+   "dur": 11.26
   }
  ],
  "cap4": [
   {
    "file": "cap4_l0.mp3",
-   "text": "Foxy. El zorro. Es el más rápido y el único al que la máscara no engaña. Si te persigue: sprint y giros.",
-   "dur": 13.84
+   "text": "Foxy. The fox. He's the fastest, and the only one the mask can't fool. If he chases you: sprint and weave.",
+   "dur": 13.82
   },
   {
    "file": "cap4_l1.mp3",
-   "text": "La linterna lo Repele , directamente a la cara, sin piedad, hasta que retroceda.",
+   "text": "The flashlight Repels him , straight in the face, no mercy, until he backs off.",
    "dur": 13.06
   },
   {
    "file": "cap4_l2.mp3",
-   "text": "Tres interruptores en la pared sur de la Cala, en orden. Si te atrapa, reapareces en el paseo. Es su juego favorito: el gato y el zorro.",
+   "text": "Three switches on the south wall of the Cove, in order. If he catches you, you respawn on the promenade. His favorite game: cat and fox.",
    "dur": 19.67
   },
   {
    "file": "cap4_l3.mp3",
-   "text": "Cuando la atracción ruge, él vuelve a su telón. Siempre vuelve. Nunca sabrás si duerme o finge.",
-   "dur": 5.07
+   "text": "When the attraction roars, he goes back behind his curtain. He always comes back. You'll never know if he's sleeping... or pretending.",
+   "dur": 5.04
   }
  ],
  "cap5": [
   {
    "file": "cap5_l0.mp3",
-   "text": "La nota que dejé en el Cuarto Eléctrico lo dice: 3, 1, 4, 2. El orden del fusible maestro de la Sala de Generadores.",
-   "dur": 15.54
+   "text": "The note I left in the Electrical Room says it: 3, 1, 4, 2. The master fuse order for the Generator Room.",
+   "dur": 15.57
   },
   {
    "file": "cap5_l1.mp3",
-   "text": "La puerta del generador está al este del Paseo Sur. La abrí para ti. No me preguntes cómo.",
+   "text": "The generator door is east of the South Promenade. I unlocked it for you. Don't ask how.",
    "dur": 13.4
   },
   {
    "file": "cap5_l2.mp3",
-   "text": "Uno más: hay un Traje Dorado en la Sala Técnica Sur, bajo tu oficina. Si sientes que te mira... corre. No luches. Corre.",
+   "text": "One more thing: there's a Golden Suit in the South Technical Room, right under your office. If you feel it watching you... run. Don't fight. Run.",
    "dur": 24.06
   },
   {
    "file": "cap5_l3.mp3",
-   "text": "Cuando la red vuelva, las puertas exteriores del vestíbulo se armarán. Corre al sur. No mires atrás.",
-   "dur": 13.14
+   "text": "When the grid comes back, the lobby's outer doors will unlock. Run south. Don't look back.",
+   "dur": 13.11
   }
  ],
  "cap6": [
   {
    "file": "cap6_l0.mp3",
-   "text": "¿Sigues ahí? Soy Rulo. La galería técnica se ha quedado a oscuras.",
+   "text": "Still there? It's Rulo. The technical gallery just went dark.",
    "dur": 7.31
   },
   {
    "file": "cap6_l1.mp3",
-   "text": "Seis puertas de servicio y solo Una forma de saber qué hay detrás: el Sonido.",
-   "dur": 5.75
+   "text": "Six service doors, and only One way to know what's behind them: Sound.",
+   "dur": 5.77
   },
   {
    "file": "cap6_l2.mp3",
-   "text": "Un Ventilador zumba donde no hay nadie. Las Ollas suenan donde Chica desmonta la cocina.",
+   "text": "A Fan hums where nobody is. Pots And Pans clang where Chica is tearing the kitchen apart.",
    "dur": 8.7
   },
   {
    "file": "cap6_l3.mp3",
-   "text": "Si oyes pasos pesados o una risa metálica… esa puerta NO. No la abras. Jamás.",
+   "text": "If you hear heavy footsteps or a metallic laugh... Not that door. Don't open it. Ever.",
    "dur": 8.62
   },
   {
    "file": "cap6_l4.mp3",
-   "text": "Te guiaré ronda a ronda. Escucha antes de moverte. Confía en las orejas, no en los ojos.",
-   "dur": 14.29
+   "text": "I'll walk you through round by round. Listen before you move. Trust your ears, not your eyes.",
+   "dur": 14.26
   }
  ],
  "cap7": [
   {
    "file": "cap7_l0.mp3",
-   "text": "…Rulo. Lo has encontrado. El Sótano. Lo que queda de la pizzería Original.",
+   "text": "...Rulo. You found it. The Basement. What's left of the Original pizzeria.",
    "dur": 7.65
   },
   {
    "file": "cap7_l1.mp3",
-   "text": "El fuego lleva Años comiéndoselo. Y algo con una cara de luna vive ahí abajo.",
-   "dur": 9.35
+   "text": "The fire has been eating it for Years. And something with a moon for a face lives down there.",
+   "dur": 9.38
   },
   {
    "file": "cap7_l2.mp3",
-   "text": "Siete fuegos, siete extintores. Mátalos todos y la luz lo cambiará todo.",
-   "dur": 9.51
+   "text": "Seven fires, seven extinguishers. Put them all out, and the light will change everything.",
+   "dur": 9.48
   },
   {
    "file": "cap7_l3.mp3",
-   "text": "Cuando brille el Sol… Corre A LA Salida Del Vestíbulo. No mires atrás.",
+   "text": "When the Sun rises... Run TO The Lobby Exit. Don't look back.",
    "dur": 8.49
   },
   {
    "file": "cap7_l4.mp3",
-   "text": "Sea lo que sea lo que fuiste esta noche… termina Aquí.",
-   "dur": 4.78
+   "text": "Whatever you were before tonight... it ends Here.",
+   "dur": 4.83
   }
  ]
 }

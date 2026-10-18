@@ -42,7 +42,7 @@ export default function ChapterIntro() {
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#020203] scanlines">
-      <p className="text-xs tracking-[0.6em] text-[#5a564c] mb-6">CAPÍTULO {String(chapter).padStart(2, '0')}</p>
+      <p className="text-xs tracking-[0.6em] text-[#5a564c] mb-6">CHAPTER {String(chapter).padStart(2, '0')}</p>
       <h2 className="text-3xl tracking-[0.3em] text-[#c9c2b0] mb-10 title-flicker">
         {chapterTitle.toUpperCase()}
       </h2>
@@ -58,9 +58,9 @@ export default function ChapterIntro() {
         ))}
       </div>
       <button className="big-btn" onClick={start}>
-        EMPEZAR
+        BEGIN
       </button>
-      <p className="mt-6 text-[10px] tracking-[0.3em] text-[#3a382f]">ENTER PARA EMPEZAR</p>
+      <p className="mt-6 text-[10px] tracking-[0.3em] text-[#3a382f]">PRESS ENTER TO BEGIN</p>
     </div>
   );
 }

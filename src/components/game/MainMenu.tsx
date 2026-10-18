@@ -51,37 +51,37 @@ export default function MainMenu() {
       <div className="absolute top-10 left-10 z-10">
         <div className="fnaw-sub title-flicker" style={{ fontSize: '1.05rem' }}>NEW WORLD</div>
         <p className="mt-4 text-[9px] tracking-[0.34em] fnaf-dim">
-          COMPLEJO BRUNO · TURNO DE CIERRE
+          BRUNO COMPLEX · CLOSING SHIFT
         </p>
         <p className="mt-1 text-[9px] tracking-[0.34em] fnaf-dim">
-          CAPÍTULOS {progressChapter}/{TOTAL_CHAPTERS} · CINTAS {tapes.length}/{TOTAL_TAPES}
+          CHAPTERS {progressChapter}/{TOTAL_CHAPTERS} · TAPES {tapes.length}/{TOTAL_TAPES}
         </p>
       </div>
 
       {/* opciones: columna izquierda, centrada verticalmente */}
       <div className="absolute left-10 top-1/2 -translate-y-1/2 z-10 w-[300px]">
         <button className="menu-btn fnaf-item" onClick={() => launchChapter(1, true)}>
-          <span className="menu-mark">»</span>NUEVA PARTIDA
+          <span className="menu-mark">»</span>NEW GAME
         </button>
         <button
           className="menu-btn fnaf-item"
           onClick={() => launchChapter(progressChapter)}
           disabled={unlockedChapter <= 1}
         >
-          <span className="menu-mark">»</span>CONTINUAR
+          <span className="menu-mark">»</span>CONTINUE
           {unlockedChapter > 1 && <span className="menu-hint">CAP {String(progressChapter).padStart(2, '0')}</span>}
         </button>
         <button className="menu-btn fnaf-item" onClick={() => setPanel(panel === 'chapters' ? 'none' : 'chapters')}>
-          <span className="menu-mark">»</span>CAPÍTULOS
+          <span className="menu-mark">»</span>CHAPTERS
         </button>
         <button className="menu-btn fnaf-item" onClick={() => setPanel(panel === 'settings' ? 'none' : 'settings')}>
-          <span className="menu-mark">»</span>AJUSTES
+          <span className="menu-mark">»</span>SETTINGS
         </button>
         <button className="menu-btn fnaf-item" onClick={() => setPanel(panel === 'controls' ? 'none' : 'controls')}>
-          <span className="menu-mark">»</span>CONTROLES
+          <span className="menu-mark">»</span>CONTROLS
         </button>
         <button className="menu-btn fnaf-item" onClick={() => setPanel(panel === 'credits' ? 'none' : 'credits')}>
-          <span className="menu-mark">»</span>CRÉDITOS
+          <span className="menu-mark">»</span>CREDITS
         </button>
         {unlockedChapter > 1 && (
           <button
@@ -91,7 +91,7 @@ export default function MainMenu() {
               useHud.getState().setProgress(1, []);
             }}
           >
-            <span className="menu-mark">»</span>BORRAR PROGRESO
+            <span className="menu-mark">»</span>ERASE PROGRESS
           </button>
         )}
       </div>
@@ -99,7 +99,7 @@ export default function MainMenu() {
       {/* paneles flotantes a la derecha */}
       {panel === 'chapters' && (
         <div className="menu-panel absolute right-10 top-1/2 -translate-y-1/2 z-10 w-[320px] max-h-[70vh] overflow-y-auto game-scroll">
-          <p className="menu-panel-title">SELECCIÓN DE CAPÍTULO</p>
+          <p className="menu-panel-title">CHAPTER SELECT</p>
           {chapters.map((c) => {
             const locked = c.chapter > unlockedChapter;
             return (
@@ -110,7 +110,7 @@ export default function MainMenu() {
                 onClick={() => launchChapter(c.chapter)}
               >
                 <span className="fnaf-red mr-3">{String(c.chapter).padStart(2, '0')}</span>
-                {locked ? '?? — BLOQUEADO' : c.title.toUpperCase()}
+                {locked ? '?? — LOCKED' : c.title.toUpperCase()}
               </button>
             );
           })}
@@ -129,42 +129,42 @@ export default function MainMenu() {
 
       {panel === 'controls' && (
         <div className="menu-panel absolute right-10 top-1/2 -translate-y-1/2 z-10 w-[340px]">
-          <p className="menu-panel-title">CONTROLES</p>
+          <p className="menu-panel-title">CONTROLS</p>
           <div className="grid grid-cols-[110px_1fr] gap-y-1 text-[11px] leading-6">
-            <span className="fnaf-gold">W A S D</span><span>Moverse</span>
-            <span className="fnaf-gold">RATÓN</span><span>Mirar alrededor</span>
-            <span className="fnaf-gold">SHIFT</span><span>Correr (consume resistencia)</span>
-            <span className="fnaf-gold">CTRL</span><span>Agacharse / gatear en conductos</span>
-            <span className="fnaf-gold">E</span><span>Interactuar / mantener para reparar</span>
-            <span className="fnaf-gold">F</span><span>Linterna</span>
-            <span className="fnaf-gold">Q</span><span>Máscara de animatrónico</span>
-            <span className="fnaf-gold">C</span><span>Tableta de cámaras</span>
-            <span className="fnaf-gold">A / D</span><span>Cambiar cámara (tableta abierta)</span>
-            <span className="fnaf-gold">E / CLIC</span><span>Saltar cinemática</span>
-            <span className="fnaf-gold">ESC</span><span>Pausa</span>
+            <span className="fnaf-gold">W A S D</span><span>Move</span>
+            <span className="fnaf-gold">MOUSE</span><span>Look around</span>
+            <span className="fnaf-gold">SHIFT</span><span>Sprint (drains stamina)</span>
+            <span className="fnaf-gold">CTRL</span><span>Crouch / crawl through vents</span>
+            <span className="fnaf-gold">E</span><span>Interact / hold to repair</span>
+            <span className="fnaf-gold">F</span><span>Flashlight</span>
+            <span className="fnaf-gold">Q</span><span>Animatronic mask</span>
+            <span className="fnaf-gold">C</span><span>Camera tablet</span>
+            <span className="fnaf-gold">A / D</span><span>Switch camera (tablet open)</span>
+            <span className="fnaf-gold">E / CLICK</span><span>Skip cinematic</span>
+            <span className="fnaf-gold">ESC</span><span>Pause</span>
           </div>
         </div>
       )}
 
       {panel === 'credits' && (
         <div className="menu-panel absolute right-10 top-1/2 -translate-y-1/2 z-10 w-[340px]">
-          <p className="menu-panel-title">CRÉDITOS</p>
+          <p className="menu-panel-title">CREDITS</p>
           <div className="text-[11px] leading-7 fnaf-dim">
-            <p>Diseño, programación y sistemas: Super Z</p>
-            <p>Modelos 3D, texturas, imágenes y audio: axcgamestudios (repositorio FNAW)</p>
-            <p>Motor: Three.js + Next.js + React</p>
-            <p>Audio: archivos del repo + síntesis en tiempo real con Web Audio API</p>
+            <p>Design, code and systems: Super Z</p>
+            <p>3D models, textures, images and audio: axcgamestudios (FNAW repository)</p>
+            <p>Engine: Three.js + Next.js + React</p>
+            <p>Audio: repo files + real-time synthesis with Web Audio API</p>
             <p className="mt-3 text-[#5a564c]">
-              Inspiración: Five Nights at Freddy&apos;s (Scott Cawthon) y
+              Inspiration: Five Nights at Freddy&apos;s (Scott Cawthon) and
               Five Nights at Freddy&apos;s: Security Breach.
             </p>
-            <p className="text-[#5a564c]">Proyecto fan sin ánimo de lucro.</p>
+            <p className="text-[#5a564c]">Non-profit fan project.</p>
           </div>
         </div>
       )}
 
       <p className="absolute bottom-4 right-6 text-[9px] tracking-[0.3em] fnaf-dim">v10 — FNAF: NEW WORLD</p>
-      <p className="absolute bottom-4 left-10 text-[9px] tracking-[0.3em] fnaf-dim">HAZ CLIC PARA ACTIVAR EL SONIDO</p>
+      <p className="absolute bottom-4 left-10 text-[9px] tracking-[0.3em] fnaf-dim">CLICK TO ENABLE SOUND</p>
     </div>
   );
 }

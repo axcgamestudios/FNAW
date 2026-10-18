@@ -246,7 +246,7 @@ export class TrialSystem {
       }
       this.host.registerInteractable({
         id: `sounds_${d.door}`,
-        label: `ESCUCHAR Y ABRIR — ${d.label}`,
+        label: `LISTEN AND OPEN — ${d.label}`,
         pos: { x, y: 1.1, z },
         radius: 2.0,
         enabled: () => this.active === t,
@@ -273,7 +273,7 @@ export class TrialSystem {
       // puerta correcta: se abre, sonido de éxito, siguiente ronda
       this.host.unlockDoor(doorId);
       this.host.sfx.switchClick();
-      this.host.notify('PUERTA CORRECTA — sigue la voz de Rulo…');
+      this.host.notify("CORRECT DOOR — follow Rulo's voice...");
       this.soundsRound++;
       this.host.clearTrialInteractables();
       if (this.soundsRound >= rounds.length) {
@@ -290,7 +290,7 @@ export class TrialSystem {
       if (hunter && door) {
         hunter.teleportTo(door.def.x, door.def.z - 1.2, Math.atan2(this.host.player.pos.x - door.def.x, this.host.player.pos.z - door.def.z + 1.2));
         hunter.scriptWake();
-        this.host.notify('¡HAS ABIERTO LA PUERTA EQUIVOCADA!');
+        this.host.notify('YOU OPENED THE WRONG DOOR!');
       }
     }
   }
@@ -365,7 +365,7 @@ export class TrialSystem {
     this.setGeneratorDone(taskId);
     const idx = this.tasksDone.length;
     if (this.active.tasks.length > 1) {
-      this.host.notify(`TAREA ${idx}/${this.active.tasks.length} — ${this.nextTask()?.label ?? ''}`);
+      this.host.notify(`TASK ${idx}/${this.active.tasks.length} — ${this.nextTask()?.label ?? ''}`);
     }
     // disparar susto por número de tarea (hasta task7)
     const key = `task${Math.min(idx, 7)}` as 'task1' | 'task2' | 'task3' | 'task4' | 'task5' | 'task6' | 'task7';

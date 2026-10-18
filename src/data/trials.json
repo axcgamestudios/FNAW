@@ -2,7 +2,7 @@
  "trials": [
   {
    "id": "sunmoon",
-   "name": "EL SÓTANO EN LLAMAS — SOL Y LUNA",
+   "name": "THE BURNING BASEMENT — SUN AND MOON",
    "chapter": 7,
    "room": "megadaycare",
    "hunter": "luna",
@@ -20,11 +20,11 @@
    "aggression": 1.9,
    "darkFromStart": true,
    "sunnyTransform": true,
-   "introMsg": "EL HUMO SE TRAGA LA MEGA GUARDERÍA — LUNA CAE DEL TECHO. Encuentra los 7 EXTINTORES y mata los incendios. Agáchate: te OYE. Y el fuego TAMBIÉN muerde.",
+   "introMsg": "SMOKE SWALLOWS THE MEGA DAYCARE — MOON DROPS FROM THE CEILING. Find the 7 EXTINGUISHERS and kill the fires. Stay crouched: it HEARS you. And the fire bites TOO.",
    "tasks": [
     {
      "id": "e1",
-     "label": "Extintor — base del castillo de juegos (O)",
+     "label": "Extinguisher — base of the play castle (W)",
      "at": [
       -30.0,
       -41.2
@@ -33,7 +33,7 @@
     },
     {
      "id": "e2",
-     "label": "Extintor — rincón noroeste",
+     "label": "Extinguisher — northwest corner",
      "at": [
       -38.0,
       -56.0
@@ -42,7 +42,7 @@
     },
     {
      "id": "e3",
-     "label": "Extintor — junto a la alberca gigante (O)",
+     "label": "Extinguisher — by the giant ball pit (W)",
      "at": [
       -16.0,
       -46.2
@@ -51,7 +51,7 @@
     },
     {
      "id": "e4",
-     "label": "Extintor — piano gigante (N)",
+     "label": "Extinguisher — giant piano (N)",
      "at": [
       2.0,
       -58.6
@@ -60,7 +60,7 @@
     },
     {
      "id": "e5",
-     "label": "Extintor — bajo el arcoíris (E)",
+     "label": "Extinguisher — under the rainbow (E)",
      "at": [
       18.0,
       -43.0
@@ -69,7 +69,7 @@
     },
     {
      "id": "e6",
-     "label": "Extintor — carrusel roto (E)",
+     "label": "Extinguisher — broken carousel (E)",
      "at": [
       34.0,
       -46.2
@@ -78,7 +78,7 @@
     },
     {
      "id": "e7",
-     "label": "Extintor — rincón noreste",
+     "label": "Extinguisher — northeast corner",
      "at": [
       24.0,
       -59.2
@@ -94,17 +94,17 @@
       -24.0,
       -44.0
      ],
-     "msg": "LUNA SE SUELTA DEL TECHO Y CAE A POCOS METROS — EL JUEGO EMPIEZA"
+     "msg": "MOON LETS GO OF THE CEILING AND DROPS FEW METERS AWAY — THE GAME BEGINS"
     },
     {
      "at": "task1",
      "type": "lullaby",
-     "msg": "UNA NANA SUENA ENTRE LAS LLAMAS... CADA VEZ MÁS CERCA"
+     "msg": "A LULLABY PLAYS AMONG THE FLAMES... CLOSER AND CLOSER"
     },
     {
      "at": "task2",
      "type": "fakeSteps",
-     "msg": "PASOS SUAVES... RODEÁNDOTE... ENTRE EL HUMO"
+     "msg": "SOFT FOOTSTEPS... CIRCLING YOU... THROUGH THE SMOKE"
     },
     {
      "at": "task3",
@@ -113,30 +113,30 @@
       6.0,
       -57.0
      ],
-     "msg": "LUNA CUERDA EL CARRUSEL — GIRO LENTO — SONRÍE DESDE ARRIBA"
+     "msg": "MOON WINDS UP THE CAROUSEL — SLOW SPIN — SMILING FROM ABOVE"
     },
     {
      "at": "task4",
      "type": "moonScream",
-     "msg": "LUNA CHILLA — SABE DÓNDE ESTÁS — EL HUMO TE DELATA"
+     "msg": "MOON SHRIEKS — IT KNOWS WHERE YOU ARE — THE SMOKE GIVES YOU AWAY"
     },
     {
      "at": "task5",
      "type": "lightsOut",
      "dur": 9,
-     "msg": "EL RUIDO DEL FUEGO SE CALLA UN SEGUNDO — SOLO QUEDA TU LINTERNA"
+     "msg": "THE FIRE'S ROAR GOES SILENT FOR A SECOND — ONLY YOUR FLASHLIGHT REMAINS"
     },
     {
      "at": "task6",
      "type": "hunterChase",
-     "msg": "¡ÚLTIMO EXTINTOR — LUNA YA NO SE ESCONDE — CORRE!"
+     "msg": "LAST EXTINGUISHER — MOON ISN'T HIDING ANYMORE — RUN!"
     }
    ],
-   "successMsg": "EL ÚLTIMO FUEGO MUERE. La sala respira... LUNA se retira y SOL despierta entre el vapor. Las puertas cortafuego se abren de golpe."
+   "successMsg": "THE LAST FIRE DIES. The room breathes... MOON retreats and SUN wakes up in the steam. The fire doors burst open."
   },
   {
    "id": "bowling",
-   "name": "PRUEBA DE LA BOLERA",
+   "name": "BOWLING ALLEY TRIAL",
    "chapter": 2,
    "room": "bowling",
    "hunter": "bonnie",
@@ -148,11 +148,11 @@
    "respawnYaw": 0,
    "hunterResetRoom": "arcade",
    "aggression": 1.35,
-   "introMsg": "PRUEBA INICIADA — Reinicia las 3 máquinas de chapa. Bonnie ya sabe que estás aquí.",
+   "introMsg": "TRIAL STARTED — Restart the 3 pinsetters. Bonnie already knows you're here.",
    "tasks": [
     {
      "id": "pin1",
-     "label": "Reiniciar máquina de chapa — Carril 1",
+     "label": "Restart pinsetter — Lane 1",
      "at": [
       -0.2,
       -15.2
@@ -161,7 +161,7 @@
     },
     {
      "id": "pin2",
-     "label": "Reiniciar máquina de chapa — Carril 2",
+     "label": "Restart pinsetter — Lane 2",
      "at": [
       2.8,
       -15.2
@@ -170,7 +170,7 @@
     },
     {
      "id": "pin3",
-     "label": "Reiniciar máquina de chapa — Carril 3",
+     "label": "Restart pinsetter — Lane 3",
      "at": [
       5.8,
       -15.2
@@ -182,13 +182,13 @@
     {
      "at": "start",
      "type": "stingerClose",
-     "msg": "ALGO HA ENTRADO EN LA BOLERA CONTIGO"
+     "msg": "SOMETHING HAS ENTERED THE ALLEY WITH YOU"
     },
     {
      "at": "task1",
      "type": "lightsOut",
      "dur": 6,
-     "msg": "LUCES FUERA — SOLO TU LINTERNA"
+     "msg": "LIGHTS OUT — ONLY YOUR FLASHLIGHT"
     },
     {
      "at": "task2",
@@ -197,19 +197,19 @@
       10.5,
       -15.5
      ],
-     "msg": "BONNIE TE MIRA DESDE EL FONDO DEL CARRIL 4"
+     "msg": "BONNIE IS WATCHING YOU FROM THE BACK OF LANE 4"
     },
     {
      "at": "task3",
      "type": "hunterChase",
-     "msg": "¡BONNIE VIENE DIRECTO A POR TI — ENCIENDE TODO Y CORRE!"
+     "msg": "BONNIE IS COMING STRAIGHT FOR YOU — LIGHT EVERYTHING UP AND RUN!"
     }
    ],
-   "successMsg": "PRUEBA SUPERADA — Las máquinas cantan de nuevo. Bonnie se retira... por ahora."
+   "successMsg": "TRIAL CLEARED — The machines are singing again. Bonnie pulls back... for now."
   },
   {
    "id": "foodcourt",
-   "name": "PRUEBA DE LA PLAZA DE COMIDA",
+   "name": "FOOD COURT TRIAL",
    "chapter": 3,
    "room": "foodcourt",
    "hunter": "chica",
@@ -221,11 +221,11 @@
    "respawnYaw": 3.14159,
    "hunterResetRoom": "kitchen",
    "aggression": 1.45,
-   "introMsg": "PRUEBA INICIADA — Rearranca los 3 puestos de comida antes del evento. Ella huele la pizza... y a ti.",
+   "introMsg": "TRIAL STARTED — Restart the 3 food stands before the event. She can smell the pizza... and you.",
    "tasks": [
     {
      "id": "stand1",
-     "label": "Rearranca el puesto — PIZZA",
+     "label": "Restart the stand — PIZZA",
      "at": [
       20,
       -1.4
@@ -234,7 +234,7 @@
     },
     {
      "id": "stand2",
-     "label": "Rearranca el puesto — PATATAS",
+     "label": "Restart the stand — FRIES",
      "at": [
       25,
       -1.4
@@ -243,7 +243,7 @@
     },
     {
      "id": "stand3",
-     "label": "Rearranca el puesto — HELADOS",
+     "label": "Restart the stand — ICE CREAM",
      "at": [
       29.5,
       -1.4
@@ -255,12 +255,12 @@
     {
      "at": "start",
      "type": "childLaugh",
-     "msg": "UNA RISA DE NIÑO RECORRE LA PLAZA DE COMIDA"
+     "msg": "A CHILD'S LAUGH RUNS THROUGH THE FOOD COURT"
     },
     {
      "at": "task1",
      "type": "fakeSteps",
-     "msg": "PASOS PEQUEÑOS... RÁPIDOS... ENTRE LAS MESAS"
+     "msg": "SMALL FOOTSTEPS... FAST... BETWEEN THE TABLES"
     },
     {
      "at": "task2",
@@ -269,20 +269,20 @@
       27.5,
       10.5
      ],
-     "msg": "CHICA ESTÁ JUNTO A LAS MESAS DEL FONDO — NO PARPADEA"
+     "msg": "CHICA STANDS BY THE FAR TABLES — SHE DOESN'T BLINK"
     },
     {
      "at": "task3",
      "type": "lightsOut",
      "dur": 8,
-     "msg": "LA PLAZA QUEDA A OSCURAS — ELLA NO NECESITA LUZ"
+     "msg": "THE COURT GOES DARK — SHE DOESN'T NEED LIGHT"
     }
    ],
-   "successMsg": "PRUEBA SUPERADA — Los puestos rugen con energía. Chica se calma con el aroma... por ahora."
+   "successMsg": "TRIAL CLEARED — The stands roar with power. Chica settles down with the aroma... for now."
   },
   {
    "id": "cove",
-   "name": "PRUEBA DE LA CALA DEL PIRATA",
+   "name": "PIRATE'S COVE TRIAL",
    "chapter": 4,
    "room": "pirateCove",
    "hunter": "foxy",
@@ -294,11 +294,11 @@
    "respawnYaw": 3.14159,
    "hunterResetRoom": "daycare",
    "aggression": 1.55,
-   "introMsg": "PRUEBA INICIADA — Restaura la energía de la atracción (3 interruptores, en orden). Foxy es MUY rápido. No dejes de moverte.",
+   "introMsg": "TRIAL STARTED — Restore power to the attraction (3 switches, in order). Foxy is VERY fast. Keep moving.",
    "tasks": [
     {
      "id": "swA",
-     "label": "Interruptor de la atracción I",
+     "label": "Attraction switch I",
      "at": [
       -40.5,
       12.2
@@ -307,7 +307,7 @@
     },
     {
      "id": "swB",
-     "label": "Interruptor de la atracción II",
+     "label": "Attraction switch II",
      "at": [
       -37,
       12.2
@@ -316,7 +316,7 @@
     },
     {
      "id": "swC",
-     "label": "Interruptor de la atracción III",
+     "label": "Attraction switch III",
      "at": [
       -33.5,
       12.2
@@ -328,7 +328,7 @@
     {
      "at": "start",
      "type": "stingerClose",
-     "msg": "EL TELÓN DE LA CALA SE MECE SIN VIENTO"
+     "msg": "THE COVE'S CURTAIN SWAYS WITH NO WIND"
     },
     {
      "at": "task1",
@@ -337,25 +337,25 @@
       -42.6,
       5
      ],
-     "msg": "FOXY ASOMA ENTRE LAS CORTINAS — EL OJO DEL PARCHE BRILLA"
+     "msg": "FOXY POKES OUT BETWEEN THE CURTAINS — THE PATCHED EYE GLOWS"
     },
     {
      "at": "task2",
      "type": "lightsOut",
      "dur": 7,
-     "msg": "LA CALA QUEDA A OSCURAS — SOLO SE OYE METAL"
+     "msg": "THE COVE GOES DARK — ONLY METAL CAN BE HEARD"
     },
     {
      "at": "task3",
      "type": "hunterChase",
-     "msg": "¡FOXY CORRE! ¡LA LINTERNA LO FRENA UN INSTANTE — USA LA PUNTA DE TU VISTA!"
+     "msg": "FOXY IS RUNNING! THE FLASHLIGHT STOPS HIM FOR AN INSTANT — KEEP HIM IN YOUR SIGHTS!"
     }
    ],
-   "successMsg": "PRUEBA SUPERADA — La atracción ruge con energía. Foxy regresa tras su telón, silbando."
+   "successMsg": "TRIAL CLEARED — The attraction roars with power. Foxy returns behind his curtain, whistling."
   },
   {
    "id": "generators",
-   "name": "PRUEBA DE LOS GENERADORES",
+   "name": "GENERATORS TRIAL",
    "chapter": 5,
    "room": "generator",
    "hunter": "freddy",
@@ -367,11 +367,11 @@
    "respawnYaw": 3.14159,
    "hunterResetRoom": "lobby",
    "aggression": 1.7,
-   "introMsg": "PRUEBA INICIADA — Fusible maestro: orden 3 · 1 · 4 · 2. TODOS los animatrónicos están despiertos. Y algo DORADO se ha levantado en la Sala Técnica.",
+   "introMsg": "TRIAL STARTED — Master fuse: order 3 · 1 · 4 · 2. ALL animatronics are awake. And something GOLDEN has risen in the Technical Room.",
    "tasks": [
     {
      "id": "gsw3",
-     "label": "Interruptor maestro 3",
+     "label": "Master switch 3",
      "at": [
       25.8,
       19.9
@@ -380,7 +380,7 @@
     },
     {
      "id": "gsw1",
-     "label": "Interruptor maestro 1",
+     "label": "Master switch 1",
      "at": [
       24.6,
       19.9
@@ -389,7 +389,7 @@
     },
     {
      "id": "gsw4",
-     "label": "Interruptor maestro 4",
+     "label": "Master switch 4",
      "at": [
       26.4,
       19.9
@@ -398,7 +398,7 @@
     },
     {
      "id": "gsw2",
-     "label": "Interruptor maestro 2",
+     "label": "Master switch 2",
      "at": [
       25.2,
       19.9
@@ -411,17 +411,17 @@
      "at": "start",
      "type": "lightsOut",
      "dur": 5,
-     "msg": "LA SALA DE GENERADORES zumba a oscuras"
+     "msg": "THE GENERATOR ROOM HUMS IN THE DARK"
     },
     {
      "at": "task1",
      "type": "stingerClose",
-     "msg": "UNA SOMBRA PASA ENTRE LOS GENERADORES"
+     "msg": "A SHADOW PASSES BETWEEN THE GENERATORS"
     },
     {
      "at": "task2",
      "type": "hunterChase",
-     "msg": "¡FREDDY TE HA VISTO — SEPARA LOS GENERADORES DE TU CAMINO!"
+     "msg": "FREDDY HAS SEEN YOU — KEEP THE GENERATORS OUT OF HIS PATH!"
     },
     {
      "at": "task3",
@@ -430,14 +430,14 @@
       29,
       30
      ],
-     "msg": "EL DORADO BLOQUEA LA PUERTA SUR"
+     "msg": "THE GOLDEN ONE BLOCKS THE SOUTH DOOR"
     }
    ],
-   "successMsg": "PRUEBA SUPERADA — ENERGÍA RESTAURADA. El Complejo Bruno respira de nuevo. Ahora... a huir."
+   "successMsg": "TRIAL CLEARED — POWER RESTORED. The Bruno Complex breathes again. Now... run."
   },
   {
    "id": "sounds",
-   "name": "EL PASILLO DE LOS SONIDOS",
+   "name": "THE HALLWAY OF SOUNDS",
    "chapter": 6,
    "room": "techHall",
    "type": "sounds",
@@ -455,68 +455,68 @@
    "respawnYaw": 0,
    "aggression": 1.0,
    "darkFromStart": true,
-   "introMsg": "LA GALERÍA TÉCNICA ESTÁ A CIEGAS. ESCUCHA LAS PUERTAS — RULO TE DIRÁ A CUÁL ENTRAR.",
-   "successMsg": "LAS TRES PUERTAS CORRECTAS — EL SÓTANO TE ESPERA MÁS ABAJO…",
+   "introMsg": "THE TECHNICAL GALLERY IS BLIND DARK. LISTEN TO THE DOORS — RULO WILL TELL YOU WHICH ONE TO ENTER.",
+   "successMsg": "ALL THREE DOORS CORRECT — THE BASEMENT WAITS BELOW...",
    "rounds": [
     {
-     "hint": "RONDA 1 — Entra donde ZUMBA EL VENTILADOR (la sala vacía).",
+     "hint": "ROUND 1 — Enter where the FAN HUMS (the empty room).",
      "doors": [
       {
        "door": "door_workshop",
        "sound": "steps",
-       "label": "Pasillo del taller"
+       "label": "Workshop hallway"
       },
       {
        "door": "door_kitchen",
        "sound": "fan",
-       "label": "Cocina (ventilador)"
+       "label": "Kitchen (fan)"
       },
       {
        "door": "door_storageN",
        "sound": "laugh",
-       "label": "Almacén norte"
+       "label": "North storage"
       }
      ],
      "safe": "door_kitchen"
     },
     {
-     "hint": "RONDA 2 — Entra donde SUENAN LAS OLLAS (Chica ya se fue).",
+     "hint": "ROUND 2 — Enter where the POTS CLANG (Chica already left).",
      "doors": [
       {
        "door": "door_loading",
        "sound": "fan",
-       "label": "Muelle de carga"
+       "label": "Loading dock"
       },
       {
        "door": "door_electrical",
        "sound": "kitchen",
-       "label": "Sala eléctrica (ollas)"
+       "label": "Electrical room (pots)"
       },
       {
        "door": "door_freezers",
        "sound": "steps",
-       "label": "Congeladores"
+       "label": "Freezers"
       }
      ],
      "safe": "door_electrical"
     },
     {
-     "hint": "RONDA 3 — Entra donde hay SILENCIO de verdad.",
+     "hint": "ROUND 3 — Enter where it is TRULY SILENT.",
      "doors": [
       {
        "door": "door_workshop",
        "sound": "laugh",
-       "label": "Pasillo del taller"
+       "label": "Workshop hallway"
       },
       {
        "door": "door_kitchen",
        "sound": "steps",
-       "label": "Cocina"
+       "label": "Kitchen"
       },
       {
        "door": "door_freezers",
        "sound": "none",
-       "label": "Congeladores (silencio)"
+       "label": "Freezers (silence)"
       }
      ],
      "safe": "door_freezers"

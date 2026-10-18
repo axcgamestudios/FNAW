@@ -46,6 +46,8 @@ export interface AIHost {
     ventBang(pos: THREE.Vector3): void;
     stinger(): void;
     vocal(pos: THREE.Vector3, voice: string): void;
+    /** v11: carrera real de Foxy del repo al iniciar persecución */
+    playHunterRun?(pos: THREE.Vector3): boolean;
   };
 }
 
@@ -160,10 +162,14 @@ export class Animatronic {
       gltfRig = Assets.rigs.get(assetKind) ?? null;
     }
     if (gltfRig) {
-      /* v8 — halos de ojos PEGADOS a los ojos reales del GLB: una esfera
-       * aditiva pequeña por ojo, posicionada según la caja del mesh del ojo
-       * tras la normalización. Se acabó la esfera flotante en (0, h*0.84,
-       * 0.26) que atravesaba la cara de Bonnie/Chica/Foxy/Freddy. */
+      /* v11 — HALOS DE OJOS CORRECTOS:
+       * 1. Se muestrean los VÉRTICES SKINNED del mesh de ojos (applyBoneTransform),
+       *    no la caja del nodo (que en Freddy cae bajo el suelo y en Bonnie se
+       *    quedaba flotando quieta en la "bola morada").
+       * 2. Si el mesh contiene ambos ojos, se separa en 2 grupos por X → un glow por ojo.
+       * 3. Cada glow se ANCLA AL HUESO más cercano que gobierna esa zona
+       *    (huesos de ojo si existen, si no el hueso cabeza) → sigue la
+       *    animación (cabeceo, giro, persecución) en vez de quedarse flotando. */
       const eyeGlows: THREE.Mesh[] = [];
       const glowMat = new THREE.MeshBasicMaterial({
         color: def.eyeColor,
@@ -173,22 +179,69 @@ export class Animatronic {
         depthWrite: false,
         toneMapped: false,
       });
-      const tmpBox = new THREE.Box3();
-      const tmpCtr = new THREE.Vector3();
-      const tmpSize = new THREE.Vector3();
+      gltfRig.root.updateMatrixWorld(true);
+
+      // huesos candidatos para anclar: ojos por nombre + cabeza
+      const eyeBones: THREE.Object3D[] = [];
+      gltfRig.model.traverse((o) => {
+        if (!(o as THREE.Mesh).isMesh && /eye/i.test(o.name)) eyeBones.push(o);
+      });
+      const anchorCandidates: THREE.Object3D[] = [...eyeBones];
+      if (gltfRig.bones.head) anchorCandidates.push(gltfRig.bones.head);
+
+      // muestrear centros de ojos a partir de vértices skinned (en mundo)
+      const sampleEyeCenters = (mesh: THREE.Mesh): { centers: THREE.Vector3[]; radius: number } => {
+        const pos = mesh.geometry.attributes.position as THREE.BufferAttribute | undefined;
+        if (!pos) return { centers: [], radius: 0.03 };
+        const v = new THREE.Vector3();
+        const pts: THREE.Vector3[] = [];
+        const step = Math.max(1, Math.floor(pos.count / 220));
+        for (let i = 0; i < pos.count; i += step) {
+          v.fromBufferAttribute(pos, i);
+          if ((mesh as THREE.SkinnedMesh).isSkinnedMesh) {
+            try { (mesh as THREE.SkinnedMesh).applyBoneTransform(i, v); } catch { /* noop */ }
+          }
+          mesh.localToWorld(v);
+          pts.push(v.clone());
+        }
+        if (!pts.length) return { centers: [], radius: 0.03 };
+        // caja real de los vértices muestreados
+        const bb = new THREE.Box3().setFromPoints(pts);
+        const size = bb.getSize(new THREE.Vector3());
+        const radius = Math.max(0.024, Math.min(size.y, size.z) * 0.36);
+        const split = size.x > size.y * 1.55; // ambos ojos en un solo mesh
+        const centers: THREE.Vector3[] = [];
+        if (split) {
+          const midX = (bb.min.x + bb.max.x) / 2;
+          for (const side of [-1, 1]) {
+            const half = pts.filter((p) => (side < 0 ? p.x < midX : p.x >= midX));
+            if (half.length) centers.push(new THREE.Box3().setFromPoints(half).getCenter(new THREE.Vector3()));
+          }
+        } else {
+          centers.push(bb.getCenter(new THREE.Vector3()));
+        }
+        return { centers, radius };
+      };
+
       for (const eye of gltfRig.eyes) {
-        tmpBox.setFromObject(eye);
-        tmpBox.getCenter(tmpCtr);
-        const r = Math.max(0.03, tmpBox.getSize(tmpSize).length() * 0.16);
-        const glow = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), glowMat);
-        // posición en el espacio del ojo (lo sigue si la cabeza gira),
-        // contrarrestando la escala global del modelo
-        const inv = 1 / Math.max(0.0001, eye.getWorldScale(new THREE.Vector3()).x);
-        glow.position.copy(eye.worldToLocal(tmpCtr.clone()));
-        glow.scale.setScalar(inv);
-        (glow.userData as { baseScale?: number }).baseScale = inv;
-        eye.add(glow);
-        eyeGlows.push(glow);
+        const { centers, radius } = sampleEyeCenters(eye);
+        for (const cWorld of centers) {
+          // hueso de anclaje: el candidato más cercano al centro del ojo
+          let anchor: THREE.Object3D = eye;
+          let bestD = Infinity;
+          for (const cand of anchorCandidates) {
+            const cw = cand.getWorldPosition(new THREE.Vector3());
+            const d = cw.distanceTo(cWorld);
+            if (d < bestD && d < 0.9) { bestD = d; anchor = cand; }
+          }
+          const glow = new THREE.Mesh(new THREE.SphereGeometry(radius, 10, 8), glowMat);
+          const inv = 1 / Math.max(0.0001, anchor.getWorldScale(new THREE.Vector3()).x);
+          glow.position.copy(anchor.worldToLocal(cWorld.clone()));
+          glow.scale.setScalar(inv);
+          (glow.userData as { baseScale?: number }).baseScale = inv;
+          anchor.add(glow);
+          eyeGlows.push(glow);
+        }
       }
       if (!eyeGlows.length && def.kind === 'luna') {
         // Luna (GLB sin meshes de ojo): brillo tenue de la cara, pegado al frente
@@ -560,6 +613,8 @@ export class Animatronic {
     if (this.state !== 'chase' && this.state !== 'attack' && this.state !== 'checkMask') {
       this.host.sfx.stinger();
       this.host.sfx.roar(this.pos, this.def.voice);
+      // v11: CARRERA REAL de Foxy del repo ("dum-dum") al iniciar persecución
+      this.host.sfx.playHunterRun?.(this.pos);
     }
     this.state = 'chase';
     this.stateTimer = 0;
