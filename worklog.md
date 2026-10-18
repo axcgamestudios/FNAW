@@ -235,3 +235,42 @@ Stage Summary:
 - Luna ya NO es un modelo procedural: GLB del Eclipse del usuario con doble cara Luna/Sol.
 - Texturas reales del repo integradas (suelo quemado, tela de fiesta, metal oxidado...).
 - v7 conserva: bolera (cap2), plaza (cap3), cala (cap5), generadores (cap6), fuga (cap7).
+
+---
+Task ID: 9 (v8/v9 — MAPA NUEVO SECURITY BREACH + PUERTAS/PAREDES/CONDUCTOS + VOZ GRAVE)
+Agent: Super Z (agente principal)
+Task: El usuario reportó que seguía viendo "la versión antigua" y pidió priorizar el mapa nuevo (estructura Security Breach, Sol/Luna al final en el sótano en llamas, puzzle auditivo FNAF 4 penúltimo) y después la voz de hombre grave, paredes/puertas bien hechas y acabado profesional de Three.js.
+
+Work Log:
+- ESTADO VERIFICADO: el código NO se había revertido (v7 intacta); la etiqueta del menú decía "v4.2 — FNAW MEGAPLEX" (cosmética vieja) y la retro de 12 puntos nunca llegó a empezar por quedarse la sesión sin contexto. Actualizada la marca: título/meta "FNAF: New World", subtítulo NEW WORLD, etiqueta v8.
+- BUG RAÍZ DE LAS PUERTAS: con rotY=+PI/2 el eje local +X apunta a -Z; la bisagra estaba en el borde BAJO del hueco → las hojas de muro-Z quedaban DENTRO del muro. Verificado numéricamente con three.
+- PUERTAS RECONSTRUIDAS (worldbuilder.ts): marco fijo real (jambas + cabezal + umbral + bisagras de 3 nudillos, profundidad muro+6cm) fusionado en 1 malla; hoja con pivote EXACTO en el canto (muro-X: borde oeste; muro-Z: borde NORTE con baseAngle=PI/2); 5 tipos detallados (madera con montantes/rieles/paneles hundidos + manilla de latón con escudo; metálica con remaches + ventanilla + pomo U; cortafuego con nervaduras + barra antipánica roja; reja con barras + cerradura; salida con letrero verde); giro DETERMINISTA hacia la sala B (swing ±1) y animación con ease-out (v≤2.9 rad/s, desaceleración ×4.6) gestionada por baseAngle/swing/openAngle en game.ts; toggles/teclado/estantería secreta/forceUnlock reescritos con la misma fórmula.
+- CONDUCTOS: 8 huecos reales (1.06×1.22) abiertos en los muros vía scripts/v8_patch_map.py + manga/brida revistiendo el túnel (buildWall detecta huecos ≤1.3 m) + conducto redimensionado (0.96×1.12) que pasa por DENTRO sin tocar la manga + rejillas fusionadas. vent_freezer_tech movido de x=37 (chocaba con door_freezers) a x=41.
+- PAREDES DETALLADAS: zócalos 3D (0.16 m) + cornisas + pilastras en aperturas, TODO fusionado en 2 mallas para todo el mapa (+2 draw calls). Muros y dinteles ahora proyectan sombra (userData.castShadow).
+- ESLERA DE OJOS (esfera morada flotante): reemplazada por halos pequeños PEGADOS a los ojos reales del GLB (uno por ojo, con baseScale para el escalado); setEyeGlow iterativa; Luna sin ojos → brillo tenue frontal.
+- VOZ DE TELÉFONO MASCULINA GRAVE: gen_call_voice.py con pitch −22% (asetrate 24000×0.78 + atempo) + EQ de pecho (+5 dB @170 Hz) + filtro de radio que CONSERVA graves (highpass 110, no 280); playCallLine re-ajustado (highpass 110, saturación suave ×1.05, gain 1.2). 35 líneas regenerándose con watchdog (scripts/run_voice_gen.sh).
+- v9 MAPA NUEVO (scripts/v9_new_map.py): ATRIO CENTRAL ampliado a 32×28 m absorbiendo el pasaje sur (arcada z=13 retirada, columnas nuevas); fachada sur monumental a 9 m con 3 arcos; promS dividido en promW/promE (galerías laterales abiertas = efecto entrepiso SB); arcos norte ensanchados a 4.2 m; zonas renombradas (FAZER BLAST, BONNIE BOWL, MONTY GOLF, ROCKSTAR ROW, GUARDERÍA ESTRELLITA, SÓTANO—PIZZERÍA ORIGINAL); galería técnica baja (3.0 m); ESTATUA DORADA DE FREDDY sobre pedestal al sur del atrio (GLB golden) + foco de acento + letreros de neón por zona.
+- v9 CAPÍTULOS (scripts/v9_chapters.py): 1 Alberca · 2 Bolera · 3 Plaza · 4 CALA · 5 GENERADORES · 6 NUEVO "El Pasillo de los Sonidos" · 7 "El Sótano en Llamas" (Sol/Luna FINAL + fuga integrada: al superar la prueba la SALIDA se abre y el final llega por la puerta del vestíbulo). IDs de objetivos renombrados (c4_*/c5_*/c7_*), palabras de capítulo a 7, tips de carga reescritos.
+- v9 PRUEBA AUDITIVA (trials.json + trials.ts): tipo 'sounds' con 3 rondas; cada ronda monta sonidos posicionales en bucle tras las puertas de servicio (VENTILADOR y OLLAS reales de FNAF 1 vía playLoopSfx; pasos pesados y RISA DE FREDDY sintética nueva freddyLaugh()) y el jugador abre la puerta que indica Rulo; error → Freddy irrumpe y caza; respawn re-monta la ronda. Sala a ciegas (darkFromStart).
+- ILUMINACIÓN/MATERIALES: sombra de la linterna a 1024² con radius PCF + normalBias; luz de relleno tenue alrededor del jugador (0.35, 3.2 m); castShadow estructural selectivo.
+- VERIFICADO EN NAVEGADOR (agent-browser, software GL): mapa v9 vivo (29 salas, atrio 32×28, 22 puertas cerradas en su ángulo base); VLM confirma atrio grande con techo alto + suelo de ajedrez + ESTATUA SOBRE PEDESTAL claramente visible; VLM confirma PUERTA con marco de jambas+cabezal, metal con remaches y ventanilla, bien encajada sin clipping; cap6: arranque → techHall a oscuras → prueba sounds armada → 2 bucles + 1 temporizador sonando → 3 rondas superadas → capítulo COMPLETO; cap7: Luna colgada + puertas cortafuego abiertas + sunmoon armada con 7 extintores → succeed → Sol retirado + SALIDA ABIERTA + c7_escape pendiente → puerta de salida → finishGame('escape') → cinemática del amanecer; tsc y eslint limpios.
+
+Stage Summary:
+- El MEGAPLEX es ahora un mapa NUEVO con estructura de Security Breach: gran atrio central de 32×28 con estatua dorada de Freddy y arcada abierta a las galerías, zonas con identidad SB (Fazer Blast, Bonnie Bowl, Monty Golf, Rockstar Row), galería técnica siniestra para el puzzle auditivo y el SÓTANO en llamas como GRAN FINAL (Sol y Luna al final, escape por la puerta del vestíbulo tras el triunfo).
+- Capítulo 6 nuevo completo: "El Pasillo de los Sonidos" (FNAF 4 style) con sonidos reales de FNAF 1 posicionales + risa grave de Freddy sintética.
+- Puertas rehechas desde cero (bug de muro-Z corregido de raíz), conductos con huecos reales (adiós tubos trabados), paredes con zócalos/cornisas/pilastras, sombras estructurales y voz de Rulo masculina grave en regeneración.
+- La voz TTS seguía generándose en segundo plano al cierre (15/35 líneas); el juego funciona sin ella (subtítulos) y la cargará al terminar.
+
+---
+Task ID: 9b (voz completa)
+Agent: Super Z (agente principal)
+Task: Completar la regeneración de la voz de Rulo (masculina grave).
+
+Work Log:
+- 35/35 líneas generadas (7 capítulos × 4-8 líneas) con pitch −22%, EQ de pecho y filtro de radio grave.
+- Verificación espectral: banda baja 80-250 Hz presente a −28 dB (la voz vieja con highpass 280 la eliminaba).
+- manifest.json regenerado con las duraciones reales; loadCall/playCallLine ya apuntan a los nuevos archivos.
+- Líneas nuevas: cap6 (El Pasillo de los Sonidos, 5 líneas) y cap7 (El Sótano en Llamas, 5 líneas).
+
+Stage Summary:
+- Voz de teléfono masculina y profunda COMPLETA para los 7 capítulos con el nuevo orden.

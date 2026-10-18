@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FNAW MEGAPLEX — Complejo Bruno | Survival Horror 3D",
+  title: "FNAF: New World — Complejo Bruno | Survival Horror 3D",
   description:
-    "Survival horror 3D en primera persona inspirado en FNAF: Security Breach. Explora el MEGAPLEX Complejo Bruno, supera pruebas con respawn, completa misiones y sobrevive a los animatrónicos con IA.",
-  keywords: ["survival horror", "FNAF", "Security Breach", "Three.js", "juego 3D", "terror", "animatrónicos", "megaplex"],
+    "Survival horror 3D en primera persona inspirado en FNAF: Security Breach. Explora el Complejo Bruno, supera pruebas con respawn, completa misiones y sobrevive a los animatrónicos con IA.",
+  keywords: ["survival horror", "FNAF", "New World", "Security Breach", "Three.js", "juego 3D", "terror", "animatrónicos"],
   authors: [{ name: "Super Z" }],
 };
 

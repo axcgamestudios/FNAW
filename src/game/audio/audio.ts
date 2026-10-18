@@ -1108,6 +1108,66 @@ export class AudioEngine {
     return this.playSfxFile('kitchen_clatter', 0.9, pos);
   }
 
+  /** v9 — bucle posicional para el puzzle auditivo (fan / cocina real de FNAF 1).
+   *  Devuelve un manejador con stop() para cortarlo al cambiar de ronda. */
+  playLoopSfx(name: SfxFileName, pos: Vec, volume = 0.75): { stop: (fade?: number) => void } | null {
+    if (!this.ready || !this.ctx) return null;
+    const buf = this.sfxBufs.get(name);
+    if (!buf) return null;
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    const g = ctx.createGain();
+    g.gain.value = 0;
+    g.gain.setTargetAtTime(volume, ctx.currentTime, 0.4);
+    src.connect(g);
+    const pan = this.panner(pos);
+    g.connect(pan);
+    pan.connect(this.sfxBus);
+    src.start();
+    let stopped = false;
+    return {
+      stop: (fade = 0.5) => {
+        if (stopped || !this.ctx) return;
+        stopped = true;
+        const t = this.ctx.currentTime;
+        g.gain.cancelScheduledValues(t);
+        g.gain.setTargetAtTime(0, t, Math.max(0.03, fade / 3));
+        try { src.stop(t + fade + 0.1); } catch { /* noop */ }
+      },
+    };
+  }
+
+  /** v9 — RISA DE FREDDY: "ho-ho-ho" grave y metálico (puzzle auditivo).
+   *  Cada carcajada baja de tono y trastabilla como cinta vieja. */
+  freddyLaugh(pos: Vec) {
+    if (!this.ready || !this.ctx) return;
+    const pan = this.panner(pos);
+    const ctx = this.ctx;
+    const t0 = ctx.currentTime;
+    const base = 96; // Hz — muy grave
+    for (let i = 0; i < 4; i++) {
+      const t = t0 + i * 0.34;
+      const f = base * (1 - i * 0.06);
+      // fundamental + parciales metálicos
+      for (const [mult, vol] of [[1, 0.34], [2.02, 0.12], [3.1, 0.05]] as Array<[number, number]>) {
+        const o = ctx.createOscillator();
+        o.type = i % 2 ? 'sawtooth' : 'triangle';
+        o.frequency.setValueAtTime(f * mult, t);
+        o.frequency.exponentialRampToValueAtTime(f * mult * 0.82, t + 0.26);
+        const g = ctx.createGain();
+        this.env(g, t, 0.02, 0.22, vol);
+        o.connect(g);
+        g.connect(pan);
+        o.start(t);
+        o.stop(t + 0.4);
+      }
+      // traqueteo de cinta tras cada sílaba
+      this.noiseBurst(pan, 0.06, 700 + i * 90, 0.045, 'bandpass');
+    }
+  }
+
   /* ============ LLAMADA DE RADIO CON VOZ REAL (TTS español) ============ */
 
   /** carga el manifiesto y los búferes de las líneas del capítulo.
@@ -1141,8 +1201,11 @@ export class AudioEngine {
     }
   }
 
-  /** reproduce la línea i de la llamada del capítulo cargado,
-   *  filtrada como radio (banda telefónica + saturación suave) */
+  /** reproduce la línea i de la llamada del capítulo cargado.
+   *  v8: los MP3 ya salen con voz masculina grave (pitch -22% + EQ de pecho);
+   *  aquí solo un filtro de radio SUAVE que conserva los graves (highpass 110)
+   *  y una pizca de saturación de válvula — antes el highpass a 300 Hz
+   *  adelgazaba la voz y sonaba aguda/invertida. */
   playCallLine(idx: number): boolean {
     if (!this.ready || !this.ctx) return false;
     const file = this.callFiles[idx];
@@ -1152,17 +1215,17 @@ export class AudioEngine {
     const ctx = this.ctx;
     const src = ctx.createBufferSource();
     src.buffer = buf;
-    // cadena de radio
+    // cadena de radio grave
     const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 300; hp.Q.value = 0.6;
+    hp.type = 'highpass'; hp.frequency.value = 110; hp.Q.value = 0.5;
     const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 3200; lp.Q.value = 0.7;
+    lp.type = 'lowpass'; lp.frequency.value = 3400; lp.Q.value = 0.6;
     const sat = ctx.createWaveShaper();
     const curve = new Float32Array(256);
-    for (let i = 0; i < 256; i++) curve[i] = Math.tanh(((i / 128) - 1) * 1.8);
+    for (let i = 0; i < 256; i++) curve[i] = Math.tanh(((i / 128) - 1) * 1.05);
     sat.curve = curve;
     const g = ctx.createGain();
-    g.gain.value = 1.45;
+    g.gain.value = 1.2;
     src.connect(hp); hp.connect(lp); lp.connect(sat); sat.connect(g);
     g.connect(this.sfxBus);
     src.start();

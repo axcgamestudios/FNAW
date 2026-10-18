@@ -8,16 +8,18 @@
 import { useHud } from '@/game/core/state';
 
 const TIPS = [
-  'Empiezas escondido en la alberca de pelotas. LUNA casi no ve... pero lo oye TODO.',
-  'Cada paso dentro de la alberca suena al doble y medio. Agáchate con [Ctrl] y camina.',
-  'Arranca los 5 generadores de la guardería y LUNA se convertirá en SOL. Las rejas se abren.',
-  'La nana que suena en el techo no es amistosa. Tampoco lo es el niño que la canta.',
+  'Eres el nuevo GUARDIA NOCTURNO: $120 a la semana. Tu LINTERNA espera en el escritorio de la Oficina.',
+  'En la GUARDERÍA ESTRELLITA, camina por el borde de la alberca: las pelotas suenan como fuegos artificiales.',
+  'El ATRIO CENTRAL es el corazón del MEGAPLEX: la estatua dorada de Freddy te vigila desde el sur.',
   'La bolera de Bruno es su territorio. Si las luces se funden, no estás solo en el carril.',
   'El telón de la Cala del Pirata se mueve solo. Cuenta las veces. Tres es mal número.',
   'Los generadores maestros arrancan en orden 3 · 1 · 4 · 2. Dorado despierta al tercero.',
+  'GALERÍA TÉCNICA a ciegas: escucha el ZUMBIDO del ventilador y las OLLAS antes de abrir puerta.',
+  'La risa metálica tras una puerta de servicio no es una invitación. No la abras. Jamás.',
+  'El SÓTANO guarda la pizzería ORIGINAL ardiendo. Siete extintores. Luna cae del techo.',
+  'Si superas a SOL Y LUNA, la SALIDA se abre. Corre al vestíbulo. No mires atrás.',
   'Correr hace ruido. El ruido los atrae. A veces es mejor quedarse quieto.',
   'Si te atrapan durante una prueba, reapareces: las tareas se reinician, el miedo no.',
-  'Necesitas 3 tarjetas para abrir la puerta sur. La galería, el teatro y la plaza guardan una cada uno.',
 ];
 
 export default function LoadingScreen({ error }: { error: string | null }) {

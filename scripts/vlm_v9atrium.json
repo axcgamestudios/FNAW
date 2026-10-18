@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Basándome en la imagen proporcionada, **no** se trata de una escena de *Five Nights at Freddy's: Security Breach* ni de un atrio amplio con las características que describes. Aquí está el análisis detallado de lo que realmente se ve:\n\n## Descripción de la escena real\n\n**Entorno:**\n- **Espacio pequeño y cerrado**: Es una habitación de tamaño reducido, posiblemente una oficina, almacén o habitación de seguridad, no un lobby o atrio amplio.\n- **Paredes**: Revestidas con papel tapiz de rayas verticales en tonos grises/verdosos (estilo vintage o degradado).\n- **Suelo**: Patrón de ajedrez blanco y negro (elemento icónico de FNAF).\n- **Iluminación**: Luz rojiza/tenue proveniente de un panel de techo cuadrado que proyecta un haz cónico hacia abajo, creando atmósfera opresiva.\n- **Techo**: Oscuro, casi negro, con el fixture de luz visible.\n\n**El personaje (Animatrónico):**\n- **Modelo**: Es **Freddy Fazbear** (o variante), pero **no es una estatua dorada**. Tiene piel/marrón clara (color \"pan\" o beige), no dorada.\n- **Detalles**: Lleva pajarita negra, tiene el torso expuesto mostrando el endoesqueleto o mecanismos internos, y sostiene algo en su mano derecha (posiblemente un micrófono u objeto similar).\n- **Postura**: De pie, facing forward, ligeramente inclinado.\n\n**Elementos adicionales:**\n- Mesas o escritorios oscuros a los lados\n- Cajas de cartón en el fondo derecho\n- Papel o nota pegada en la pared izquierda\n- Puerta o abertura en el fondo central\n- Texturas de baja resolución en las paredes (patrón repetitivo visible)\n\n## Calidad técnica\n\n- **Gráficos**: Estilo **low-poly** con texturas comprimidas, característico de juegos indie o mods de FNAF anteriores (más parecido a *FNAF 1-4* o *Ultimate Custom Night* que a *Security Breach*).\n- **Iluminación**: Baking de luces estático con sombras duras; no parece usar iluminación dinámica en tiempo real avanzada.\n- **Resolución**: La imagen muestra artefactos de compresión y posible escalado, sugiriendo captura de pantalla de video o imagen de baja calidad original.\n\n## Conclusión\n\nEsta escena **no coincide** con la descripción de *Security Breach* (que presenta el Pizzaplex moderno, con grandes espacios abiertos, estatuas doradas de Freddy en el lobby principal, arquitectura futurista y gráficos Unreal Engine 4 de alta calidad). Lo que ves es más bien una recreación en estilo clásico, un fan-game, o una escena de los juegos originales point-and-click adaptados a 3D básico.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792288444,
+  "id": "202610180953539596fecd419540e9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610180953539596fecd419540e9",
+  "usage": {
+    "completion_tokens": 683,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 202,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 885
+  }
+}

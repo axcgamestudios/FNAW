@@ -442,6 +442,34 @@ function buildOffice(world: WorldBuilder) {
   world.root.add(tabG);
   world.anchors.set('desk_tablet', { pos: new THREE.Vector3(CX + 1.1, 0.86, 22.15), mesh: tabG });
 
+  // LINTERNA del guardia sobre el escritorio (anclaje cap 1 — EL PRIMER TURNO)
+  const deskTorch = new THREE.Group();
+  const glbDeskTorch = Assets.rigs.get('flashlight');
+  if (glbDeskTorch) {
+    const torchModel = glbDeskTorch.root.clone(true);
+    torchModel.rotation.z = Math.PI / 2;
+    torchModel.rotation.y = -0.55;
+    torchModel.position.y = 0.015;
+    deskTorch.add(torchModel);
+  } else {
+    const torchBody = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.24, 10), metalMaterial([0.35, 0.9]));
+    torchBody.rotation.z = Math.PI / 2.3;
+    deskTorch.add(torchBody);
+  }
+  const deskTorchLens = new THREE.Mesh(
+    new THREE.SphereGeometry(0.042, 10, 8),
+    new THREE.MeshStandardMaterial({ color: 0x88aaff, emissive: 0x66ccff, emissiveIntensity: 2.0 })
+  );
+  deskTorchLens.position.set(0.13, 0.015, 0);
+  deskTorch.add(deskTorchLens);
+  deskTorch.position.set(CX - 0.12, 0.84, 22.3);
+  deskTorch.rotation.y = -0.55;
+  world.root.add(deskTorch);
+  // brillo tenue de espera
+  const deskLensMat = deskTorchLens.material as THREE.MeshStandardMaterial;
+  world.propAnims.push({ update: (_dt, t) => { deskLensMat.emissiveIntensity = 1.4 + Math.sin(t * 2.1) * 0.7; } });
+  world.anchors.set('desk_torch', { pos: new THREE.Vector3(CX - 0.12, 0.86, 22.3), mesh: deskTorch });
+
   // cupcake de Chica sobre el escritorio
   const cupcake = new THREE.Group();
   const cakeBase = new THREE.Mesh(
@@ -700,6 +728,7 @@ function buildAtrium(world: WorldBuilder) {
   world.propAnims.push({ update: (_dt, t) => { star.rotation.y = t * 0.4; star.position.y = 3.1 + Math.sin(t * 0.8) * 0.05; } });
 
   // anillo de balcón (decorativo): barandilla a 4.5 m en el perímetro
+  // v9 — el atrio llega hasta z=18: el anillo se extiende al sur
   const railMat = darkMetalMaterial();
   const rail = (x1: number, z1: number, x2: number, z2: number) => {
     const len = Math.hypot(x2 - x1, z2 - z1);
@@ -713,11 +742,11 @@ function buildAtrium(world: WorldBuilder) {
     world.root.add(r2);
   };
   rail(-15, -8, 15, -8);
-  rail(-15, 12, 15, 12);
-  rail(-15, -8, -15, 12);
-  rail(15, -8, 15, 12);
-  // columnas del balcón
-  for (const [px, pz] of [[-14, -7], [14, -7], [-14, 11], [14, 11], [0, -7], [0, 11]] as Array<[number, number]>) {
+  rail(-15, 18, 15, 18);
+  rail(-15, -8, -15, 18);
+  rail(15, -8, 15, 18);
+  // columnas del balcón (v9: añadidas al sur para el atrio grande)
+  for (const [px, pz] of [[-14, -7], [14, -7], [-14, 11], [14, 11], [0, -7], [0, 11], [-14, 17], [14, 17], [0, 17.4]] as Array<[number, number]>) {
     const col = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.34, 9, 12), plasticMaterial(0x9a8a70, 0.55, 0.1));
     col.position.set(px, 4.5, pz);
     col.castShadow = false;
@@ -801,6 +830,62 @@ function buildAtrium(world: WorldBuilder) {
 
   world.anchors.set('tape_atrium', { pos: new THREE.Vector3(9, 2.3, 11) });
   world.anchors.set('atrium_center', { pos: new THREE.Vector3(0, 1, 3.5) });
+
+  /* ============ v9 — ESTATUA DORADA DE FREDDY (icono del atrio) ============
+   * Preside la entrada sur: el que entra por los arcos del vestíbulo la ve
+   * de frente, como la estatua de Freddy del Pizzaplex. Model GLB estático. */
+  const statue = Assets.createVariant('golden', 0xd8a838);
+  const root = statue.root;
+  root.position.set(0, 0, 15.2);
+  root.rotation.y = Math.PI; // mira al norte: saludando al escenario
+  root.traverse((o) => {
+    if (o instanceof THREE.Mesh) {
+      o.castShadow = true;
+      o.receiveShadow = true;
+      (o.userData as { castShadow?: boolean }).castShadow = true;
+    }
+  });
+  world.root.add(root);
+  // pedestal circular de mármol falso + placa
+  const plinth = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.15, 1.35, 0.55, 20),
+    plasticMaterial(0x7d7568, 0.42, 0.3)
+  );
+  plinth.position.set(0, 0.275, 15.2);
+  plinth.castShadow = true;
+  plinth.receiveShadow = true;
+  (plinth.userData as { castShadow?: boolean }).castShadow = true;
+  world.root.add(plinth);
+  const plinthTop = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.2, 1.15, 0.1, 20),
+    plasticMaterial(0x8d8578, 0.3, 0.5)
+  );
+  plinthTop.position.set(0, 0.58, 15.2);
+  world.root.add(plinthTop);
+  root.position.y = 0.62;
+  const plateS = neonSign(world, 'FREDDY', 0xffc83a, 0, 1.35, 14.35, Math.PI, 1.6, 0.34);
+  (plateS.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.55;
+  world.addCollider(
+    new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, 1.6, 15.2), new THREE.Vector3(2.6, 3.2, 2.6)),
+    'statue_freddy'
+  );
+  // foco tenue dedicado a la estatua (lo materializa el pool de acentos)
+  world.registerAccent({
+    pos: new THREE.Vector3(0, 6.4, 17.6),
+    target: new THREE.Vector3(0, 1.8, 15.2),
+    color: 0xffe6b0,
+    intensity: 14,
+    distance: 11,
+    angle: 0.34,
+    penumbra: 0.6,
+    decay: 1.7,
+    spot: true,
+  });
+
+  /* letreros de neón de las zonas nuevas sobre los arcos del norte */
+  neonSign(world, 'FAZER BLAST', 0x4ad8ff, -9, 5.0, -8.6, 0, 3.2, 0.6);
+  neonSign(world, 'BONNIE BOWL', 0xff5ad8, 5, 5.0, -8.6, 0, 3.2, 0.6);
+  neonSign(world, 'GALERÍAS', 0xd8b13a, 0, 6.2, 18.4, Math.PI, 3.4, 0.6);
 }
 
 /* ============ GALERÍA ESTELAR (Rockstar Row) ============ */
@@ -1560,34 +1645,6 @@ function buildDaycare(world: WorldBuilder) {
   tower.position.set(-17.6, 0, 8.6);
   world.root.add(tower);
   world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-17.6, 1.3, 8.6), new THREE.Vector3(2.4, 2.7, 2.4)), 'playtower');
-
-  /* ---- LINTERNA perdida en la torre (anclaje cap 1) ---- */
-  const torchG = new THREE.Group();
-  const glbTorch = Assets.rigs.get('flashlight');
-  if (glbTorch) {
-    const torchModel = glbTorch.root.clone(true);
-    torchModel.rotation.z = Math.PI / 2;
-    torchModel.rotation.y = 0.5;
-    torchModel.position.y = 0.1;
-    torchG.add(torchModel);
-  } else {
-    const torchBody = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.24, 10), metalMaterial([0.35, 0.9]));
-    torchBody.rotation.z = Math.PI / 2.3;
-    torchG.add(torchBody);
-  }
-  const torchLens = new THREE.Mesh(
-    new THREE.SphereGeometry(0.045, 10, 8),
-    new THREE.MeshStandardMaterial({ color: 0x88aaff, emissive: 0x66ccff, emissiveIntensity: 2.2 })
-  );
-  torchLens.position.set(0.14, 0.02, 0);
-  torchG.add(torchLens);
-  torchG.position.set(-17.6, 1.52, 8.2);
-  torchG.rotation.y = 0.6;
-  world.root.add(torchG);
-  // parpadeo suave de "alguien la perdió aquí"
-  const lensMat = torchLens.material as THREE.MeshStandardMaterial;
-  world.propAnims.push({ update: (_dt, t) => { lensMat.emissiveIntensity = 1.6 + Math.sin(t * 2.4) * 0.9; } });
-  world.anchors.set('daycare_torch', { pos: new THREE.Vector3(-17.6, 1.5, 8.2), mesh: torchG });
 
   /* ---- 5 GENERADORES SOL Y LUNA ---- */
   DAYCARE_GEN_SPOTS.forEach(([gx, gz, gry], i) => {

@@ -6,6 +6,7 @@ export type GameMode =
   | 'boot'
   | 'menu'
   | 'loading'
+  | 'newspaper'
   | 'intro'
   | 'cinematic'
   | 'playing'

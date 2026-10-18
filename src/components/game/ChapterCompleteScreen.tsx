@@ -14,14 +14,15 @@ export default function ChapterCompleteScreen() {
   const unlockedChapter = useHud((s) => s.unlockedChapter);
   const game = getGame();
   const doneCount = objectives.filter((o) => o.done).length;
-  const hasNext = chapter < 6 && unlockedChapter > chapter;
+  const hasNext = chapter < 7 && unlockedChapter > chapter;
   const CHAPTER_WORDS: Record<number, string> = {
     1: 'AMANECE',
     2: 'STRIKE',
     3: 'CON HAMBRE',
-    4: 'A BORDO',
+    4: 'MAR ADENTRO',
     5: 'ENERGÍA',
-    6: 'LIBRE',
+    6: 'EN SILENCIO',
+    7: 'LIBRE',
   };
 
   const nextChapter = () => {

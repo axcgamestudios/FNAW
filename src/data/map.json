@@ -8,8 +8,8 @@
   "wallThickness": 0.3
  },
  "playerSpawn": {
-  "x": -22.5,
-  "z": 6.5,
+  "x": -5.5,
+  "z": 31.0,
   "yaw": 0
  },
  "rooms": [
@@ -118,7 +118,7 @@
   },
   {
    "id": "techHall",
-   "name": "Pasillo Técnico",
+   "name": "GALERÍA TÉCNICA — MANTENIMIENTO",
    "rect": [
     -44,
     -24,
@@ -127,7 +127,7 @@
    ],
    "floor": "metal",
    "wall": "metal",
-   "height": 3.4,
+   "height": 3.0,
    "ambientLight": {
     "intensity": 0.2,
     "flicker": 0.7
@@ -135,7 +135,7 @@
   },
   {
    "id": "rockstar",
-   "name": "Galería Estelar",
+   "name": "ROCKSTAR ROW — GALERÍA",
    "rect": [
     -44,
     -17,
@@ -153,7 +153,7 @@
   },
   {
    "id": "theater",
-   "name": "Teatro Bruno",
+   "name": "TEATRO MARIOPOLO",
    "rect": [
     -30,
     -17,
@@ -171,7 +171,7 @@
   },
   {
    "id": "arcade",
-   "name": "Salón Recreativo",
+   "name": "FAZER BLAST — SALA LÁSER",
    "rect": [
     -16,
     -17,
@@ -189,7 +189,7 @@
   },
   {
    "id": "bowling",
-   "name": "Bolera Bruno",
+   "name": "BONNIE BOWL — PISTA DE BOLOS",
    "rect": [
     -2,
     -17,
@@ -206,7 +206,7 @@
   },
   {
    "id": "prize",
-   "name": "Rincón de Premios",
+   "name": "MOSTRADOR DE PREMIOS",
    "rect": [
     12,
     -17,
@@ -224,7 +224,7 @@
   },
   {
    "id": "golf",
-   "name": "Golf del Caimán",
+   "name": "MONTY GOLF — MINIGOLF",
    "rect": [
     26,
     -17,
@@ -242,7 +242,7 @@
   },
   {
    "id": "westPromN",
-   "name": "Paseo Oeste",
+   "name": "PASEO ROCKSTAR (N)",
    "rect": [
     -44,
     -9,
@@ -259,16 +259,16 @@
   },
   {
    "id": "atrium",
-   "name": "Atrio Central",
+   "name": "ATRIO CENTRAL — PLAZA FREDDY",
    "rect": [
     -16,
     -9,
     16,
-    13
+    19
    ],
    "floor": "polished",
    "wall": "wallpaper",
-   "height": 9.0,
+   "height": 9,
    "ambientLight": {
     "intensity": 0.45,
     "flicker": 0.3
@@ -276,7 +276,7 @@
   },
   {
    "id": "eastPromN",
-   "name": "Paseo Este",
+   "name": "PASEO FAZER (N)",
    "rect": [
     16,
     -9,
@@ -293,7 +293,7 @@
   },
   {
    "id": "pirateCove",
-   "name": "Cala del Pirata",
+   "name": "LA CALA DEL PIRATA",
    "rect": [
     -44,
     -3,
@@ -311,7 +311,7 @@
   },
   {
    "id": "daycare",
-   "name": "Guardería",
+   "name": "GUARDERÍA ESTRELLITA",
    "rect": [
     -29,
     -3,
@@ -329,7 +329,7 @@
   },
   {
    "id": "foodcourt",
-   "name": "Plaza de Comida",
+   "name": "PLAZA DE COMIDAS",
    "rect": [
     16,
     -3,
@@ -359,23 +359,6 @@
    "ambientLight": {
     "intensity": 0.32,
     "flicker": 0.5
-   }
-  },
-  {
-   "id": "promS",
-   "name": "Paseo Sur",
-   "rect": [
-    -44,
-    13,
-    44,
-    19
-   ],
-   "floor": "polished",
-   "wall": "wallpaper",
-   "height": 4.0,
-   "ambientLight": {
-    "intensity": 0.34,
-    "flicker": 0.4
    }
   },
   {
@@ -415,7 +398,7 @@
   },
   {
    "id": "lobby",
-   "name": "Vestíbulo Principal",
+   "name": "VESTÍBULO PRINCIPAL",
    "rect": [
     -31,
     19,
@@ -483,7 +466,7 @@
   },
   {
    "id": "megadaycare",
-   "name": "Mega Guardería",
+   "name": "SÓTANO — LA PIZZERÍA ORIGINAL (EN LLAMAS)",
    "rect": [
     -44,
     -62,
@@ -497,6 +480,42 @@
     "intensity": 0.85,
     "color": 16748288,
     "flicker": 0.35
+   }
+  },
+  {
+   "id": "promW",
+   "name": "GALERÍA OESTE",
+   "rect": [
+    -44,
+    13,
+    -16,
+    19
+   ],
+   "floor": "polished",
+   "wall": "wallpaper",
+   "height": 4,
+   "ambientLight": {
+    "intensity": 0.4,
+    "color": 16767400,
+    "flicker": 0.1
+   }
+  },
+  {
+   "id": "promE",
+   "name": "GALERÍA ESTE",
+   "rect": [
+    16,
+    13,
+    44,
+    19
+   ],
+   "floor": "polished",
+   "wall": "wallpaper",
+   "height": 4,
+   "ambientLight": {
+    "intensity": 0.4,
+    "color": 16767400,
+    "flicker": 0.1
    }
   }
  ],
@@ -584,6 +603,11 @@
      "at": -24,
      "width": 1.8,
      "height": 2.15
+    },
+    {
+     "at": -26,
+     "width": 1.06,
+     "height": 1.22
     }
    ]
   },
@@ -644,6 +668,11 @@
      "at": 37,
      "width": 1.6,
      "height": 2.15
+    },
+    {
+     "at": 41,
+     "width": 1.06,
+     "height": 1.22
     }
    ]
   },
@@ -712,7 +741,7 @@
    "openings": [
     {
      "at": -23,
-     "width": 3.0,
+     "width": 4.2,
      "height": 3.2
     }
    ]
@@ -727,7 +756,7 @@
    "openings": [
     {
      "at": -9,
-     "width": 3.2,
+     "width": 4.2,
      "height": 3.0
     }
    ]
@@ -742,7 +771,7 @@
    "openings": [
     {
      "at": 5,
-     "width": 3.0,
+     "width": 4.2,
      "height": 3.0
     }
    ]
@@ -757,7 +786,7 @@
    "openings": [
     {
      "at": 19,
-     "width": 2.8,
+     "width": 4.2,
      "height": 3.0
     }
    ]
@@ -772,7 +801,7 @@
    "openings": [
     {
      "at": 35,
-     "width": 3.2,
+     "width": 4.2,
      "height": 3.0
     }
    ]
@@ -804,6 +833,11 @@
      "at": -13,
      "width": 2.4,
      "height": 2.8
+    },
+    {
+     "at": -11,
+     "width": 1.06,
+     "height": 1.22
     }
    ]
   },
@@ -879,6 +913,11 @@
      "at": -23,
      "width": 2.8,
      "height": 2.9
+    },
+    {
+     "at": -20,
+     "width": 1.06,
+     "height": 1.22
     }
    ]
   },
@@ -1086,37 +1125,6 @@
    ]
   },
   {
-   "x1": -16,
-   "z1": 13,
-   "x2": -5.5,
-   "z2": 13,
-   "wallType": "wallpaper",
-   "h": 9.0
-  },
-  {
-   "x1": -5.5,
-   "z1": 13,
-   "x2": 5.5,
-   "z2": 13,
-   "wallType": "wallpaper",
-   "h": 9.0,
-   "openings": [
-    {
-     "at": 0,
-     "width": 11.0,
-     "height": 4.6
-    }
-   ]
-  },
-  {
-   "x1": 5.5,
-   "z1": 13,
-   "x2": 16,
-   "z2": 13,
-   "wallType": "wallpaper",
-   "h": 9.0
-  },
-  {
    "x1": -29,
    "z1": -3,
    "x2": -29,
@@ -1128,6 +1136,11 @@
      "at": 5,
      "width": 2.4,
      "height": 2.8
+    },
+    {
+     "at": 9,
+     "width": 1.06,
+     "height": 1.22
     }
    ]
   },
@@ -1220,7 +1233,7 @@
    "x2": 20,
    "z2": 19,
    "wallType": "wallpaper",
-   "h": 6.0,
+   "h": 9,
    "openings": [
     {
      "at": -14,
@@ -1281,6 +1294,11 @@
      "at": -40,
      "width": 1.4,
      "height": 2.05
+    },
+    {
+     "at": -42,
+     "width": 1.06,
+     "height": 1.22
     }
    ]
   },
@@ -1290,7 +1308,14 @@
    "x2": -31,
    "z2": 34,
    "wallType": "concrete",
-   "h": 3.4
+   "h": 3.4,
+   "openings": [
+    {
+     "at": 31.5,
+     "width": 1.06,
+     "height": 1.22
+    }
+   ]
   },
   {
    "x1": 20,
@@ -1313,7 +1338,14 @@
    "x2": 31,
    "z2": 34,
    "wallType": "concrete",
-   "h": 4.5
+   "h": 4.5,
+   "openings": [
+    {
+     "at": 22,
+     "width": 1.06,
+     "height": 1.22
+    }
+   ]
   },
   {
    "x1": 31,
@@ -1386,6 +1418,22 @@
    "z2": -34,
    "wallType": "rusty",
    "h": 9
+  },
+  {
+   "x1": -15.2,
+   "z1": 13,
+   "x2": -14.6,
+   "z2": 13,
+   "wallType": "wallpaper",
+   "h": 9
+  },
+  {
+   "x1": 14.6,
+   "z1": 13,
+   "x2": 15.2,
+   "z2": 13,
+   "wallType": "wallpaper",
+   "h": 9
   }
  ],
  "doors": [
@@ -1449,7 +1497,7 @@
    "z": 19,
    "axis": "x",
    "width": 1.6,
-   "roomA": "promS",
+   "roomA": "promW",
    "roomB": "office"
   },
   {
@@ -1486,7 +1534,7 @@
    "z": 19,
    "axis": "x",
    "width": 1.8,
-   "roomA": "promS",
+   "roomA": "promE",
    "roomB": "generator",
    "locked": true,
    "lockedMsg": "Acceso restringido — sala de generadores"
@@ -1508,7 +1556,7 @@
    "z": 19,
    "axis": "x",
    "width": 1.8,
-   "roomA": "promS",
+   "roomA": "promE",
    "roomB": "storageS"
   },
   {
@@ -1560,7 +1608,7 @@
    "axis": "x",
    "width": 3.2,
    "roomA": "daycare",
-   "roomB": "promS",
+   "roomB": "promW",
    "locked": true,
    "lockedMsg": "REJA DE SEGURIDAD — SE ABRIRÁ CUANDO TENGAS LA LINTERNA"
   },
@@ -1636,11 +1684,11 @@
    "from": "freezers",
    "to": "techHall",
    "a": [
-    37,
+    41,
     -25.6
    ],
    "b": [
-    37,
+    41,
     -22.9
    ],
    "segments": [
@@ -1843,7 +1891,7 @@
   {
    "index": 5,
    "name": "CAM 05 — Paseo Sur",
-   "room": "promS",
+   "room": "atrium",
    "pos": [
     0,
     3.3,
@@ -2034,7 +2082,7 @@
   },
   {
    "id": "locker_promS_w",
-   "room": "promS",
+   "room": "promW",
    "pos": [
     -41,
     16.2
@@ -2047,7 +2095,7 @@
   },
   {
    "id": "locker_promS_e",
-   "room": "promS",
+   "room": "promE",
    "pos": [
     41,
     16.2

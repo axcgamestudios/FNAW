@@ -1,350 +1,331 @@
 {
-  "chapters": [
+ "chapters": [
+  {
+   "chapter": 1,
+   "id": "cap1",
+   "title": "El Primer Turno",
+   "enemies": [
+    "luna"
+   ],
+   "aggression": 0.5,
+   "eventRate": 0.6,
+   "startPower": 100,
+   "introCinematic": "cine_arrival",
+   "outroCinematic": "cine_first_dawn",
+   "lines": [
+    "Complejo Bruno MEGAPLEX — 11:47 PM.",
+    "Primer turno como guardia nocturno. Primer error: presentarse.",
+    "El contrato lo firmaste tú. Las normas las escribió otra cosa.",
+    "Y en la GUARDERÍA ESTRELLITA... algo canta una nana."
+   ],
+   "radio": {
+    "atMinute": 0.25,
+    "lines": [
+     "*clic* — ¿Hola? ¿Hola-hola?... ¿El guardia nuevo? Soy RULO, del turno anterior.",
+     "Escucha, tengo poco tiempo. Primera norma: los animatrónicos DEAMBULAN de noche. Algo en sus servos... no preguntes.",
+     "Tu LINTERNA está en el escritorio de la Oficina de Seguridad, al oeste del vestíbulo. Cógela antes de dar un solo paso más.",
+     "Segunda norma: la GUARDERÍA ESTRELLITA, al oeste del atrio, está... ocupada. LUNA, el cuidador. Casi no ve, pero lo oye TODO.",
+     "Hemos oído ruidos en la alberca esta noche. Revisa el fondo. Y camina por el borde: las pelotas suenan como fuegos artificiales.",
+     "Si la nana se detiene... ya te ha oído. Agáchate, espera un momento, y vuelve al vestíbulo sin correr.",
+     "Termina el turno con vida y hablamos mañana. Ciento veinte dólares a la semana. Vaya sueldo, ¿eh?"
+    ]
+   },
+   "objectives": [
     {
-      "chapter": 1,
-      "id": "cap1",
-      "title": "La Alberca de Pelotas",
-      "enemies": [
-        "luna"
-      ],
-      "aggression": 0.5,
-      "eventRate": 0.6,
-      "startPower": 100,
-      "introCinematic": "cine_ballpit",
-      "outroCinematic": "cine_exit_daycare",
-      "lines": [
-        "Complejo Bruno MEGAPLEX — 11:58 PM.",
-        "Te colaste a medianoche. Mal idea.",
-        "Las luces mueren, las rejas bajan...",
-        "y LUNA escucha cada pelota que se mueve."
-      ],
-      "radio": {
-        "atMinute": 0.25,
-        "lines": [
-          "*clic* — ¿Hola? ¿Hay alguien...? ¡Un crío! ¿Cómo demonios entraste?",
-          "Soy Rulo, del turno anterior. Escucha bien: estás en la SUPER GUARDERÍA, escondido en la alberca de pelotas.",
-          "LUNA patrulla ahí dentro. Casi no ve... pero lo oye TODO. En las pelotas, cada paso tuyo suena al doble y medio.",
-          "Primero: sal de la alberca AGACHADO [Ctrl] y sin correr. Cuando pases, no mires atrás.",
-          "Segundo: alguien perdió una LINTERNA en la torre de juegos, al fondo. Súbete a por ella. Sin luz, esta guardería es una tumba.",
-          "Tercero: cuando la tengas, ve a cualquier reja. La abriré desde aquí. Sal al paseo y no pares.",
-          "Si te atrapa... despertarás de nuevo en la alberca. Lo he visto antes. Y otra vez. Y otra vez.",
-          "Ve. Ahora. Mientras cante la nana."
-        ]
-      },
-      "objectives": [
-        {
-          "id": "c1_sneak",
-          "title": "Sal de la alberca sin despertar a LUNA",
-          "hint": "Agachado [Ctrl], sin correr",
-          "type": "system",
-          "target": "pit_escaped"
-        },
-        {
-          "id": "c1_torch",
-          "title": "Recupera la linterna de la torre de juegos",
-          "hint": "Al fondo de la guardería [E]",
-          "type": "interact",
-          "room": "daycare",
-          "target": "daycare_torch"
-        },
-        {
-          "id": "c1_exit",
-          "title": "Sal de la Guardería",
-          "hint": "Cualquiera de las rejas — Rulo las abrirá",
-          "type": "system",
-          "target": "daycare_escaped"
-        }
-      ]
+     "id": "c1_torch",
+     "title": "Recoge tu LINTERNA en la Oficina de Seguridad",
+     "hint": "Escritorio — oeste del vestíbulo [E]",
+     "type": "interact",
+     "room": "office",
+     "target": "desk_torch"
     },
     {
-      "chapter": 2,
-      "id": "cap2",
-      "title": "La Bolera",
-      "enemies": [
-        "freddy",
-        "bonnie"
-      ],
-      "aggression": 0.8,
-      "eventRate": 1.0,
-      "startPower": 85,
-      "introCinematic": "cine_cap2",
-      "outroCinematic": "cine_camstare",
-      "lines": [
-        "La guardería quedó atrás. El MEGAPLEX entero sigue a oscuras.",
-        "La Bolera tiene las máquinas de chapa fundidas.",
-        "Y la coneja del recreativo ha aprendido a usar los conductos."
-      ],
-      "radio": {
-        "atMinute": 0.3,
-        "lines": [
-          "¿Sigues vivo? Bien. Escucha: en la OFICINA DE SEGURIDAD del Paseo Sur dejé una tableta con las cámaras. Con ella los ves venir. Cógela.",
-          "La Bolera tiene los pinsetters fundidos. Tres. El jefe quiere la bolera viva para el evento de mañana.",
-          "Y sí: es una PRUEBA. Las luces morirán, ella vendrá. Si te atrapa, despiertas en el paseo. Inténtalo otra vez.",
-          "Bonnie — la coneja — sale del Salón Recreativo. La linterna la congela si le das de lleno en la cara.",
-          "Antes de entrar, recoge 3 fichas doradas del recreativo. Las necesitarás para las máquinas."
-        ]
-      },
-      "objectives": [
-        {
-          "id": "c2_tablet",
-          "title": "Recoge la tableta de vigilancia",
-          "hint": "Oficina de Seguridad — Paseo Sur [C]",
-          "type": "interact",
-          "room": "office",
-          "target": "desk_tablet"
-        },
-        {
-          "id": "c2_tokens",
-          "title": "Reúne 3 fichas doradas",
-          "hint": "Caídas por el Salón Recreativo",
-          "type": "collect",
-          "count": 3
-        },
-        {
-          "id": "c2_trial",
-          "title": "SUPERA LA PRUEBA: Bolera",
-          "hint": "Entra en la Bolera y reinicia las 3 máquinas de chapa",
-          "type": "trial",
-          "target": "bowling"
-        }
-      ]
+     "id": "c1_check",
+     "title": "Revisa la alberca de la GUARDERÍA ESTRELLITA",
+     "hint": "Oeste del atrio — camina por el borde de las pelotas",
+     "type": "system",
+     "target": "pit_checked"
     },
     {
-      "chapter": 3,
-      "id": "cap3",
-      "title": "La Plaza de Comida",
-      "enemies": [
-        "freddy",
-        "bonnie",
-        "chica"
-      ],
-      "aggression": 0.95,
-      "eventRate": 1.2,
-      "startPower": 75,
-      "introCinematic": "cine_cap3",
-      "outroCinematic": "cine_golden",
-      "lines": [
-        "La Bolera canta. La night sigue.",
-        "La Plaza de Comida debe abrir mañana con los tres puestos vivos.",
-        "La gallina ya ronda las mesas. Y huele el horno."
-      ],
-      "radio": {
-        "atMinute": 0.3,
-        "lines": [
-          "Chica — la gallina — caza en la Plaza de Comida desde esta night. Le precede el olor a pizza quemada... y a pluma.",
-          "Tres puestos fundidos: PIZZA, PATATAS y HELADOS. Rearranca los tres. Las notas de servicio dicen que se reactivan solos... casi.",
-          "Chica no esquiva la linterna. La oye TODO. Camina agachado con Ctrl y no corras dentro.",
-          "Cuando la pases, pásate por la Cala del Pirata. Alguien dejó un cartel ahí... y algo se mueve tras el telón."
-        ]
-      },
-      "objectives": [
-        {
-          "id": "c3_trial",
-          "title": "SUPERA LA PRUEBA: Plaza de Comida",
-          "hint": "Rearranca los 3 puestos de comida",
-          "type": "trial",
-          "target": "foodcourt"
-        },
-        {
-          "id": "c3_cove",
-          "title": "Investiga la Cala del Pirata",
-          "hint": "Oeste del Paseo Oeste",
-          "type": "goto",
-          "room": "pirateCove"
-        }
-      ]
-    },
-    {
-      "chapter": 4,
-      "id": "cap4",
-      "title": "El Infierno de la Mega Guardería",
-      "enemies": [
-        "luna",
-        "freddy"
-      ],
-      "aggression": 1.05,
-      "eventRate": 1.1,
-      "startPower": 70,
-      "introCinematic": "cine_inferno",
-      "outroCinematic": "cine_sunrise",
-      "lines": [
-        "La noche ya lleva tres pruebas encima.",
-        "Y ahora el MEGAPLEX huele a plástico quemado.",
-        "La MEGA GUARDERÍA arde. Y LUNA canta entre las llamas."
-      ],
-      "radio": {
-        "atMinute": 0.22,
-        "lines": [
-          "*clic* — ¡¿Sigues vivo?! Escucha: la MEGA GUARDERÍA está ARDIENDO. Alguien la encendió hace media hora.",
-          "Es la guardería GIGANTE del fondo norte, tras el taller. Las puertas cortafuego están abiertas de par en par.",
-          "LUNA vive ahí. Y esta noche está... feliz. Canta. El incendio es SU fiesta de cumpleaños.",
-          "Hay SIETE extintores anclados por la sala. Úsalos TODOS. Cada fuego que apagues... la enfadará un poco más.",
-          "Reglas: no corras, te oye. No toques las llamas, muerden de verdad. Y si te coge... ya sabes dónde despertarás.",
-          "Cuando muera el último fuego, volverá la luz. Y LUNA se convertirá en SOL. Ese es el truco. Siempre lo ha sido.",
-          "Ve. Y chico... la nana que oigas ahí dentro NO es para ti."
-        ]
-      },
-      "objectives": [
-        {
-          "id": "c4_trial",
-          "title": "APAGA EL INFIERNO: 7 extintores",
-          "hint": "Mega Guardería — 7 fuegos, ni uno menos",
-          "type": "trial",
-          "target": "sunmoon"
-        }
-      ]
-    },
-    {
-      "chapter": 5,
-      "id": "cap5",
-      "title": "La Cala del Pirata",
-      "enemies": [
-        "freddy",
-        "bonnie",
-        "chica",
-        "foxy"
-      ],
-      "aggression": 1.1,
-      "eventRate": 1.4,
-      "startPower": 70,
-      "introCinematic": "cine_cap4",
-      "outroCinematic": "cine_cap5",
-      "lines": [
-        "La atracción de la Cala lleva años apagada.",
-        "El zorro de detrás del telón ha empezado a correr de verdad.",
-        "Enciende los 3 interruptores. Y no pares de moverte."
-      ],
-      "radio": {
-        "atMinute": 0.25,
-        "lines": [
-          "Foxy. El zorro. Es el más rápido y el único al que la máscara no engaña. Si te persigue: sprint y giros.",
-          "La linterna lo REPELE — directamente a la cara, sin piedad, hasta que retroceda.",
-          "Tres interruptores en la pared sur de la Cala, en orden. Si te atrapa, reapareces en el paseo. Es su juego favorito: el gato y el zorro.",
-          "Cuando la atracción ruge, él vuelve a su telón. Siempre vuelve. Nunca sabrás si duerme o finge."
-        ]
-      },
-      "objectives": [
-        {
-          "id": "c5_trial",
-          "title": "SUPERA LA PRUEBA: Cala del Pirata",
-          "hint": "3 interruptores de la atracción, en orden",
-          "type": "trial",
-          "target": "cove"
-        },
-        {
-          "id": "c5_tape",
-          "title": "Recupera la cinta del barco",
-          "hint": "Cerca del barco pirata de la Cala",
-          "type": "collect",
-          "count": 1,
-          "optional": true
-        }
-      ]
-    },
-    {
-      "chapter": 6,
-      "id": "cap6",
-      "title": "Los Generadores",
-      "enemies": [
-        "freddy",
-        "bonnie",
-        "chica",
-        "foxy"
-      ],
-      "aggression": 1.3,
-      "eventRate": 1.6,
-      "startPower": 60,
-      "introCinematic": null,
-      "outroCinematic": null,
-      "lines": [
-        "El fusible maestro está fundido. Toda la red depende de él.",
-        "La energía del complejo entero se decide en la Sala de Generadores.",
-        "Orden 3 · 1 · 4 · 2. Y todos despiertos."
-      ],
-      "radio": {
-        "atMinute": 0.2,
-        "lines": [
-          "La nota que dejé en el Cuarto Eléctrico lo dice: 3, 1, 4, 2. El orden del fusible maestro de la Sala de Generadores.",
-          "La puerta del generador está al este del Paseo Sur. La abrí para ti. No me preguntes cómo.",
-          "Uno más: hay un TRAJE DORADO en la Sala Técnica Sur, bajo tu oficina. Si sientes que te mira... corre. No luches. CORRE.",
-          "Cuando la red vuelva, las puertas exteriores del vestíbulo se armarán. Corre al sur. No mires atrás."
-        ]
-      },
-      "objectives": [
-        {
-          "id": "c6_trial",
-          "title": "SUPERA LA PRUEBA: Generadores (3·1·4·2)",
-          "hint": "Sala de Generadores, panel maestro",
-          "type": "trial",
-          "target": "generators"
-        }
-      ]
-    },
-    {
-      "chapter": 7,
-      "id": "cap7",
-      "title": "La Fuga",
-      "enemies": [
-        "freddy",
-        "bonnie",
-        "chica",
-        "foxy",
-        "golden"
-      ],
-      "aggression": 1.5,
-      "eventRate": 1.8,
-      "startPower": 55,
-      "introCinematic": "cine_cap6",
-      "outroCinematic": "cine_ending",
-      "lines": [
-        "Energía restaurada. Puertas armadas.",
-        "Tres tarjetas de acceso abren los tornos del vestíbulo.",
-        "El complejo entero sabe que te vas. TODOS vienen."
-      ],
-      "radio": {
-        "atMinute": 0.2,
-        "lines": [
-          "Última noche, chico. Tres tarjetas de servicio: la de la Galería Estelar, la del Teatro y la de la Plaza de Comida.",
-          "Con las tres, los tornos del vestíbulo se abren. La puerta de salida se desbloquea al acercarlas.",
-          "Ellos lo saben. Los cuatro cazan. Y el dorado... el dorado no caza: recoge.",
-          "Corre al vestíbulo. Usa los grandes espacios. Gira en las fuentes. Y cuando veas la puerta... no dudes.",
-          "*clic* — Buena suerte, chico. — *señal perdida* —"
-        ]
-      },
-      "objectives": [
-        {
-          "id": "c7_key1",
-          "title": "Tarjeta de acceso — Galería Estelar",
-          "hint": "Sobre el pedestal de la estatua",
-          "type": "interact",
-          "room": "rockstar",
-          "target": "key_rockstar"
-        },
-        {
-          "id": "c7_key2",
-          "title": "Tarjeta de acceso — Teatro Bruno",
-          "hint": "En la primera fila de butacas",
-          "type": "interact",
-          "room": "theater",
-          "target": "key_theater"
-        },
-        {
-          "id": "c7_key3",
-          "title": "Tarjeta de acceso — Plaza de Comida",
-          "hint": "En una mesa central",
-          "type": "interact",
-          "room": "foodcourt",
-          "target": "key_foodcourt"
-        },
-        {
-          "id": "c7_escape",
-          "title": "ESCAPA por los tornos del vestíbulo",
-          "hint": "Puerta doble del vestíbulo sur",
-          "type": "interact",
-          "room": "lobby",
-          "target": "exit_door"
-        }
-      ]
+     "id": "c1_exit",
+     "title": "Vuelve con vida a la Oficina de Seguridad",
+     "hint": "Rulo cerrará las rejas a tu paso",
+     "type": "system",
+     "target": "office_returned"
     }
-  ]
+   ]
+  },
+  {
+   "chapter": 2,
+   "id": "cap2",
+   "title": "La Bolera",
+   "enemies": [
+    "freddy",
+    "bonnie"
+   ],
+   "aggression": 0.8,
+   "eventRate": 1.0,
+   "startPower": 85,
+   "introCinematic": "cine_cap2",
+   "outroCinematic": "cine_camstare",
+   "lines": [
+    "La guardería quedó atrás. El MEGAPLEX entero sigue a oscuras.",
+    "La Bolera tiene las máquinas de chapa fundidas.",
+    "Y la coneja del recreativo ha aprendido a usar los conductos."
+   ],
+   "radio": {
+    "atMinute": 0.3,
+    "lines": [
+     "¿Sigues vivo? Bien. Escucha: en la OFICINA DE SEGURIDAD del Paseo Sur dejé una tableta con las cámaras. Con ella los ves venir. Cógela.",
+     "La Bolera tiene los pinsetters fundidos. Tres. El jefe quiere la bolera viva para el evento de mañana.",
+     "Y sí: es una PRUEBA. Las luces morirán, ella vendrá. Si te atrapa, despiertas en el paseo. Inténtalo otra vez.",
+     "Bonnie — la coneja — sale del Salón Recreativo. La linterna la congela si le das de lleno en la cara.",
+     "Antes de entrar, recoge 3 fichas doradas del recreativo. Las necesitarás para las máquinas."
+    ]
+   },
+   "objectives": [
+    {
+     "id": "c2_tablet",
+     "title": "Recoge la tableta de vigilancia",
+     "hint": "Oficina de Seguridad — Paseo Sur [C]",
+     "type": "interact",
+     "room": "office",
+     "target": "desk_tablet"
+    },
+    {
+     "id": "c2_tokens",
+     "title": "Reúne 3 fichas doradas",
+     "hint": "Caídas por el Salón Recreativo",
+     "type": "collect",
+     "count": 3
+    },
+    {
+     "id": "c2_trial",
+     "title": "SUPERA LA PRUEBA: Bolera",
+     "hint": "Entra en la Bolera y reinicia las 3 máquinas de chapa",
+     "type": "trial",
+     "target": "bowling"
+    }
+   ]
+  },
+  {
+   "chapter": 3,
+   "id": "cap3",
+   "title": "La Plaza de Comida",
+   "enemies": [
+    "freddy",
+    "bonnie",
+    "chica"
+   ],
+   "aggression": 0.95,
+   "eventRate": 1.2,
+   "startPower": 75,
+   "introCinematic": "cine_cap3",
+   "outroCinematic": "cine_golden",
+   "lines": [
+    "La Bolera canta. La night sigue.",
+    "La Plaza de Comida debe abrir mañana con los tres puestos vivos.",
+    "La gallina ya ronda las mesas. Y huele el horno."
+   ],
+   "radio": {
+    "atMinute": 0.3,
+    "lines": [
+     "Chica — la gallina — caza en la Plaza de Comida desde esta night. Le precede el olor a pizza quemada... y a pluma.",
+     "Tres puestos fundidos: PIZZA, PATATAS y HELADOS. Rearranca los tres. Las notas de servicio dicen que se reactivan solos... casi.",
+     "Chica no esquiva la linterna. La oye TODO. Camina agachado con Ctrl y no corras dentro.",
+     "Cuando la pases, pásate por la Cala del Pirata. Alguien dejó un cartel ahí... y algo se mueve tras el telón."
+    ]
+   },
+   "objectives": [
+    {
+     "id": "c3_trial",
+     "title": "SUPERA LA PRUEBA: Plaza de Comida",
+     "hint": "Rearranca los 3 puestos de comida",
+     "type": "trial",
+     "target": "foodcourt"
+    },
+    {
+     "id": "c3_cove",
+     "title": "Investiga la Cala del Pirata",
+     "hint": "Oeste del Paseo Oeste",
+     "type": "goto",
+     "room": "pirateCove"
+    }
+   ]
+  },
+  {
+   "chapter": 4,
+   "id": "cap5",
+   "title": "La Cala del Pirata",
+   "enemies": [
+    "freddy",
+    "bonnie",
+    "chica",
+    "foxy"
+   ],
+   "aggression": 1.1,
+   "eventRate": 1.4,
+   "startPower": 70,
+   "introCinematic": "cine_cap4",
+   "outroCinematic": "cine_cap5",
+   "lines": [
+    "La atracción de la Cala lleva años apagada.",
+    "El zorro de detrás del telón ha empezado a correr de verdad.",
+    "Enciende los 3 interruptores. Y no pares de moverte."
+   ],
+   "radio": {
+    "atMinute": 0.25,
+    "lines": [
+     "Foxy. El zorro. Es el más rápido y el único al que la máscara no engaña. Si te persigue: sprint y giros.",
+     "La linterna lo REPELE — directamente a la cara, sin piedad, hasta que retroceda.",
+     "Tres interruptores en la pared sur de la Cala, en orden. Si te atrapa, reapareces en el paseo. Es su juego favorito: el gato y el zorro.",
+     "Cuando la atracción ruge, él vuelve a su telón. Siempre vuelve. Nunca sabrás si duerme o finge."
+    ]
+   },
+   "objectives": [
+    {
+     "id": "c4_trial",
+     "title": "SUPERA LA PRUEBA: Cala del Pirata",
+     "hint": "3 interruptores de la atracción, en orden",
+     "type": "trial",
+     "target": "cove"
+    },
+    {
+     "id": "c4_tape",
+     "title": "Recupera la cinta del barco",
+     "hint": "Cerca del barco pirata de la Cala",
+     "type": "collect",
+     "count": 1,
+     "optional": true
+    }
+   ]
+  },
+  {
+   "chapter": 5,
+   "id": "cap6",
+   "title": "Los Generadores",
+   "enemies": [
+    "freddy",
+    "bonnie",
+    "chica",
+    "foxy"
+   ],
+   "aggression": 1.3,
+   "eventRate": 1.6,
+   "startPower": 60,
+   "introCinematic": null,
+   "outroCinematic": null,
+   "lines": [
+    "El fusible maestro está fundido. Toda la red depende de él.",
+    "La energía del complejo entero se decide en la Sala de Generadores.",
+    "Orden 3 · 1 · 4 · 2. Y todos despiertos."
+   ],
+   "radio": {
+    "atMinute": 0.2,
+    "lines": [
+     "La nota que dejé en el Cuarto Eléctrico lo dice: 3, 1, 4, 2. El orden del fusible maestro de la Sala de Generadores.",
+     "La puerta del generador está al este del Paseo Sur. La abrí para ti. No me preguntes cómo.",
+     "Uno más: hay un TRAJE DORADO en la Sala Técnica Sur, bajo tu oficina. Si sientes que te mira... corre. No luches. CORRE.",
+     "Cuando la red vuelva, las puertas exteriores del vestíbulo se armarán. Corre al sur. No mires atrás."
+    ]
+   },
+   "objectives": [
+    {
+     "id": "c5_trial",
+     "title": "SUPERA LA PRUEBA: Generadores (3·1·4·2)",
+     "hint": "Sala de Generadores, panel maestro",
+     "type": "trial",
+     "target": "generators"
+    }
+   ]
+  },
+  {
+   "chapter": 6,
+   "id": "c6_sounds",
+   "title": "El Pasillo de los Sonidos",
+   "enemies": [
+    "freddy",
+    "bonnie"
+   ],
+   "aggression": 1.35,
+   "eventRate": 1.25,
+   "startPower": 65,
+   "lines": [
+    "*clic* …Rulo otra vez. La red se va cayendo por zonas.",
+    "Toda la GALERÍA TÉCNICA está a oscuras. Solo quedan las rojas de emergencia.",
+    "No puedes ver qué hay detrás de cada puerta de servicio… pero PUEDES OÍRLO.",
+    "Escucha el sonido de cada puerta. Yo te diré a cuál entrar. Si te equivocas…",
+    "…bueno. Conoces a los de dentro. Buena suerte."
+   ],
+   "radio": {
+    "atMinute": 0.18,
+    "lines": [
+     "*clic* ¿Sigues ahí? Soy Rulo. La galería técnica se ha quedado a oscuras.",
+     "Seis puertas de servicio y solo UNA forma de saber qué hay detrás: el SONIDO.",
+     "Un VENTILADOR zumba donde no hay nadie. Las OLLAS suenan donde Chica desmonta la cocina.",
+     "Si oyes pasos pesados o una risa metálica… esa puerta NO. No la abras. Jamás.",
+     "Te guiaré ronda a ronda. Escucha antes de moverte. Confía en las orejas, no en los ojos."
+    ]
+   },
+   "objectives": [
+    {
+     "id": "c6_enter",
+     "type": "goto",
+     "label": "Llega a la Galería Técnica (a oscuras)",
+     "room": "techHall"
+    },
+    {
+     "id": "c6_trial",
+     "type": "trial",
+     "label": "Supera las rondas de sonidos (3)"
+    }
+   ],
+   "introCinematic": null,
+   "outroCinematic": null
+  },
+  {
+   "chapter": 7,
+   "id": "c7_basement",
+   "title": "El Sótano en Llamas",
+   "enemies": [
+    "luna",
+    "freddy"
+   ],
+   "aggression": 1.6,
+   "eventRate": 1.1,
+   "startPower": 70,
+   "introCinematic": "cine_inferno",
+   "outroCinematic": "cine_sunrise",
+   "lines": [
+    "La noche ya lleva tres pruebas encima.",
+    "Y ahora el MEGAPLEX huele a plástico quemado.",
+    "La MEGA GUARDERÍA arde. Y LUNA canta entre las llamas."
+   ],
+   "radio": {
+    "atMinute": 0.2,
+    "lines": [
+     "*clic* …Rulo. Lo has encontrado. El SÓTANO. Lo que queda de la pizzería ORIGINAL.",
+     "El fuego lleva AÑOS comiéndoselo. Y algo con una cara de luna vive ahí abajo.",
+     "Siete fuegos, siete extintores. Mátalos todos y la luz lo cambiará todo.",
+     "Cuando brille el Sol… CORRE A LA SALIDA DEL VESTÍBULO. No mires atrás.",
+     "Sea lo que sea lo que fuiste esta noche… termina AQUÍ."
+    ]
+   },
+   "objectives": [
+    {
+     "id": "c7_trial",
+     "title": "APAGA EL INFIERNO: 7 extintores",
+     "hint": "Mega Guardería — 7 fuegos, ni uno menos",
+     "type": "trial",
+     "target": "sunmoon"
+    },
+    {
+     "id": "c7_escape",
+     "type": "goto",
+     "label": "CORRE a la SALIDA del vestíbulo",
+     "room": "lobby"
+    }
+   ]
+  }
+ ]
 }

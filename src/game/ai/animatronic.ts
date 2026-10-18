@@ -73,17 +73,22 @@ interface ARig {
     earR?: THREE.Object3D;
   };
   eyes: THREE.Mesh[];
-  /** halo de ojos: mesh emisivo aditivo (misma función visual que un PointLight, coste cero en el shader) */
+  /** halos de ojos: mallas emisivas aditivas pegadas a los ojos REALES del
+   * modelo (v8: se acabó la esfera flotante delante de la cara) */
+  eyeGlows: THREE.Mesh[];
   eyeGlow: THREE.Mesh | null;
   height: number;
 }
 
-/** ajusta el brillo del halo de ojos de un rig */
-export function setEyeGlow(rig: { eyeGlow: THREE.Mesh | null }, level: number) {
-  if (!rig.eyeGlow) return;
-  const m = rig.eyeGlow.material as THREE.MeshBasicMaterial;
-  m.opacity = Math.min(1, 0.25 + level * 0.75);
-  rig.eyeGlow.scale.setScalar(1 + level * 0.9);
+/** ajusta el brillo de los halos de ojos de un rig */
+export function setEyeGlow(rig: { eyeGlow: THREE.Mesh | null; eyeGlows?: THREE.Mesh[] }, level: number) {
+  const list = rig.eyeGlows && rig.eyeGlows.length ? rig.eyeGlows : rig.eyeGlow ? [rig.eyeGlow] : [];
+  for (const e of list) {
+    const m = e.material as THREE.MeshBasicMaterial;
+    m.opacity = Math.min(1, 0.25 + level * 0.75);
+    const base = (e.userData as { baseScale?: number }).baseScale ?? 1;
+    e.scale.setScalar(base * (1 + level * 0.35));
+  }
 }
 
 export class Animatronic {
@@ -155,26 +160,50 @@ export class Animatronic {
       gltfRig = Assets.rigs.get(assetKind) ?? null;
     }
     if (gltfRig) {
-      // halo de ojos emisivo (sin luz real: gratis para el shader)
-      const eyeGlow = new THREE.Mesh(
-        new THREE.SphereGeometry(0.11, 10, 8),
-        new THREE.MeshBasicMaterial({
-          color: def.eyeColor,
-          transparent: true,
-          opacity: 0.85,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false,
-          toneMapped: false,
-        })
-      );
-      eyeGlow.position.set(0, gltfRig.height * 0.84, 0.26);
-      gltfRig.root.add(eyeGlow);
+      /* v8 — halos de ojos PEGADOS a los ojos reales del GLB: una esfera
+       * aditiva pequeña por ojo, posicionada según la caja del mesh del ojo
+       * tras la normalización. Se acabó la esfera flotante en (0, h*0.84,
+       * 0.26) que atravesaba la cara de Bonnie/Chica/Foxy/Freddy. */
+      const eyeGlows: THREE.Mesh[] = [];
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: def.eyeColor,
+        transparent: true,
+        opacity: 0.55,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        toneMapped: false,
+      });
+      const tmpBox = new THREE.Box3();
+      const tmpCtr = new THREE.Vector3();
+      const tmpSize = new THREE.Vector3();
+      for (const eye of gltfRig.eyes) {
+        tmpBox.setFromObject(eye);
+        tmpBox.getCenter(tmpCtr);
+        const r = Math.max(0.03, tmpBox.getSize(tmpSize).length() * 0.16);
+        const glow = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), glowMat);
+        // posición en el espacio del ojo (lo sigue si la cabeza gira),
+        // contrarrestando la escala global del modelo
+        const inv = 1 / Math.max(0.0001, eye.getWorldScale(new THREE.Vector3()).x);
+        glow.position.copy(eye.worldToLocal(tmpCtr.clone()));
+        glow.scale.setScalar(inv);
+        (glow.userData as { baseScale?: number }).baseScale = inv;
+        eye.add(glow);
+        eyeGlows.push(glow);
+      }
+      if (!eyeGlows.length && def.kind === 'luna') {
+        // Luna (GLB sin meshes de ojo): brillo tenue de la cara, pegado al frente
+        const glow = new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 8), glowMat);
+        glow.position.set(0, gltfRig.height * 0.78, 0.12);
+        gltfRig.root.add(glow);
+        eyeGlows.push(glow);
+      }
       const rig: ARig = {
         root: gltfRig.root,
         model: gltfRig.model,
         bones: gltfRig.bones,
         eyes: gltfRig.eyes,
-        eyeGlow,
+        eyeGlows,
+        eyeGlow: eyeGlows[0] ?? null,
         height: gltfRig.height,
       };
       this.moonRig = def.kind === 'luna' ? gltfRig : null;
@@ -193,6 +222,7 @@ export class Animatronic {
       model: null,
       bones: char.bones,
       eyes: char.eyes,
+      eyeGlows: char.eyeGlow ? [char.eyeGlow] : [],
       eyeGlow: char.eyeGlow ?? null,
       height: char.height,
     };
@@ -290,8 +320,8 @@ export class Animatronic {
     else if (this.moonRig) {
       // GLB del Eclipse: recoloreado + rayos del Sol solo en modo día
       setMoonMode(this.moonRig, mode);
-      if (this.rig.eyeGlow) {
-        (this.rig.eyeGlow.material as THREE.MeshBasicMaterial).color.setHex(mode === 'sun' ? 0xffe58a : this.def.eyeColor);
+      for (const e of this.rig.eyeGlows) {
+        (e.material as THREE.MeshBasicMaterial).color.setHex(mode === 'sun' ? 0xffe58a : this.def.eyeColor);
       }
     }
   }

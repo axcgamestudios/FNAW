@@ -9,6 +9,7 @@ import { setGameInstance, getGame } from '@/game/core/instance';
 import type { Game } from '@/game/core/game';
 import LoadingScreen from './LoadingScreen';
 import MainMenu from './MainMenu';
+import NewspaperIntro from './NewspaperIntro';
 import ChapterIntro from './ChapterIntro';
 import HUD from './HUD';
 import TabletView from './TabletView';
@@ -126,6 +127,8 @@ export default function GameShell() {
       {mode === 'boot' && <LoadingScreen error={bootError} />}
 
       {mode === 'menu' && <MainMenu />}
+
+      {mode === 'newspaper' && <NewspaperIntro />}
 
       {mode === 'intro' && <ChapterIntro />}
 

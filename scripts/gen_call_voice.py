@@ -54,11 +54,11 @@ for ch in chapters:
                                         "-of", "csv=p=0", mp3], capture_output=True, text=True).stdout.strip())
             entry.append({"file": f"cap{cap}_l{i}.mp3", "text": text, "dur": round(dur, 2)})
             continue
-        # 1) TTS (con reintentos)
+        # 1) TTS (con reintentos) — velocidad ligeramente lenta = más peso
         ok = False
         for attempt in range(3):
             try:
-                r = subprocess.run(["z-ai", "tts", "-i", text, "-o", wav, "--voice", "xiaochen", "--speed", "1.0"],
+                r = subprocess.run(["z-ai", "tts", "-i", text, "-o", wav, "--voice", "xiaochen", "--speed", "0.92"],
                                    capture_output=True, text=True, timeout=240)
                 if os.path.exists(wav) and os.path.getsize(wav) > 2000:
                     ok = True
@@ -70,9 +70,15 @@ for ch in chapters:
             failed.append((cap, i, "tts", "3 intentos fallidos"))
             time.sleep(10)
             continue
-        # 2) filtro de radio: banda telefónica + compresión + un pelín de saturación
+        # 2) VOZ MASCULINA GRAVE: bajamos el tono 22% (pitch 0.78) manteniendo
+        #    la duración con atempo, y luego filtro de radio que CONSERVA los
+        #    graves (highpass 110 en vez de 280) + resonancia de pecho (170 Hz)
         subprocess.run(["ffmpeg", "-y", "-v", "quiet", "-i", wav,
-                        "-af", "highpass=f=280,lowpass=f=3200,acompressor=threshold=-20dB:ratio=3.5:attack=8:release=120,volume=1.7",
+                        "-af", "asetrate=24000*0.78,aresample=44100,atempo=1.2821,"
+                               "highpass=f=110,lowpass=f=3100,"
+                               "equalizer=f=170:t=q:w=1.1:g=5,equalizer=f=300:t=q:w=1:g=2,"
+                               "equalizer=f=2800:t=q:w=1:g=-2,"
+                               "acompressor=threshold=-21dB:ratio=3:attack=8:release=140,volume=2.0",
                         "-ar", "44100", mp3], check=True)
         dur = float(subprocess.run(["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
                                     "-of", "csv=p=0", mp3], capture_output=True, text=True).stdout.strip())

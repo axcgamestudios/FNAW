@@ -82,6 +82,10 @@ export class Game {
   /** v7 — acumulador de daño por fuego (Mega Guardería) */
   private fireBurnT = 0;
   private powerOut = false;
+  /** v9 — la salida se abre al superar SOL Y LUNA del cap 7 */
+  private exitUnlocked = false;
+  /** v10 — la nana ya sonó al entrar en la guardería (cap 1) */
+  private daycareLullaby = false;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -138,16 +142,12 @@ export class Game {
     await nextFrame();
     this.world = new WorldBuilder(this.scene);
     this.world.buildAll((f, label) => onProgress(0.55 + f * 0.2, label));
-    // rendimiento: los props NO proyectan sombra (solo personajes y puertas);
-    // el pase de sombras de la linterna baja de ~1500 a ~100 meshes
+    // rendimiento: sombras solo en estructuras (muros, marcos, conductos y
+    // puertas — marcadas con userData.castShadow en el worldbuilder) y
+    // personajes; los props pequeños no proyectan sombra
     this.world.root.traverse((o) => {
-      if (o instanceof THREE.Mesh) o.castShadow = false;
+      if (o instanceof THREE.Mesh) o.castShadow = !!(o.userData as { castShadow?: boolean }).castShadow;
     });
-    for (const d of this.world.doors.values()) {
-      d.group.traverse((o) => {
-        if (o instanceof THREE.Mesh) o.castShadow = true;
-      });
-    }
     await nextFrame();
 
     onProgress(0.8, 'Trazando rutas de los animatrónicos...');
@@ -436,6 +436,7 @@ export class Game {
     this.danger = 0;
     this.chapterEndPending = false;
     this.powerOut = false;
+    this.exitUnlocked = false;
     // silenciar la música del tema al entrar en juego
     this.audio.stopThemeMusic();
     // v7 — y la nana del incendio (la prueba la reactivará)
@@ -464,8 +465,8 @@ export class Game {
         // cap 1: LUNA vela la guardería pequeña, a oscuras
         luna.setDayNight('moon');
         luna.teleportTo(-18, 10.5, 0.8);
-      } else if (n === 4) {
-        // cap 4 — EL INFIERNO: LUNA cuelga boca abajo del centro del techo
+      } else if (n === 7) {
+        // cap 7 — EL SÓTANO EN LLAMAS: LUNA cuelga boca abajo del techo
         luna.setDayNight('moon');
         luna.teleportTo(0, -48, 0.6);
         luna.hangFromCeiling(6.55);
@@ -484,11 +485,12 @@ export class Game {
         }
       }
     }
-    // el infierno solo arde en el cap 4
-    MEGA_FIRE?.setEnabled(n === 4);
+    // el sótano solo arde en el cap 7 (final)
+    MEGA_FIRE?.setEnabled(n === 7);
     if (n === 1) {
-      // escondido en la alberca: agachado y sin linterna
-      this.player.crouching = true;
+      // cap 1 — EL PRIMER TURNO: el guardia nuevo entra por el VESTÍBULO
+      // (de pie, con las llaves en la mano... pero sin linterna todavía)
+      this.player.crouching = false;
       this.player.flashlightOn = false;
       this.player.flashlightBattery = Math.max(this.player.flashlightBattery, 55);
     } else {
@@ -504,6 +506,7 @@ export class Game {
     this.callQueue = [];
     this.callLineIdx = 0;
     this.callLineTimer = 0;
+    this.daycareLullaby = false;
     useHud.getState().syncHud({
       chapter: n,
       chapterTitle: this.chapterDef.title,
@@ -616,8 +619,8 @@ export class Game {
       addNoise: (x: number, z: number, r: number) => this.addNoise(x, z, r),
       unlockDoor: (id: string) => this.forceUnlockDoor(id),
       onTrialSuccess: () => {
-        // el Freddy Dorado despierta al superar la prueba de generadores
-        if (this.chapter === 6) {
+        // el Freddy Dorado despierta al superar la prueba de generadores (cap 5)
+        if (this.chapter === 5) {
           const golden = this.animatronics.find((a) => a.def.id === 'golden');
           if (golden && !golden.active) {
             this.audio.stinger();
@@ -625,6 +628,12 @@ export class Game {
             this.notify('EL TRAJE DORADO SE HA LEVANTADO — CORRE AL VESTÍBULO');
             this.player.setShake(0.9);
           }
+        }
+        // cap 7 — SOL Y LUNA superado: la salida se abre de par en par
+        if (this.chapter === 7) {
+          this.exitUnlocked = true;
+          this.notify('LA SALIDA ESTÁ ABIERTA — CORRE, NO MIRES ATRÁS');
+          this.audio.stinger();
         }
       },
       sfx: {
@@ -644,6 +653,8 @@ export class Game {
         extinguisherSpray: () => this.audio.extinguisherSpray(),
         setFireAmbience: (on: boolean) => this.audio.setFireAmbience(on),
         setDaycareSong: (on: boolean) => this.audio.setDaycareSong(on),
+        playLoopSfx: (name, pos, vol) => this.audio.playLoopSfx(name, pos, vol),
+        freddyLaugh: (pos: THREE.Vector3) => this.audio.freddyLaugh(pos),
       },
     };
   }
@@ -655,7 +666,7 @@ export class Game {
     door.locked = false;
     this.nav.setDoorBlocked(id, false);
     door.open = true;
-    door.targetAngle = door.group.rotation.y + (door.def.axis === 'x' ? 1.9 : -1.9);
+    door.targetAngle = door.baseAngle + door.swing * door.openAngle;
     this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
   }
 
@@ -816,9 +827,6 @@ export class Game {
     const open = !st.tabletOpen;
     st.setTablet(open);
     this.audio.camSwitch();
-    if (open && this.chapter === 1) {
-      this.missions.completeObjective('c1_cams', true);
-    }
   }
 
   /* ============ INTERACCIONES ============ */
@@ -847,12 +855,12 @@ export class Game {
             this.notify('La estantería se desliza hacia dentro... la sala técnica');
             this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
             door.open = true;
-            door.targetAngle = door.group.rotation.y - 1.8;
+            door.targetAngle = door.baseAngle + door.swing * door.openAngle;
             return;
           }
           if (isGenerator && door.locked) {
-            // la sala de generadores se abre en el capítulo 6
-            if (ch >= 6) {
+            // la sala de generadores se abre en el capítulo 5
+            if (ch >= 5) {
               door.locked = false;
               this.nav.setDoorBlocked(door.def.id, false);
               this.notify('SALA DE GENERADORES ABIERTA');
@@ -864,12 +872,17 @@ export class Game {
             return;
           }
           if (door.locked) {
-            if (isExit && ch === 7 && this.missions.keycards >= 3) {
+            if (isExit && ch === 7 && (this.missions.keycards >= 3 || this.exitUnlocked)) {
+              this.missions.completeObjective('c7_escape');
               this.finishGame('escape');
               return;
             }
             if (isExit && ch === 7) {
-              this.notify(`NECESITAS 3 TARJETAS (${this.missions.keycards}/3)`);
+              this.notify(
+                this.exitUnlocked
+                  ? 'LA PUERTA ESTÁ ABIERTA — ¡EMPÚJALA!'
+                  : `GANA LA PRUEBA DEL SÓTANO (tarjetas: ${this.missions.keycards}/3)`
+              );
             } else {
               this.notify(door.def.lockedMsg ?? 'Bloqueada');
             }
@@ -877,8 +890,9 @@ export class Game {
             return;
           }
           door.open = !door.open;
-          door.targetAngle = door.group.rotation.y + (door.open ? (Math.random() > 0.5 ? 1.9 : -1.9) : door.open ? 1.9 : -1.6);
-          if (!door.open) door.targetAngle = Math.round(door.group.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
+          door.targetAngle = door.open
+            ? door.baseAngle + door.swing * door.openAngle
+            : door.baseAngle;
           this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
           this.addNoise(door.def.x, door.def.z, 6);
         },
@@ -912,8 +926,8 @@ export class Game {
       });
     }
 
-    // recogida de linterna — cap 1: torre de juegos de la guardería
-    const torch = world.anchors.get('daycare_torch') ?? world.anchors.get('desk_torch');
+    // recogida de linterna — cap 1: escritorio de la Oficina de Seguridad
+    const torch = world.anchors.get('desk_torch') ?? world.anchors.get('daycare_torch');
     if (torch) {
       this.interactables.push({
         id: 'pickup_torch',
@@ -926,7 +940,7 @@ export class Game {
           torch.mesh!.visible = false;
           this.audio.pickup();
           this.missions.completeObjective('c1_torch');
-          this.notify('Linterna equipada [F] — RULO ABRE LAS REJAS');
+          this.notify('LINTERNA EQUIPADA [F] — RULO ABRE LAS REJAS DE LA GUARDERÍA');
           if (this.flashlightModel) this.flashlightModel.visible = true;
           if (this.guardArms) this.guardArms.visible = true;
           // cap 1: con la linterna en la mano, Rulo abre las rejas de la guardería
@@ -1130,8 +1144,8 @@ export class Game {
           const save = addTape(tape.id);
           useHud.getState().setProgress(save.unlockedChapter, save.tapes);
         }
-        if (this.chapter === 5) {
-          this.missions.progressObjective('c5_tape');
+        if (this.chapter === 4) {
+          this.missions.progressObjective('c4_tape');
         }
         break;
       }
@@ -1202,7 +1216,7 @@ export class Game {
       door.locked = false;
       this.nav.setDoorBlocked(doorId, false);
       door.open = true;
-      door.targetAngle = door.group.rotation.y + 1.9;
+      door.targetAngle = door.baseAngle + door.swing * door.openAngle;
       this.audio.keypadBeep(true);
       this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
       st.setKeypad(null);
@@ -1550,10 +1564,12 @@ export class Game {
         .every((o) => o.done);
     const gotoChecks: Array<[string, string, boolean]> = [
       ['c3_cove', 'pirateCove', true],
+      ['c6_enter', 'techHall', false],
     ];
     for (const [objId, roomId, requireOthers] of gotoChecks) {
       const o = this.missions.objectives.find((x) => x.def.id === objId);
-      if (o && !o.done && room === roomId && (!requireOthers || othersDoneFor(o.def.id))) {
+      if (!o || o.done || room !== roomId) continue;
+      if (!requireOthers || othersDoneFor(o.def.id)) {
         this.missions.completeObjective(objId);
         // susto guionizado al llegar a la cala
         if (objId === 'c3_cove') {
@@ -1564,20 +1580,37 @@ export class Game {
             this.notify('ALGO SE MUEVE TRAS EL TELÓN DE LA CALA...');
           }
         }
+        if (objId === 'c6_enter') {
+          this.audio.stinger();
+          this.player.setShake(0.4);
+          this.notify('LA GALERÍA TÉCNICA — A CIEGAS. ESCUCHA LAS PUERTAS…');
+        }
       }
     }
 
-    // objetivos de ZONA del cap 1: salir de la alberca y salir de la guardería
+    // objetivos de ZONA del cap 1 — EL PRIMER TURNO: revisar la alberca y volver
     if (this.chapter === 1) {
-      const oSneak = this.missions.objectives.find((x) => x.def.id === 'c1_sneak');
-      if (oSneak && !oSneak.done && !this.player.inBallPit) {
-        this.missions.completeObjective('c1_sneak');
-        this.notify('FUERA DE LA ALBERCA — NO TE LEVANTES TODAVÍA [Ctrl]');
+      // al entrar en la guardería: la nana de la caja suena a lo lejos
+      if (room === 'daycare' && !this.daycareLullaby) {
+        this.daycareLullaby = true;
+        this.audio.lullaby({ x: -22.5, y: 1.5, z: 6.5 });
+        this.notify('LA NANA SUENA DESDE EL FONDO... LA GUARDERÍA NO ESTÁ VACÍA');
+      }
+      const oCheck = this.missions.objectives.find((x) => x.def.id === 'c1_check');
+      if (oCheck && !oCheck.done && this.player.inBallPit) {
+        this.missions.completeObjective('c1_check');
+        // las pelotas chirrían: LUNA lo ha oído y va a mirar
+        this.audio.stinger();
+        this.player.setShake(0.5);
+        const luna = this.animatronics.find((a) => a.def.id === 'luna');
+        luna?.investigateAt(new THREE.Vector3(-22.5, 0, 6.5));
+        this.notify('LAS PELOTAS CHIRRIAN. LA NANA SE DETIENE. VUELVE A LA OFICINA.');
       }
       const oExit = this.missions.objectives.find((x) => x.def.id === 'c1_exit');
-      if (oExit && !oExit.done && room !== 'daycare') {
+      const checkDone = this.missions.objectives.find((x) => x.def.id === 'c1_check')?.done;
+      if (oExit && !oExit.done && room === 'office' && checkDone) {
         this.missions.completeObjective('c1_exit');
-        this.notify('EL MEGAPLEX SE ABRE ANTE TI — SIGUE LA VOZ DE RULO');
+        this.notify('LA REJA SE CIERRA A TU ESPALDA. RULO: «BIEN, NOVEL... APAGA LA LINTERNA»');
       }
     }
 
@@ -1603,18 +1636,18 @@ export class Game {
       if (office) office.lightOn = true;
     }
 
-    // puertas animadas
+    // puertas animadas (v8): giro determinista hacia la sala B con
+    // aceleración inicial y desaceleración suave al llegar al objetivo
     for (const d of this.world.doors.values()) {
-      if (d.angle !== d.targetAngle) {
-        const diff = d.targetAngle - d.group.rotation.y;
-        d.group.rotation.y += Math.max(-3.2 * dt, Math.min(3.2 * dt, diff));
-        d.angle = d.group.rotation.y;
-        d.collider.active = Math.abs(d.angle - (d.def.axis === 'x' ? 0 : Math.PI / 2)) < 0.5 && !d.open;
-        if (Math.abs(diff) < 0.02) {
-          d.angle = d.targetAngle;
-          d.group.rotation.y = d.targetAngle;
-        }
+      const diff = d.targetAngle - d.angle;
+      if (Math.abs(diff) > 0.0015) {
+        const vmax = 2.9;                                     // rad/s
+        const v = Math.min(vmax, 0.5 + Math.abs(diff) * 4.6); // ease-out
+        d.angle += Math.sign(diff) * Math.min(Math.abs(diff), v * dt);
+        d.group.rotation.y = d.angle;
+        if (Math.abs(d.targetAngle - d.angle) < 0.0015) d.angle = d.targetAngle;
       }
+      d.collider.active = !d.open && Math.abs(d.angle - d.baseAngle) < 0.45;
     }
 
     // tapas de conducto: Bonnie las tumba

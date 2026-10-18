@@ -3,7 +3,7 @@
 /**
  * Menú principal FNAW: imagen real del repo (salón con el Show Stage y los
  * animatrónicos) bajo estática CRT, opciones fantasma con marcador » y
- * paneles a la derecha. MEGAPLEX: 6 capítulos, 11 cintas.
+ * paneles a la derecha. FNAF: NEW WORLD: 7 capítulos, 11 cintas.
  */
 import { useState } from 'react';
 import chaptersData from '@/data/chapters.json';
@@ -25,12 +25,12 @@ export default function MainMenu() {
 
   const chapters = (chaptersData as { chapters: Array<{ chapter: number; title: string; lines: string[] }> }).chapters;
 
-  const launchChapter = (n: number) => {
+  const launchChapter = (n: number, newspaper = false) => {
     const ch = chapters.find((x) => x.chapter === n);
     if (!ch) return;
     setIntro(ch.lines);
     useHud.getState().syncHud({ chapter: n, chapterTitle: ch.title });
-    useHud.getState().setMode('intro');
+    useHud.getState().setMode(newspaper ? 'newspaper' : 'intro');
   };
 
   const progressChapter = Math.min(unlockedChapter, TOTAL_CHAPTERS);
@@ -49,7 +49,7 @@ export default function MainMenu() {
 
       {/* el título FNAF: NEW WORLD viene en la propia imagen; aquí solo el subtítulo */}
       <div className="absolute top-10 left-10 z-10">
-        <div className="fnaw-sub title-flicker" style={{ fontSize: '1.05rem' }}>MEGAPLEX</div>
+        <div className="fnaw-sub title-flicker" style={{ fontSize: '1.05rem' }}>NEW WORLD</div>
         <p className="mt-4 text-[9px] tracking-[0.34em] fnaf-dim">
           COMPLEJO BRUNO · TURNO DE CIERRE
         </p>
@@ -60,7 +60,7 @@ export default function MainMenu() {
 
       {/* opciones: columna izquierda, centrada verticalmente */}
       <div className="absolute left-10 top-1/2 -translate-y-1/2 z-10 w-[300px]">
-        <button className="menu-btn fnaf-item" onClick={() => launchChapter(1)}>
+        <button className="menu-btn fnaf-item" onClick={() => launchChapter(1, true)}>
           <span className="menu-mark">»</span>NUEVA PARTIDA
         </button>
         <button
@@ -163,7 +163,7 @@ export default function MainMenu() {
         </div>
       )}
 
-      <p className="absolute bottom-4 right-6 text-[9px] tracking-[0.3em] fnaf-dim">v4.2 — FNAW MEGAPLEX</p>
+      <p className="absolute bottom-4 right-6 text-[9px] tracking-[0.3em] fnaf-dim">v10 — FNAF: NEW WORLD</p>
       <p className="absolute bottom-4 left-10 text-[9px] tracking-[0.3em] fnaf-dim">HAZ CLIC PARA ACTIVAR EL SONIDO</p>
     </div>
   );

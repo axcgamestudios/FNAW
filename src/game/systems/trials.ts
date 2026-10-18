@@ -11,6 +11,19 @@ import type { Animatronic } from '../ai/animatronic';
 import type { Player } from '../player/player';
 import { MEGA_FIRE } from '../world/fire';
 
+/** v9 — ronda del puzzle auditivo */
+interface SoundDoorDef {
+  door: string;
+  sound: 'fan' | 'kitchen' | 'steps' | 'laugh' | 'none';
+  label: string;
+}
+interface SoundsRound {
+  hint: string;
+  doors: SoundDoorDef[];
+  safe: string;
+}
+type LoopHandle = { stop: (fade?: number) => void };
+
 export interface TrialHudData {
   name: string | null;
   attempts: number;
@@ -49,6 +62,9 @@ export interface TrialHost {
     extinguisherSpray(): void;
     setFireAmbience(on: boolean): void;
     setDaycareSong(on: boolean): void;
+    /** v9 — puzzle auditivo */
+    playLoopSfx(name: 'fan_ambience' | 'kitchen_clatter', pos: { x: number; y: number; z: number }, vol?: number): LoopHandle | null;
+    freddyLaugh(pos: THREE.Vector3): void;
   };
 }
 
@@ -65,6 +81,10 @@ export class TrialSystem {
   private lightsOutT = 0;
   private fakeStepsT = 0;
   private fakeStepsCount = 0;
+  /* v9 — puzzle auditivo */
+  private soundLoops: LoopHandle[] = [];
+  private soundTimers: Array<{ door: string; kind: 'steps' | 'laugh'; t: number; pos: [number, number] }> = [];
+  private soundsRound = 0;
 
   constructor(host: TrialHost) {
     this.host = host;
@@ -134,6 +154,22 @@ export class TrialSystem {
         this.fakeStepsT = 0.33 + Math.random() * 0.2;
       }
     }
+    // v9 — relojes del puzzle auditivo (pasos y risas tras las puertas)
+    if (this.soundTimers.length) {
+      for (const st of this.soundTimers) {
+        st.t -= dt;
+        if (st.t <= 0) {
+          const [x, z] = st.pos;
+          if (st.kind === 'steps') {
+            this.host.sfx.footstep(new THREE.Vector3(x, 0, z - 1.2), 'metal', false, true);
+            st.t = 0.72 + Math.random() * 0.3;
+          } else {
+            this.host.sfx.freddyLaugh(new THREE.Vector3(x, 1.4, z));
+            st.t = 3.2 + Math.random() * 1.6;
+          }
+        }
+      }
+    }
   }
 
   begin(t: TrialDef) {
@@ -156,8 +192,107 @@ export class TrialSystem {
       this.host.sfx.setFireAmbience(true);
       this.host.sfx.setDaycareSong(true);
     }
+    // v9 — puzzle auditivo: primera ronda
+    if ((t as TrialDef & { type?: string }).type === 'sounds') {
+      this.beginSounds(t);
+    }
     this.fireScares('start');
     this.syncHud();
+  }
+
+  /* ============ v9 — EL PASILLO DE LOS SONIDOS ============ */
+
+  private soundsRounds(): SoundsRound[] {
+    if (!this.active) return [];
+    return (this.active as TrialDef & { rounds?: SoundsRound[] }).rounds ?? [];
+  }
+
+  private beginSounds(t: TrialDef) {
+    this.soundsRound = 0;
+    this.setupSoundsRound();
+  }
+
+  /** monta los sonidos y las tarjetas de puerta de la ronda actual */
+  private setupSoundsRound() {
+    this.stopSoundLoops(0.6);
+    const t = this.active;
+    if (!t) return;
+    const rounds = this.soundsRounds();
+    const round = rounds[this.soundsRound];
+    if (!round) return;
+    this.host.notify(round.hint);
+    this.host.setTrialHud({
+      name: t.name,
+      attempts: this.attempts,
+      tasksDone: this.soundsRound,
+      tasksTotal: rounds.length,
+      nextTask: round.hint,
+    });
+    // puertas de la ronda: sonido posicional + tarjeta de interacción
+    for (const d of round.doors) {
+      const door = this.host.world.doors.get(d.door);
+      if (!door) continue;
+      const { x, z } = door.def;
+      if (d.sound === 'fan') {
+        const l = this.host.sfx.playLoopSfx('fan_ambience', { x, y: 1.3, z: z - 1.6 }, 0.5);
+        if (l) this.soundLoops.push(l);
+      } else if (d.sound === 'kitchen') {
+        const l = this.host.sfx.playLoopSfx('kitchen_clatter', { x, y: 1.3, z: z - 1.6 }, 0.85);
+        if (l) this.soundLoops.push(l);
+      } else if (d.sound === 'steps') {
+        this.soundTimers.push({ door: d.door, kind: 'steps', t: 0.4 + Math.random() * 0.6, pos: [x, z] });
+      } else if (d.sound === 'laugh') {
+        this.soundTimers.push({ door: d.door, kind: 'laugh', t: 1 + Math.random() * 1.6, pos: [x, z] });
+      }
+      this.host.registerInteractable({
+        id: `sounds_${d.door}`,
+        label: `ESCUCHAR Y ABRIR — ${d.label}`,
+        pos: { x, y: 1.1, z },
+        radius: 2.0,
+        enabled: () => this.active === t,
+        action: () => this.chooseSoundDoor(d.door),
+      });
+    }
+  }
+
+  private stopSoundLoops(fade = 0.6) {
+    for (const l of this.soundLoops) l.stop(fade);
+    this.soundLoops = [];
+    this.soundTimers = [];
+  }
+
+  /** el jugador abre una puerta de la ronda */
+  private chooseSoundDoor(doorId: string) {
+    const t = this.active;
+    if (!t) return;
+    const rounds = this.soundsRounds();
+    const round = rounds[this.soundsRound];
+    if (!round) return;
+    const door = this.host.world.doors.get(doorId);
+    if (doorId === round.safe) {
+      // puerta correcta: se abre, sonido de éxito, siguiente ronda
+      this.host.unlockDoor(doorId);
+      this.host.sfx.switchClick();
+      this.host.notify('PUERTA CORRECTA — sigue la voz de Rulo…');
+      this.soundsRound++;
+      this.host.clearTrialInteractables();
+      if (this.soundsRound >= rounds.length) {
+        this.stopSoundLoops(1.2);
+        this.succeed();
+      } else {
+        this.setupSoundsRound();
+      }
+    } else {
+      // puerta EQUIVOCADA: la puerta revienta y Freddy sale a por ti
+      this.host.sfx.freddyLaugh(door ? new THREE.Vector3(door.def.x, 1.4, door.def.z) : this.host.player.pos.clone());
+      this.host.player.setShake(1.0);
+      const hunter = this.hunter;
+      if (hunter && door) {
+        hunter.teleportTo(door.def.x, door.def.z - 1.2, Math.atan2(this.host.player.pos.x - door.def.x, this.host.player.pos.z - door.def.z + 1.2));
+        hunter.scriptWake();
+        this.host.notify('¡HAS ABIERTO LA PUERTA EQUIVOCADA!');
+      }
+    }
   }
 
   /** luces de estado de los generadores de la guardería: todas a rojo */
@@ -246,6 +381,9 @@ export class TrialSystem {
     if (!this.active) return;
     const t = this.active;
     const sunny = !!(t as TrialDef & { sunnyTransform?: boolean }).sunnyTransform;
+    // v9 — cortar cualquier bucle del puzzle auditivo
+    this.stopSoundLoops(1.2);
+    this.soundsRound = 0;
     this.host.sfx.powerUp();
     const hunter = this.hunter;
     if (sunny && hunter) {
@@ -296,6 +434,11 @@ export class TrialSystem {
     this.attempts++;
     const t = this.active;
     this.tasksDone = []; // la prueba se reinicia de cero (puro estilo prueba)
+    // v9 — puzzle auditivo: la ronda actual se vuelve a montar
+    if ((t as TrialDef & { type?: string }).type === 'sounds') {
+      this.host.clearTrialInteractables();
+      this.setupSoundsRound();
+    }
     // v7 — el infierno vuelve a arder entero
     if (t.room === 'megadaycare') {
       MEGA_FIRE?.begin();
@@ -312,8 +455,11 @@ export class TrialSystem {
       }
       hunter.calmDown();
     }
-    this.registerTasks();
     this.resetGeneratorLights(t);
+    // v9 — el puzzle auditivo ya montó sus tarjetas arriba
+    if ((t as TrialDef & { type?: string }).type !== 'sounds') {
+      this.registerTasks();
+    }
     this.syncHud();
     return { trial: t, attempts: this.attempts };
   }
@@ -457,6 +603,9 @@ export class TrialSystem {
     this.lightsOutT = 0;
     this.fakeStepsT = 0;
     this.fakeStepsCount = 0;
+    // v9 — cortar los bucles del puzzle auditivo al cambiar de capítulo
+    this.stopSoundLoops(0.8);
+    this.soundsRound = 0;
     this.host.clearTrialInteractables();
     this.syncHud();
   }

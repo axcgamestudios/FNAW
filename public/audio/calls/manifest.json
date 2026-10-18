@@ -3,199 +3,189 @@
   {
    "file": "cap1_l0.mp3",
    "text": " ¿Hola? ¿Hay alguien...? ¡Un crío! ¿Cómo demonios entraste?",
-   "dur": 3.66
+   "dur": 3.97
   },
   {
    "file": "cap1_l1.mp3",
    "text": "Soy Rulo, del turno anterior. Escucha bien: estás en la Super Guardería, escondido en la alberca de pelotas.",
-   "dur": 11.18
+   "dur": 12.15
   },
   {
    "file": "cap1_l2.mp3",
    "text": "Luna patrulla ahí dentro. Casi no ve... pero lo oye Todo. En las pelotas, cada paso tuyo suena al doble y medio.",
-   "dur": 15.62
+   "dur": 16.98
   },
   {
    "file": "cap1_l3.mp3",
    "text": "Primero: sal de la alberca Agachado [Ctrl] y sin correr. Cuando pases, no mires atrás.",
-   "dur": 8.7
+   "dur": 9.46
   },
   {
    "file": "cap1_l4.mp3",
    "text": "Segundo: alguien perdió una Linterna en la torre de juegos, al fondo. Súbete a por ella. Sin luz, esta guardería es una tumba.",
-   "dur": 15.54
+   "dur": 15.7
   },
   {
    "file": "cap1_l5.mp3",
    "text": "Tercero: cuando la tengas, ve a cualquier reja. La abriré desde aquí. Sal al paseo y no pares.",
-   "dur": 12.9
+   "dur": 13.66
   },
   {
    "file": "cap1_l6.mp3",
    "text": "Si te atrapa... despertarás de nuevo en la alberca. Lo he visto antes. Y otra vez. Y otra vez.",
-   "dur": 12.98
+   "dur": 9.87
   },
   {
    "file": "cap1_l7.mp3",
    "text": "Ve. Ahora. Mientras cante la nana.",
-   "dur": 7.94
+   "dur": 8.59
   }
  ],
  "cap2": [
   {
    "file": "cap2_l0.mp3",
    "text": "¿Sigues vivo? Bien. Escucha: en la Oficina DE Seguridad del Paseo Sur dejé una tableta con las cámaras. Con ella los ves venir. Cógela.",
-   "dur": 15.49
+   "dur": 16.59
   },
   {
    "file": "cap2_l1.mp3",
    "text": "La Bolera tiene los pinsetters fundidos. Tres. El jefe quiere la bolera viva para el evento de mañana.",
-   "dur": 11.47
+   "dur": 12.46
   },
   {
    "file": "cap2_l2.mp3",
    "text": "Y sí: es una Prueba. Las luces morirán, ella vendrá. Si te atrapa, despiertas en el paseo. Inténtalo otra vez.",
-   "dur": 9.25
+   "dur": 10.61
   },
   {
    "file": "cap2_l3.mp3",
    "text": "Bonnie , la coneja , sale del Salón Recreativo. La linterna la congela si le das de lleno en la cara.",
-   "dur": 11.05
+   "dur": 11.99
   },
   {
    "file": "cap2_l4.mp3",
    "text": "Antes de entrar, recoge 3 fichas doradas del recreativo. Las necesitarás para las máquinas.",
-   "dur": 9.38
+   "dur": 10.19
   }
  ],
  "cap3": [
   {
    "file": "cap3_l0.mp3",
    "text": "Chica , la gallina , caza en la Plaza de Comida desde esta night. Le precede el olor a pizza quemada... y a pluma.",
-   "dur": 16.01
+   "dur": 17.4
   },
   {
    "file": "cap3_l1.mp3",
    "text": "Tres puestos fundidos: Pizza, Patatas y Helados. Rearranca los tres. Las notas de servicio dicen que se reactivan solos... casi.",
-   "dur": 13.01
+   "dur": 14.11
   },
   {
    "file": "cap3_l2.mp3",
    "text": "Chica no esquiva la linterna. La oye Todo. Camina agachado con Ctrl y no corras dentro.",
-   "dur": 9.98
+   "dur": 10.5
   },
   {
    "file": "cap3_l3.mp3",
    "text": "Cuando la pases, pásate por la Cala del Pirata. Alguien dejó un cartel ahí... y algo se mueve tras el telón.",
-   "dur": 10.37
+   "dur": 11.23
   }
  ],
  "cap4": [
   {
    "file": "cap4_l0.mp3",
-   "text": " ¡¿Sigues vivo?! Escucha: la Mega Guardería está Ardiendo. Alguien la encendió hace media hora.",
-   "dur": 4.13
+   "text": "Foxy. El zorro. Es el más rápido y el único al que la máscara no engaña. Si te persigue: sprint y giros.",
+   "dur": 13.84
   },
   {
    "file": "cap4_l1.mp3",
-   "text": "Es la guardería Gigante del fondo norte, tras el taller. Las puertas cortafuego están abiertas de par en par.",
-   "dur": 11.7
+   "text": "La linterna lo Repele , directamente a la cara, sin piedad, hasta que retroceda.",
+   "dur": 13.06
   },
   {
    "file": "cap4_l2.mp3",
-   "text": "Luna vive ahí. Y esta noche está... feliz. Canta. El incendio es SU fiesta de cumpleaños.",
-   "dur": 9.01
+   "text": "Tres interruptores en la pared sur de la Cala, en orden. Si te atrapa, reapareces en el paseo. Es su juego favorito: el gato y el zorro.",
+   "dur": 19.67
   },
   {
    "file": "cap4_l3.mp3",
-   "text": "Hay Siete extintores anclados por la sala. Úsalos Todos. Cada fuego que apagues... la enfadará un poco más.",
-   "dur": 12.23
-  },
-  {
-   "file": "cap4_l4.mp3",
-   "text": "Reglas: no corras, te oye. No toques las llamas, muerden de verdad. Y si te coge... ya sabes dónde despertarás.",
-   "dur": 17.11
-  },
-  {
-   "file": "cap4_l5.mp3",
-   "text": "Cuando muera el último fuego, volverá la luz. Y Luna se convertirá en Sol. Ese es el truco. Siempre lo ha sido.",
-   "dur": 7.18
-  },
-  {
-   "file": "cap4_l6.mp3",
-   "text": "Ve. Y chico... la nana que oigas ahí dentro NO es para ti.",
-   "dur": 8.23
+   "text": "Cuando la atracción ruge, él vuelve a su telón. Siempre vuelve. Nunca sabrás si duerme o finge.",
+   "dur": 5.07
   }
  ],
  "cap5": [
   {
    "file": "cap5_l0.mp3",
-   "text": "Foxy. El zorro. Es el más rápido y el único al que la máscara no engaña. Si te persigue: sprint y giros.",
-   "dur": 16.25
+   "text": "La nota que dejé en el Cuarto Eléctrico lo dice: 3, 1, 4, 2. El orden del fusible maestro de la Sala de Generadores.",
+   "dur": 15.54
   },
   {
    "file": "cap5_l1.mp3",
-   "text": "La linterna lo Repele , directamente a la cara, sin piedad, hasta que retroceda.",
-   "dur": 11.05
+   "text": "La puerta del generador está al este del Paseo Sur. La abrí para ti. No me preguntes cómo.",
+   "dur": 13.4
   },
   {
    "file": "cap5_l2.mp3",
-   "text": "Tres interruptores en la pared sur de la Cala, en orden. Si te atrapa, reapareces en el paseo. Es su juego favorito: el gato y el zorro.",
-   "dur": 13.58
+   "text": "Uno más: hay un Traje Dorado en la Sala Técnica Sur, bajo tu oficina. Si sientes que te mira... corre. No luches. Corre.",
+   "dur": 24.06
   },
   {
    "file": "cap5_l3.mp3",
-   "text": "Cuando la atracción ruge, él vuelve a su telón. Siempre vuelve. Nunca sabrás si duerme o finge.",
-   "dur": 8.57
+   "text": "Cuando la red vuelva, las puertas exteriores del vestíbulo se armarán. Corre al sur. No mires atrás.",
+   "dur": 13.14
   }
  ],
  "cap6": [
   {
    "file": "cap6_l0.mp3",
-   "text": "La nota que dejé en el Cuarto Eléctrico lo dice: 3, 1, 4, 2. El orden del fusible maestro de la Sala de Generadores.",
-   "dur": 24.45
+   "text": "¿Sigues ahí? Soy Rulo. La galería técnica se ha quedado a oscuras.",
+   "dur": 7.31
   },
   {
    "file": "cap6_l1.mp3",
-   "text": "La puerta del generador está al este del Paseo Sur. La abrí para ti. No me preguntes cómo.",
-   "dur": 12.07
+   "text": "Seis puertas de servicio y solo Una forma de saber qué hay detrás: el Sonido.",
+   "dur": 5.75
   },
   {
    "file": "cap6_l2.mp3",
-   "text": "Uno más: hay un Traje Dorado en la Sala Técnica Sur, bajo tu oficina. Si sientes que te mira... corre. No luches. Corre.",
-   "dur": 21.34
+   "text": "Un Ventilador zumba donde no hay nadie. Las Ollas suenan donde Chica desmonta la cocina.",
+   "dur": 8.7
   },
   {
    "file": "cap6_l3.mp3",
-   "text": "Cuando la red vuelva, las puertas exteriores del vestíbulo se armarán. Corre al sur. No mires atrás.",
-   "dur": 12.07
+   "text": "Si oyes pasos pesados o una risa metálica… esa puerta NO. No la abras. Jamás.",
+   "dur": 8.62
+  },
+  {
+   "file": "cap6_l4.mp3",
+   "text": "Te guiaré ronda a ronda. Escucha antes de moverte. Confía en las orejas, no en los ojos.",
+   "dur": 14.29
   }
  ],
  "cap7": [
   {
    "file": "cap7_l0.mp3",
-   "text": "Última noche, chico. Tres tarjetas de servicio: la de la Galería Estelar, la del Teatro y la de la Plaza de Comida.",
-   "dur": 10.06
+   "text": "…Rulo. Lo has encontrado. El Sótano. Lo que queda de la pizzería Original.",
+   "dur": 7.65
   },
   {
    "file": "cap7_l1.mp3",
-   "text": "Con las tres, los tornos del vestíbulo se abren. La puerta de salida se desbloquea al acercarlas.",
-   "dur": 12.07
+   "text": "El fuego lleva Años comiéndoselo. Y algo con una cara de luna vive ahí abajo.",
+   "dur": 9.35
   },
   {
    "file": "cap7_l2.mp3",
-   "text": "Ellos lo saben. Los cuatro cazan. Y el dorado... el dorado no caza: recoge.",
-   "dur": 10.92
+   "text": "Siete fuegos, siete extintores. Mátalos todos y la luz lo cambiará todo.",
+   "dur": 9.51
   },
   {
    "file": "cap7_l3.mp3",
-   "text": "Corre al vestíbulo. Usa los grandes espacios. Gira en las fuentes. Y cuando veas la puerta... no dudes.",
-   "dur": 14.55
+   "text": "Cuando brille el Sol… Corre A LA Salida Del Vestíbulo. No mires atrás.",
+   "dur": 8.49
   },
   {
    "file": "cap7_l4.mp3",
-   "text": " Buena suerte, chico. , .",
-   "dur": 2.22
+   "text": "Sea lo que sea lo que fuiste esta noche… termina Aquí.",
+   "dur": 4.78
   }
  ]
 }

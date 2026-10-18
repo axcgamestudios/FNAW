@@ -56,23 +56,32 @@ export class Player {
   private lightSway = new THREE.Quaternion();
   private lightGroup = new THREE.Group();
   flashlight: THREE.SpotLight;
+  /** relleno tenue de penumbra alrededor del jugador */
+  private fillLight: THREE.PointLight;
   private flashTargetObj = new THREE.Object3D();
   private ventFlash = 0;
 
   constructor(camera: THREE.PerspectiveCamera, host: PlayerHost) {
     this.camera = camera;
     this.host = host;
-    // linterna
+    // linterna (v8): sombras más nítidas con radio de suavizado PCF
     this.flashlight = new THREE.SpotLight(0xfff2d8, 0, 18, 0.46, 0.42, 1.25);
     this.flashlight.castShadow = true;
-    this.flashlight.shadow.mapSize.set(512, 512);
+    this.flashlight.shadow.mapSize.set(1024, 1024);
     this.flashlight.shadow.camera.near = 0.2;
     this.flashlight.shadow.camera.far = 16;
-    this.flashlight.shadow.bias = -0.003;
+    this.flashlight.shadow.bias = -0.0018;
+    this.flashlight.shadow.normalBias = 0.02;
+    this.flashlight.shadow.radius = 2.5;
     this.lightGroup.add(this.flashlight);
     this.lightGroup.add(this.flashTargetObj);
     this.flashlight.target = this.flashTargetObj;
     this.flashTargetObj.position.set(0, 0, -6);
+    // luz de relleno tenue alrededor del jugador: caída clásica de terror,
+    // lo justo para intuir lo que rodea al cono de la linterna
+    this.fillLight = new THREE.PointLight(0xbfc8d8, 0.35, 3.2, 2.2);
+    this.fillLight.position.set(0, 0, -0.2);
+    this.lightGroup.add(this.fillLight);
     camera.add(this.lightGroup);
     this.lightGroup.position.set(0.18, -0.22, 0.05);
   }

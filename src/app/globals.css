@@ -866,3 +866,218 @@
   background: #b03026;
   box-shadow: 0 0 34px rgba(220, 60, 40, 0.75);
 }
+
+/* ============================================================
+   INICIO DE PERIÓDICO (FNAF 1) — recorte envejecido "SE BUSCA"
+   ============================================================ */
+.np-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(64, 40, 18, 0.30) 0%, rgba(16, 10, 4, 0.55) 55%, rgba(3, 3, 2, 0.92) 100%);
+}
+.np-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 34px 16px;
+  animation: np-enter 2.6s cubic-bezier(0.16, 0.8, 0.3, 1) both;
+}
+.np-leave {
+  animation: np-exit 0.7s ease-in both;
+}
+@keyframes np-enter {
+  0% { opacity: 0; transform: scale(1.14); filter: brightness(0.2) blur(3px); }
+  55% { opacity: 1; filter: brightness(0.75) blur(0.4px); }
+  100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+}
+@keyframes np-exit {
+  0% { opacity: 1; filter: brightness(1); }
+  60% { filter: brightness(1.9) contrast(0.6); }
+  100% { opacity: 0; filter: brightness(0.1) contrast(2); }
+}
+.np-paper {
+  position: relative;
+  width: min(600px, 94vw);
+  max-height: 86vh;
+  overflow: hidden;
+  padding: 26px 30px 20px;
+  transform: rotate(-1.1deg);
+  color: #241c10;
+  font-family: 'Courier New', 'Times New Roman', serif;
+  background:
+    radial-gradient(ellipse at 18% 12%, rgba(120, 84, 30, 0.22) 0%, transparent 34%),
+    radial-gradient(ellipse at 84% 78%, rgba(96, 60, 18, 0.26) 0%, transparent 40%),
+    radial-gradient(ellipse at 60% 30%, rgba(150, 120, 60, 0.14) 0%, transparent 30%),
+    linear-gradient(168deg, #d9cda6 0%, #cfc19a 38%, #c2b287 70%, #b3a172 100%);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.85),
+    0 3px 16px rgba(0, 0, 0, 0.6),
+    inset 0 0 60px rgba(80, 58, 20, 0.30);
+  clip-path: polygon(
+    0.7% 1.2%, 14% 0.4%, 30% 1.5%, 52% 0.2%, 71% 1.4%, 88% 0.5%, 99.4% 1.1%,
+    99.0% 18%, 99.6% 42%, 98.9% 68%, 99.5% 92%, 98.6% 99.0%,
+    82% 99.5%, 61% 98.8%, 38% 99.6%, 16% 99.0%, 1.0% 99.3%,
+    0.4% 80%, 1.1% 55%, 0.3% 28%
+  );
+}
+.np-paper::before {
+  /* pliegue vertical central */
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 26px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(to right, transparent 0%, rgba(70, 50, 16, 0.16) 42%, rgba(52, 36, 10, 0.34) 50%, rgba(70, 50, 16, 0.16) 58%, transparent 100%);
+}
+.np-paper::after {
+  /* borde quemado */
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 14px rgba(40, 20, 4, 0.5),
+    inset 0 0 44px rgba(60, 30, 6, 0.28);
+  background:
+    radial-gradient(ellipse at 96% 92%, rgba(28, 12, 0, 0.55) 0%, transparent 18%),
+    radial-gradient(ellipse at 3% 96%, rgba(28, 12, 0, 0.4) 0%, transparent 14%);
+}
+.np-masthead { text-align: center; }
+.np-paper-name {
+  font-family: 'Times New Roman', 'Playfair Display', serif;
+  font-size: 1.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #1e1508;
+}
+.np-date {
+  font-size: 0.56rem;
+  letter-spacing: 0.3em;
+  color: #4a3a18;
+  margin-top: 3px;
+}
+.np-rule {
+  height: 2px;
+  margin: 8px 0 7px;
+  background: linear-gradient(to right, transparent, #241c10 8%, #241c10 92%, transparent);
+  opacity: 0.75;
+}
+.np-headline {
+  font-family: 'Times New Roman', serif;
+  font-size: clamp(1.3rem, 4.2vw, 2.05rem);
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.03em;
+  line-height: 1.05;
+  color: #171006;
+  text-shadow: 0 1px 0 rgba(255, 245, 210, 0.35);
+}
+.np-subhead {
+  text-align: center;
+  font-style: italic;
+  font-size: 0.72rem;
+  color: #3a2c12;
+  margin: 6px auto 10px;
+  max-width: 86%;
+  line-height: 1.45;
+}
+.np-ad {
+  position: relative;
+  border: 2.5px solid #241c10;
+  outline: 1px solid rgba(36, 28, 16, 0.55);
+  outline-offset: 3px;
+  padding: 12px 16px 10px;
+  margin: 10px auto 12px;
+  background:
+    linear-gradient(175deg, rgba(255, 246, 214, 0.5) 0%, rgba(214, 196, 150, 0.24) 100%);
+}
+.np-ad-tag {
+  font-size: 0.52rem;
+  letter-spacing: 0.34em;
+  color: #4a3a18;
+  text-align: right;
+}
+.np-ad-title {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-align: center;
+  line-height: 1;
+  color: #141004;
+  margin: 2px 0 1px;
+}
+.np-ad-role {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.04rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: #33280f;
+  margin-bottom: 8px;
+}
+.np-ad-body p {
+  font-size: 0.74rem;
+  line-height: 1.5;
+  margin-bottom: 7px;
+  color: #2a2110;
+}
+.np-ad-body .np-pay {
+  font-weight: 700;
+  text-align: center;
+  font-size: 0.86rem;
+  letter-spacing: 0.22em;
+  color: #52210c;
+  margin: 8px 0;
+}
+.np-bold { font-weight: 700; }
+.np-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  opacity: 0.55;
+}
+.np-fillcol p {
+  height: 4px;
+  margin: 5px 0;
+  background: rgba(42, 32, 14, 0.6);
+  filter: blur(0.3px);
+}
+.np-foot {
+  text-align: center;
+  font-size: 0.54rem;
+  letter-spacing: 0.4em;
+  color: #52210c;
+  margin-top: 6px;
+}
+.np-next {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.5em;
+  color: #6a5f4a;
+  white-space: nowrap;
+}
+.np-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.34em;
+  color: #57503e;
+  animation: title-flicker 4.5s linear infinite;
+}
+@media (max-height: 640px) {
+  .np-paper { max-height: 92vh; padding: 18px 22px 14px; }
+  .np-cols { display: none; }
+}
