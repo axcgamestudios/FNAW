@@ -517,78 +517,6 @@
    }
   ]
  },
- "cine_ballpit": {
-  "letterbox": true,
-  "actors": [
-   {
-    "id": "luna",
-    "pos": [
-     -18,
-     0,
-     10.5
-    ],
-    "yaw": 1.0
-   }
-  ],
-  "shots": [
-   {
-    "pos": [
-     -22.5,
-     0.75,
-     7.6
-    ],
-    "look": [
-     -22.5,
-     0.45,
-     6.2
-    ],
-    "dur": 4.5,
-    "text": "11:58 PM. The ball pit. Your first good idea of the night."
-   },
-   {
-    "pos": [
-     -22,
-     1.7,
-     -1.8
-    ],
-    "look": [
-     -22.5,
-     0.8,
-     7
-    ],
-    "dur": 4,
-    "text": "The SUPER DAYCARE sleeps in the dark. The security gates came down on their own."
-   },
-   {
-    "pos": [
-     -15.6,
-     1.8,
-     9.4
-    ],
-    "look": [
-     -18,
-     1.7,
-     10.5
-    ],
-    "dur": 4.5,
-    "text": "MOON watches over the room. It can barely see. But it hears every ball that rolls."
-   },
-   {
-    "pos": [
-     -26,
-     0.9,
-     8.6
-    ],
-    "look": [
-     -22.5,
-     0.4,
-     6.5
-    ],
-    "dur": 4,
-    "text": "Stay still. Breathe. And when it passes by... crawl out CROUCHED [Ctrl]."
-   }
-  ]
- },
  "cine_sunrise": {
   "letterbox": true,
   "actors": [
@@ -615,7 +543,7 @@
      -46
     ],
     "dur": 4.2,
-    "text": "The last fire dies with a hiss. The Mega Daycare breathes."
+    "text": "The last fire dies with a hiss. The basement breathes again."
    },
    {
     "pos": [
@@ -647,40 +575,6 @@
    }
   ]
  },
- "cine_exit_daycare": {
-  "letterbox": true,
-  "actors": [],
-  "shots": [
-   {
-    "pos": [
-     -22.5,
-     1.9,
-     10.0
-    ],
-    "look": [
-     -22.5,
-     1.2,
-     -1.0
-    ],
-    "dur": 4.2,
-    "text": "The gates groan open. The north promenade swallows you."
-   },
-   {
-    "pos": [
-     -22.5,
-     2.3,
-     -1.5
-    ],
-    "look": [
-     -10,
-     3.5,
-     -6.0
-    ],
-    "dur": 4.5,
-    "text": "The whole MEGAPLEX waits in the dark. And something out there already knows your name."
-   }
-  ]
- },
  "cine_inferno": {
   "letterbox": true,
   "actors": [
@@ -707,7 +601,7 @@
      -50
     ],
     "dur": 5.0,
-    "text": "The MEGA DAYCARE. Two and a half thousand square meters of hell."
+    "text": "THE BASEMENT. What is left of the original pizzeria — an inferno of steel racks and ash."
    },
    {
     "pos": [
@@ -749,7 +643,7 @@
      -39.2
     ],
     "dur": 4.0,
-    "text": "Seven fires. Seven extinguishers. No way out until the last one."
+    "text": "Five fires. Five extinguishers. No way out until the last one."
    }
   ]
  },

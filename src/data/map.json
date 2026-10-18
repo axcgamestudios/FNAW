@@ -311,20 +311,20 @@
   },
   {
    "id": "daycare",
-   "name": "STELLAR DAYCARE",
+   "name": "WEST STORAGE — ARCHIVES",
    "rect": [
     -29,
     -3,
     -16,
     13
    ],
-   "floor": "carpet",
-   "wall": "wallpaper",
+   "floor": "concrete",
+   "wall": "concrete",
    "height": 4.5,
    "ambientLight": {
-    "intensity": 0.08,
-    "color": 4358188,
-    "flicker": 0.5
+    "intensity": 0.07,
+    "color": 3820090,
+    "flicker": 0.55
    }
   },
   {
@@ -466,7 +466,7 @@
   },
   {
    "id": "megadaycare",
-   "name": "BASEMENT — THE ORIGINAL PIZZERIA (ON FIRE)",
+   "name": "THE BASEMENT — ORIGINAL PIZZERIA (BURNING)",
    "rect": [
     -44,
     -62,
@@ -474,12 +474,12 @@
     -34
    ],
    "floor": "burned",
-   "wall": "party",
+   "wall": "cracked",
    "height": 9,
    "ambientLight": {
-    "intensity": 0.4675,
-    "color": 16748288,
-    "flicker": 0.35
+    "intensity": 0.42,
+    "color": 16750688,
+    "flicker": 0.4
    }
   },
   {
@@ -1587,8 +1587,8 @@
    "width": 3.4,
    "roomA": "daycare",
    "roomB": "westPromN",
-   "locked": true,
-   "lockedMsg": "SECURITY GATE — IT OPENS ONCE YOU HAVE THE FLASHLIGHT"
+   "locked": false,
+   "lockedMsg": "SECURITY GATE"
   },
   {
    "id": "gate_daycare_e",
@@ -1598,8 +1598,8 @@
    "width": 3.2,
    "roomA": "daycare",
    "roomB": "atrium",
-   "locked": true,
-   "lockedMsg": "SECURITY GATE — IT OPENS ONCE YOU HAVE THE FLASHLIGHT"
+   "locked": false,
+   "lockedMsg": "SECURITY GATE"
   },
   {
    "id": "gate_daycare_s",
@@ -1609,8 +1609,8 @@
    "width": 3.2,
    "roomA": "daycare",
    "roomB": "promW",
-   "locked": true,
-   "lockedMsg": "SECURITY GATE — IT OPENS ONCE YOU HAVE THE FLASHLIGHT"
+   "locked": false,
+   "lockedMsg": "SECURITY GATE"
   },
   {
    "id": "gate_daycare_w",
@@ -1620,8 +1620,8 @@
    "width": 2.4,
    "roomA": "daycare",
    "roomB": "pirateCove",
-   "locked": true,
-   "lockedMsg": "SECURITY GATE — IT OPENS ONCE YOU HAVE THE FLASHLIGHT"
+   "locked": false,
+   "lockedMsg": "SECURITY GATE"
   },
   {
    "id": "door_mega_w",
@@ -1632,7 +1632,7 @@
    "roomA": "workshop",
    "roomB": "megadaycare",
    "locked": true,
-   "lockedMsg": "FIRE DOOR — THE MEGA DAYCARE BURNS BEHIND IT"
+   "lockedMsg": "FIRE DOOR — THE BASEMENT BURNS BEHIND IT. 3 KEYCARDS REQUIRED"
   },
   {
    "id": "door_mega_c",
@@ -1643,7 +1643,7 @@
    "roomA": "kitchen",
    "roomB": "megadaycare",
    "locked": true,
-   "lockedMsg": "FIRE DOOR — THE MEGA DAYCARE BURNS BEHIND IT"
+   "lockedMsg": "FIRE DOOR — THE BASEMENT BURNS BEHIND IT. 3 KEYCARDS REQUIRED"
   },
   {
    "id": "door_mega_e",
@@ -1654,7 +1654,7 @@
    "roomA": "storageN",
    "roomB": "megadaycare",
    "locked": true,
-   "lockedMsg": "FIRE DOOR — THE MEGA DAYCARE BURNS BEHIND IT"
+   "lockedMsg": "FIRE DOOR — THE BASEMENT BURNS BEHIND IT. 3 KEYCARDS REQUIRED"
   }
  ],
  "vents": [
@@ -1966,7 +1966,7 @@
   },
   {
    "index": 10,
-   "name": "CAM 10 — Daycare",
+   "name": "CAM 10 — West Storage",
    "room": "daycare",
    "pos": [
     -18,
@@ -2026,7 +2026,7 @@
   },
   {
    "index": 13,
-   "name": "CAM 13 — Mega Daycare",
+   "name": "CAM 13 — The Basement",
    "room": "megadaycare",
    "pos": [
     -38,
@@ -2202,7 +2202,7 @@
    "room": "megadaycare",
    "pos": [
     -25,
-    -39
+    -37.8
    ],
    "type": "chest",
    "look": [

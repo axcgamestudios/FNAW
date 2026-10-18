@@ -38,6 +38,22 @@ chapters = json.load(open(f"{ROOT}/src/data/chapters.json"))["chapters"]
 manifest = {}
 failed = []
 
+def write_manifest():
+    """manifest incremental: los capítulos ya regenerados sustituyen a los viejos;
+    los pendientes conservan sus entradas anteriores (si existen) para no perder voz."""
+    merged = {}
+    old = {}
+    try:
+        old = json.load(open(f"{OUT}/manifest.json"))
+    except Exception:
+        pass
+    for ch in chapters:
+        cap = f"cap{ch['chapter']}"
+        merged[cap] = manifest.get(cap, old.get(cap, []))
+    json.dump(merged, open(f"{OUT}/manifest.json", "w"), ensure_ascii=False, indent=1)
+
+write_manifest()
+
 for ch in chapters:
     radio = ch.get("radio")
     if not radio:
@@ -51,6 +67,16 @@ for ch in chapters:
             continue
         wav = f"{TMP}/cap{cap}_l{i}.wav"
         mp3 = f"{OUT}/cap{cap}_l{i}.mp3"
+        # v12 — reanudar tras reinicio: saltar si ya existe y el texto coincide
+        try:
+            old_entry = json.load(open(f"{OUT}/manifest.json")).get(f"cap{cap}", [])
+            old_match = next((e for e in old_entry if e["file"] == f"cap{cap}_l{i}.mp3"), None)
+            if old_match and os.path.exists(mp3) and os.path.getsize(mp3) > 2000 and old_match.get("text") == text:
+                entry.append(old_match)
+                print(f"cap{cap} line {i}: SKIP (ya generada)", flush=True)
+                continue
+        except Exception:
+            pass
         # 1) TTS English (retries) — natural speed
         ok = False
         for attempt in range(3):
@@ -79,12 +105,13 @@ for ch in chapters:
         dur = float(subprocess.run(["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
                                     "-of", "csv=p=0", mp3], capture_output=True, text=True).stdout.strip())
         entry.append({"file": f"cap{cap}_l{i}.mp3", "text": text, "dur": round(dur, 2)})
-        print(f"cap{cap} line {i}: {dur:.1f}s — {text[:70]}")
+        print(f"cap{cap} line {i}: {dur:.1f}s — {text[:70]}", flush=True)
         time.sleep(3)  # rate-limit respect
     manifest[f"cap{cap}"] = entry
+    write_manifest()
 
 json.dump(manifest, open(f"{OUT}/manifest.json", "w"), ensure_ascii=False, indent=1)
-print(f"\nMANIFEST: {len(manifest)} chapters, {sum(len(v) for v in manifest.values())} lines")
+print(f"\nMANIFEST FINAL: {len(manifest)} chapters, {sum(len(v) for v in manifest.values())} lines", flush=True)
 if failed:
     print("FAILURES:")
     for f in failed:

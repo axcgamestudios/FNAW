@@ -87,6 +87,9 @@ export class MissionSystem {
       TOKEN_SPOTS.forEach(([x, z], i) => {
         this.spawnPickupAt(`token_${i}`, 'token', new THREE.Vector3(x, 0.08, z));
       });
+      // v12 — misión más larga: 2 fusibles de repuesto para la bolera
+      this.spawnPickup('fuse_w', 'fuse', 'fuse_workshop');
+      this.spawnPickup('fuse_n', 'fuse', 'fuse_storageN');
     }
     // baterías (todos los capítulos, 6 aleatorias)
     const spots = this.world.map.batterySpots.slice();

@@ -201,14 +201,13 @@
    "id": "luna",
    "name": "Sun and Moon",
    "kind": "luna",
-   "startRoom": "daycare",
+   "startRoom": "megadaycare",
    "startOffset": [
     -18.0,
     10.5
    ],
    "activeChapters": [
-    1,
-    4
+    7
    ],
    "wakeDelay": [
     0,

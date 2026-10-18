@@ -17,73 +17,55 @@
     -10.0,
     -60.0
    ],
-   "aggression": 1.9,
+   "aggression": 2.15,
    "darkFromStart": true,
    "sunnyTransform": true,
-   "introMsg": "SMOKE SWALLOWS THE MEGA DAYCARE — MOON DROPS FROM THE CEILING. Find the 7 EXTINGUISHERS and kill the fires. Stay crouched: it HEARS you. And the fire bites TOO.",
+   "introMsg": "THE BASEMENT OF THE ORIGINAL PIZZERIA — AN INFERNO OF RACKS AND CRATES. MOON DROPS FROM THE CEILING. Find the 5 EXTINGUISHERS and kill the fires. Stay crouched: it HEARS everything. And the flames bite TOO.",
    "tasks": [
     {
-     "id": "e1",
-     "label": "Extinguisher — base of the play castle (W)",
+     "id": "e5",
+     "label": "Extinguisher — NW, at the rack gap",
      "at": [
-      -30.0,
-      -41.2
+      -34.5,
+      -36.5
      ],
-     "hold": 4.0
-    },
-    {
-     "id": "e2",
-     "label": "Extinguisher — northwest corner",
-     "at": [
-      -38.0,
-      -56.0
-     ],
-     "hold": 4.0
+     "hold": 5.5
     },
     {
      "id": "e3",
-     "label": "Extinguisher — by the giant ball pit (W)",
+     "label": "Extinguisher — north-center, by the pipes",
      "at": [
-      -16.0,
-      -46.2
+      7.0,
+      -37.5
      ],
-     "hold": 4.0
+     "hold": 5.5
+    },
+    {
+     "id": "e2",
+     "label": "Extinguisher — south-west, behind lockers",
+     "at": [
+      -13.0,
+      -58.5
+     ],
+     "hold": 5.5
     },
     {
      "id": "e4",
-     "label": "Extinguisher — giant piano (N)",
+     "label": "Extinguisher — north-east corner",
      "at": [
-      2.0,
-      -58.6
+      39.5,
+      -38.0
      ],
-     "hold": 4.0
+     "hold": 5.5
     },
     {
-     "id": "e5",
-     "label": "Extinguisher — under the rainbow (E)",
+     "id": "e1",
+     "label": "Extinguisher — far south-west corner",
      "at": [
-      18.0,
-      -43.0
+      -42.0,
+      -56.0
      ],
-     "hold": 4.0
-    },
-    {
-     "id": "e6",
-     "label": "Extinguisher — broken carousel (E)",
-     "at": [
-      34.0,
-      -46.2
-     ],
-     "hold": 4.0
-    },
-    {
-     "id": "e7",
-     "label": "Extinguisher — northeast corner",
-     "at": [
-      24.0,
-      -59.2
-     ],
-     "hold": 4.0
+     "hold": 5.5
     }
    ],
    "scares": [
@@ -97,42 +79,67 @@
      "msg": "MOON LETS GO OF THE CEILING AND DROPS FEW METERS AWAY — THE GAME BEGINS"
     },
     {
+     "at": "start",
+     "type": "ventBang",
+     "msg": "SOMETHING HUGE MOVES BEHIND THE RACKS"
+    },
+    {
      "at": "task1",
      "type": "lullaby",
-     "msg": "A LULLABY PLAYS AMONG THE FLAMES... CLOSER AND CLOSER"
+     "msg": "THE OLD PIZZERIA'S SONG PLAYS AMONG THE FLAMES... CLOSER AND CLOSER"
+    },
+    {
+     "at": "task1",
+     "type": "fakeSteps",
+     "msg": "SOFT FOOTSTEPS... CIRCLING YOU... BETWEEN THE SHELVES"
     },
     {
      "at": "task2",
-     "type": "fakeSteps",
-     "msg": "SOFT FOOTSTEPS... CIRCLING YOU... THROUGH THE SMOKE"
+     "type": "hunterAppear",
+     "pos": [
+      -30.0,
+      -55.0
+     ],
+     "msg": "MOON STANDS AT THE END OF THE AISLE — STILL — SMILING THROUGH THE SMOKE"
+    },
+    {
+     "at": "task2",
+     "type": "childLaugh",
+     "msg": "A CHILD'S LAUGH ECHOES FROM THE SPARE-PARTS SHELF"
     },
     {
      "at": "task3",
-     "type": "hunterAppear",
-     "pos": [
-      6.0,
-      -57.0
-     ],
-     "msg": "MOON WINDS UP THE CAROUSEL — SLOW SPIN — SMILING FROM ABOVE"
-    },
-    {
-     "at": "task4",
      "type": "moonScream",
      "msg": "MOON SHRIEKS — IT KNOWS WHERE YOU ARE — THE SMOKE GIVES YOU AWAY"
     },
     {
-     "at": "task5",
+     "at": "task3",
+     "type": "fakeSteps",
+     "msg": "MORE FOOTSTEPS — FASTER — FROM EVERY AISLE AT ONCE"
+    },
+    {
+     "at": "task4",
      "type": "lightsOut",
      "dur": 9,
      "msg": "THE FIRE'S ROAR GOES SILENT FOR A SECOND — ONLY YOUR FLASHLIGHT REMAINS"
     },
     {
-     "at": "task6",
+     "at": "task4",
+     "type": "ventBang",
+     "msg": "A LOCKER SLAMS SOMEWHERE IN THE DARK"
+    },
+    {
+     "at": "task5",
      "type": "hunterChase",
-     "msg": "LAST EXTINGUISHER — MOON ISN'T HIDING ANYMORE — RUN!"
+     "msg": "LAST FIRE — MOON ISN'T HIDING ANYMORE — RUN!"
+    },
+    {
+     "at": "task5",
+     "type": "moonScream",
+     "msg": "THE MOON-FACE SCREAMS ONE LAST TIME"
     }
    ],
-   "successMsg": "THE LAST FIRE DIES. The room breathes... MOON retreats and SUN wakes up in the steam. The fire doors burst open."
+   "successMsg": "THE LAST FIRE DIES. The basement finally breathes... MOON retreats and SUN wakes up in the steam. The fire doors burst open. RUN TO THE EXIT."
   },
   {
    "id": "bowling",

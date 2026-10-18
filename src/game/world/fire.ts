@@ -28,34 +28,31 @@ export interface FireZoneDef {
   decor?: boolean;
 }
 
-/** Extintores de la Mega Guardería — [x, z, rotY] (mismos que trials.json v7) */
+/** v12 — Extintores del SÓTODO EN LLAMAS: [x, z, rotY] (mismos que trials.json) */
 export const MEGA_EXTINTORES: Array<[number, number, number]> = [
-  [-30.0, -41.2, Math.PI / 2],   // e1: base del castillo oeste
-  [-38.0, -56.0, 0],             // e2: rincón noroeste
-  [-16.0, -46.2, Math.PI / 2],   // e3: lado oeste de la alberca
-  [2.0, -58.6, Math.PI],         // e4: fondo centro-norte (piano)
-  [18.0, -43.0, -Math.PI / 2],   // e5: lado este de la alberca
-  [34.0, -46.2, Math.PI / 2],    // e6: ala este (carrusel)
-  [24.0, -59.2, Math.PI],        // e7: rincón noreste
+  [-42.0, -56.0, 0],             // e1: rincón suroeste, pasillo de racks
+  [-13.0, -58.5, Math.PI / 2],   // e2: sur-centro, tras los casilleros caídos
+  [26.0, -57.5, -Math.PI / 2],   // e3: sureste, al sur de los racks largos
+  [39.5, -38.0, Math.PI],        // e4: rincón noreste
+  [-34.5, -36.5, Math.PI / 2],   // e5: noroeste, junto al hueco del rack
 ];
 
-/** Zonas de fuego: 7 de tarea (con barrera) + decorativas */
+/** Zonas de fuego: 5 de tarea (con barrera) + decorativas */
 export const MEGA_FIRE_ZONES: FireZoneDef[] = [
-  { id: 'e1', x: -30.0, z: -38.6, size: 2.4, barrier: { w: 6.5, d: 1.7 } },
-  { id: 'e2', x: -34.2, z: -56.0, size: 2.6, barrier: { w: 1.7, d: 7.5 } },
-  { id: 'e3', x: -16.0, z: -42.8, size: 2.4, barrier: { w: 7.0, d: 1.7 } },
-  { id: 'e4', x: 2.0, z: -54.2, size: 2.5, barrier: { w: 7.0, d: 1.7 } },
-  { id: 'e5', x: 18.0, z: -46.6, size: 2.4, barrier: { w: 7.0, d: 1.7 } },
-  { id: 'e6', x: 30.2, z: -46.2, size: 2.5, barrier: { w: 1.7, d: 7.5 } },
-  { id: 'e7', x: 24.0, z: -55.4, size: 2.4, barrier: { w: 7.0, d: 1.7 } },
+  { id: 'e1', x: -42.0, z: -46.0, size: 2.6, barrier: { w: 3.2, d: 9.0 } },
+  { id: 'e2', x: -27.0, z: -43.5, size: 2.5, barrier: { w: 9.0, d: 5.5 } },
+  { id: 'e3', x: 4.0, z: -47.5, size: 2.5, barrier: { w: 11.0, d: 5.5 } },
+  { id: 'e4', x: 41.0, z: -47.0, size: 2.6, barrier: { w: 5.0, d: 8.5 } },
+  { id: 'e5', x: -5.0, z: -37.0, size: 2.4, barrier: { w: 9.0, d: 2.2 } },
   // decorativas: iluminan y asfixian la sala
-  { id: 'd1', x: -43.2, z: -40, size: 1.8, decor: true },
-  { id: 'd2', x: -6.0, z: -60.6, size: 2.2, decor: true },
-  { id: 'd3', x: 14.0, z: -60.4, size: 2.0, decor: true },
-  { id: 'd4', x: 40.2, z: -52, size: 2.2, decor: true },
-  { id: 'd5', x: 6.0, z: -40.5, size: 1.9, decor: true },
-  { id: 'd6', x: -24.0, z: -60.6, size: 2.0, decor: true },
-  { id: 'd7', x: 38.0, z: -36.5, size: 1.7, decor: true },
+  { id: 'd1', x: -43.0, z: -38.5, size: 1.8, decor: true },
+  { id: 'd2', x: -20.0, z: -60.6, size: 2.2, decor: true },
+  { id: 'd3', x: 12.0, z: -60.8, size: 2.2, decor: true },
+  { id: 'd4', x: 34.0, z: -60.2, size: 2.0, decor: true },
+  { id: 'd5', x: 43.2, z: -55.5, size: 2.0, decor: true },
+  { id: 'd6', x: -13.0, z: -36.2, size: 1.7, decor: true },
+  { id: 'd7', x: 24.0, z: -37.5, size: 1.9, decor: true },
+  { id: 'd8', x: 43.0, z: -36.0, size: 1.7, decor: true },
 ];
 
 /* ============ TEXTURAS CANVAS ============ */
@@ -444,6 +441,6 @@ export class FireSystem {
   }
 }
 
-/** instancia global de la Mega Guardería en llamas (creada por props) */
+/** instancia global del sótano en llamas (creada por props) */
 export let MEGA_FIRE: FireSystem | null = null;
 export function setMegaFire(f: FireSystem | null) { MEGA_FIRE = f; }

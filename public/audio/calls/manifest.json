@@ -7,60 +7,70 @@
   },
   {
    "file": "cap1_l1.mp3",
-   "text": "Listen, I don't have much time. Rule one: the animatronics Wander at night. Something in their servos... don't ask.",
-   "dur": 10.97
+   "text": "Listen close, rookie: the animatronics Wander at night. Something in their servos... don't ask.",
+   "dur": 5.93
   },
   {
    "file": "cap1_l2.mp3",
-   "text": "Your Flashlight is on the Security Office desk, west of the lobby. Grab it before you take another single step.",
-   "dur": 6.56
+   "text": "Your Flashlight is with you , press F. It never runs out. Batteries are the least of your problems tonight.",
+   "dur": 8.28
   },
   {
    "file": "cap1_l3.mp3",
-   "text": "Rule two: the Stellar Daycare, west of the atrium, is... occupied. Moon, the caretaker. It can barely see, but it hears Everything.",
-   "dur": 13.14
+   "text": "First job: the grid is tripping. Reset Both breakers in the Electrical Room, east side of the north halls.",
+   "dur": 8.1
   },
   {
    "file": "cap1_l4.mp3",
-   "text": "We've heard noises in the ball pit tonight. Check the bottom of it. And walk along the edge: the balls sound like fireworks.",
-   "dur": 9.46
+   "text": "Then do my patrol: the West Storage annex west of the atrium, and the Arcade. Something has been moving boxes around.",
+   "dur": 8.54
   },
   {
    "file": "cap1_l5.mp3",
-   "text": "If the lullaby stops... it has already heard you. Crouch, hold still for a moment, and walk back to the lobby. Don't run.",
-   "dur": 11.13
+   "text": "Freddy is slow tonight. He won't be tomorrow. Crouch with Ctrl, stay quiet, and don't shine your light at him for too long.",
+   "dur": 10.03
   },
   {
    "file": "cap1_l6.mp3",
-   "text": "Finish the shift alive and we'll talk tomorrow. A hundred and twenty dollars a week. Some paycheck, huh?",
-   "dur": 9.61
+   "text": "Finish the round, walk back to the office, and we'll talk tomorrow. A hundred and twenty dollars a week. Some paycheck, huh?",
+   "dur": 8.46
   }
  ],
  "cap2": [
   {
    "file": "cap2_l0.mp3",
-   "text": "Still alive? Good. Listen: in the Security Office on the South Promenade I left a tablet with the cameras. With it, you'll see them coming. Take it.",
-   "dur": 13.84
+   "text": "Still alive? Good. Listen: in the Security Office I left a tablet with the cameras. With it, you'll see them coming. Take it.",
+   "dur": 10.37
   },
   {
    "file": "cap2_l1.mp3",
-   "text": "The bowling alley has three fried pinsetters. Three. The boss wants the alley alive for tomorrow's event.",
-   "dur": 8.05
+   "text": "Before anything else: grab Two spare fuses , one in Parts & Service, one in North Storage. The alley drinks power like a beast.",
+   "dur": 9.82
   },
   {
    "file": "cap2_l2.mp3",
-   "text": "And yes: it's a Trial. The lights will die, and she will come for you. If she catches you, you wake up on the promenade. Try again.",
-   "dur": 11.05
+   "text": "Then collect 3 golden tokens from the arcade. You'll need them for the machines.",
+   "dur": 4.7
   },
   {
    "file": "cap2_l3.mp3",
-   "text": "Bonnie , the rabbit , comes out of the Arcade Hall. The flashlight freezes her if you hit her straight in the face.",
-   "dur": 6.27
+   "text": "The bowling alley has three fried pinsetters. Three. The boss wants the alley alive for tomorrow's event.",
+   "dur": 9.35
   },
   {
    "file": "cap2_l4.mp3",
-   "text": "Before you go in, collect 3 golden tokens from the arcade. You'll need them for the machines.",
-   "dur": 5.96
+   "text": "And yes: it's a Trial. The lights will die, and she will come for you. If she catches you, you wake up on the promenade. Try again.",
+   "dur": 9.82
+  },
+  {
+   "file": "cap2_l5.mp3",
+   "text": "Bonnie , the rabbit , comes out of the Arcade Hall. The flashlight freezes her if you hit her straight in the face.",
+   "dur": 5.93
+  },
+  {
+   "file": "cap2_l6.mp3",
+   "text": "When the lanes sing again, swing by the Prize Counter. Something left a gift there.",
+   "dur": 6.5
   }
  ],
  "cap3": [
@@ -71,18 +81,23 @@
   },
   {
    "file": "cap3_l1.mp3",
-   "text": "Three fried stands: Pizza, Fries and Ice Cream. Restart all three. The service notes say they reboot on their own... mostly.",
-   "dur": 10.21
+   "text": "Start in the Industrial Kitchen. If the pots are clanging, she's close. Very close.",
+   "dur": 5.72
   },
   {
    "file": "cap3_l2.mp3",
-   "text": "Chica does not dodge the flashlight. She hears Everything. Crouch with Ctrl and never run in there.",
-   "dur": 7.78
+   "text": "Three fried stands: Pizza, Fries and Ice Cream. Restart all three. The service notes say they reboot on their own... mostly.",
+   "dur": 8.2
   },
   {
    "file": "cap3_l3.mp3",
+   "text": "Chica does not dodge the flashlight. She hears Everything. Crouch with Ctrl and never run in there.",
+   "dur": 7.68
+  },
+  {
+   "file": "cap3_l4.mp3",
    "text": "When you're done, swing by Pirate's Cove. Someone left a sign there... and something moves behind the curtain.",
-   "dur": 11.26
+   "dur": 7.31
   }
  ],
  "cap4": [
@@ -98,20 +113,25 @@
   },
   {
    "file": "cap4_l2.mp3",
-   "text": "Three switches on the south wall of the Cove, in order. If he catches you, you respawn on the promenade. His favorite game: cat and fox.",
-   "dur": 19.67
+   "text": "There's an old Tape hidden by the pirate ship. Recover it , I need to know what's on it.",
+   "dur": 7.89
   },
   {
    "file": "cap4_l3.mp3",
-   "text": "When the attraction roars, he goes back behind his curtain. He always comes back. You'll never know if he's sleeping... or pretending.",
-   "dur": 5.04
+   "text": "Three switches on the south wall of the Cove, in order. If he catches you, you respawn on the promenade. His favorite game: cat and fox.",
+   "dur": 12.83
+  },
+  {
+   "file": "cap4_l4.mp3",
+   "text": "When the attraction roars, check Rockstar Row. The guitars are playing by themselves again.",
+   "dur": 6.66
   }
  ],
  "cap5": [
   {
    "file": "cap5_l0.mp3",
-   "text": "The note I left in the Electrical Room says it: 3, 1, 4, 2. The master fuse order for the Generator Room.",
-   "dur": 15.57
+   "text": "The note I left in the Electrical Room says it: 3, 1, 4, 2. The master fuse order for the Generator Room. Read it with your own eyes.",
+   "dur": 10.42
   },
   {
    "file": "cap5_l1.mp3",
@@ -159,28 +179,33 @@
  "cap7": [
   {
    "file": "cap7_l0.mp3",
-   "text": "...Rulo. You found it. The Basement. What's left of the Original pizzeria.",
+   "text": "...Rulo. You found the elevator shaft. The Basement. What's left of the Original pizzeria.",
    "dur": 7.65
   },
   {
    "file": "cap7_l1.mp3",
-   "text": "The fire has been eating it for Years. And something with a moon for a face lives down there.",
+   "text": "The fire doors need Three keycards: Rockstar Row, the Theater, and the Food Court. Get them. All of them.",
    "dur": 9.38
   },
   {
    "file": "cap7_l2.mp3",
-   "text": "Seven fires, seven extinguishers. Put them all out, and the light will change everything.",
+   "text": "It's been burning for Years down there. Racks, crates, spare parts, the old show stage... a graveyard with shelves.",
    "dur": 9.48
   },
   {
    "file": "cap7_l3.mp3",
-   "text": "When the Sun rises... Run TO The Lobby Exit. Don't look back.",
+   "text": "Something with a moon for a face lives in that smoke. It hears Everything. Five fires, Five extinguishers. Kill them all.",
    "dur": 8.49
   },
   {
    "file": "cap7_l4.mp3",
-   "text": "Whatever you were before tonight... it ends Here.",
+   "text": "When the Sun rises in the steam... Run TO The Lobby Exit. Don't look back.",
    "dur": 4.83
+  },
+  {
+   "file": "cap7_l5.mp3",
+   "text": "Whatever you were before tonight. It ends here.",
+   "dur": 3.89
   }
  ]
 }

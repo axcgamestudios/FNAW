@@ -391,13 +391,9 @@ export class TrialSystem {
       hunter.setDayNight('sun');
       hunter.retire();
       if (t.room === 'megadaycare') {
-        hunter.teleportTo(0, -46, 0.4); // junto a la alberca gigante, sonriendo
+        hunter.teleportTo(0, -46, 0.4); // junto al viejo escenario, sonriendo
       } else {
-        hunter.teleportTo(-20.5, 3.0, 0); // junto al borde norte de la alberca, sonriendo
-      }
-      // rejas de la guardería abiertas de nuevo
-      for (const gid of ['gate_daycare_n', 'gate_daycare_e', 'gate_daycare_s', 'gate_daycare_w']) {
-        this.host.unlockDoor(gid);
+        hunter.teleportTo(-20.5, 3.0, 0); // junto al borde norte, sonriendo
       }
     } else {
       // el cazador se retira

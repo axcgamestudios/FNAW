@@ -11,8 +11,8 @@ import { getGame } from '@/game/core/instance';
 
 const CAM_NAMES: Record<number, string> = {
   1: 'NORTH ATRIUM', 2: 'SOUTH ATRIUM', 3: 'WEST PROMENADE', 4: 'EAST PROMENADE', 5: 'SOUTH PROMENADE',
-  6: 'TECHNICAL HALLWAY', 7: 'ARCADE', 8: 'KITCHEN', 9: 'BOWLING ALLEY', 10: 'DAYCARE',
-  11: "PIRATE'S COVE", 12: 'ROCKSTAR ROW', 13: 'THEATER', 14: 'LOBBY',
+  6: 'TECHNICAL HALLWAY', 7: 'ARCADE', 8: 'KITCHEN', 9: 'BOWLING ALLEY', 10: 'WEST STORAGE',
+  11: "PIRATE'S COVE", 12: 'ROCKSTAR ROW', 13: 'THE BASEMENT', 14: 'LOBBY',
 };
 
 export default function TabletView() {

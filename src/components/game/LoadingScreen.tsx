@@ -8,15 +8,17 @@
 import { useHud } from '@/game/core/state';
 
 const TIPS = [
-  "You're the new NIGHT GUARD: $120 a week. Your FLASHLIGHT is waiting on the Security Office desk.",
-  "In the STELLAR DAYCARE, walk along the edge of the ball pit: the balls sound like fireworks.",
+  "You're the new NIGHT GUARD: $120 a week. Your FLASHLIGHT is already on your belt — press F.",
+  "The WEST STORAGE annex is full of shelves and boxes. Lately, they move on their own.",
   "The CENTRAL ATRIUM is the heart of the MEGAPLEX: Freddy's golden statue watches you from the south.",
   "Bruno's bowling alley is her territory. If the lights die, you're not alone on the lane.",
   "The curtain at Pirate's Cove moves on its own. Count the times. Three is a bad number.",
   "The master generators start in order 3 · 1 · 4 · 2. The Golden one wakes on the third.",
   "TECHNICAL GALLERY pitch black: listen for the FAN'S HUM and the POTS before opening a door.",
   "A metallic laugh behind a service door is not an invitation. Don't open it. Ever.",
-  "The BASEMENT holds the ORIGINAL pizzeria burning. Seven extinguishers. Moon drops from the ceiling.",
+  "THE BASEMENT holds the ORIGINAL pizzeria burning. Racks, crates, spare parts... and FIVE fires to kill.",
+  "MOON only lives at the END, in the burning basement. It hears EVERYTHING. Crouch. Hold still.",
+  "Three keycards — ROCKSTAR ROW, THEATER, FOOD COURT — open the fire doors to the basement.",
   "If you survive SUN AND MOON, the EXIT opens. Run to the lobby. Don't look back.",
   "Running makes noise. Noise draws them in. Sometimes it's better to hold still.",
   "If they catch you during a trial, you respawn: tasks reset, the fear doesn't.",

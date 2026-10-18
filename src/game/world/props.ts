@@ -339,8 +339,8 @@ export function buildProps(world: WorldBuilder) {
   buildPrize(world);
   buildGolf(world);
   buildPirateCove(world);
-  buildDaycare(world);
-  buildMegaDaycare(world);
+  buildWestStorage(world);
+  buildBasement(world);
   buildFoodcourt(world);
   buildRestrooms(world);
   buildProms(world);
@@ -442,33 +442,7 @@ function buildOffice(world: WorldBuilder) {
   world.root.add(tabG);
   world.anchors.set('desk_tablet', { pos: new THREE.Vector3(CX + 1.1, 0.86, 22.15), mesh: tabG });
 
-  // LINTERNA del guardia sobre el escritorio (anclaje cap 1 — EL PRIMER TURNO)
-  const deskTorch = new THREE.Group();
-  const glbDeskTorch = Assets.rigs.get('flashlight');
-  if (glbDeskTorch) {
-    const torchModel = glbDeskTorch.root.clone(true);
-    torchModel.rotation.z = Math.PI / 2;
-    torchModel.rotation.y = -0.55;
-    torchModel.position.y = 0.015;
-    deskTorch.add(torchModel);
-  } else {
-    const torchBody = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.24, 10), metalMaterial([0.35, 0.9]));
-    torchBody.rotation.z = Math.PI / 2.3;
-    deskTorch.add(torchBody);
-  }
-  const deskTorchLens = new THREE.Mesh(
-    new THREE.SphereGeometry(0.042, 10, 8),
-    new THREE.MeshStandardMaterial({ color: 0x88aaff, emissive: 0x66ccff, emissiveIntensity: 2.0 })
-  );
-  deskTorchLens.position.set(0.13, 0.015, 0);
-  deskTorch.add(deskTorchLens);
-  deskTorch.position.set(CX - 0.12, 0.84, 22.3);
-  deskTorch.rotation.y = -0.55;
-  world.root.add(deskTorch);
-  // brillo tenue de espera
-  const deskLensMat = deskTorchLens.material as THREE.MeshStandardMaterial;
-  world.propAnims.push({ update: (_dt, t) => { deskLensMat.emissiveIntensity = 1.4 + Math.sin(t * 2.1) * 0.7; } });
-  world.anchors.set('desk_torch', { pos: new THREE.Vector3(CX - 0.12, 0.86, 22.3), mesh: deskTorch });
+  // v12 — ya NO hay linterna sobre el escritorio: el guardia EMPIEZA con ella en la mano
 
   // cupcake de Chica sobre el escritorio
   const cupcake = new THREE.Group();
@@ -1441,389 +1415,94 @@ function buildPirateCove(world: WorldBuilder) {
   world.anchors.set('tape_cove', { pos: new THREE.Vector3(-33, 1.0, 10.5) });
 }
 
-/* ============ GUARDERÍA (SUPER GUARDERÍA BRUNO — arranque en la alberca) ============ */
+/* ============ ALMACÉN OESTE (v12 — la antigua guardería ahora es un archivo de storage) ============ */
 
-/** rectángulo de la ALBERCA DE PELOTAS gigante (para zona de ruido/sigilo) */
-export const BALL_PIT = { x1: -27, z1: 3, x2: -18, z2: 10 };
+/** v12 — ya no hay alberca de pelotas: región vacía (nadie "vadea" nada) */
+export const BALL_PIT = { x1: 1e9, z1: 1e9, x2: 1e9, z2: 1e9 };
 
-/** generadores Sol y Luna (posiciones deben coincidir con trials.json) */
-export const DAYCARE_GEN_SPOTS: Array<[number, number, number]> = [
-  // [x, z, rotY] — repartidos por la guardería
-  [-26.2, 9.3, Math.PI / 2],   // g1: dentro de la alberca (oeste)
-  [-26.2, 0.9, Math.PI / 2],   // g2: suroeste (juguetería)
-  [-26.4, 11.6, 0],            // g3: noroeste (piano)
-  [-17.9, 11.9, Math.PI],      // g4: noreste (torre)
-  [-17.4, 5.2, Math.PI],       // g5: este (bajo el arcoíris)
-];
+function buildWestStorage(world: WorldBuilder) {
+  // Sala: x[-29,-16] z[-3,13], h 4.5 — oscura, cargada de estanterías y cajas
+  const crateMat = woodMaterial([0.55, 0.8]);
 
-function buildDaycare(world: WorldBuilder) {
-  // Sala: x[-29,-16] z[-3,13], h 4.5
+  // filas de estanterías de archivo contra las paredes
+  shelfUnit(world, -28.4, 0.8, Math.PI / 2, 2.6, 6);
+  shelfUnit(world, -28.4, 4.6, Math.PI / 2, 2.6, 6);
+  shelfUnit(world, -28.4, 8.4, Math.PI / 2, 2.6, 5);
+  shelfUnit(world, -23.2, 12.35, 0, 3.2, 6);
+  shelfUnit(world, -17.3, 0.2, -Math.PI / 2, 2.6, 5);
 
-  /* ---- ALBERCA DE PELOTAS GIGANTE (9 × 7 m) — estilo Security Breach ---- */
-  const pit = new THREE.Group();
-  const PX = -22.5, PZ = 6.5;            // centro
-  const PW = 9, PD = 7;                  // ancho × fondo interior
-  const WALL_H = 0.55;                   // altura del muro acolchado
-
-  // suelo interior azul oscuro (fondo de la alberca)
-  const floorMat = plasticMaterial(0x1a2a6a, 0.95, 0.2);
-  const floor = new THREE.Mesh(new THREE.BoxGeometry(PW, 0.06, PD), floorMat);
-  floor.position.set(PX, 0.03, PZ);
-  floor.receiveShadow = true;
-  pit.add(floor);
-
-  // muros acolchados de colores con canto redondeado (SIN colisionador: se vadea)
-  const rimColors = [0xd84a4a, 0x4ad84a, 0xd8d84a, 0x4a8fd8, 0xd84ad8, 0xd8842a];
-  const padSide = (i: number) => plasticMaterial(rimColors[i % 6], 0.9, 0.15);
-  function wallRun(x0: number, z0: number, x1: number, z1: number, segs: number) {
-    const dx = (x1 - x0) / segs, dz = (z1 - z0) / segs;
-    const horiz = Math.abs(dx) > Math.abs(dz);
-    const len = horiz ? Math.abs(dx) : Math.abs(dz);
-    for (let i = 0; i < segs; i++) {
-      const cx = x0 + dx * (i + 0.5), cz = z0 + dz * (i + 0.5);
-      const mat = padSide(i + Math.floor(Math.random() * 3));
-      // cuerpo del muro
-      const body = new THREE.Mesh(
-        new THREE.BoxGeometry(horiz ? len * 0.98 : 0.34, WALL_H, horiz ? 0.34 : len * 0.98),
-        mat
-      );
-      body.position.set(cx, WALL_H / 2, cz);
-      body.castShadow = true;
-      pit.add(body);
-      // canto superior redondeado
-      const cap = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.17, 0.17, horiz ? len * 0.98 : len * 0.98, 10),
-        plasticMaterial(rimColors[(i + 3) % 6], 0.85, 0.2)
-      );
-      cap.rotation.z = Math.PI / 2;
-      if (!horiz) cap.rotation.y = Math.PI / 2;
-      cap.position.set(cx, WALL_H + 0.02, cz);
-      pit.add(cap);
+  // pilas de cajas de madera en el suelo
+  const crateStack = (x: number, z: number, n: number) => {
+    for (let i = 0; i < n; i++) {
+      box(0.72, 0.5, 0.66, crateMat, x + (Math.random() - 0.5) * 0.12, 0.26 + i * 0.52, z + (Math.random() - 0.5) * 0.12, (Math.random() - 0.5) * 0.3, i === 0, world);
     }
-  }
-  wallRun(PX - PW / 2, PZ - PD / 2, PX + PW / 2, PZ - PD / 2, 9);   // norte
-  wallRun(PX - PW / 2, PZ + PD / 2, PX + PW / 2, PZ + PD / 2, 9);   // sur
-  wallRun(PX - PW / 2, PZ - PD / 2, PX - PW / 2, PZ + PD / 2, 7);   // oeste
-  wallRun(PX + PW / 2, PZ - PD / 2, PX + PW / 2, PZ + PD / 2, 7);   // este
-
-  // escalón de gomaespuma de entrada (lado este, hacia la guardería)
-  for (let s = 0; s < 2; s++) {
-    const step = new THREE.Mesh(
-      new THREE.BoxGeometry(0.55, 0.16 + s * 0.16, 2.0),
-      plasticMaterial(s === 0 ? 0xd84a4a : 0x4a8fd8, 0.9, 0.15)
-    );
-    step.position.set(PX + PW / 2 + 0.34 + s * 0.55, (0.16 + s * 0.16) / 2, PZ);
-    pit.add(step);
-  }
-
-  // MAR DE BOLAS: 3 capas en empaquetado hexagonal denso (1 draw call)
-  const ballColors = [
-    0xe8382e, 0x2e6ee8, 0xf2d030, 0x38c24a, 0xf27a20, 0xf0ead8, 0xd838a8, 0x35c8c8,
-  ];
-  const R = 0.115;                       // radio de bola
-  const hexDx = R * 2 * 0.88;            // paso horizontal (apretado)
-  const hexDz = R * 2 * 0.78;            // paso vertical (hex)
-  const cols = Math.floor(PW / hexDx);
-  const rows = Math.floor(PD / hexDz);
-  const BALL_N = cols * rows * 3 + 220;  // 3 capas + derrame
-  const ballGeo = new THREE.SphereGeometry(R, 18, 14);
-  // plástico brillante con clearcoat (v7): las bolas atrapan la luz
-  const ballMat = new THREE.MeshPhysicalMaterial({
-    roughness: 0.24, metalness: 0.0, clearcoat: 0.85, clearcoatRoughness: 0.25,
-    envMapIntensity: 1.1,
-  });
-  const ballsIM = new THREE.InstancedMesh(ballGeo, ballMat, BALL_N);
-  ballsIM.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  const dummy = new THREE.Object3D();
-  const col = new THREE.Color();
-  let bi = 0;
-  const topY = WALL_H - 0.10;
-  for (let layer = 0; layer < 3; layer++) {
-    const ly = 0.10 + layer * R * 1.55;
-    const off = (layer % 2) * (hexDx / 2);
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        if (bi >= BALL_N - 220) break;
-        const jx = (Math.random() - 0.5) * 0.03;
-        const jz = (Math.random() - 0.5) * 0.03;
-        dummy.position.set(
-          PX - PW / 2 + R + 0.1 + c * hexDx + off + jx,
-          ly + (Math.random() - 0.5) * 0.012,
-          PZ - PD / 2 + R + 0.1 + r * hexDz + jz
-        );
-        dummy.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
-        const sc = 0.94 + Math.random() * 0.18;
-        dummy.scale.set(sc, sc, sc);
-        dummy.updateMatrix();
-        ballsIM.setMatrixAt(bi, dummy.matrix);
-        ballsIM.setColorAt(bi, col.setHex(ballColors[(layer * 5 + r * 3 + c) % ballColors.length]));
-        bi++;
-      }
-    }
-  }
-  // bolas derramadas fuera de la alberca (suelo de la guardería)
-  const outside: Array<[number, number]> = [
-    [PX + PW / 2 + 1.6, PZ - 1.5], [PX + PW / 2 + 2.1, PZ + 0.6], [PX + PW / 2 + 1.4, PZ + 2.2],
-    [PX - PW / 2 - 1.2, PZ + 1.0], [PX - PW / 2 - 1.8, PZ - 0.8], [PX - PW / 2 - 1.1, PZ + 2.4],
-    [PX + 1.0, PZ + PD / 2 + 1.3], [PX - 2.0, PZ + PD / 2 + 1.7], [PX + 3.2, PZ + PD / 2 + 1.1],
-    [PX + 0.4, PZ - PD / 2 - 1.4], [PX - 3.1, PZ - PD / 2 - 1.1],
-  ];
-  for (let s = 0; s < 220 && bi < BALL_N; s++) {
-    const [ox, oz] = outside[s % outside.length];
-    const far = 0.4 + Math.random() * 1.4;
-    const ang = Math.random() * Math.PI * 2;
-    dummy.position.set(ox + Math.cos(ang) * far, R * 0.9, oz + Math.sin(ang) * far);
-    dummy.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
-    dummy.scale.set(1, 1, 1);
-    dummy.updateMatrix();
-    ballsIM.setMatrixAt(bi, dummy.matrix);
-    ballsIM.setColorAt(bi, col.setHex(ballColors[s % ballColors.length]));
-    bi++;
-  }
-  // rellenar instancias restantes por si la capa no llenó (invisibles bajo la superficie)
-  while (bi < BALL_N) {
-    dummy.position.set(PX + (Math.random() - 0.5) * PW * 0.9, 0.1, PZ + (Math.random() - 0.5) * PD * 0.9);
-    dummy.scale.set(1, 1, 1);
-    dummy.updateMatrix();
-    ballsIM.setMatrixAt(bi, dummy.matrix);
-    ballsIM.setColorAt(bi, col.setHex(0x2e6ee8));
-    bi++;
-  }
-  ballsIM.castShadow = false;
-  ballsIM.receiveShadow = false;
-  pit.add(ballsIM);
-  world.root.add(pit);
-  // vaivén sutil del mar de bolas (respiración)
-  world.propAnims.push({ update: (_dt, t) => { ballsIM.position.y = Math.sin(t * 0.6) * 0.012; } });
-
-
-  /* ---- TORRE DE JUEGOS con tobogán (este) — la linterna brilla arriba ---- */
-  const tower = new THREE.Group();
-  const structMat = plasticMaterial(0x3a6ac8, 0.55, 0.4);
-  // patas
-  for (const [lx, lz] of [[-0.9, -0.9], [0.9, -0.9], [-0.9, 0.9], [0.9, 0.9]] as Array<[number, number]>) {
-    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 2.6, 10), metalMaterial([0.5, 1]));
-    leg.position.set(lx, 1.3, lz);
-    tower.add(leg);
-  }
-  // plataforma
-  const plat = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.14, 2.2), structMat);
-  plat.position.set(0, 1.35, 0);
-  plat.castShadow = true;
-  tower.add(plat);
-  // barandilla de tubos
-  for (const side of [-1, 1]) {
-    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.0, 8), plasticMaterial(0xd8d84a, 0.4));
-    rail.rotation.z = Math.PI / 2;
-    rail.position.set(0, 1.85, side * 1.06);
-    tower.add(rail);
-    const rail2 = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.0, 8), plasticMaterial(0xd84a4a, 0.4));
-    rail2.rotation.z = Math.PI / 2;
-    rail2.position.set(side * 1.06, 1.85, 0);
-    tower.add(rail2);
-  }
-  // escalera de mano
-  for (let i = 0; i < 5; i++) {
-    const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.8, 8), metalMaterial([0.6, 1]));
-    rung.rotation.z = Math.PI / 2;
-    rung.position.set(0, 0.3 + i * 0.27, -1.28);
-    tower.add(rung);
-  }
-  // tobogán (rampa curva)
-  const slideMat = plasticMaterial(0xd84a4a, 0.25, 0.5);
-  const slide = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 2.8), slideMat);
-  slide.position.set(0.15, 0.62, 1.8);
-  slide.rotation.x = -0.42;
-  slide.castShadow = true;
-  tower.add(slide);
-  for (const sx of [-0.36, 0.36]) {
-    const lip = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.26, 2.8), plasticMaterial(0xd8d84a, 0.3));
-    lip.position.set(0.15 + sx, 0.72, 1.8);
-    lip.rotation.x = -0.42;
-    tower.add(lip);
-  }
-  tower.position.set(-17.6, 0, 8.6);
-  world.root.add(tower);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-17.6, 1.3, 8.6), new THREE.Vector3(2.4, 2.7, 2.4)), 'playtower');
-
-  /* ---- 5 GENERADORES SOL Y LUNA ---- */
-  DAYCARE_GEN_SPOTS.forEach(([gx, gz, gry], i) => {
-    const gen = new THREE.Group();
-    // cuerpo con franjas de peligro
-    const bodyMat = plasticMaterial(0xd8b13a, 0.45, 0.5);
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.15, 0.55), bodyMat);
-    body.position.y = 0.58;
-    body.castShadow = true;
-    gen.add(body);
-    const stripeMat = plasticMaterial(0x1a1a1a, 0.5, 0.4);
-    for (let s = 0; s < 3; s++) {
-      const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.12, 0.57), stripeMat);
-      stripe.position.y = 0.3 + s * 0.34;
-      gen.add(stripe);
-    }
-    // panel superior
-    const panel = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.34, 0.08), metalMaterial([0.4, 1]));
-    panel.position.set(0, 1.3, 0.14);
-    gen.add(panel);
-    // palanca
-    const lever = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.26, 8), plasticMaterial(0xd84a4a, 0.4));
-    lever.position.set(0, 1.32, 0.2);
-    lever.rotation.x = -0.5;
-    gen.add(lever);
-    // LUZ DE ESTADO (roja → verde al arrancar)
-    const status = new THREE.Mesh(
-      new THREE.SphereGeometry(0.09, 12, 10),
-      new THREE.MeshStandardMaterial({ color: 0x5a0808, emissive: 0xff2020, emissiveIntensity: 2.6 })
-    );
-    status.position.set(0, 1.62, 0);
-    gen.add(status);
-    world.propAnims.push({
-      update: (_dt, t) => {
-        const m = status.material as THREE.MeshStandardMaterial;
-        if (m.emissive.getHex() === 0xff2020) m.emissiveIntensity = 1.8 + Math.sin(t * 5 + i * 1.7) * 0.9;
-      },
-    });
-    // rejilla de ventilación
-    for (let v = 0; v < 3; v++) {
-      const vent = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.03, 0.4), metalMaterial([0.3, 1]));
-      vent.position.set(0, 0.22 + v * 0.09, 0);
-      gen.add(vent);
-    }
-    gen.position.set(gx, 0, gz);
-    gen.rotation.y = gry;
-    world.root.add(gen);
-    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(gx, 0.7, gz), new THREE.Vector3(0.95, 1.5, 0.75)), `dcgen_${i}`);
-    world.anchors.set(`dcgen_g${i + 1}`, { pos: new THREE.Vector3(gx, 1.1, gz), mesh: status });
-  });
-
-  /* ---- lunas de noche decorativas (emisivas, coste 0) ---- */
-  const moonLampMat = new THREE.MeshStandardMaterial({ color: 0x8a93d8, emissive: 0x4a5ac8, emissiveIntensity: 1.2 });
-  for (const [mx, mz, mry] of [[-28.85, 4, Math.PI / 2], [-16.15, 9, -Math.PI / 2], [-22.5, 12.85, Math.PI], [-24, -2.82, 0]] as Array<[number, number, number]>) {
-    const lamp = new THREE.Group();
-    const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.05, 16), moonLampMat);
-    disc.rotation.x = Math.PI / 2;
-    lamp.add(disc);
-    // creciente
-    const bite = new THREE.Mesh(new THREE.SphereGeometry(0.19, 12, 10), plasticMaterial(0x1a1a2e, 0.6));
-    bite.position.set(-0.09, 0.07, 0.045);
-    lamp.add(bite);
-    lamp.position.set(mx, 2.8, mz);
-    lamp.rotation.y = mry;
-    world.root.add(lamp);
-  }
-
-  /* ---- estrellas del techo (Points baratísimas) ---- */
-  const starGeo = new THREE.BufferGeometry();
-  const starPos: number[] = [];
-  for (let i = 0; i < 90; i++) {
-    starPos.push(-28.5 + Math.random() * 12, 4.25 + Math.random() * 0.2, -2.5 + Math.random() * 15);
-  }
-  starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
-  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xbcd0ff, size: 0.05, transparent: true, opacity: 0.85 }));
-  world.root.add(stars);
-
-  /* ---- carteles de cara SOL / LUNA en las paredes ---- */
-  const faceDisc = (x: number, z: number, ry: number, sun: boolean) => {
-    const g = new THREE.Group();
-    const disc = new THREE.Mesh(
-      new THREE.CircleGeometry(0.42, 24),
-      plasticMaterial(sun ? 0xf2c93a : 0x232a52, 0.4, 0.4)
-    );
-    g.add(disc);
-    const smile = new THREE.Mesh(
-      new THREE.TorusGeometry(0.2, 0.035, 8, 16, Math.PI),
-      plasticMaterial(sun ? 0x5a1410 : 0xe8e4d0, 0.5)
-    );
-    smile.position.y = -0.08;
-    smile.rotation.z = Math.PI; // arco sonriente hacia abajo
-    g.add(smile);
-    for (const sx of [-0.16, 0.16]) {
-      const eye = new THREE.Mesh(
-        new THREE.SphereGeometry(0.05, 8, 8),
-        new THREE.MeshStandardMaterial({ color: 0x0a0a12, emissive: sun ? 0x3a2a08 : 0xff3030, emissiveIntensity: sun ? 0.4 : 1.6 })
-      );
-      eye.position.set(sx, 0.12, 0.03);
-      g.add(eye);
-    }
-    g.position.set(x, 2.5, z);
-    g.rotation.y = ry;
-    world.root.add(g);
   };
-  faceDisc(-28.8, 7.5, Math.PI / 2, false); // LUNA junto a la alberca
-  faceDisc(-16.2, 3.2, -Math.PI / 2, true); // SOL junto al arcoíris
+  crateStack(-25.5, 4.8, 3);
+  crateStack(-24.0, 10.8, 2);
+  crateStack(-19.0, 9.2, 3);
+  crateStack(-18.3, 2.4, 2);
 
-  /* ---- mobiliario clásico de guardería ---- */
-  shelfUnit(world, -27.8, 1.5, Math.PI / 2, 2.6, 5);
-  // mesas pequeñas con sillas (sur de la alberca)
-  const tableColors = [0xd8b13a, 0x4a8fd8, 0xd84a8a];
-  for (let i = 0; i < 3; i++) {
-    const tx = -24 + i * 3.2;
-    const tz = 1.2;
-    const table = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.45, 0.5, 12), plasticMaterial(tableColors[i], 0.5, 0.4));
-    table.position.set(tx, 0.25, tz);
-    table.castShadow = true;
-    world.root.add(table);
-    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(tx, 0.3, tz), new THREE.Vector3(1.1, 0.6, 1.1)), `dtable_${i}`);
-    for (const s of [-0.8, 0.8]) {
-      const chair = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.28, 0.28), plasticMaterial(tableColors[i], 0.6));
-      chair.position.set(tx + s, 0.14, tz + (s > 0 ? 0.85 : -0.85));
-      world.root.add(chair);
+  // cajas de cartón sueltas (IM barato)
+  const cGeo = new THREE.BoxGeometry(0.46, 0.36, 0.4);
+  const cMat = new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.93 });
+  const N = 34;
+  const im = new THREE.InstancedMesh(cGeo, cMat, N);
+  const dummy = new THREE.Object3D();
+  const spots: Array<[number, number]> = [
+    [-27.5, 2.2], [-26.9, 6.9], [-27.4, 11.4], [-24.5, 2.0], [-23.6, 5.6], [-22.2, 9.9],
+    [-20.4, 4.2], [-19.6, 11.4], [-18.2, 6.6], [-25.8, 8.2], [-21.0, 1.4], [-17.8, 11.0],
+    [-23.8, 8.0], [-20.0, 7.8], [-25.2, 5.4], [-19.2, 3.0], [-22.8, 11.3], [-26.4, 3.7],
+    [-27.8, 9.5], [-18.7, 8.3], [-24.2, 12.2], [-21.4, 10.4], [-19.0, 0.6], [-23.0, 3.4],
+    [-17.6, 4.8], [-25.0, 10.2], [-22.0, 6.2], [-20.8, 2.6], [-24.8, 6.4], [-18.6, 10.6],
+    [-26.0, 12.0], [-21.6, 0.9], [-19.4, 5.8], [-23.4, 6.9],
+  ];
+  for (let i = 0; i < N; i++) {
+    const [sx, sz] = spots[i % spots.length];
+    dummy.position.set(sx + (Math.random() - 0.5) * 0.5, 0.18, sz + (Math.random() - 0.5) * 0.5);
+    dummy.rotation.set(0, Math.random() * Math.PI, 0);
+    const s = 0.8 + Math.random() * 0.5;
+    dummy.scale.set(s, s, s);
+    dummy.updateMatrix();
+    im.setMatrixAt(i, dummy.matrix);
+  }
+  im.castShadow = false;
+  im.receiveShadow = true;
+  world.root.add(im);
+
+  // archivadores metálicos apoyados en la pared este
+  for (const [fx, fz, fry] of [[-16.9, 3.4, -Math.PI / 2], [-16.9, 5.6, -Math.PI / 2], [-16.9, 7.8, -Math.PI / 2]] as Array<[number, number, number]>) {
+    box(0.5, 1.3, 0.62, darkMetalMaterial(), fx, 0.65, fz, fry, true, world);
+    // cajones
+    for (let dr = 0; dr < 3; dr++) {
+      box(0.42, 0.34, 0.05, metalMaterial([0.3, 0.7]), fx - 0.33, 0.3 + dr * 0.4, fz, fry, false, world);
     }
   }
 
-  // arcoíris decorativo (pared este)
-  const rainbowColors = [0xd84a4a, 0xd8a83a, 0x4ad84a, 0x4a8fd8, 0x8a4ad8];
-  for (let i = 0; i < 5; i++) {
-    const arc = new THREE.Mesh(
-      new THREE.TorusGeometry(2.2 - i * 0.32, 0.11, 8, 32, Math.PI),
-      plasticMaterial(rainbowColors[i], 0.5, 0.4)
-    );
-    arc.position.set(-16.3, 0.1, 5);
-    arc.rotation.y = -Math.PI / 2;
-    world.root.add(arc);
+  // palet con sacos
+  box(1.6, 0.14, 1.2, woodMaterial([0.5, 1.1]), -20.5, 0.09, 3.4, 0.2, true, world);
+  for (let i = 0; i < 4; i++) {
+    box(0.7, 0.34, 0.5, new THREE.MeshStandardMaterial({ color: 0x7a6a4a, roughness: 0.95 }), -20.5 + (i % 2) * 0.35 - 0.18, 0.34 + Math.floor(i / 2) * 0.36, 3.4, (Math.random() - 0.5) * 0.4, false, world);
   }
 
-  // caballito de balancín
-  const horse = new THREE.Group();
-  const hBody = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 0.45, 6, 10), plasticMaterial(0xc8a8d8, 0.6));
-  hBody.rotation.z = Math.PI / 2;
-  const hHead = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), plasticMaterial(0xc8a8d8, 0.6));
-  hHead.position.set(0.5, 0.15, 0);
-  const hRock = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.06, 0.14), woodMaterial([0.6, 0.4]));
-  hRock.position.y = -0.32;
-  horse.add(hBody, hHead, hRock);
-  horse.position.set(-20.5, 0.55, 11.9);
-  horse.rotation.y = 0.8;
-  world.root.add(horse);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-20.5, 0.5, 11.9), new THREE.Vector3(1.2, 1.0, 0.5)), 'horse');
-  world.propAnims.push({ update: (_dt, t) => { horse.rotation.z = Math.sin(t * 0.9) * 0.12; } });
+  // arcón-escondite (chest_daycare del mapData en (-26.5, 7.5))
+  box(1.6, 0.8, 0.85, woodMaterial([0.5, 0.9]), -26.5, 0.4, 7.5, 0.2, true, world);
 
-  // dibujos infantiles por todas las paredes
-  addDrawing(world, 0, -28.85, 1.5, 1, Math.PI / 2);
-  addDrawing(world, 1, -28.85, 1.5, 4, Math.PI / 2);
-  addDrawing(world, 2, -28.85, 1.5, 9.5, Math.PI / 2);
-  addDrawing(world, 3, -20, 1.5, -2.82, 0);
-  addDrawing(world, 4, -24, 1.5, -2.82, 0);
-  addDrawing(world, 5, -22, 2.2, 12.85, Math.PI);
+  // bombilla colgante rota + luz de emergencia
+  brokenLight(world, -22.5, 6.2, 3.7);
+  brokenLight(world, -19.5, 10.2, 3.7);
 
-  neonSign(world, 'SUPER DAYCARE', 0xffd070, -22.5, 3.9, -2.7, 0, 3.4, 0.5);
-  neonSign(world, 'BALL PIT', 0x70d0ff, -22.5, 1.9, 2.75, 0, 3.2, 0.42);
+  // carretilla y fregadero de mantenimiento
+  box(0.8, 0.4, 0.5, metalMaterial([0.35, 0.9]), -17.8, 0.22, 12.3, 0.7, true, world);
 
-  // juguete de piano enorme
-  const piano = new THREE.Group();
-  const pBody2 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.55, 0.8), plasticMaterial(0xd83a3a, 0.4, 0.6));
-  pBody2.position.y = 0.4;
-  piano.add(pBody2);
-  for (let i = 0; i < 8; i++) {
-    const key = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, 0.3), plasticMaterial(i % 2 ? 0x111111 : 0xe8e2d2, 0.5));
-    key.position.set(-0.63 + i * 0.18, 0.7, 0.2);
-    piano.add(key);
-  }
-  piano.position.set(-26.2, 0, 10.2);
-  piano.rotation.y = 0.4;
-  world.root.add(piano);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-26.2, 0.5, 10.2), new THREE.Vector3(1.7, 1.0, 0.9)), 'piano');
-  world.anchors.set('tape_daycare', { pos: new THREE.Vector3(-27.8, 1.1, 1.5) });
+  // letrero y carteles
+  neonSign(world, 'WEST STORAGE', 0x70d0ff, -22.5, 3.6, -2.72, 0, 3.4, 0.5);
+  addPoster(world, posterBruno(), -28.85, 2.0, 7.5, Math.PI / 2);
+  addPoster(world, posterParty(), -28.85, 2.0, 9.8, Math.PI / 2);
+  addDrawing(world, 2, -16.15, 1.6, 5.5, -Math.PI / 2);
+  addDrawing(world, 4, -16.15, 1.6, 10.2, -Math.PI / 2);
+
+  // cinta de mantenimiento (tape_w4) sobre una estantería
+  world.anchors.set('tape_daycare', { pos: new THREE.Vector3(-28.4, 1.15, 4.6) });
 }
 
 /* ============ PLAZA DE COMIDA ============ */
@@ -2521,22 +2200,23 @@ export function createPickupMesh(kind: 'fuse' | 'tape' | 'note' | 'battery' | 'c
 }
 
 
-/* ============ MEGA GUARDERÍA EN LLAMAS (v7 — capítulo 4) ============ */
-/* Sala: x[-44,44] z[-62,-34], techo 9 m. La guardería GIGANTE arde:
-   alberca chamuscada, castillo de juegos calcinado, piano gigante,
-   arcoíris semi-fundido, carrusel roto... y LUNA colgando del techo. */
+/* ============ EL SÓTANO EN LLAMAS (v12 — capítulo 7, GRAN FINAL) ============ */
+/* Sala: x[-44,44] z[-62,-34], techo 9 m. La PIZZERÍA ORIGINAL arde bajo el
+   MEGAPLEX: filas de estanterías industriales, cajas, bidones, el viejo
+   escenario del show, piezas de repuesto, jaulas de almacenaje... y
+   LUNA colgando del techo en medio del humo. */
 
 import { FireSystem, MEGA_EXTINTORES, setMegaFire, sharedSmokeTexture } from './fire';
 
-/** rectángulo de la ALBERCA GIGANTE quemada (zona de ruido/sigilo) */
-export const MEGA_PIT = { x1: -7.5, z1: -47, x2: 7.5, z2: -38 };
+/** v12 — ya no hay alberca gigante: región vacía (nadie "vadea" nada) */
+export const MEGA_PIT = { x1: 1e9, z1: 1e9, x2: 1e9, z2: 1e9 };
 
 /** material "chamuscado": plástico negro-grisáceo mate */
 function charMat(rough = 0.92): THREE.MeshStandardMaterial {
   return new THREE.MeshStandardMaterial({ color: 0x1c1815, roughness: rough, metalness: 0.05 });
 }
 
-function buildMegaDaycare(world: WorldBuilder) {
+function buildBasement(world: WorldBuilder) {
   const charred = charMat();
   const charWood = charMat(0.85);
 
@@ -2572,7 +2252,6 @@ function buildMegaDaycare(world: WorldBuilder) {
   const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, 2.0, 10), charred);
   cord.position.y = -1.0;
   perch.add(cord);
-  // anillo-percha
   const ring = new THREE.Mesh(
     new THREE.TorusGeometry(0.55, 0.05, 8, 22),
     new THREE.MeshStandardMaterial({ color: 0x3a2a20, roughness: 0.5, metalness: 0.8 })
@@ -2580,7 +2259,6 @@ function buildMegaDaycare(world: WorldBuilder) {
   ring.rotation.x = Math.PI / 2;
   ring.position.y = -2.0;
   perch.add(ring);
-  // resplandor rojo tenue bajo la percha (la "presencia" de Luna)
   const aura = new THREE.Mesh(
     new THREE.SphereGeometry(0.9, 14, 10),
     new THREE.MeshBasicMaterial({ color: 0x881510, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false })
@@ -2607,310 +2285,648 @@ function buildMegaDaycare(world: WorldBuilder) {
     color: 0xff6a4a, size: 0.06, transparent: true, opacity: 0.5,
   })));
 
-  /* ---- ALBERCA DE PELOTAS GIGANTE (15 × 9 m), medio chamuscada ---- */
-  const pit = new THREE.Group();
-  const PX = 0, PZ = -42.5;
-  const PW = 15, PD = 9;
-  const WALL_H2 = 0.66;
-  // fondo interior oscuro
-  const floor2 = new THREE.Mesh(
-    new THREE.BoxGeometry(PW, 0.06, PD),
-    new THREE.MeshStandardMaterial({ color: 0x201812, roughness: 0.7 })
-  );
-  floor2.position.set(PX, 0.03, PZ);
-  floor2.receiveShadow = true;
-  pit.add(floor2);
-  // muros acolchados con la tela de fiesta (algunos paneles calcinados)
-  const padTex = Assets.textures?.texPartyFabric;
-  const padMat = (burnedPanel: boolean) => {
-    if (!burnedPanel && padTex) {
-      const m = padTex.clone();
-      m.wrapS = m.wrapT = THREE.RepeatWrapping;
-      m.repeat.set(2, 0.5);
-      m.needsUpdate = true;
-      return new THREE.MeshStandardMaterial({ map: m, roughness: 0.8, color: 0x6a5a4a });
-    }
-    return charMat();
-  };
-  function wallRun2(x0: number, z0: number, x1: number, z1: number, segs: number) {
-    const dx = (x1 - x0) / segs, dz = (z1 - z0) / segs;
-    const horiz = Math.abs(dx) > Math.abs(dz);
-    const len = horiz ? Math.abs(dx) : Math.abs(dz);
-    for (let i = 0; i < segs; i++) {
-      const cx = x0 + dx * (i + 0.5), cz = z0 + dz * (i + 0.5);
-      const burnedPanel = Math.random() < 0.3;
-      const body = new THREE.Mesh(
-        new THREE.BoxGeometry(horiz ? len * 0.98 : 0.36, WALL_H2, horiz ? 0.36 : len * 0.98),
-        padMat(burnedPanel)
-      );
-      body.position.set(cx, WALL_H2 / 2, cz);
-      body.castShadow = true;
-      pit.add(body);
-      const cap = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.18, 0.18, len * 0.98, 10),
-        burnedPanel ? charMat() : plasticMaterial(0xd8842a, 0.7, 0.3)
-      );
-      cap.rotation.z = Math.PI / 2;
-      if (!horiz) cap.rotation.y = Math.PI / 2;
-      cap.position.set(cx, WALL_H2 + 0.02, cz);
-      pit.add(cap);
-    }
-  }
-  wallRun2(PX - PW / 2, PZ - PD / 2, PX + PW / 2, PZ - PD / 2, 12);
-  wallRun2(PX - PW / 2, PZ + PD / 2, PX + PW / 2, PZ + PD / 2, 12);
-  wallRun2(PX - PW / 2, PZ - PD / 2, PX - PW / 2, PZ + PD / 2, 7);
-  wallRun2(PX + PW / 2, PZ - PD / 2, PX + PW / 2, PZ + PD / 2, 7);
+  /* =================================================================
+   *  FILAS DE ESTANTERÍAS INDUSTRIALES (el corazón del sótano)
+   *  Cada fila deja un hueco para circular; colisión por tramos.
+   * ================================================================= */
+  const rackMat = new THREE.MeshStandardMaterial({ color: 0x2e2a26, roughness: 0.55, metalness: 0.75 });
+  const rackRust = new THREE.MeshStandardMaterial({ color: 0x4a3428, roughness: 0.72, metalness: 0.6 });
+  const RACK_H = 4.3;
 
-  // MAR DE BOLAS: 3 capas hexagonales, paleta viva + bolas fundidas negras
-  const ballColors2 = [
-    0xe8382e, 0x2e6ee8, 0xf2d030, 0x38c24a, 0xf27a20, 0xf0ead8, 0xd838a8, 0x35c8c8,
-    0x181210, 0x2a1410, 0x351a08,
-  ];
-  const R2 = 0.125;
-  const hexDx2 = R2 * 2 * 0.88;
-  const hexDz2 = R2 * 2 * 0.78;
-  const cols2 = Math.floor(PW / hexDx2);
-  const rows2 = Math.floor(PD / hexDz2);
-  const BALL_N2 = cols2 * rows2 * 3 + 260;
-  const ballGeo2 = new THREE.SphereGeometry(R2, 18, 14);
-  // plástico brillante con clearcoat: las bolas brillan con la luz del fuego
-  const ballMat2 = new THREE.MeshPhysicalMaterial({
-    roughness: 0.28, metalness: 0.0, clearcoat: 0.9, clearcoatRoughness: 0.22,
-    envMapIntensity: 1.3,
-  });
-  const ballsIM2 = new THREE.InstancedMesh(ballGeo2, ballMat2, BALL_N2);
-  ballsIM2.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  const dummy2 = new THREE.Object3D();
-  const col2 = new THREE.Color();
-  let bi2 = 0;
-  for (let layer = 0; layer < 3; layer++) {
-    const ly = 0.10 + layer * R2 * 1.55;
-    const off = (layer % 2) * (hexDx2 / 2);
-    for (let r = 0; r < rows2; r++) {
-      for (let c = 0; c < cols2; c++) {
-        if (bi2 >= BALL_N2 - 260) break;
-        dummy2.position.set(
-          PX - PW / 2 + R2 + 0.12 + c * hexDx2 + off + (Math.random() - 0.5) * 0.03,
-          ly + (Math.random() - 0.5) * 0.012,
-          PZ - PD / 2 + R2 + 0.12 + r * hexDz2 + (Math.random() - 0.5) * 0.03
-        );
-        dummy2.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
-        const sc = 0.93 + Math.random() * 0.2;
-        dummy2.scale.set(sc, sc, sc);
-        dummy2.updateMatrix();
-        ballsIM2.setMatrixAt(bi2, dummy2.matrix);
-        // la esquina sureste "ardió": mezcla de bolas fundidas
-        const melt = c > cols2 * 0.55 && r < rows2 * 0.35;
-        ballsIM2.setColorAt(
-          bi2,
-          col2.setHex(melt ? ballColors2[8 + (Math.random() * 3 | 0)] : ballColors2[(layer * 5 + r * 3 + c) % 8])
-        );
-        bi2++;
+  function rackRow(x0: number, x1: number, z: number, g0: number, g1: number) {
+    const segs: Array<[number, number]> = [
+      [x0, Math.min(g0, x1)],
+      [Math.max(g1, x0), x1],
+    ];
+    for (const [a, b] of segs) {
+      if (b - a < 0.8) continue;
+      const mat = Math.random() < 0.4 ? rackRust : rackMat;
+      const g = new THREE.Group();
+      // postes verticales
+      const nPosts = Math.max(2, Math.round((b - a) / 3.4) + 1);
+      for (let i = 0; i < nPosts; i++) {
+        const px = a + (b - a) * (i / (nPosts - 1));
+        for (const pz of [-0.55, 0.55]) {
+          const post = new THREE.Mesh(new THREE.BoxGeometry(0.11, RACK_H, 0.11), mat);
+          post.position.set(px, RACK_H / 2, pz);
+          post.castShadow = true;
+          g.add(post);
+        }
+        // travesaño diagonal (arriostramiento)
+        if (i < nPosts - 1) {
+          const px2 = a + (b - a) * ((i + 1) / (nPosts - 1));
+          for (const pz of [-0.55, 0.55]) {
+            const diag = new THREE.Mesh(new THREE.BoxGeometry(px2 - px, 0.06, 0.06), mat);
+            diag.position.set((px + px2) / 2, 2.4, pz);
+            diag.rotation.z = 0.32;
+            g.add(diag);
+          }
+        }
       }
+      // niveles (tablones)
+      for (const ly of [0.32, 1.35, 2.4, 3.45]) {
+        const board = new THREE.Mesh(new THREE.BoxGeometry(b - a - 0.06, 0.07, 1.25), mat);
+        board.position.set((a + b) / 2, ly, 0);
+        board.castShadow = true;
+        board.receiveShadow = true;
+        g.add(board);
+      }
+      g.position.set(0, 0, z);
+      world.root.add(g);
+      world.addCollider(
+        new THREE.Box3().setFromCenterAndSize(
+          new THREE.Vector3((a + b) / 2, RACK_H / 2, z),
+          new THREE.Vector3(b - a, RACK_H, 1.4)
+        ),
+        `rack_${x0}_${z}_${a.toFixed(0)}`
+      );
     }
   }
-  // bolas derramadas por la sala quemada
-  const spill: Array<[number, number]> = [
-    [PX + 8.4, PZ - 3.6], [PX + 9.1, PZ - 1.8], [PX + 8.8, PZ + 1.0], [PX + 8.6, PZ + 3.4],
-    [PX - 8.3, PZ - 2.2], [PX - 8.9, PZ + 1.4], [PX - 8.5, PZ + 3.6],
-    [PX - 2.0, PZ - 5.2], [PX + 2.4, PZ - 5.4], [PX + 5.0, PZ - 5.6],
-    [PX - 4.4, PZ + 5.4], [PX + 1.2, PZ + 5.8],
-  ];
-  for (let s = 0; s < 260 && bi2 < BALL_N2; s++) {
-    const [ox, oz] = spill[s % spill.length];
-    const far = 0.3 + Math.random() * 1.6;
-    const ang = Math.random() * Math.PI * 2;
-    dummy2.position.set(ox + Math.cos(ang) * far, R2 * 0.9, oz + Math.sin(ang) * far);
-    dummy2.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
-    dummy2.scale.set(1, 1, 1);
-    dummy2.updateMatrix();
-    ballsIM2.setMatrixAt(bi2, dummy2.matrix);
-    ballsIM2.setColorAt(bi2, col2.setHex(ballColors2[Math.random() < 0.4 ? 8 + (Math.random() * 3 | 0) : (Math.random() * 8 | 0)]));
-    bi2++;
-  }
-  while (bi2 < BALL_N2) {
-    dummy2.position.set(PX + (Math.random() - 0.5) * PW * 0.9, 0.1, PZ + (Math.random() - 0.5) * PD * 0.9);
-    dummy2.scale.set(1, 1, 1);
-    dummy2.updateMatrix();
-    ballsIM2.setMatrixAt(bi2, dummy2.matrix);
-    ballsIM2.setColorAt(bi2, col2.setHex(0x2e6ee8));
-    bi2++;
-  }
-  pit.add(ballsIM2);
-  world.root.add(pit);
-  world.propAnims.push({ update: (_dt, t) => { ballsIM2.position.y = Math.sin(t * 0.55) * 0.014; } });
 
-  /* ---- CASTILLO DE JUEGOS CALCINADO (oeste, x[-40,-27] z[-50,-39]) ---- */
-  const castle = new THREE.Group();
-  const postMat = charMat();
-  const plast = (c: number) => plasticMaterial(c, 0.72, 0.15);
-  // torres en las esquinas
-  const towers: Array<[number, number, number]> = [
-    [-39.2, -49.2, 5.6], [-28.0, -49.2, 5.0], [-39.2, -39.5, 4.2], [-28.0, -39.5, 3.4],
+  rackRow(-40, -16, -40, -37, -34);   // A: noroeste, hueco al oeste
+  rackRow(-40, -16, -47, -20, -17);   // B: suroeste, hueco al este
+  rackRow(-6, 18, -44, 99, 100);      // C: centro, maciza
+  rackRow(10, 36, -51, 22, 25);       // D: este, hueco central
+  rackRow(-28, -10, -57, -18, -15);   // E: sur, hueco al este
+
+  /* ---- MAREMAGNUM DE CAJAS DE CARTÓN (InstancedMesh, 1 draw call) ---- */
+  const boxGeo = new THREE.BoxGeometry(0.5, 0.38, 0.42);
+  const boxMat = new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.92 });
+  const BOX_N = 240;
+  const boxesIM = new THREE.InstancedMesh(boxGeo, boxMat, BOX_N);
+  const dummy = new THREE.Object3D();
+  // sobre los niveles de las estanterías (tramos sólidos)
+  const rackSpots: Array<[number, number, number]> = [
+    // [centroSegmento, z, semilongitud]
+    [-38.5, -40, 1.5], [-25.5, -40, 11], [-19, -47, 1], [-28.5, -47, 11.5],
+    [6, -44, 12], [16, -44, 2], [13, -51, 9], [33.5, -51, 2.5], [27.5, -57, 1.5], [-13, -57, 8],
   ];
-  for (const [tx, tz, th] of towers) {
-    const tw = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.36, th, 10), postMat);
-    tw.position.set(tx - (-33.5), th / 2, tz - (-44.5));
-    tw.castShadow = true;
-    castle.add(tw);
-    // tejado cónico quemado
-    const roof = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.7, 8), charMat());
-    roof.position.set(tx - (-33.5), th + 0.35, tz - (-44.5));
-    castle.add(roof);
-  }
-  // plataformas multi-nivel
-  const plats: Array<[number, number, number, number, number]> = [
-    [-36.5, 1.6, -47.0, 5.0, 4.0],   // nivel 1 norte
-    [-36.5, 3.2, -47.0, 3.6, 3.0],   // nivel 2 norte
-    [-34.0, 1.6, -41.5, 8.0, 3.6],   // nivel 1 sur
-  ];
-  for (const [px, py, pz, pw, pd] of plats) {
-    const plat = new THREE.Mesh(new THREE.BoxGeometry(pw, 0.14, pd), charWood);
-    plat.position.set(px - (-33.5), py, pz - (-44.5));
-    plat.castShadow = true;
-    castle.add(plat);
-    // vallas rotas
-    for (const sz of [-1, 1]) {
-      const rail = new THREE.Mesh(new THREE.BoxGeometry(pw * 0.9, 0.07, 0.07), charred);
-      rail.position.set(px - (-33.5), py + 0.55, pz - (-44.5) + (sz * pd) / 2);
-      rail.rotation.z = Math.random() * 0.06;
-      castle.add(rail);
+  let bi = 0;
+  for (const [cx, cz, half] of rackSpots) {
+    const n = Math.max(3, Math.round(half * 1.6));
+    for (let i = 0; i < n && bi < BOX_N - 60; i++) {
+      const lvl = [0.32, 1.35, 2.4, 3.45][Math.floor(Math.random() * 4)] + 0.2;
+      dummy.position.set(cx + (Math.random() - 0.5) * half * 1.7, lvl, cz + (Math.random() - 0.5) * 1.1);
+      dummy.rotation.set(0, Math.random() * Math.PI, 0);
+      const s = 0.8 + Math.random() * 0.6;
+      dummy.scale.set(s, s * 0.8, s);
+      dummy.updateMatrix();
+      boxesIM.setMatrixAt(bi, dummy.matrix);
+      bi++;
     }
   }
-  // rampa-tobogán derrumbada
-  const slide2 = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.09, 5.6), plasticMaterial(0x8a2a1a, 0.65, 0.2));
-  slide2.position.set(-30.2 - (-33.5), 1.9, -43.8 - (-44.5));
-  slide2.rotation.set(-0.34, 0.25, 0.12);
-  castle.add(slide2);
-  // tubo-túnel (medio derretido)
-  const tube = new THREE.Mesh(
-    new THREE.TorusGeometry(1.15, 0.62, 12, 24, Math.PI * 1.15),
-    plasticMaterial(0x6a2018, 0.8, 0.1)
+  // pilas en el suelo: esquinas y pasillos
+  const floorStacks: Array<[number, number, number]> = [
+    [-43.0, -37.5, 8], [-43.0, -58.5, 6], [-9.0, -59.5, 7], [-2.5, -38.0, 6],
+    [20.0, -38.5, 7], [38.0, -58.8, 8], [43.0, -38.5, 6], [30.0, -43.5, 5],
+    [-13.0, -38.2, 6], [8.0, -55.0, 5], [-33.0, -54.5, 6], [37.5, -59.0, 6],
+  ];
+  for (const [sx, sz, n] of floorStacks) {
+    for (let i = 0; i < n && bi < BOX_N; i++) {
+      const h = Math.floor(i / 3);
+      dummy.position.set(sx + (Math.random() - 0.5) * 1.4, 0.2 + h * 0.36, sz + (Math.random() - 0.5) * 1.4);
+      dummy.rotation.set(0, Math.random() * Math.PI, 0);
+      const s = 0.85 + Math.random() * 0.45;
+      dummy.scale.set(s, s, s);
+      dummy.updateMatrix();
+      boxesIM.setMatrixAt(bi, dummy.matrix);
+      bi++;
+    }
+  }
+  while (bi < BOX_N) {
+    dummy.position.set(-42 + Math.random() * 84, 0.19, -61 + Math.random() * 25);
+    dummy.rotation.set(0, Math.random() * Math.PI, 0);
+    dummy.scale.set(1, 1, 1);
+    dummy.updateMatrix();
+    boxesIM.setMatrixAt(bi, dummy.matrix);
+    bi++;
+  }
+  boxesIM.castShadow = false;
+  boxesIM.receiveShadow = true;
+  world.root.add(boxesIM);
+
+  /* ---- BIDONES DE ACEITE (óxido) ---- */
+  const drumMat = new THREE.MeshStandardMaterial({ color: 0x5a3a22, roughness: 0.75, metalness: 0.55 });
+  const drums: Array<[number, number, number, boolean]> = [
+    [-43.2, -42.5, 0, false], [-42.2, -40.5, 0.6, false], [-43.0, -49.0, 0.2, true],
+    [19.0, -40.5, 0, false], [20.1, -41.5, 0.4, false], [21.2, -40.8, 0.9, true],
+    [-12.5, -55.5, 0, false], [-11.4, -54.8, 0.5, false], [34.5, -56.0, 0, false],
+    [35.6, -55.2, 0.3, true], [-30.5, -59.5, 0, false], [12.0, -38.5, 0.2, false],
+  ];
+  for (const [dx, dz, dry, tipped] of drums) {
+    const d = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.92, 14), drumMat);
+    if (tipped) {
+      d.rotation.set(0, dry, Math.PI / 2);
+      d.position.set(dx, 0.32, dz);
+    } else {
+      d.rotation.y = dry;
+      d.position.set(dx, 0.46, dz);
+    }
+    d.castShadow = true;
+    world.root.add(d);
+    // aros de refuerzo
+    for (const ry of [-0.2, 0.2]) {
+      const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.315, 0.02, 6, 16), drumMat);
+      hoop.rotation.x = Math.PI / 2;
+      hoop.position.set(dx, 0.46 + (tipped ? 0 : ry), dz);
+      if (tipped) hoop.rotation.z = Math.PI / 2;
+      world.root.add(hoop);
+    }
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(dx, 0.5, dz), new THREE.Vector3(0.75, 1.0, 0.75)), `drum_${dx}_${dz}`);
+  }
+
+  /* =================================================================
+   *  EL ESCENARIO DEL SHOW ORIGINAL (sur-centro) — donde empezó todo
+   * ================================================================= */
+  const stage = new THREE.Group();
+  const stageDeck = new THREE.Mesh(new THREE.BoxGeometry(12, 0.45, 2.8), charWood);
+  stageDeck.position.set(10, 0.225, -60.0);
+  stageDeck.castShadow = true;
+  stageDeck.receiveShadow = true;
+  stage.add(stageDeck);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(10, 0.3, -60.0), new THREE.Vector3(12.2, 0.6, 3.0)), 'basement_stage');
+  // telón de fondo desgarrado
+  const curtMat = new THREE.MeshStandardMaterial({ map: pirateCurtainTex(), color: 0x9a8478, roughness: 0.95 });
+  const curt = new THREE.Mesh(new THREE.PlaneGeometry(12.6, 3.4), curtMat);
+  curt.position.set(10, 2.1, -61.72);
+  curt.rotation.y = 0;
+  stage.add(curt);
+  // cortinas laterales
+  for (const sxs of [3.6, 16.4]) {
+    const sideCurt = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 3.2), curtMat);
+    sideCurt.position.set(sxs, 2.0, -60.9);
+    sideCurt.rotation.y = 0.5 * (sxs < 10 ? 1 : -1);
+    stage.add(sideCurt);
+  }
+  // banner del show
+  const bC = document.createElement('canvas');
+  bC.width = 512; bC.height = 128;
+  const bCtx = bC.getContext('2d')!;
+  bCtx.fillStyle = '#120a08';
+  bCtx.fillRect(0, 0, 512, 128);
+  bCtx.font = 'bold 44px monospace';
+  bCtx.textAlign = 'center';
+  bCtx.fillStyle = '#d8b040';
+  bCtx.fillText('FREDDY & FRIENDS', 256, 62);
+  bCtx.font = 'bold 22px monospace';
+  bCtx.fillStyle = '#a08060';
+  bCtx.fillText('THE ORIGINAL SHOW — 1983', 256, 96);
+  const bTex = new THREE.CanvasTexture(bC);
+  bTex.colorSpace = THREE.SRGBColorSpace;
+  const banner = new THREE.Mesh(
+    new THREE.PlaneGeometry(9.6, 2.0),
+    new THREE.MeshStandardMaterial({ map: bTex, emissive: 0x553008, emissiveIntensity: 0.35, roughness: 0.85 })
   );
-  tube.position.set(-37.5 - (-33.5), 1.15, -41.2 - (-44.5));
-  tube.rotation.y = Math.PI / 2;
-  castle.add(tube);
-  castle.position.set(-33.5, 0, -44.5);
-  world.root.add(castle);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-36.5, 2.4, -47.0), new THREE.Vector3(5.4, 4.8, 4.4)), 'mega_castle_n');
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-34.0, 0.9, -41.5), new THREE.Vector3(8.4, 1.8, 3.9)), 'mega_castle_s');
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-37.5, 1.2, -41.2), new THREE.Vector3(1.6, 2.4, 2.4)), 'mega_tube');
-
-  /* ---- PIANO GIGANTE (norte centro) — teclas de colores pisables ---- */
-  const piano2 = new THREE.Group();
-  const keyColors = [0xd84040, 0xd8a040, 0xd8d840, 0x40d860, 0x40a0d8, 0x8040d8];
-  for (let i = 0; i < 16; i++) {
-    const key = new THREE.Mesh(
-      new THREE.BoxGeometry(0.86, 0.12, 1.7),
-      plasticMaterial(keyColors[i % 6], 0.6, 0.3)
+  banner.position.set(10, 4.6, -61.55);
+  stage.add(banner);
+  // tres atriles con placas (los puestos vacíos de Freddy, Bonnie y Chica)
+  const names = ['FREDDY', 'BONNIE', 'CHICA'];
+  names.forEach((nm, i) => {
+    const mx = 5.6 + i * 4.4;
+    const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 1.2, 8), beamMat);
+    stand.position.set(mx, 1.05, -59.7);
+    stage.add(stand);
+    const mic = new THREE.Mesh(new THREE.CapsuleGeometry(0.045, 0.14, 6, 8), darkMetalMaterial());
+    mic.position.set(mx, 1.75, -59.55);
+    mic.rotation.x = 0.25;
+    stage.add(mic);
+    const pC2 = document.createElement('canvas');
+    pC2.width = 128; pC2.height = 64;
+    const pCtx = pC2.getContext('2d')!;
+    pCtx.fillStyle = '#241a12';
+    pCtx.fillRect(0, 0, 128, 64);
+    pCtx.strokeStyle = '#8a7040';
+    pCtx.strokeRect(4, 4, 120, 56);
+    pCtx.font = 'bold 20px monospace';
+    pCtx.textAlign = 'center';
+    pCtx.fillStyle = '#c8a850';
+    pCtx.fillText(nm, 64, 40);
+    const pTex = new THREE.CanvasTexture(pC2);
+    pTex.colorSpace = THREE.SRGBColorSpace;
+    const plaque = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.66, 0.34),
+      new THREE.MeshStandardMaterial({ map: pTex, roughness: 0.7 })
     );
-    key.position.set(-7.2 + i * 0.96, 0.06, 0);
-    key.castShadow = true;
-    piano2.add(key);
+    plaque.position.set(mx, 0.35, -59.35);
+    stage.add(plaque);
+  });
+  // focos del show (apagados, apuntando al suelo)
+  for (const lx of [6.5, 13.5]) {
+    const fix = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.17, 0.3, 10), darkMetalMaterial());
+    fix.position.set(lx, 5.6, -59.4);
+    fix.rotation.x = -0.8;
+    stage.add(fix);
+    const barn = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.4), darkMetalMaterial());
+    barn.position.set(lx, 5.45, -59.25);
+    barn.rotation.x = -0.8;
+    stage.add(barn);
   }
-  // costados del piano
-  for (const sx of [-7.8, 7.8]) {
-    const side = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 1.9), plasticMaterial(0x3a3a3a, 0.45, 0.4));
-    side.position.set(sx, 0.45, 0);
-    piano2.add(side);
-  }
-  piano2.position.set(1.2, 0, -59.4);
-  piano2.rotation.y = 0;
-  world.root.add(piano2);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(1.2, 0.45, -59.4), new THREE.Vector3(16.6, 0.9, 1.9)), 'mega_piano');
+  world.root.add(stage);
 
-  /* ---- ESTANTERÍA GIGANTE CAÍDA (noreste, apoyada en la pared) ---- */
-  const shelf = new THREE.Group();
-  const shMat = charMat(0.8);
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(11, 0.5, 2.6), shMat);
-  frame.position.y = 1.2;
-  shelf.add(frame);
-  for (const bx of [-5.2, 5.2]) {
-    const back = new THREE.Mesh(new THREE.BoxGeometry(0.5, 6.5, 0.4), shMat);
-    back.position.set(bx, 3.2, -1.15);
-    shelf.add(back);
+  /* ---- CABEZAS DE RESPUESTO en las estanterías (lo más inquietante) ---- */
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x0a0a12, emissive: 0x18e0ff, emissiveIntensity: 2.4 });
+  function spareHead(x: number, y: number, z: number, ry: number, kind: 'bear' | 'rabbit' | 'chick') {
+    const g = new THREE.Group();
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.23, 16, 12), charMat(0.68));
+    head.castShadow = true;
+    g.add(head);
+    if (kind === 'bear') {
+      for (const ex of [-0.17, 0.17]) {
+        const ear = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.1, 8), charMat(0.7));
+        ear.position.set(ex, 0.22, 0);
+        ear.rotation.z = ex * 1.4;
+        g.add(ear);
+      }
+    } else if (kind === 'rabbit') {
+      for (const ex of [-0.09, 0.09]) {
+        const ear = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.34, 0.05), charMat(0.7));
+        ear.position.set(ex, 0.34, 0);
+        ear.rotation.z = ex * 0.8;
+        g.add(ear);
+      }
+    } else {
+      const beak = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.16, 8), charMat(0.6));
+      beak.rotation.x = Math.PI / 2;
+      beak.position.set(0, -0.02, 0.22);
+      g.add(beak);
+    }
+    for (const ex of [-0.09, 0.09]) {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.038, 10, 8), eyeMat.clone());
+      eye.position.set(ex, 0.06, 0.19);
+      g.add(eye);
+    }
+    g.position.set(x, y, z);
+    g.rotation.y = ry;
+    world.root.add(g);
+    // parpadeo espeluznante
+    const eyes = g.children.filter((c) => (c as THREE.Mesh).material === undefined || true);
+    world.propAnims.push({
+      update: (_dt, t) => {
+        const flick = Math.random() < 0.008 ? 0.1 : 1.9 + Math.sin(t * 3 + x) * 0.5;
+        for (const ch of g.children) {
+          const m = (ch as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined;
+          if (m && m.emissive && m.emissive.getHex() === 0x18e0ff) m.emissiveIntensity = flick;
+        }
+      },
+    });
   }
-  // peluches calcinados esparcidos
-  for (let i = 0; i < 14; i++) {
-    const pl = new THREE.Mesh(
-      new THREE.SphereGeometry(0.22 + Math.random() * 0.14, 10, 8),
-      charMat(0.95)
-    );
-    pl.position.set((Math.random() - 0.5) * 10, 1.5 + Math.random() * 0.3, (Math.random() - 0.5) * 1.6);
-    pl.scale.y = 0.7;
-    shelf.add(pl);
-  }
-  shelf.position.set(35, 0, -58.5);
-  shelf.rotation.z = 0.12;
-  shelf.rotation.y = -0.08;
-  world.root.add(shelf);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(35, 1.6, -58.5), new THREE.Vector3(11.5, 3.4, 2.8)), 'mega_shelf');
+  spareHead(-3.2, 2.62, -44.1, 0.5, 'bear');
+  spareHead(-1.9, 2.62, -44.3, -0.4, 'rabbit');
+  spareHead(-0.7, 1.57, -44.15, 0.2, 'chick');
+  spareHead(16.6, 2.62, -44.2, 2.9, 'bear');
+  spareHead(31.0, 2.6, -51.2, -1.2, 'rabbit');
 
-  /* ---- ARCOÍRIS SEMI-FUNDIDO (corredor este, sobre la ruta e5→e6) ---- */
-  const rainbowColors2 = [0x8a3030, 0x8a6828, 0x38702f, 0x2f5570, 0x523070];
+  /* ---- TRAJE VACÍO colgado de una cadena (junto al escenario) ---- */
+  const suit = new THREE.Group();
+  const suitMat = new THREE.MeshStandardMaterial({ color: 0x241e18, roughness: 0.85, metalness: 0.1 });
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.26, 0.55, 8, 12), suitMat);
+  torso.position.y = 1.15;
+  suit.add(torso);
+  for (const sx of [-0.34, 0.34]) {
+    const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.5, 6, 8), suitMat);
+    arm.position.set(sx, 1.15, 0);
+    arm.rotation.z = sx * 0.5;
+    suit.add(arm);
+  }
+  for (const lx of [-0.13, 0.13]) {
+    const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.11, 0.5, 6, 8), suitMat);
+    leg.position.set(lx, 0.4, 0);
+    suit.add(leg);
+  }
+  const suitHead = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 10), charMat(0.75));
+  suitHead.position.y = 1.72;
+  suit.add(suitHead);
+  for (const ex of [-0.16, 0.16]) {
+    const ear = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.09, 8), charMat(0.75));
+    ear.position.set(ex, 1.92, 0);
+    ear.rotation.z = ex * 1.4;
+    suit.add(ear);
+  }
+  // cadena de la que cuelga
+  const hangChain = new THREE.Group();
   for (let i = 0; i < 5; i++) {
-    const arc = new THREE.Mesh(
-      new THREE.TorusGeometry(3.4 - i * 0.45, 0.16, 10, 30, Math.PI),
-      plasticMaterial(rainbowColors2[i], 0.6, 0.3)
-    );
-    arc.position.set(21.5, 0.05, -50 + i * 3.4);
-    arc.rotation.y = -Math.PI / 2;
-    arc.rotation.z = 0;
-    world.root.add(arc);
-    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(21.5, 1.0, -50 + i * 3.4), new THREE.Vector3(0.5, 2.0, 2.0)), `mega_rainbow_${i}`, false);
+    const link = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.012, 6, 10), beamMat);
+    link.position.y = -i * 0.08;
+    link.rotation.y = i * 0.7;
+    hangChain.add(link);
   }
-  // un arco desprendido en el suelo
-  const fallen = new THREE.Mesh(
-    new THREE.TorusGeometry(2.8, 0.15, 10, 26, Math.PI * 0.9),
-    plasticMaterial(0x6a2020, 0.75, 0.15)
-  );
-  fallen.position.set(16, 0.15, -55);
-  fallen.rotation.set(Math.PI / 2, 0.3, 0);
-  world.root.add(fallen);
+  hangChain.position.set(0, 2.4, 0);
+  suit.add(hangChain);
+  suit.position.set(2.4, 1.15, -59.6);
+  world.root.add(suit);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(2.4, 1.1, -59.6), new THREE.Vector3(0.9, 2.3, 0.9)), 'basement_suit');
+  world.propAnims.push({ update: (_dt, t) => { suit.rotation.y = Math.sin(t * 0.32) * 0.5 + 0.2; suit.rotation.z = Math.sin(t * 0.5) * 0.05; } });
 
-  /* ---- CARRUSEL ROTO (este) ---- */
-  const carousel = new THREE.Group();
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.4, 0.55, 22), charMat(0.75));
-  base.position.y = 0.28;
-  base.castShadow = true;
-  carousel.add(base);
-  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 6.4, 12), beamMat);
-  pole.position.y = 3.4;
-  carousel.add(pole);
-  const roof2 = new THREE.Mesh(new THREE.ConeGeometry(4.8, 1.6, 18), plasticMaterial(0x5a1a1a, 0.8, 0.1));
-  roof2.position.y = 7.0;
-  carousel.add(roof2);
-  // caballitos torcidos colgando de cadenas
-  for (let i = 0; i < 6; i++) {
-    const a = (i / 6) * Math.PI * 2;
-    const r = 3.4;
-    const cx = Math.cos(a) * r, cz = Math.sin(a) * r;
-    const hh = 1.4 + (i % 3) * 0.7;
-    for (const [chx, chz] of [[cx - 0.16, cz], [cx + 0.16, cz]] as Array<[number, number]>) {
-      const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, hh + 1.2, 6), beamMat);
-      chain.position.set(chx, (5.6 + hh) / 2, chz);
-      carousel.add(chain);
+  /* ---- JAULA DE ALMACENAJE (sureste) con candado ---- */
+  const cage = new THREE.Group();
+  const meshTex = (() => {
+    const cc = document.createElement('canvas');
+    cc.width = 128; cc.height = 128;
+    const g2 = cc.getContext('2d')!;
+    g2.clearRect(0, 0, 128, 128);
+    g2.strokeStyle = '#8a8a86';
+    g2.lineWidth = 3;
+    for (let i = 0; i <= 128; i += 16) {
+      g2.beginPath(); g2.moveTo(i, 0); g2.lineTo(i, 128); g2.stroke();
+      g2.beginPath(); g2.moveTo(0, i); g2.lineTo(128, i); g2.stroke();
     }
-    const horse2 = new THREE.Group();
-    const hb = new THREE.Mesh(new THREE.CapsuleGeometry(0.2, 0.42, 6, 10), plasticMaterial(i % 2 ? 0x7a3a5a : 0x3a5a7a, 0.7));
-    hb.rotation.z = Math.PI / 2 + (Math.random() - 0.5) * 0.7;
-    horse2.add(hb);
-    const hh2 = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), plasticMaterial(i % 2 ? 0x7a3a5a : 0x3a5a7a, 0.7));
-    hh2.position.set(0.42, 0.12, 0);
-    horse2.add(hh2);
-    horse2.position.set(cx, hh, cz);
-    horse2.rotation.y = -a + Math.PI / 2;
-    carousel.add(horse2);
+    const tx = new THREE.CanvasTexture(cc);
+    tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
+    tx.repeat.set(10, 3);
+    return tx;
+  })();
+  const cageMat = new THREE.MeshStandardMaterial({
+    map: meshTex, transparent: true, alphaTest: 0.4, side: THREE.DoubleSide,
+    color: 0xb0b0aa, roughness: 0.5, metalness: 0.8,
+  });
+  const CX0 = 30, CX1 = 43, CZ0 = -61, CZ1 = -56.5, CH = 3.2;
+  // paredes de malla
+  const wallN = new THREE.Mesh(new THREE.PlaneGeometry(CX1 - CX0, CH), cageMat);
+  wallN.position.set((CX0 + CX1) / 2, CH / 2, CZ0);
+  cage.add(wallN);
+  const wallS = new THREE.Mesh(new THREE.PlaneGeometry(CX1 - CX0, CH), cageMat);
+  wallS.position.set((CX0 + CX1) / 2, CH / 2, CZ1);
+  cage.add(wallS);
+  const wallW = new THREE.Mesh(new THREE.PlaneGeometry(CZ1 - CZ0, CH), cageMat);
+  wallW.rotation.y = Math.PI / 2;
+  wallW.position.set(CX0, CH / 2, (CZ0 + CZ1) / 2);
+  cage.add(wallW);
+  const wallE = wallW.clone();
+  wallE.position.x = CX1;
+  cage.add(wallE);
+  // postes + travesaño
+  for (const [px, pz] of [[CX0, CZ0], [CX1, CZ0], [CX0, CZ1], [CX1, CZ1]] as Array<[number, number]>) {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, CH + 0.2, 0.12), beamMat);
+    post.position.set(px, (CH + 0.2) / 2, pz);
+    post.castShadow = true;
+    cage.add(post);
   }
-  carousel.position.set(36, 0, -46);
-  world.root.add(carousel);
-  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(36, 1.2, -46), new THREE.Vector3(8.6, 2.4, 8.6)), 'mega_carousel');
-  world.propAnims.push({ update: (_dt, t) => { carousel.rotation.y = Math.sin(t * 0.11) * 0.04; } });
+  const topBar = new THREE.Mesh(new THREE.BoxGeometry(CX1 - CX0, 0.08, 0.08), beamMat);
+  topBar.position.set((CX0 + CX1) / 2, CH, CZ1);
+  cage.add(topBar);
+  // candado + puerta cerrada (decorativa)
+  const lock = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.2, 0.08), new THREE.MeshStandardMaterial({ color: 0x8a6a18, metalness: 0.9, roughness: 0.3 }));
+  lock.position.set(CX0 + 0.2, 1.25, CZ1);
+  cage.add(lock);
+  world.root.add(cage);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3((CX0 + CX1) / 2, CH / 2, (CZ0 + CZ1) / 2), new THREE.Vector3(CX1 - CX0, CH, CZ1 - CZ0 + 0.3)), 'basement_cage');
+  // cajas dentro de la jaula
+  for (let i = 0; i < 8; i++) {
+    const bC2 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.4, 0.5), boxMat);
+    bC2.position.set(31.5 + (i % 4) * 1.1, 0.22 + Math.floor(i / 4) * 0.44, -60.4 + Math.floor(i / 4) * 0.55);
+    bC2.rotation.y = Math.random() * 0.6;
+    bC2.castShadow = true;
+    world.root.add(bC2);
+  }
 
-  /* ---- COFIRES DE JUGUETES (escondites) ---- */
+  /* ---- CALDERA Y TUBERÍAS (noroeste) ---- */
+  const boiler = new THREE.Group();
+  const boMat = new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.62, metalness: 0.72 });
+  const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 3.0, 18), boMat);
+  tank.position.y = 1.5;
+  tank.castShadow = true;
+  boiler.add(tank);
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(0.95, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), boMat);
+  dome.position.y = 3.0;
+  boiler.add(dome);
+  for (const by of [0.8, 1.8, 2.6]) {
+    const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.97, 0.04, 8, 20), boMat);
+    hoop.rotation.x = Math.PI / 2;
+    hoop.position.y = by;
+    boiler.add(hoop);
+  }
+  // manómetros + válvulas
+  for (const gy of [1.2, 2.2]) {
+    const gauge = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), new THREE.MeshStandardMaterial({ color: 0xd8d0b0, emissive: 0x807850, emissiveIntensity: 0.5, roughness: 0.3 }));
+    gauge.position.set(0.92, gy, 0.35);
+    boiler.add(gauge);
+  }
+  const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.03, 8, 16), new THREE.MeshStandardMaterial({ color: 0x8a1818, roughness: 0.5, metalness: 0.6 }));
+  wheel.position.set(0, 3.4, 0);
+  wheel.rotation.x = Math.PI / 2;
+  boiler.add(wheel);
+  for (let s = 0; s < 4; s++) {
+    const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.03, 0.03), boMat);
+    spoke.position.set(0, 3.4, 0);
+    spoke.rotation.y = (s / 4) * Math.PI;
+    boiler.add(spoke);
+  }
+  boiler.position.set(-41.5, 0, -36.6);
+  world.root.add(boiler);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-41.5, 1.6, -36.6), new THREE.Vector3(2.1, 3.4, 2.1)), 'basement_boiler');
+
+  // tuberías por las paredes (norte y oeste)
+  const pipeMat = new THREE.MeshStandardMaterial({ color: 0x4a4038, roughness: 0.55, metalness: 0.8 });
+  for (const py of [2.6, 3.3]) {
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 56, 10), pipeMat);
+    pipe.rotation.z = Math.PI / 2;
+    pipe.position.set(0, py, -61.72);
+    world.root.add(pipe);
+  }
+  for (const px of [-30, -12, 8, 26]) {
+    const vpipe = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 3.3, 8), pipeMat);
+    vpipe.position.set(px, 1.65, -61.68);
+    world.root.add(vpipe);
+  }
+  // válvulas de rueda en la pared
+  for (const [vx, vz, vy] of [[-20, -61.6, 1.6], [16, -61.6, 1.6], [40, -44.0, 1.7], [-43.6, -50, 1.7]] as Array<[number, number, number]>) {
+    const vw = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.025, 8, 14), new THREE.MeshStandardMaterial({ color: 0x8a1818, roughness: 0.55, metalness: 0.55 }));
+    vw.position.set(vx, vy, vz);
+    if (vx < -43 || vx > 39) vw.rotation.y = Math.PI / 2;
+    world.root.add(vw);
+  }
+
+  /* ---- PILARES DE HORMIGÓN ---- */
+  const pillarMat = new THREE.MeshStandardMaterial({ color: 0x585450, roughness: 0.85 });
+  for (const [px, pz] of [[-13, -52], [31, -44], [-31, -54]] as Array<[number, number]>) {
+    const pil = new THREE.Mesh(new THREE.BoxGeometry(0.85, 9, 0.85), pillarMat);
+    pil.position.set(px, 4.5, pz);
+    pil.castShadow = true;
+    pil.receiveShadow = true;
+    world.root.add(pil);
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(px, 4.5, pz), new THREE.Vector3(0.95, 9, 0.95)), `bpillar_${px}_${pz}`);
+    // caja de fusibles anclada al pilar
+    if (px === -13 || px === 31) {
+      const fb = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 0.22), darkMetalMaterial());
+      fb.position.set(px, 1.7, pz + 0.55);
+      world.root.add(fb);
+      const flick = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 6), new THREE.MeshStandardMaterial({ color: 0x300804, emissive: 0xff3020, emissiveIntensity: 1.4 }));
+      flick.position.set(px, 2.12, pz + 0.68);
+      world.root.add(flick);
+      world.propAnims.push({ update: (_dt, t) => { (flick.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.1 + Math.sin(t * 7 + px) * 0.7; } });
+    }
+  }
+
+  /* ---- MESAS DE FIESTA APILADAS + SILLAS (restos de la pizzería, suroeste) ---- */
+  const tableMat = plasticMaterial(0x7a5a3a, 0.6, 0.25);
+  for (let i = 0; i < 5; i++) {
+    const tb = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.08, 14), tableMat);
+    tb.position.set(-34.5 + (i % 2) * 0.3, 0.55 + i * 0.14, -59.8 + (i % 3) * 0.25);
+    tb.castShadow = true;
+    world.root.add(tb);
+  }
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-34.5, 0.9, -59.8), new THREE.Vector3(2.0, 1.8, 1.6)), 'basement_tables');
+  // sillas plegadas recargadas en la pared oeste
+  for (let i = 0; i < 7; i++) {
+    const ch2 = new THREE.Group();
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.75, 0.05), tableMat);
+    back.position.y = 0.6;
+    ch2.add(back);
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.05, 0.45), tableMat);
+    seat.position.set(0, 0.35, 0.2);
+    ch2.add(seat);
+    ch2.position.set(-43.6, 0, -55.5 + i * 0.85);
+    ch2.rotation.set(0, Math.PI / 2, -0.25);
+    world.root.add(ch2);
+  }
+
+  /* ---- PALETS ---- */
+  const palletMat = woodMaterial([0.5, 1.2]);
+  const palletSpots: Array<[number, number, number]> = [[-24.5, -36.5, 0.3], [14.0, -58.5, -0.2], [33.5, -42.0, 0.1], [-9.5, -36.8, 0.4]];
+  for (const [px, pz, pry] of palletSpots) {
+    const pg = new THREE.Group();
+    for (let s = 0; s < 5; s++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.22), palletMat);
+      slat.position.set(0, 0.03, -0.55 + s * 0.28);
+      pg.add(slat);
+    }
+    for (const bx of [-0.7, 0.7]) {
+      const beam2 = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.09, 1.4), palletMat);
+      beam2.position.set(bx, 0.0, 0);
+      pg.add(beam2);
+    }
+    pg.position.set(px, 0.08, pz);
+    pg.rotation.y = pry;
+    world.root.add(pg);
+    // cajas encima
+    for (let b2 = 0; b2 < 2; b2++) {
+      const bx2 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.4, 0.5), boxMat);
+      bx2.position.set(px + (Math.random() - 0.5) * 0.6, 0.33 + b2 * 0.42, pz + (Math.random() - 0.5) * 0.5);
+      bx2.rotation.y = Math.random() * 0.5;
+      bx2.castShadow = true;
+      world.root.add(bx2);
+    }
+  }
+
+  /* ---- EScombros: losas caídas, escombros, cables colgando ---- */
+  const tileMat = new THREE.MeshStandardMaterial({ color: 0x9a948a, roughness: 0.9 });
+  const debrisMat = charMat(0.98);
+  for (let i = 0; i < 8; i++) {
+    const tile = new THREE.Mesh(new THREE.BoxGeometry(1.1 + Math.random() * 0.8, 0.05, 0.9 + Math.random() * 0.7), tileMat);
+    tile.position.set(-40 + Math.random() * 80, 0.05 + Math.random() * 0.12, -60 + Math.random() * 24);
+    tile.rotation.set(Math.random() * 0.14, Math.random() * Math.PI, Math.random() * 0.1);
+    tile.receiveShadow = true;
+    world.root.add(tile);
+  }
+  for (let i = 0; i < 10; i++) {
+    const rub = new THREE.Mesh(new THREE.ConeGeometry(0.5 + Math.random() * 0.9, 0.3 + Math.random() * 0.5, 6), debrisMat);
+    rub.position.set(-42 + Math.random() * 84, 0.16, -60 + Math.random() * 24);
+    rub.rotation.y = Math.random() * Math.PI;
+    world.root.add(rub);
+  }
+  // cables colgando del techo
+  const wireMat = new THREE.MeshStandardMaterial({ color: 0x181410, roughness: 0.9 });
+  for (let i = 0; i < 12; i++) {
+    const wx = -40 + Math.random() * 80;
+    const wz = -60 + Math.random() * 24;
+    const len = 1.0 + Math.random() * 2.2;
+    const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.02, len, 5), wireMat);
+    wire.position.set(wx, 8.3 - len / 2, wz);
+    wire.rotation.z = (Math.random() - 0.5) * 0.3;
+    world.root.add(wire);
+  }
+
+  /* ---- CADENAS + GANCHOS colgando de las vigas ---- */
+  const chains: THREE.Group[] = [];
+  for (const [cx, cz] of [[-18, -44], [4, -55], [24, -47], [-8, -52], [36, -43], [12, -44]] as Array<[number, number]>) {
+    const cg = new THREE.Group();
+    for (let i = 0; i < 6; i++) {
+      const link = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.014, 6, 10), beamMat);
+      link.position.y = -i * 0.085;
+      link.rotation.y = i * 0.8;
+      cg.add(link);
+    }
+    const hook = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.016, 6, 12, Math.PI * 1.5), beamMat);
+    hook.position.y = -0.62;
+    cg.add(hook);
+    const cl = 1.4 + Math.random() * 1.4;
+    cg.position.set(cx, 8.3 - cl, cz);
+    world.root.add(cg);
+    chains.push(cg);
+  }
+  world.propAnims.push({
+    update: (_dt, t) => {
+      for (let i = 0; i < chains.length; i++) chains[i].rotation.y = Math.sin(t * 0.4 + i) * 0.35;
+    },
+  });
+
+  /* ---- LA SILLA SOLITARIA bajo una bombilla (sur-centro) ---- */
+  const chairMat = woodMaterial([0.4, 0.9]);
+  const chair = new THREE.Group();
+  const cSeat = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.06, 0.52), chairMat);
+  cSeat.position.y = 0.48;
+  cSeat.castShadow = true;
+  chair.add(cSeat);
+  const cBack = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.62, 0.06), chairMat);
+  cBack.position.set(0, 0.82, -0.24);
+  chair.add(cBack);
+  for (const lx of [-0.2, 0.2]) for (const lz of [-0.2, 0.2]) {
+    const cLeg = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.48, 0.05), chairMat);
+    cLeg.position.set(lx, 0.24, lz);
+    chair.add(cLeg);
+  }
+  chair.position.set(-2.5, 0, -54.2);
+  chair.rotation.y = 0.6;
+  world.root.add(chair);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-2.5, 0.5, -54.2), new THREE.Vector3(0.7, 1.1, 0.7)), 'basement_chair');
+  brokenLight(world, -2.5, -54.2, 2.8);
+
+  /* ---- RECREATIVAS ROTAS junto al escenario ---- */
+  arcadeCabinet(world, 18.6, -60.2, 0, true);
+  arcadeCabinet(world, 19.7, -59.4, 0.35, true);
+
+  /* ---- CHARCOS (reflejan el fuego: roughness bajo) ---- */
+  const puddleMat = new THREE.MeshStandardMaterial({ color: 0x0a0d12, roughness: 0.12, metalness: 0.55 });
+  for (const [ux, uz, ur] of [[-12, -49.5, 1.4], [8, -55, 1.9], [-30, -36, 1.1], [22, -57.5, 1.3], [-15, -38.5, 0.9]] as Array<[number, number, number]>) {
+    const pu = new THREE.Mesh(new THREE.CircleGeometry(ur, 18), puddleMat);
+    pu.rotation.x = -Math.PI / 2;
+    pu.position.set(ux, 0.035, uz);
+    pu.receiveShadow = true;
+    world.root.add(pu);
+  }
+
+  /* ---- CARRETILLA + FREGONA + CAJA DE HERRAMIENTAS ---- */
+  const wheelbarrow = new THREE.Group();
+  const tray = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.3, 0.55), new THREE.MeshStandardMaterial({ color: 0x5a2a1a, roughness: 0.6, metalness: 0.4 }));
+  tray.position.y = 0.45;
+  tray.rotation.x = 0.12;
+  wheelbarrow.add(tray);
+  const wWheel = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.07, 12), darkMetalMaterial());
+  wWheel.rotation.z = Math.PI / 2;
+  wWheel.position.set(0.5, 0.17, 0);
+  wheelbarrow.add(wWheel);
+  for (const lx of [-0.32, 0.32]) {
+    const wLeg = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.42, 0.05), darkMetalMaterial());
+    wLeg.position.set(-0.35, 0.21, lx);
+    wheelbarrow.add(wLeg);
+  }
+  wheelbarrow.position.set(-8.5, 0, -42.6);
+  wheelbarrow.rotation.y = -0.7;
+  world.root.add(wheelbarrow);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-8.5, 0.4, -42.6), new THREE.Vector3(1.0, 0.8, 0.7)), 'basement_wheel');
+  const bucket = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.19, 0.35, 12), plasticMaterial(0x3a5a3a, 0.55, 0.3));
+  bucket.position.set(20.2, 0.18, -55.6);
+  bucket.castShadow = true;
+  world.root.add(bucket);
+  const toolBox = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.24, 0.28), new THREE.MeshStandardMaterial({ color: 0x8a2818, roughness: 0.5, metalness: 0.5 }));
+  toolBox.position.set(33.5, 0.62, -42.0);
+  toolBox.rotation.y = 0.3;
+  world.root.add(toolBox);
+
+  /* ---- COFIRES-ESCONDITES (4, posiciones del mapData) ---- */
   const chestMat = plasticMaterial(0x8a5a2a, 0.75, 0.1);
   const chests: Array<[number, number, number]> = [
-    [-25, -39, 0], [-8, -52, 0.5], [26, -38.5, -0.4], [10, -57, 0.2],
+    [-25, -37.8, 0], [-8, -52, 0.5], [26, -38.5, -0.4], [10, -57, 0.2],
   ];
   for (const [cx, cz, ry] of chests) {
     const ch = new THREE.Group();
@@ -2928,10 +2944,9 @@ function buildMegaDaycare(world: WorldBuilder) {
     world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(cx, 0.5, cz), new THREE.Vector3(1.8, 1.0, 1.0)), `megachest_${cx}`);
   }
 
-  /* ---- 7 ESTACIONES DE EXTINTORES (anclas dcgen_eN para el sistema de pruebas) ---- */
+  /* ---- 5 ESTACIONES DE EXTINTORES (anclas dcgen_eN para el sistema de pruebas) ---- */
   MEGA_EXTINTORES.forEach(([ex, ez, ery], i) => {
     const g = new THREE.Group();
-    // cuerpo rojo con banda
     const body4 = new THREE.Mesh(
       new THREE.CylinderGeometry(0.11, 0.13, 0.62, 14),
       plasticMaterial(0xc22018, 0.45, 0.35)
@@ -2942,7 +2957,6 @@ function buildMegaDaycare(world: WorldBuilder) {
     const band = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.125, 0.1, 14), plasticMaterial(0xe8e2d2, 0.5));
     band.position.y = 0.66;
     g.add(band);
-    // cabeza + palanca + manguera
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.12, 0.1), darkMetalMaterial());
     head.position.y = 0.98;
     g.add(head);
@@ -2957,21 +2971,18 @@ function buildMegaDaycare(world: WorldBuilder) {
     );
     hose.position.set(0.1, 0.78, 0.05);
     g.add(hose);
-    // manómetro
     const gauge = new THREE.Mesh(
       new THREE.SphereGeometry(0.045, 10, 8),
       new THREE.MeshStandardMaterial({ color: 0xd8d0b0, emissive: 0x807850, emissiveIntensity: 0.4 })
     );
     gauge.position.set(-0.1, 0.94, 0.03);
     g.add(gauge);
-    // cartel verde sobre el soporte
     const sign = new THREE.Mesh(
       new THREE.BoxGeometry(0.5, 0.2, 0.04),
       new THREE.MeshStandardMaterial({ color: 0x0a2a10, emissive: 0x22c840, emissiveIntensity: 1.1 })
     );
     sign.position.set(0, 1.65, 0.02);
     g.add(sign);
-    // LUZ DE ESTADO (roja → verde al usarse; mismo convenio que generadores)
     const status = new THREE.Mesh(
       new THREE.SphereGeometry(0.085, 12, 10),
       new THREE.MeshStandardMaterial({ color: 0x5a0808, emissive: 0xff2020, emissiveIntensity: 2.6 })
@@ -2988,20 +2999,24 @@ function buildMegaDaycare(world: WorldBuilder) {
     g.rotation.y = ery;
     world.root.add(g);
     world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(ex, 0.8, ez), new THREE.Vector3(0.5, 1.6, 0.5)), `dcext_${i}`);
-    // ancla con el MISMO convenio que los generadores (dcgen_<taskId>)
     world.anchors.set(`dcgen_e${i + 1}`, { pos: new THREE.Vector3(ex, 1.1, ez), mesh: status });
   });
 
-  /* ---- decoración: dibujos quemados, letreros, lámparas caídas ---- */
+  /* ---- decoración: carteles, dibujos quemados, letreros ---- */
+  addPoster(world, posterBruno(), -43.8, 2.1, -46, Math.PI / 2);
+  addPoster(world, posterParty(), 43.8, 2.2, -50, -Math.PI / 2);
   addDrawing(world, 1, -43.8, 1.8, -40, Math.PI / 2);
-  addDrawing(world, 3, -43.8, 1.8, -48, Math.PI / 2);
+  addDrawing(world, 3, -43.8, 1.8, -52, Math.PI / 2);
   addDrawing(world, 5, 43.8, 1.8, -44, -Math.PI / 2);
-  addDrawing(world, 2, 20, 1.8, -61.8, 0);
-  neonSign(world, 'MEGA DAYCARE', 0xff7030, 0, 8.0, -34.35, 0, 5.0, 0.7);
+  addDrawing(world, 2, 20, 1.8, -61.82, 0);
+  neonSign(world, 'THE BASEMENT', 0xff7030, 0, 8.0, -34.35, 0, 5.4, 0.7);
+  neonSign(world, 'STORAGE — B1', 0xffa030, 22, 4.2, -34.35, 0, 3.0, 0.5);
+  neonSign(world, 'SHOW STAGE', 0xff40c0, 10, 5.9, -61.82, 0, 3.2, 0.5);
   neonSign(world, 'EMERGENCY EXIT', 0x40ff70, -37, 3.1, -34.35, 0, 2.6, 0.5);
   neonSign(world, 'EMERGENCY EXIT', 0x40ff70, -22, 3.1, -34.35, 0, 2.6, 0.5);
   neonSign(world, 'EMERGENCY EXIT', 0x40ff70, -6, 3.1, -34.35, 0, 2.6, 0.5);
-  // lámparas-luna colgando torcidas (una se balancea)
+
+  /* ---- lámparas colgando torcidas (una se balancea) ---- */
   const moonLamp2 = new THREE.MeshStandardMaterial({ color: 0x4a4a5a, emissive: 0x901810, emissiveIntensity: 0.7 });
   const swingLamps: THREE.Group[] = [];
   for (const [lx, lz] of [[-20, -37.5], [12, -38.5], [-32, -52], [26, -59], [40, -40]] as Array<[number, number]>) {
@@ -3025,7 +3040,7 @@ function buildMegaDaycare(world: WorldBuilder) {
     },
   });
 
-  /* ---- quemaduras en el suelo (circulos de hollín) ---- */
+  /* ---- quemaduras en el suelo (círculos de hollín) ---- */
   const scorchMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45, depthWrite: false });
   for (let i = 0; i < 16; i++) {
     const sc = new THREE.Mesh(new THREE.CircleGeometry(0.8 + Math.random() * 2.2, 18), scorchMat);
