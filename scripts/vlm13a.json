@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided:\n\n1.  **Lockers:** **No**, there are no metal lockers or locker banks visible against the wall. The background consists of dark walls with neon signs (\"FAZER BLAST\", \"BONNIE BOWL\", \"UNO\") and a large pillar.\n2.  **Bugs:** The animatronic bear (Freddy) is standing in a **T-pose**. There are no obvious floating objects, but the character's default stance is clearly visible.\n3.  **Scene Quality:** The scene has a dark, atmospheric horror aesthetic typical of indie FNAF-style games. It features a checkered floor, low-lighting with neon accents, and a first-person perspective holding a flashlight. The graphics are functional but show some low-resolution textures and simple geometry.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792376765,
+  "id": "202610191026018f2be7effe6f40e0",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610191026018f2be7effe6f40e0",
+  "usage": {
+    "completion_tokens": 170,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 966,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1136
+  }
+}

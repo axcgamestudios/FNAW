@@ -35,6 +35,17 @@ export interface GltfRig {
   eyes: THREE.Mesh[];
   height: number;
   kind: string;
+  /** v13 — MOON: pivotes de los brazos separados del mesh estático (T-pose) */
+  moonArms?: MoonArms;
+}
+
+/** Brazos separables de Moon (el GLB no tiene esqueleto: los brazos venían
+ *  cocinados en T-pose dentro del mesh del cuerpo). */
+export interface MoonArms {
+  pivotL: THREE.Group;
+  pivotR: THREE.Group;
+  meshL: THREE.Mesh;
+  meshR: THREE.Mesh;
 }
 
 interface ModelConfig {
@@ -293,7 +304,13 @@ export class AssetLibrary {
     }
 
     const bones = mapBones(model, kind);
-    return { root, model, bones, mixer, idleAction, eyes, height: cfg.height, kind };
+    const rig: GltfRig = { root, model, bones, mixer, idleAction, eyes, height: cfg.height, kind };
+    // v13 — MOON: separar los brazos del cuerpo estático (T-pose de fábrica)
+    // y montarlos en pivotes de hombro animables.
+    if (kind === 'moon') {
+      rig.moonArms = splitMoonArms(model) ?? undefined;
+    }
+    return rig;
   }
 
   /** rig clonado (por ejemplo, Freddy Dorado) con tinte opcional */
@@ -359,6 +376,115 @@ export class AssetLibrary {
       rig.mixer?.update(dt);
     }
   }
+}
+
+/* ============ MOON: SEPARACIÓN DE BRAZOS (fix T-pose) ============ */
+
+/** v13 — El GLB del Eclipse (moon.glb) es un modelo ESTÁTICO reconvertido de
+ *  OBJ: sin esqueleto y sin animaciones, con los brazos extendidos en T-pose
+ *  dentro del mesh del cuerpo (triángulos con |x| > 0.62 a la altura del
+ *  hombro z > 3.05, en unidades locales del GLB donde Z es la altura).
+ *
+ *  Esta función corta esos triángulos, los convierte en meshes propios
+ *  colgados de un pivote situado en cada hombro, y reduce el mesh original
+ *  al torso. Los pivotes quedan listos para que Animatronic los anime:
+ *  rotación Y del pivote = vaivén abajo/alto, rotación Z del mesh del brazo
+ *  = elevar hacia delante (la cara del Eclipse mira hacia -Y local).
+ *
+ *  El eje local +Z apunta ARRIBA en el mundo (la matriz del nodo raíz
+ *  Sketchfab mapea Z→Y), de modo que bajar el brazo = rotarlo hacia -Z. */
+function splitMoonArms(model: THREE.Object3D): MoonArms | null {
+  // 1. localizar el mesh del cuerpo: es el único que cruza toda la altura
+  //    (size.z > 4.5) Y se extiende en X más allá de los hombros (|x| > 1.5).
+  let body: THREE.Mesh | null = null;
+  model.traverse((o) => {
+    if (body || !(o instanceof THREE.Mesh)) return;
+    if (!o.geometry.attributes.position) return;
+    o.geometry.computeBoundingBox();
+    const bb = o.geometry.boundingBox;
+    if (bb && bb.max.x > 1.5 && bb.max.z - bb.min.z > 4.5) body = o;
+  });
+  const mesh = body as THREE.Mesh | null;
+  if (!mesh) return null;
+
+  // 2. clasificar triángulos por centroide
+  const src = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry;
+  const pos = src.attributes.position as THREE.BufferAttribute;
+  const nor = src.attributes.normal as THREE.BufferAttribute | undefined;
+  const uv = src.attributes.uv as THREE.BufferAttribute | undefined;
+  const triCount = Math.floor(pos.count / 3);
+  const lists: number[][] = [[], [], []]; // 0 cuerpo, 1 brazo izq, 2 brazo der
+  for (let t = 0; t < triCount; t++) {
+    const i0 = t * 3;
+    const cx = (pos.getX(i0) + pos.getX(i0 + 1) + pos.getX(i0 + 2)) / 3;
+    const cz = (pos.getZ(i0) + pos.getZ(i0 + 1) + pos.getZ(i0 + 2)) / 3;
+    let bucket = 0;
+    if (cz > 3.05) {
+      if (cx > 0.62) bucket = 2;
+      else if (cx < -0.62) bucket = 1;
+    }
+    lists[bucket].push(t);
+  }
+  if (!lists[1].length || !lists[2].length) return null; // sin brazos: abortar
+
+  // 3. construir geometrías a partir de listas de triángulos
+  const buildGeo = (tris: number[]): THREE.BufferGeometry => {
+    const g = new THREE.BufferGeometry();
+    const P = new Float32Array(tris.length * 9);
+    const N = nor ? new Float32Array(tris.length * 9) : null;
+    const U = uv ? new Float32Array(tris.length * 6) : null;
+    for (let k = 0; k < tris.length; k++) {
+      const t = tris[k];
+      for (let v = 0; v < 3; v++) {
+        const si = t * 3 + v;
+        const di = k * 3 + v;
+        P[di * 3] = pos.getX(si);
+        P[di * 3 + 1] = pos.getY(si);
+        P[di * 3 + 2] = pos.getZ(si);
+        if (N && nor) {
+          N[di * 3] = nor.getX(si);
+          N[di * 3 + 1] = nor.getY(si);
+          N[di * 3 + 2] = nor.getZ(si);
+        }
+        if (U && uv) {
+          U[di * 2] = uv.getX(si);
+          U[di * 2 + 1] = uv.getY(si);
+        }
+      }
+    }
+    g.setAttribute('position', new THREE.BufferAttribute(P, 3));
+    if (N) g.setAttribute('normal', new THREE.BufferAttribute(N, 3));
+    if (U) g.setAttribute('uv', new THREE.BufferAttribute(U, 2));
+    return g;
+  };
+
+  // 4. pivotes de hombro (coordenadas locales del GLB, unidades crudas)
+  const SH_X = 0.72;
+  const SH_Z = 3.72;
+  const parent = mesh.parent;
+  if (!parent) return null;
+  const makeArm = (tris: number[], side: 1 | -1): { pivot: THREE.Group; arm: THREE.Mesh } => {
+    const arm = new THREE.Mesh(buildGeo(tris), mesh.material);
+    arm.castShadow = true;
+    arm.receiveShadow = true;
+    arm.frustumCulled = false;
+    arm.userData = JSON.parse(JSON.stringify(mesh.userData));
+    // el brazo mantiene sus coordenadas originales dentro del pivote
+    arm.position.set(-side * SH_X, 0, -SH_Z);
+    const pivot = new THREE.Group();
+    pivot.position.set(side * SH_X, 0, SH_Z);
+    pivot.add(arm);
+    parent.add(pivot);
+    return { pivot, arm };
+  };
+  const L = makeArm(lists[1], -1);
+  const R = makeArm(lists[2], 1);
+
+  // 5. el mesh original queda reducido al torso (mismo material/transform)
+  mesh.geometry = buildGeo(lists[0]);
+  mesh.frustumCulled = false;
+
+  return { pivotL: L.pivot, pivotR: R.pivot, meshL: L.arm, meshR: R.arm };
 }
 
 /* ============ LUNA / SOL (GLB estático del Eclipse) ============ */

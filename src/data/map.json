@@ -9,7 +9,7 @@
  },
  "playerSpawn": {
   "x": -5.5,
-  "z": 31.0,
+  "z": 31,
   "yaw": 0
  },
  "rooms": [
@@ -92,7 +92,7 @@
    ],
    "floor": "concrete",
    "wall": "concrete",
-   "height": 4.0,
+   "height": 4,
    "ambientLight": {
     "intensity": 0.105,
     "flicker": 0.42
@@ -109,7 +109,7 @@
    ],
    "floor": "concrete",
    "wall": "metal",
-   "height": 4.0,
+   "height": 4,
    "ambientLight": {
     "intensity": 0.084,
     "color": 788442,
@@ -127,7 +127,7 @@
    ],
    "floor": "metal",
    "wall": "metal",
-   "height": 3.0,
+   "height": 3,
    "ambientLight": {
     "intensity": 0.06,
     "flicker": 0.9799999999999999
@@ -184,7 +184,7 @@
    "ambientLight": {
     "intensity": 0.126,
     "color": 4492092,
-    "flicker": 1.0
+    "flicker": 1
    }
   },
   {
@@ -198,7 +198,7 @@
    ],
    "floor": "wood",
    "wall": "wallpaper",
-   "height": 5.0,
+   "height": 5,
    "ambientLight": {
     "intensity": 0.096,
     "flicker": 0.63
@@ -251,7 +251,7 @@
    ],
    "floor": "polished",
    "wall": "wallpaper",
-   "height": 4.0,
+   "height": 4,
    "ambientLight": {
     "intensity": 0.102,
     "flicker": 0.5599999999999999
@@ -285,7 +285,7 @@
    ],
    "floor": "polished",
    "wall": "wallpaper",
-   "height": 4.0,
+   "height": 4,
    "ambientLight": {
     "intensity": 0.102,
     "flicker": 0.5599999999999999
@@ -302,7 +302,7 @@
    ],
    "floor": "carpet",
    "wall": "wallpaper",
-   "height": 5.0,
+   "height": 5,
    "ambientLight": {
     "intensity": 0.09,
     "color": 7820650,
@@ -393,7 +393,7 @@
    "height": 3.2,
    "ambientLight": {
     "intensity": 0.048,
-    "flicker": 1.0
+    "flicker": 1
    }
   },
   {
@@ -407,7 +407,7 @@
    ],
    "floor": "polished",
    "wall": "wallpaper",
-   "height": 6.0,
+   "height": 6,
    "ambientLight": {
     "intensity": 0.12,
     "flicker": 0.48999999999999994
@@ -441,7 +441,7 @@
    ],
    "floor": "concrete",
    "wall": "metal",
-   "height": 4.0,
+   "height": 4,
    "ambientLight": {
     "intensity": 0.072,
     "flicker": 0.84
@@ -535,11 +535,11 @@
    "x2": 20,
    "z2": 34,
    "wallType": "wallpaper",
-   "h": 6.0,
+   "h": 6,
    "openings": [
     {
      "at": -5.5,
-     "width": 3.0,
+     "width": 3,
      "height": 2.6
     }
    ]
@@ -636,7 +636,7 @@
    "openings": [
     {
      "at": 9,
-     "width": 2.0,
+     "width": 2,
      "height": 2.15
     }
    ]
@@ -727,7 +727,7 @@
     {
      "at": -37,
      "width": 3.2,
-     "height": 3.0
+     "height": 3
     }
    ]
   },
@@ -757,7 +757,7 @@
     {
      "at": -9,
      "width": 4.2,
-     "height": 3.0
+     "height": 3
     }
    ]
   },
@@ -767,12 +767,12 @@
    "x2": 12,
    "z2": -17,
    "wallType": "wallpaper",
-   "h": 5.0,
+   "h": 5,
    "openings": [
     {
      "at": 5,
      "width": 4.2,
-     "height": 3.0
+     "height": 3
     }
    ]
   },
@@ -787,7 +787,7 @@
     {
      "at": 19,
      "width": 4.2,
-     "height": 3.0
+     "height": 3
     }
    ]
   },
@@ -802,7 +802,7 @@
     {
      "at": 35,
      "width": 4.2,
-     "height": 3.0
+     "height": 3
     }
    ]
   },
@@ -816,7 +816,7 @@
    "openings": [
     {
      "at": -13,
-     "width": 2.0,
+     "width": 2,
      "height": 2.6
     }
    ]
@@ -847,7 +847,7 @@
    "x2": -2,
    "z2": -9,
    "wallType": "wallpaper",
-   "h": 5.0,
+   "h": 5,
    "openings": [
     {
      "at": -13,
@@ -862,11 +862,11 @@
    "x2": 12,
    "z2": -9,
    "wallType": "wallpaper",
-   "h": 5.0,
+   "h": 5,
    "openings": [
     {
      "at": -13,
-     "width": 2.0,
+     "width": 2,
      "height": 2.6
     }
    ]
@@ -927,7 +927,7 @@
    "x2": -7,
    "z2": -9,
    "wallType": "wallpaper",
-   "h": 9.0,
+   "h": 9,
    "openings": [
     {
      "at": -11.5,
@@ -942,7 +942,7 @@
    "x2": 7,
    "z2": -9,
    "wallType": "wallpaper",
-   "h": 9.0
+   "h": 9
   },
   {
    "x1": 7,
@@ -950,11 +950,11 @@
    "x2": 12,
    "z2": -9,
    "wallType": "wallpaper",
-   "h": 9.0,
+   "h": 9,
    "openings": [
     {
      "at": 9.5,
-     "width": 3.0,
+     "width": 3,
      "height": 3.4
     }
    ]
@@ -965,7 +965,7 @@
    "x2": 16,
    "z2": -9,
    "wallType": "wallpaper",
-   "h": 9.0,
+   "h": 9,
    "openings": [
     {
      "at": 13.7,
@@ -1010,7 +1010,7 @@
    "x2": -29,
    "z2": -3,
    "wallType": "wallpaper",
-   "h": 5.0,
+   "h": 5,
    "openings": [
     {
      "at": -36,
@@ -1070,11 +1070,11 @@
    "x2": -16,
    "z2": -3,
    "wallType": "wallpaper",
-   "h": 9.0,
+   "h": 9,
    "openings": [
     {
      "at": -6,
-     "width": 3.0,
+     "width": 3,
      "height": 3.4
     }
    ]
@@ -1085,7 +1085,7 @@
    "x2": -16,
    "z2": 13,
    "wallType": "wallpaper",
-   "h": 9.0,
+   "h": 9,
    "openings": [
     {
      "at": 4,
@@ -1100,11 +1100,11 @@
    "x2": 16,
    "z2": -3,
    "wallType": "wallpaper",
-   "h": 9.0,
+   "h": 9,
    "openings": [
     {
      "at": -6,
-     "width": 3.0,
+     "width": 3,
      "height": 3.4
     }
    ]
@@ -1115,7 +1115,7 @@
    "x2": 16,
    "z2": 13,
    "wallType": "tile",
-   "h": 9.0,
+   "h": 9,
    "openings": [
     {
      "at": 4,
@@ -1130,7 +1130,7 @@
    "x2": -29,
    "z2": 13,
    "wallType": "wallpaper",
-   "h": 5.0,
+   "h": 5,
    "openings": [
     {
      "at": 5,
@@ -1165,11 +1165,11 @@
    "x2": -29,
    "z2": 13,
    "wallType": "wallpaper",
-   "h": 5.0,
+   "h": 5,
    "openings": [
     {
      "at": -36,
-     "width": 3.0,
+     "width": 3,
      "height": 3.2
     }
    ]
@@ -1218,7 +1218,7 @@
    "x2": -31,
    "z2": 19,
    "wallType": "concrete",
-   "h": 4.0,
+   "h": 4,
    "openings": [
     {
      "at": -37.5,
@@ -1237,17 +1237,17 @@
    "openings": [
     {
      "at": -14,
-     "width": 5.0,
+     "width": 5,
      "height": 4.2
     },
     {
      "at": 0,
-     "width": 5.0,
+     "width": 5,
      "height": 4.2
     },
     {
      "at": 14,
-     "width": 5.0,
+     "width": 5,
      "height": 4.2
     }
    ]
@@ -1273,7 +1273,7 @@
    "x2": 44,
    "z2": 19,
    "wallType": "metal",
-   "h": 4.0,
+   "h": 4,
    "openings": [
     {
      "at": 37,
@@ -1323,7 +1323,7 @@
    "x2": 20,
    "z2": 34,
    "wallType": "concrete",
-   "h": 6.0,
+   "h": 6,
    "openings": [
     {
      "at": 26,
@@ -1353,7 +1353,7 @@
    "x2": 44,
    "z2": 27,
    "wallType": "metal",
-   "h": 4.0,
+   "h": 4,
    "openings": [
     {
      "at": 37,
@@ -1368,7 +1368,7 @@
    "x2": -31,
    "z2": 29,
    "wallType": "wallpaper",
-   "h": 6.0
+   "h": 6
   },
   {
    "x1": -44,
@@ -1469,7 +1469,7 @@
    "x": 9,
    "z": -24,
    "axis": "x",
-   "width": 2.0,
+   "width": 2,
    "roomA": "techHall",
    "roomB": "loading"
   },
@@ -1573,7 +1573,7 @@
    "x": -5.5,
    "z": 34,
    "axis": "x",
-   "width": 3.0,
+   "width": 3,
    "roomA": "lobby",
    "roomB": "outside",
    "locked": true,
@@ -2045,13 +2045,13 @@
    "id": "locker_tech_w",
    "room": "techHall",
    "pos": [
-    -32,
-    -20.6
+    -32.4,
+    -23.35
    ],
    "type": "locker",
    "look": [
-    -32,
-    -24
+    -32.4,
+    -19.4
    ]
   },
   {
@@ -2059,12 +2059,12 @@
    "room": "techHall",
    "pos": [
     -6,
-    -20.6
+    -23.35
    ],
    "type": "locker",
    "look": [
     -6,
-    -24
+    -19.4
    ]
   },
   {
@@ -2072,38 +2072,38 @@
    "room": "techHall",
    "pos": [
     20,
-    -20.6
+    -23.35
    ],
    "type": "locker",
    "look": [
     20,
-    -24
+    -19.4
    ]
   },
   {
    "id": "locker_promS_w",
    "room": "promW",
    "pos": [
-    -41,
-    16.2
+    -40.8,
+    13.65
    ],
    "type": "locker",
    "look": [
-    -41,
-    13
+    -40.8,
+    17
    ]
   },
   {
    "id": "locker_promS_e",
    "room": "promE",
    "pos": [
-    41,
-    16.2
+    39.2,
+    13.65
    ],
    "type": "locker",
    "look": [
-    41,
-    13
+    39.2,
+    17
    ]
   },
   {
@@ -2247,6 +2247,123 @@
    "look": [
     10,
     -60
+   ]
+  },
+  {
+   "id": "locker_atrium_w",
+   "room": "atrium",
+   "pos": [
+    -15.5,
+    11.2
+   ],
+   "type": "locker",
+   "look": [
+    -11.5,
+    11.2
+   ]
+  },
+  {
+   "id": "locker_atrium_e",
+   "room": "atrium",
+   "pos": [
+    15.5,
+    10.8
+   ],
+   "type": "locker",
+   "look": [
+    11.5,
+    10.8
+   ]
+  },
+  {
+   "id": "locker_westN",
+   "room": "westPromN",
+   "pos": [
+    -38.4,
+    -8.35
+   ],
+   "type": "locker",
+   "look": [
+    -38.4,
+    -5
+   ]
+  },
+  {
+   "id": "locker_eastN",
+   "room": "eastPromN",
+   "pos": [
+    39.2,
+    -8.35
+   ],
+   "type": "locker",
+   "look": [
+    39.2,
+    -5
+   ]
+  },
+  {
+   "id": "locker_rockstar",
+   "room": "rockstar",
+   "pos": [
+    -43.35,
+    -13.8
+   ],
+   "type": "locker",
+   "look": [
+    -39.4,
+    -13.8
+   ]
+  },
+  {
+   "id": "locker_arcade",
+   "room": "arcade",
+   "pos": [
+    -10,
+    -9.65
+   ],
+   "type": "locker",
+   "look": [
+    -10,
+    -13.5
+   ]
+  },
+  {
+   "id": "locker_foodcourt",
+   "room": "foodcourt",
+   "pos": [
+    30.45,
+    9.8
+   ],
+   "type": "locker",
+   "look": [
+    26.5,
+    9.8
+   ]
+  },
+  {
+   "id": "locker_lobby",
+   "room": "lobby",
+   "pos": [
+    -15.6,
+    33.35
+   ],
+   "type": "locker",
+   "look": [
+    -15.6,
+    29.5
+   ]
+  },
+  {
+   "id": "locker_bowling",
+   "room": "bowling",
+   "pos": [
+    10.85,
+    -16.35
+   ],
+   "type": "locker",
+   "look": [
+    10.85,
+    -12.5
    ]
   }
  ],

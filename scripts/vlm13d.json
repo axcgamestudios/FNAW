@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "YES. The view is framed by thick, dark horizontal metal bands (the locker door's ventilation slats) that run across the center of the screen. Through the narrow gaps between these slats, a brightly lit room is visible, showing checkered flooring and illuminated wall panels.\n\n**Regarding the second question:** No, there are no guard arms or a flashlight visible at the bottom of the view. The bottom area shows only the dark interior base of the locker, the \"Leave hiding spot\" prompt, and the game's HUD interface (flashlight/mask indicators).",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792376994,
+  "id": "20261019102950ca4cd30c0008477c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261019102950ca4cd30c0008477c",
+  "usage": {
+    "completion_tokens": 115,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 956,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1071
+  }
+}

@@ -165,32 +165,162 @@ function shelfUnit(world: WorldBuilder, x: number, z: number, ry = 0, len = 2.4,
   return g;
 }
 
-/** Armario (escondite) */
-function locker(world: WorldBuilder, x: number, z: number, ry: number) {
+/** v13 — LOCKER estilo Security Breach: casilla HUECA con puerta de rendijas.
+ *  El guardia se teletransporta DENTRO (interactuable "Hide" del map.json en
+ *  la misma posición) y ve el pasillo a través de las ranuras horizontales
+ *  a la altura de los ojos; la linterna encendida dentro dibuja franjas de
+ *  luz en el suelo. La unidad 0 de cada banco queda con la puerta vencida. */
+const LOCKER_COLORS = [0x2c3a4a, 0x33424f, 0x27333f, 0x3a4a55, 0x2f3d49];
+
+function lockerDoorNumber(n: number): THREE.Texture {
+  const c = document.createElement('canvas');
+  c.width = 96;
+  c.height = 48;
+  const ctx = c.getContext('2d')!;
+  ctx.fillStyle = '#141a20';
+  ctx.fillRect(0, 0, 96, 48);
+  ctx.fillStyle = '#c8cfd8';
+  ctx.font = 'bold 26px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(String(n).padStart(3, '0'), 48, 25);
+  ctx.strokeStyle = '#5a6a78';
+  ctx.strokeRect(2, 2, 92, 44);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+function lockerBank(world: WorldBuilder, x0: number, z0: number, ry: number, units: number, firstNumber: number) {
   const g = new THREE.Group();
-  const mat = darkMetalMaterial();
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 2.0, 0.6), mat);
-  body.position.y = 1.0;
-  body.castShadow = true;
-  g.add(body);
-  for (const dx of [-0.19, 0.19]) {
-    const doorP = new THREE.Mesh(new THREE.BoxGeometry(0.36, 1.9, 0.03), metalMaterial([0.3, 0.8]));
-    doorP.position.set(dx, 1.0, 0.32);
-    g.add(doorP);
-    const vent1 = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.03, 0.05), mat);
-    vent1.position.set(dx, 1.7, 0.34);
-    const vent2 = vent1.clone();
-    vent2.position.y = 1.6;
-    g.add(vent1, vent2);
-  }
-  g.position.set(x, 0, z);
+  g.position.set(x0, 0, z0);
   g.rotation.y = ry;
+  const UNIT_W = 0.8;
+  const H = 2.05;
+  const D = 0.66;
+  for (let i = 0; i < units; i++) {
+    const unit = new THREE.Group();
+    unit.position.x = i * UNIT_W;
+    const color = LOCKER_COLORS[(i + firstNumber) % LOCKER_COLORS.length];
+    const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.62, metalness: 0.35 });
+    // carcasa hueca: trasera, laterales, techo y base
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.76, H - 0.06, 0.05), mat);
+    back.position.set(0, H / 2, -D / 2 + 0.03);
+    back.castShadow = true;
+    back.receiveShadow = true;
+    unit.add(back);
+    for (const sx of [-0.385, 0.385]) {
+      const side = new THREE.Mesh(new THREE.BoxGeometry(0.05, H, D), mat);
+      side.position.set(sx, H / 2, 0);
+      side.castShadow = true;
+      side.receiveShadow = true;
+      unit.add(side);
+    }
+    const top = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.05, D), mat);
+    top.position.set(0, H - 0.02, 0);
+    top.castShadow = true;
+    unit.add(top);
+    const base = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.06, D), mat);
+    base.position.set(0, 0.03, 0);
+    unit.add(base);
+    // puerta con bisagra en el canto izquierdo (grupo pivotante)
+    const door = new THREE.Group();
+    door.position.set(-0.36, 0, D / 2 - 0.02);
+    const doorMat = new THREE.MeshStandardMaterial({
+      color: LOCKER_COLORS[(i + firstNumber + 2) % LOCKER_COLORS.length],
+      roughness: 0.58,
+      metalness: 0.4,
+    });
+    // mitad inferior maciza + cabecero
+    const low = new THREE.Mesh(new THREE.BoxGeometry(0.72, 1.1, 0.035), doorMat);
+    low.position.set(0.36, 0.58, 0);
+    low.castShadow = true;
+    low.receiveShadow = true;
+    door.add(low);
+    const header = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.16, 0.035), doorMat);
+    header.position.set(0.36, H - 0.08, 0);
+    header.castShadow = true;
+    door.add(header);
+    // VENTANA DE RENDIJAS a la altura de los ojos (1.36..1.86): 4 lamas
+    // de 7 cm con huecos de 7 cm → el guardia dentro VE el pasillo
+    for (let sl = 0; sl < 4; sl++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.07, 0.035), doorMat);
+      slat.position.set(0.36, 1.40 + sl * 0.145, 0);
+      slat.castShadow = true;
+      door.add(slat);
+    }
+    // marco de la ventana
+    for (const fy of [1.325, 1.905]) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.045, 0.045), doorMat);
+      bar.position.set(0.36, fy, 0.01);
+      door.add(bar);
+    }
+    // manilla + bisagras
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.16, 0.05), metalMaterial([0.9, 0.6]));
+    handle.position.set(0.66, 1.05, 0.03);
+    door.add(handle);
+    for (const hy of [0.45, 1.55]) {
+      const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.14, 8), darkMetalMaterial());
+      hinge.position.set(0.02, hy, 0.02);
+      door.add(hinge);
+    }
+    // número estarcido
+    const num = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.17, 0.09),
+      new THREE.MeshStandardMaterial({ map: lockerDoorNumber(firstNumber + i), roughness: 0.8 })
+    );
+    num.position.set(0.36, H - 0.13, 0.028);
+    door.add(num);
+    // unidad vencida: puerta colgando abierta (la primera de cada banco)
+    if (i === 0) door.rotation.y = 0.62;
+    unit.add(door);
+    g.add(unit);
+  }
   world.root.add(g);
-  const c = Math.abs(Math.cos(ry)), s = Math.abs(Math.sin(ry));
+  // colisión única del banco completo
+  const axisX = Math.abs(Math.sin(ry)) < 0.5;
+  const len = units * UNIT_W;
   world.addCollider(
-    new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(x, 1, z), new THREE.Vector3(0.8 * c + 0.6 * s, 2, 0.6 * c + 0.8 * s)),
-    `locker_${x.toFixed(1)}_${z.toFixed(1)}`
+    new THREE.Box3().setFromCenterAndSize(
+      new THREE.Vector3(x0, 1, z0),
+      new THREE.Vector3(axisX ? len : D, H, axisX ? D : len)
+    ),
+    `lockerbank_${x0.toFixed(1)}_${z0.toFixed(1)}`
   );
+}
+
+/** v13 — bancos de lockers por todo el MEGAPLEX (escondites estilo Security
+ *  Breach). Las posiciones coinciden EXACTAMENTE con los hidingSpots
+ *  "locker_*" de map.json (la unidad escondite es la que tiene la puerta
+ *  cerrada, índice 1 del banco). */
+function buildLockerBanks(world: WorldBuilder) {
+  // Pasillo técnico (3 bancos contra el muro sur, mirando al norte)
+  lockerBank(world, -33.2, -23.35, 0, 3, 101);
+  lockerBank(world, -6.8, -23.35, 0, 3, 104);
+  lockerBank(world, 19.2, -23.35, 0, 3, 107);
+  // Galerías laterales oeste/este del atrio sur (muro sur de cada galería)
+  lockerBank(world, -41.6, 13.65, 0, 3, 110);
+  lockerBank(world, 38.4, 13.65, 0, 3, 113);
+  // Atrio central: muro oeste (mirando +X) y muro este (mirando -X),
+  // en los tramos sólidos entre la reja de la guardería y las galerías
+  // (con ry=±π/2 las unidades avanzan hacia ∓Z: oeste z0=12 baja, este sube)
+  lockerBank(world, -15.5, 12.0, Math.PI / 2, 4, 201);
+  lockerBank(world, 15.5, 10.0, -Math.PI / 2, 4, 205);
+  // Promenades norte (muro norte mirando al sur)
+  lockerBank(world, -39.2, -8.35, 0, 3, 301);
+  lockerBank(world, 38.4, -8.35, 0, 3, 304);
+  // Rockstar Row (camerinos, muro oeste mirando +X)
+  lockerBank(world, -43.35, -13.0, Math.PI / 2, 3, 401);
+  // Arcade (muro sur mirando al norte)
+  lockerBank(world, -9.2, -9.65, Math.PI, 3, 501);
+  // Food court (muro este mirando -X)
+  lockerBank(world, 30.45, 9.0, -Math.PI / 2, 3, 601);
+  // Lobby (muro sur mirando al norte)
+  lockerBank(world, -14.8, 33.35, Math.PI, 3, 701);
+  // Bolera (rincón este del muro norte, junto a las máquinas de chapa)
+  lockerBank(world, 10.05, -16.35, 0, 2, 801);
+  // Galería técnica sur (la vieja casilla suelta se sustituye por banco)
+  lockerBank(world, -41.7, 32.5, Math.PI, 3, 901);
 }
 
 function arcadeCabinet(world: WorldBuilder, x: number, z: number, ry: number, broken = false, screenColor = 0x37ff88) {
@@ -349,6 +479,8 @@ export function buildProps(world: WorldBuilder) {
   buildServices(world);
   buildGenerator(world);
   buildSouthService(world);
+  // v13 — escondites estilo Security Breach
+  buildLockerBanks(world);
 
   // Animaciones globales
   world.propAnims.push({
@@ -2054,7 +2186,7 @@ function buildSouthService(world: WorldBuilder) {
 
   /* SALA TÉCNICA SUR: x[-44,-31] z[29,34] — rincón del DORADO */
   shelfUnit(world, -36, 32.5, 0, 2.4, 4);
-  locker(world, -41, 32.5, 0);
+  // v13: el banco de lockers de esta sala lo pone buildLockerBanks
   // traje dorado inquietante contra la pared
   const goldenSuit = new THREE.Group();
   const gbody = new THREE.Mesh(new THREE.CapsuleGeometry(0.24, 0.7, 8, 12), plasticMaterial(0xd8a838, 0.5, 0.5));

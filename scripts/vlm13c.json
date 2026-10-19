@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "NO. There are no dark horizontal metal bands or slats crossing the view. The view is completely clear and unobstructed.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792376830,
+  "id": "2026101910270844df376f87834f76",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026101910270844df376f87834f76",
+  "usage": {
+    "completion_tokens": 28,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 963,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 991
+  }
+}

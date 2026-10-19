@@ -254,14 +254,17 @@ export class AudioEngine {
     // - Jugador (heavy=false): Pasos_jugador.mp3 troceado en 4 variantes,
     //   con pitch aleatorio para que cada paso suene distinto.
     // - Animatrónico (heavy=true): Pasosanimatronico.mp3, pasos pesados.
-    // La capa sintética por superficie se mantiene a volumen BAJO como
-    // "carácter del material" (madera/metal/moqueta) bajo el paso real.
+    // v13: SIN capa sintética encima — el usuario oyó el doble paso.
+    // La síntesis solo corre como respaldo sin archivo.
     const stepFiles = heavy
       ? (['step_anim_1', 'step_anim_2', 'step_anim_3', 'step_anim_4'] as SfxFileName[])
       : (['step_player_1', 'step_player_2', 'step_player_3', 'step_player_4'] as SfxFileName[]);
     const stepFile = stepFiles[Math.floor(Math.random() * stepFiles.length)];
     const realBuf = this.sfxBufs.get(stepFile);
     if (realBuf && surface !== 'balls') {
+      // v13: SOLO el paso real del repo (el usuario reportó el doble sonido
+      // de la capa sintética encima). La síntesis queda únicamente como
+      // respaldo si el archivo no está decodificado.
       const ctx = this.ctx;
       const t = ctx.currentTime;
       const src = ctx.createBufferSource();
@@ -275,6 +278,7 @@ export class AudioEngine {
       src.connect(g);
       g.connect(pan);
       src.start(t);
+      return;
     }
 
     const ctx = this.ctx;

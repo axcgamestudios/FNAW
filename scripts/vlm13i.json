@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1) **Natural pose**: The bear (Freddy) is standing with arms slightly bent and hanging down, looking natural and \"alive,\" not in a stiff T-pose.\n2) **Yes, there are letterbox bars**: Black bars are clearly visible at the top and bottom of the screen.\n3) **Quality**: The cinematic shot has a high-quality, atmospheric horror aesthetic with effective lighting, detailed textures, and strong composition.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792377401,
+  "id": "202610191036382dafd6ce8b0149c8",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610191036382dafd6ce8b0149c8",
+  "usage": {
+    "completion_tokens": 90,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 966,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1056
+  }
+}

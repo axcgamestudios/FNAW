@@ -62,6 +62,13 @@
      "room": "arcade"
     },
     {
+     "id": "c1_kitchen",
+     "title": "Sweep the INDUSTRIAL KITCHEN",
+     "hint": "South-west service corridor — watch the dark",
+     "type": "goto",
+     "room": "kitchen"
+    },
+    {
      "id": "c1_office",
      "title": "Return alive to the Security Office",
      "hint": "South-west office — end of the round",
@@ -79,7 +86,7 @@
     "bonnie"
    ],
    "aggression": 0.8,
-   "eventRate": 1.0,
+   "eventRate": 1,
    "startPower": 85,
    "introCinematic": "cine_cap2",
    "outroCinematic": "cine_camstare",
@@ -177,6 +184,13 @@
      "room": "kitchen"
     },
     {
+     "id": "c3_arcade",
+     "title": "Patrol the FAZER BLAST arcade",
+     "hint": "North-west arcade hall — lockers available",
+     "type": "goto",
+     "room": "arcade"
+    },
+    {
      "id": "c3_trial",
      "title": "CLEAR THE TRIAL: Food Court",
      "hint": "Restart the 3 food stands",
@@ -243,6 +257,13 @@
      "hint": "West gallery — the display rooms",
      "type": "goto",
      "room": "rockstar"
+    },
+    {
+     "id": "c4_theater",
+     "title": "Inspect the THEATER backstage",
+     "hint": "North-west of the atrium",
+     "type": "goto",
+     "room": "theater"
     }
    ]
   },
@@ -296,6 +317,13 @@
      "hint": "Below the office — the golden suit",
      "type": "goto",
      "room": "techS"
+    },
+    {
+     "id": "c5_freezers",
+     "title": "Check the FREEZER ROOM",
+     "hint": "North-east services wing — it is cold in there",
+     "type": "goto",
+     "room": "freezers"
     }
    ]
   },
@@ -333,6 +361,12 @@
      "type": "goto",
      "label": "Reach the Technical Gallery (pitch black)",
      "room": "techHall"
+    },
+    {
+     "id": "c6_storageN",
+     "label": "Search NORTH STORAGE for the fuse crate",
+     "type": "goto",
+     "room": "storageN"
     },
     {
      "id": "c6_trial",

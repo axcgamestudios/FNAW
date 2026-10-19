@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided:\n\n1.  **Pose:** The animatronic bear is in a **dynamic and menacing** pose. It is leaning forward aggressively with its arms raised/outstretched, appearing to be mid-stride or lunging directly at the camera.\n2.  **Walk/Lunge:** Yes, the posture strongly resembles a **horror lunge** or a fast, aggressive charge toward the viewer.\n3.  **Visual Bugs:** There are no obvious visual bugs like floating parts or twisted limbs; the model appears to be in a standard, albeit terrifying, running/attacking animation state.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792377109,
+  "id": "202610191031423f53e410dfc340ba",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610191031423f53e410dfc340ba",
+  "usage": {
+    "completion_tokens": 125,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 982,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1107
+  }
+}

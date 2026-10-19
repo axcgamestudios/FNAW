@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1) Yes, 4 units (2 on each side of the pillar).\n2) No, all doors appear closed.\n3) Yes, they are properly placed against the wall.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792377027,
+  "id": "20261019103025655dee8701444fbb",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261019103025655dee8701444fbb",
+  "usage": {
+    "completion_tokens": 38,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 968,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1006
+  }
+}

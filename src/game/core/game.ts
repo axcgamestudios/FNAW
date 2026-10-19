@@ -923,15 +923,40 @@ export class Game {
     // escondites
     for (const spot of mapData.hidingSpots) {
       const [x, z] = spot.pos;
+      const [lx, lz] = spot.look;
+      // v13: el guardia mira HACIA FUERA del escondite (la dirección look)
+      // y al salir aparece DELANTE de la puerta, no incrustado dentro.
+      const dx = lx - x;
+      const dz = lz - z;
+      const dLen = Math.hypot(dx, dz) || 1;
+      const hideYaw = Math.atan2(-dx / dLen, -dz / dLen);
+      const exitPos = new THREE.Vector3(x + (dx / dLen) * 1.05, 0, z + (dz / dLen) * 1.05);
       this.interactables.push({
         id: `hide_${spot.id}`,
-        label: 'Hide',
+        label: spot.type === 'locker' ? 'Hide in the locker' : 'Hide',
         pos: { x, y: 0.9, z },
         radius: 1.6,
         enabled: () => this.mode === 'playing' && !P().hidden && !P().inVent,
         action: () => {
-          this.player.hide(spot.id, new THREE.Vector3(x, 0, z), 0);
-          this.notify('Hidden — stay quiet [E to come out]');
+          this.player.hide(spot.id, new THREE.Vector3(x, 0, z), hideYaw);
+          this.hideExit = exitPos;
+          // v13 — SI UN CAZADOR TE VIO ESCONDERTE, VIENE A SACARTE:
+          // esconderse con él encima ya no es un botón de salvación.
+          let witnessed = false;
+          for (const a of this.animatronics) {
+            if (!a.active || a.retired) continue;
+            if (a.state !== 'chase' && a.state !== 'hunt') continue;
+            if (a.pos.distanceTo(new THREE.Vector3(x, 0, z)) < 7.5) {
+              a.markWitnessedHide(x, z);
+              witnessed = true;
+            }
+          }
+          if (witnessed) {
+            this.notify('IT SAW YOU HIDE — GET OUT OF THERE! [E]');
+            this.player.setShake(0.5);
+          } else {
+            this.notify('Hidden — hold your breath [E to come out]');
+          }
         },
       });
       this.interactables.push({
@@ -942,7 +967,7 @@ export class Game {
         requireLook: false,
         enabled: () => this.mode === 'playing' && P().hidden === true && P().hiddenSpotId === spot.id,
         action: () => {
-          this.player.unhide(new THREE.Vector3(x, 0, z));
+          this.player.unhide(this.hideExit ?? new THREE.Vector3(x, 0, z));
         },
       });
     }
@@ -1240,6 +1265,8 @@ export class Game {
 
   private jumpscareStrobe: THREE.PointLight = new THREE.PointLight(0xff2233, 0, 6, 1.6);
   private pendingTrialRespawn = false;
+  /** v13 — punto de salida al dejar el escondite (delante de la puerta) */
+  private hideExit: THREE.Vector3 | null = null;
 
   private onDeath(ai: Animatronic) {
     if (this.mode !== 'playing') return;
@@ -1488,6 +1515,10 @@ export class Game {
     } else if (this.mode === 'cinematic') {
       this.cine.update(dt);
       this.world.update(dt, this.camera.position);
+      // v13 — los animatrónicos RESPIRAN durante las cinemáticas:
+      // antes el juego no los actualizaba y quedaban en la T-pose de
+      // fábrica del GLB. Sin IA: solo animación de reposo.
+      for (const a of this.animatronics) a.poseIdle(dt);
     } else if (this.mode === 'menu' || this.mode === 'boot') {
       this.menuCamera(dt);
     } else if (this.mode === 'dead' || this.mode === 'complete' || this.mode === 'ending') {
@@ -1579,11 +1610,16 @@ export class Game {
       // v12 — misiones más largas: puntos de patrulla por capítulo
       ['c1_storage', 'daycare', false],
       ['c1_arcade', 'arcade', false],
+      ['c1_kitchen', 'kitchen', false],
       ['c2_prize', 'prize', false],
       ['c3_kitchen', 'kitchen', false],
+      ['c3_arcade', 'arcade', false],
       ['c4_rockstar', 'rockstar', false],
+      ['c4_theater', 'theater', false],
       ['c5_electrical', 'electrical', false],
       ['c5_techS', 'techS', false],
+      ['c5_freezers', 'freezers', false],
+      ['c6_storageN', 'storageN', false],
       ['c7_descend', 'megadaycare', false],
     ];
     for (const [objId, roomId, requireOthers] of gotoChecks) {
@@ -1715,11 +1751,20 @@ export class Game {
     if (this.player.hidden) {
       for (const a of this.animatronics) {
         if (!a.active || a.state === 'dormant') continue;
+        // v13 — si te VIO esconderte, ya lo maneja su IA (va a por ti).
+        if (a.sawHideSpot) continue;
         const d = a.pos.distanceTo(this.player.pos);
         if (d < 2.0 && (a.state === 'search' || a.state === 'chase' || a.state === 'hunt')) {
           if (Math.random() < dt * 0.35) {
             const spot = mapData.hidingSpots.find((s) => s.id === this.player.hiddenSpotId);
-            this.player.unhide(new THREE.Vector3(spot ? spot.pos[0] : this.player.pos.x, 0, spot ? spot.pos[1] : this.player.pos.z));
+            const exit = spot
+              ? new THREE.Vector3(
+                  spot.pos[0] + (spot.look[0] - spot.pos[0]) / (Math.hypot(spot.look[0] - spot.pos[0], spot.look[1] - spot.pos[1]) || 1) * 1.05,
+                  0,
+                  spot.pos[1] + (spot.look[1] - spot.pos[1]) / (Math.hypot(spot.look[0] - spot.pos[0], spot.look[1] - spot.pos[1]) || 1) * 1.05
+                )
+              : this.player.pos.clone();
+            this.player.unhide(exit);
             a.state = 'chase';
             a.stateTimer = 0;
             this.notify('THEY FOUND YOU!');

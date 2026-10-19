@@ -70,6 +70,17 @@ export class RigAnimator {
   private breathPhase = Math.random() * 10;
   private restModelY = 0;
   private stepPulse = 0;
+  /** v13 — SNAP de cabeza: la mirada salta a un nuevo ángulo cada pocos
+   *  segundos (marioneta muerta) en vez de derivar suavemente. */
+  private snapTimer = 1.5;
+  private snapYaw = 0;
+  private snapPitch = 0;
+  private snapRoll = 0;
+  private snapYawCur = 0;
+  private snapPitchCur = 0;
+  private snapRollCur = 0;
+  /** v13 — asimetría de cojera fija por personaje (0.85..1.12) */
+  private limp = 0.9 + Math.random() * 0.22;
 
   constructor(root: THREE.Object3D, model: THREE.Object3D | null, bones: RigBones) {
     this.root = root;
@@ -156,9 +167,11 @@ export class RigAnimator {
     const moving = ctx.speed > 0.15;
     const run = ctx.speed > ctx.walkRef * 1.15;
 
-    // fase de paso
+    // v13 — cadencia MÁS LENTA y PESADA (antes 2.55): zancadas largas de
+    // titán, no pasitos rápidos. Debe coincidir con el intervalo de pasos
+    // de Animatronic.followPath (π/(v·1.95)).
     if (moving) {
-      this.walkPhase += dt * ctx.speed * (ctx.crawling ? 4.4 : 2.55);
+      this.walkPhase += dt * ctx.speed * (ctx.crawling ? 4.4 : 1.95);
     } else {
       this.walkPhase = 0;
     }
@@ -166,6 +179,19 @@ export class RigAnimator {
     const s = Math.sin(ph);
     const amp = Math.min(1, ctx.speed / Math.max(0.4, ctx.walkRef)) * (run ? 0.62 : 0.5);
     this.breathPhase += dt;
+
+    // v13 — SNAP de cabeza en reposo (mirada muerta de marioneta)
+    this.snapTimer -= dt;
+    if (this.snapTimer <= 0) {
+      this.snapTimer = 1.6 + Math.random() * 3.2;
+      this.snapYaw = (Math.random() - 0.5) * 0.9;
+      this.snapPitch = (Math.random() - 0.5) * 0.22;
+      this.snapRoll = (Math.random() - 0.5) * 0.4;
+    }
+    const snapLam = Math.min(1, dt * 26);
+    this.snapYawCur += (this.snapYaw - this.snapYawCur) * snapLam;
+    this.snapPitchCur += (this.snapPitch - this.snapPitchCur) * snapLam;
+    this.snapRollCur += (this.snapRoll - this.snapRollCur) * snapLam;
 
     /* --- OBJETIVOS --- */
     const legs: Record<string, THREE.Vector3> = {};
@@ -186,44 +212,63 @@ export class RigAnimator {
       rot.head = [-0.42, ctx.lookYaw * 0.5, 0];
       rot.jaw = [0.12, 0, 0];
     } else if (moving) {
-      // ciclo de caminar/correr real
-      const swing = 0.62 * (run ? 1.3 : 1);
+      // v13 — CAMINAR LÚGUBRE: zancada larga, rodilla rígida que REVIENTA al
+      // recobrar (muñeco de palo), torso ladeado con cojera fija y cabeza
+      // clavada en la mirada. Nada de "firmes" ni de paseo militar.
+      const swing = 0.82 * (run ? 1.25 : 1) * (run ? 1 : this.limp);
       const legFwdL = -s * swing;      // <0 = adelante
-      const legFwdR = s * swing;
-      const kneeL = Math.max(0, s) * (run ? 1.2 : 0.9);   // flexión al recobrar
-      const kneeR = Math.max(0, -s) * (run ? 1.2 : 0.9);
-      legs.legL = this.legDir(0.06, legFwdL);
-      legs.legR = this.legDir(-0.06, legFwdR);
-      legs.shinL = this.legDir(0.05, legFwdL + kneeL);
-      legs.shinR = this.legDir(-0.05, legFwdR + kneeR);
-      // brazos en contrafase, ligeramente flexionados
-      const armSwL = s * 0.55 * (run ? 1.35 : 1);
-      const armSwR = -s * 0.55 * (run ? 1.35 : 1);
-      arms.armL = this.armDir(0.16, armSwL);
-      arms.armR = this.armDir(-0.16, armSwR);
-      arms.forearmL = this.armDir(0.16, armSwL - 0.55 - Math.max(0, s) * 0.35);
-      arms.forearmR = this.armDir(-0.16, armSwR - 0.55 - Math.max(0, -s) * 0.35);
-      // torso: inclinación al correr, balanceo y contrarrotación de hombros
-      rot.torso = [run ? 0.24 : 0.07, -s * 0.09 * amp, Math.cos(ph) * 0.04 * amp];
-      rot.pelvis = [0, s * 0.08 * amp, Math.sin(ph) * 0.03];
-      rot.head = [run ? -0.14 : -0.03, ctx.lookYaw * 0.55, Math.sin(ph) * 0.02];
-      rot.jaw = [run ? 0.3 : 0.05, 0, 0];
+      const legFwdR = s * swing * (run ? 1 : 2 - this.limp);
+      // rodilla: rígida en la apoyo, SNAP rápido al recobrar (curva exponencial)
+      const kneeL = Math.pow(Math.max(0, s), 0.55) * (run ? 1.3 : 1.0);
+      const kneeR = Math.pow(Math.max(0, -s), 0.55) * (run ? 1.3 : 1.0);
+      legs.legL = this.legDir(0.07, legFwdL);
+      legs.legR = this.legDir(-0.07, legFwdR);
+      legs.shinL = this.legDir(0.06, legFwdL + kneeL);
+      legs.shinR = this.legDir(-0.06, legFwdR + kneeR);
+      // brazos: balanceo amplio con MUÑECAS MUERTAS (antebrazo colgando)
+      const armSwL = s * 0.62 * (run ? 1.25 : 1);
+      const armSwR = -s * 0.62 * (run ? 1.25 : 1);
+      arms.armL = this.armDir(0.22, armSwL);
+      arms.armR = this.armDir(-0.22, armSwR);
+      arms.forearmL = this.armDir(0.28, armSwL - 0.9 - Math.max(0, s) * 0.25);
+      arms.forearmR = this.armDir(-0.28, armSwR - 0.9 - Math.max(0, -s) * 0.25);
+      // torso: lurch frontal + balanceo asimétrico + contrarrotación
+      const lurch = run ? 0.3 : 0.15 + Math.abs(Math.sin(ph * 0.5)) * 0.06;
+      rot.torso = [lurch, -s * 0.13 * amp, Math.cos(ph) * 0.07 * amp + (this.limp - 1) * 0.22];
+      rot.pelvis = [0, s * 0.11 * amp, Math.sin(ph) * 0.05];
+      // cabeza: clavada en la mirada con deriva mínima + vaivén muerto
+      const stare = ctx.lookYaw * 0.75;
+      rot.head = [
+        run ? -0.12 : 0.12 + Math.sin(ph * 2) * 0.025,
+        stare + Math.sin(ph) * 0.015,
+        Math.sin(ph) * 0.03 * amp + (this.limp - 1) * 0.3,
+      ];
+      rot.jaw = [run ? 0.34 : 0.12 + Math.max(0, s) * 0.05, 0, 0];
       this.stepPulse = Math.abs(Math.cos(ph));
     } else {
-      // reposo: respiración, micro-balanceo
+      // v13 — REPOSO DE DEPREDADOR: encorvado hacia delante, hombros caídos,
+      // brazos colgando flojos con muñecas muertas, mandíbula entreabierta y
+      // la cabeza doing snaps aleatorios (mirada muerta). Nada de "en firmes".
       const br = Math.sin(this.breathPhase * 1.35);
-      arms.armL = this.armDir(0.17, br * 0.03);
-      arms.armR = this.armDir(-0.17, -br * 0.03);
-      arms.forearmL = this.armDir(0.17, -0.18 + br * 0.02);
-      arms.forearmR = this.armDir(-0.17, -0.18 - br * 0.02);
-      legs.legL = this.legDir(0.07, 0.02);
-      legs.legR = this.legDir(-0.07, -0.02);
-      legs.shinL = this.legDir(0.06, 0.03);
-      legs.shinR = this.legDir(-0.06, -0.03);
-      rot.torso = [0.02 + br * 0.018, 0, Math.sin(this.breathPhase * 0.42) * 0.016];
-      rot.pelvis = [0, 0, Math.sin(this.breathPhase * 0.3) * 0.008];
-      rot.head = [ctx.lookPitch * 0.6, ctx.lookYaw, 0];
-      rot.jaw = [Math.max(0, Math.sin(this.breathPhase * 0.5)) * 0.05, 0, 0];
+      arms.armL = this.armDir(0.26, 0.14 + br * 0.03);
+      arms.armR = this.armDir(-0.26, -0.14 - br * 0.03);
+      arms.forearmL = this.armDir(0.34, -0.7 + br * 0.03);
+      arms.forearmR = this.armDir(-0.34, -0.7 - br * 0.03);
+      legs.legL = this.legDir(0.1, 0.06);
+      legs.legR = this.legDir(-0.1, -0.06);
+      legs.shinL = this.legDir(0.09, 0.05);
+      legs.shinR = this.legDir(-0.09, -0.05);
+      // torso encorvado + ladeado (asimetría siniestra)
+      rot.torso = [0.17 + br * 0.02, 0.07 + this.snapYawCur * 0.06, 0.06 + Math.sin(this.breathPhase * 0.42) * 0.02];
+      rot.pelvis = [0, 0, Math.sin(this.breathPhase * 0.3) * 0.01];
+      // cabeza: mira hacia el jugador si le interesa, si no… snaps muertos
+      const hasLook = ctx.lookYaw !== 0 || ctx.lookPitch !== 0;
+      rot.head = [
+        0.24 + this.snapPitchCur * (hasLook ? 0 : 1) + (hasLook ? ctx.lookPitch * 0.5 : 0),
+        ctx.lookYaw + this.snapYawCur * (hasLook ? 0.15 : 1),
+        0.1 + this.snapRollCur * (hasLook ? 0.2 : 1),
+      ];
+      rot.jaw = [0.18 + Math.max(0, Math.sin(this.breathPhase * 0.5)) * 0.06, 0, 0];
     }
 
     /* --- POSES DE ESTADO (sustituyen/añaden sobre lo anterior) --- */
@@ -288,9 +333,16 @@ export class RigAnimator {
       }
       case 'chase':
       case 'hunt': {
-        rot.jaw = [run ? 0.3 : 0.18, 0, 0];
+        // v13 — CARGA CON ZARPAS AFUERA: brazos al frente en alcance,
+        // oscilando con la zancada, mandíbula colgando BIEN abierta.
+        const armSw = s * 0.5;
+        arms.armL = this.armDir(0.3, 0.5 + armSw);
+        arms.armR = this.armDir(-0.3, 0.5 - armSw);
+        arms.forearmL = this.armDir(0.3, 0.5 + armSw - 0.62);
+        arms.forearmR = this.armDir(-0.3, 0.5 - armSw - 0.62);
+        rot.jaw = [run ? 0.45 : 0.26, 0, 0];
         if (!moving) {
-          rot.torso = [0.1, 0, 0];
+          rot.torso = [0.14, 0, 0.06];
         }
         break;
       }

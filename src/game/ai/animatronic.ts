@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import type { AnimatronicDef, NoiseEvent } from '../core/types';
 import { buildAnimatronic, setSolLunaMode, type CharacterRig } from '../characters/models';
-import { Assets, setMoonMode, type GltfRig } from '../world/assets';
+import { Assets, setMoonMode, type GltfRig, type MoonArms } from '../world/assets';
 import { RigAnimator, type AnimCtx } from '../characters/animation';
 import type { NavGraph } from './navgraph';
 import { GRID_W, GRID_H } from './navgraph';
@@ -131,6 +131,11 @@ export class Animatronic {
   /** LUNA colgando del techo de la Mega Guardería (dormida, boca abajo) */
   hanging = false;
   private hangY = 0;
+  /** v13 — vio al guardia esconderse: va directo al escondite a SACARLO */
+  sawHideSpot: THREE.Vector3 | null = null;
+  private moonArms: MoonArms | null = null;
+  private moonArmY = 0;
+  private moonArmZ = 0;
 
   constructor(def: AnimatronicDef, host: AIHost) {
     this.def = def;
@@ -260,6 +265,7 @@ export class Animatronic {
         height: gltfRig.height,
       };
       this.moonRig = def.kind === 'luna' ? gltfRig : null;
+      this.moonArms = this.moonRig?.moonArms ?? null;
       return rig;
     }
     // fallback procedural
@@ -288,6 +294,9 @@ export class Animatronic {
     this.active = false;
     this.retired = false;
     this.hanging = false;
+    this.sawHideSpot = null;
+    this.moonArmY = 0;
+    this.moonArmZ = 0;
     const room = this.host.world.rooms.get(this.def.startRoom);
     const [ox, oz] = this.def.startOffset ?? [0, 0];
     this.pos.set((room ? room.center.x : 0) + ox, 0, (room ? room.center.z : 0) + oz);
@@ -455,18 +464,55 @@ export class Animatronic {
     // linterna
     this.flashlightCheck(dt, player);
 
-    // máquina de estados
-    switch (this.state) {
-      case 'patrol': this.updatePatrol(dt, player); break;
-      case 'investigate': this.updateInvestigate(dt, player); break;
-      case 'chase': this.updateChase(dt, player); break;
-      case 'hunt': this.updateHunt(dt, player); break;
-      case 'search': this.updateSearch(dt, player); break;
-      case 'checkMask': this.updateCheckMask(dt, player); break;
-      case 'stunned': this.updateStunned(dt); break;
-      case 'attack': this.updateAttack(dt, player); break;
-      case 'retreat': this.updateRetreat(dt, player); break;
-      default: this.currentSpeed = Math.max(0, this.currentSpeed - dt * 4); break;
+    // v13 — MUERTE INSTANTÁNEA POR LA ESPALDA: si llega a menos de 1.25 m
+    // y el guardia le da la espalda (no lo está mirando), lo mata YA,
+    // sin windup. Correr sin mirar atrás ya no es gratis.
+    if (
+      this.active && !this.retired && !player.hidden && !this.crawling &&
+      this.state !== 'stunned' && this.state !== 'retreat' && this.state !== 'checkMask'
+    ) {
+      const dBack = this.pos.distanceTo(player.pos);
+      if (dBack < 1.25) {
+        _v1.subVectors(this.pos, player.pos);
+        _v1.y = 0;
+        _v1.normalize();
+        if (_v1.dot(player.lookDir) < 0.18 && this.host.nav.los(this.pos, player.pos, this.def.ventAccess)) {
+          this.host.onDeath(this);
+          return;
+        }
+      }
+    }
+
+    // v13 — TE VIO ESCONDERTE: ignora todo lo demás y va a SACARTE del
+    // escondite. Si sales antes de que llegue, pierde el rastro.
+    const witnessed = !!this.sawHideSpot && player.hidden && this.active && !this.retired;
+    if (!player.hidden && this.sawHideSpot) this.sawHideSpot = null;
+    if (witnessed) {
+      const d = Math.hypot(this.pos.x - this.sawHideSpot!.x, this.pos.z - this.sawHideSpot!.z);
+      if (d < 1.75) {
+        this.host.onDeath(this);
+        return;
+      }
+      this.state = 'hunt';
+      if (this.stateTimer > 1.4 || !this.path.length) {
+        this.stateTimer = 0.01;
+        this.setPath(this.sawHideSpot!.clone());
+      }
+      this.followPath(dt, this.def.speedRun, player);
+    } else {
+      // máquina de estados
+      switch (this.state) {
+        case 'patrol': this.updatePatrol(dt, player); break;
+        case 'investigate': this.updateInvestigate(dt, player); break;
+        case 'chase': this.updateChase(dt, player); break;
+        case 'hunt': this.updateHunt(dt, player); break;
+        case 'search': this.updateSearch(dt, player); break;
+        case 'checkMask': this.updateCheckMask(dt, player); break;
+        case 'stunned': this.updateStunned(dt); break;
+        case 'attack': this.updateAttack(dt, player); break;
+        case 'retreat': this.updateRetreat(dt, player); break;
+        default: this.currentSpeed = Math.max(0, this.currentSpeed - dt * 4); break;
+      }
     }
 
     // física mínima: y del suelo
@@ -500,6 +546,26 @@ export class Animatronic {
   /** pose manual de agarre para la secuencia de muerte */
   poseDying(dt: number) {
     this.updateAnimator(dt, null, 'dying');
+  }
+
+  /** v13 — animación de reposo SIN lógica de IA (cinemáticas): mantiene la
+   *  respiración y los brazos abajo en vez de congelarse en la T-pose de
+   *  fábrica del GLB. También anima los brazos de Moon. */
+  poseIdle(dt: number) {
+    this.updateAnimator(dt, null, 'dormant');
+    // en cinemáticas los ojos siguen VIVOS (brillo medio)
+    setEyeGlow(this.rig, this.active ? 0.75 : 0.4);
+  }
+
+  /** v13 — el guardia se escondió a la vista de este animatrónico: marcar
+   *  el escondite y preparar la emboscada. */
+  markWitnessedHide(x: number, z: number) {
+    this.sawHideSpot = new THREE.Vector3(x, 0, z);
+    if (this.state !== 'chase' && this.state !== 'hunt') this.state = 'hunt';
+    this.stateTimer = 0;
+    this.path = [];
+    this.host.sfx.stinger();
+    this.host.sfx.roar(this.pos, this.def.voice);
   }
 
   private wakeDelayForChapter(): number {
@@ -788,11 +854,12 @@ export class Animatronic {
       }
       return;
     }
-    const speed = 9;
+    // v13: embestida MÁS violenta y agarre más ancho (antes 9 m/s / 0.85 m)
+    const speed = 12.5;
     this.pos.addScaledVector(this.lungeDir, speed * dt);
     this.rig.root.position.copy(this.pos);
     const d = this.pos.distanceTo(player.pos);
-    if (d < 0.85 || this.stateTimer > windup + 0.42) {
+    if (d < 1.15 || this.stateTimer > windup + 0.34) {
       this.host.onDeath(this);
     }
   }
@@ -891,9 +958,13 @@ export class Animatronic {
 
     this.autoDoors();
 
-    this.footTimer -= dt * (v > this.def.speedWalk * 1.05 ? 1.6 : 1);
+    // v13 — cadencia del paso SINCRONIZADA con el ciclo visual del RigAnimator
+    // (un paso = π/v·cadence rad de fase). El doble de pasos por zancada
+    // sonaba acelerado y desincronizado.
+    this.footTimer -= dt;
     if (this.footTimer <= 0) {
-      this.footTimer = 0.55 + Math.random() * 0.1;
+      const cad = this.crawling ? 4.4 : 1.95;
+      this.footTimer = Math.min(0.85, Math.PI / Math.max(0.35, v * cad));
       const surface = this.crawling ? 'metal' : this.surfaceAt();
       this.host.sfx.footstep(this.pos, surface, v > this.def.speedWalk * 1.05, true);
     }
@@ -970,6 +1041,34 @@ export class Animatronic {
       lookPitch,
     };
     this.animator.update(ctx);
+
+    // v13 — BRAZOS DE MOON (pivotes separados del mesh estático):
+    //   pivot.rotation.y = vaivén abajo (≈+1.35) ↔ extendido (T-pose 0)
+    //   mesh.rotation.z  = elevar hacia delante (la cara mira a -Y local)
+    // Colgada del techo el cuerpo está volteado (model.rotation.x→π), así
+    // que el "abajo" del mundo se invierte: brazos hacia -Y local del modelo.
+    if (this.moonArms) {
+      const t2 = this.host.time;
+      const grab = ctx.state === 'attack' || ctx.state === 'dying';
+      const hunt2 = ctx.state === 'chase' || ctx.state === 'hunt' || ctx.state === 'search';
+      const sway = Math.sin(t2 * 0.85) * 0.07 + Math.sin(t2 * 2.2) * 0.03;
+      const tremor = hunt2 && !grab ? Math.sin(t2 * 12.7) * 0.05 : 0;
+      // objetivo de vaivén vertical (pivot Y): colgado ≈ -1.2 (hacia el
+      // suelo del mundo), reposo ≈ +1.30 (brazos caídos), caza +0.62, agarre +0.40
+      const targetY = this.hanging
+        ? -1.18
+        : grab ? 0.40 : hunt2 ? 0.62 : 1.30;
+      // elevación frontal (mesh Z): agarre 1.15, caza 0.7, reposo suave
+      const targetZ = grab ? 1.15 : hunt2 ? 0.72 : 0.18 + Math.abs(sway) * 0.4;
+      const lam = Math.min(1, dt * (grab ? 18 : 5));
+      this.moonArmY += (targetY - this.moonArmY) * lam;
+      this.moonArmZ += (targetZ - this.moonArmZ) * lam;
+      const ySwing = this.hanging ? sway * 0.35 : sway * 0.12;
+      this.moonArms.pivotR.rotation.y = this.moonArmY + ySwing;
+      this.moonArms.pivotL.rotation.y = -this.moonArmY - ySwing;
+      this.moonArms.meshR.rotation.z = -(this.moonArmZ + tremor);
+      this.moonArms.meshL.rotation.z = this.moonArmZ + tremor;
+    }
 
     // pupilas más brillantes al cazar
     const glow = this.state === 'chase' || this.state === 'hunt' || this.state === 'attack' ? 2.6 : 1.5;
