@@ -2,210 +2,242 @@
  "cap1": [
   {
    "file": "cap1_l0.mp3",
-   "text": " Hello? Hello-hello?... The new guard? This is Rulo, from the last shift.",
-   "dur": 12.62
+   "text": " Hello? If you're hearing this, you're the new night guard. This is Rulo, from the last shift.",
+   "dur": 8.2
   },
   {
    "file": "cap1_l1.mp3",
-   "text": "Listen close, rookie: the animatronics Wander at night. Something in their servos... don't ask.",
-   "dur": 5.93
+   "text": "I'm not coming back inside. Neither should you. But you signed the contract, so listen.",
+   "dur": 7.39
   },
   {
    "file": "cap1_l2.mp3",
-   "text": "Your Flashlight is with you , press F. It never runs out. Batteries are the least of your problems tonight.",
-   "dur": 8.28
+   "text": "The front doors are Chained from the inside. The old night guard kept the spare key in his Hut , the small concrete box by the west fence.",
+   "dur": 9.51
   },
   {
    "file": "cap1_l3.mp3",
-   "text": "First job: the grid is tripping. Reset Both breakers in the Electrical Room, east side of the north halls.",
-   "dur": 8.1
+   "text": "Find the key, get in, and Close the doors behind you. Whatever walks that parking lot at night... it isn't me.",
+   "dur": 8.7
   },
   {
    "file": "cap1_l4.mp3",
-   "text": "Then do my patrol: the West Storage annex west of the atrium, and the Arcade. Something has been moving boxes around.",
-   "dur": 8.54
-  },
-  {
-   "file": "cap1_l5.mp3",
-   "text": "Freddy is slow tonight. He won't be tomorrow. Crouch with Ctrl, stay quiet, and don't shine your light at him for too long.",
-   "dur": 10.03
-  },
-  {
-   "file": "cap1_l6.mp3",
-   "text": "Finish the round, walk back to the office, and we'll talk tomorrow. A hundred and twenty dollars a week. Some paycheck, huh?",
-   "dur": 8.46
+   "text": "Press F for your flashlight. It never dies. The batteries are the least of your problems tonight.",
+   "dur": 6.9
   }
  ],
  "cap2": [
   {
    "file": "cap2_l0.mp3",
-   "text": "Still alive? Good. Listen: in the Security Office I left a tablet with the cameras. With it, you'll see them coming. Take it.",
-   "dur": 10.37
+   "text": "You made it in. Good. Now listen close, rookie: the whole grid is tripping.",
+   "dur": 5.85
   },
   {
    "file": "cap2_l1.mp3",
-   "text": "Before anything else: grab Two spare fuses , one in Parts & Service, one in North Storage. The alley drinks power like a beast.",
-   "dur": 9.82
+   "text": "Four stations keep this place alive: the Breaker in the Electrical Room, a portable Generator in the Loading Dock, the Pump in the south-east wing, and the Master Panel in the Generator Room behind the south promenade.",
+   "dur": 14.21
   },
   {
    "file": "cap2_l2.mp3",
-   "text": "Then collect 3 golden tokens from the arcade. You'll need them for the machines.",
-   "dur": 4.7
+   "text": "Each one you start will light its zone back up... and Wake something that sleeps in the dark. The noise carries. It always carries.",
+   "dur": 11.76
   },
   {
    "file": "cap2_l3.mp3",
-   "text": "The bowling alley has three fried pinsetters. Three. The boss wants the alley alive for tomorrow's event.",
-   "dur": 9.35
+   "text": "There's a note with the master fuse order nailed in the Electrical Room. Read it with your own eyes: 3, 1, 4, 2.",
+   "dur": 10.19
   },
   {
    "file": "cap2_l4.mp3",
-   "text": "And yes: it's a Trial. The lights will die, and she will come for you. If she catches you, you wake up on the promenade. Try again.",
-   "dur": 9.82
-  },
-  {
-   "file": "cap2_l5.mp3",
-   "text": "Bonnie , the rabbit , comes out of the Arcade Hall. The flashlight freezes her if you hit her straight in the face.",
-   "dur": 5.93
-  },
-  {
-   "file": "cap2_l6.mp3",
-   "text": "When the lanes sing again, swing by the Prize Counter. Something left a gift there.",
-   "dur": 6.5
+   "text": "Freddy is slow tonight. He won't be tomorrow. Crouch with Ctrl, stay quiet, and don't shine your light at him for too long.",
+   "dur": 10.0
   }
  ],
  "cap3": [
   {
    "file": "cap3_l0.mp3",
-   "text": "Chica , the chicken , has been hunting in the Food Court since tonight. Burnt pizza and feathers come before her.",
-   "dur": 8.12
+   "text": "Still alive? Good. In the Security Office I left a tablet with the cameras. Take it , you'll see them coming.",
+   "dur": 9.46
   },
   {
    "file": "cap3_l1.mp3",
-   "text": "Start in the Industrial Kitchen. If the pots are clanging, she's close. Very close.",
-   "dur": 5.72
+   "text": "Grab Two spare fuses: one in Parts & Service, one in North Storage. The machines drink power like a beast.",
+   "dur": 9.06
   },
   {
    "file": "cap3_l2.mp3",
-   "text": "Three fried stands: Pizza, Fries and Ice Cream. Restart all three. The service notes say they reboot on their own... mostly.",
-   "dur": 8.2
+   "text": "Then collect 3 Golden Tokens. One by the arcade booths, one behind the bowling lanes, one deep in the West Storage annex. They're not all lying in plain sight.",
+   "dur": 11.13
   },
   {
    "file": "cap3_l3.mp3",
-   "text": "Chica does not dodge the flashlight. She hears Everything. Crouch with Ctrl and never run in there.",
-   "dur": 7.68
+   "text": "The bowling alley has three fried pinsetters. And the Food Court... she's been hunting those tables since midnight. Restart everything.",
+   "dur": 8.96
   },
   {
    "file": "cap3_l4.mp3",
-   "text": "When you're done, swing by Pirate's Cove. Someone left a sign there... and something moves behind the curtain.",
-   "dur": 7.31
+   "text": "Bonnie comes out of the vents, Chica out of the kitchen. Your flashlight freezes Bonnie; Chica hears Everything. Crouch. Walk. Survive.",
+   "dur": 11.83
+  },
+  {
+   "file": "cap3_l5.mp3",
+   "text": "When the machines sing again, check the Prize Counter. Something left a gift there.",
+   "dur": 4.91
   }
  ],
  "cap4": [
   {
    "file": "cap4_l0.mp3",
-   "text": "Foxy. The fox. He's the fastest, and the only one the mask can't fool. If he chases you: sprint and weave.",
+   "text": " Bad news, rookie. The Technical Gallery just died. Six service doors, and only One way to know what's behind them: Sound.",
    "dur": 13.82
   },
   {
    "file": "cap4_l1.mp3",
-   "text": "The flashlight Repels him , straight in the face, no mercy, until he backs off.",
+   "text": "A Fan hums where nobody is. Pots And Pans clang where she is tearing the kitchen apart. Heavy steps or a metallic laugh... Not that door. Don't open it. Ever.",
    "dur": 13.06
   },
   {
    "file": "cap4_l2.mp3",
-   "text": "There's an old Tape hidden by the pirate ship. Recover it , I need to know what's on it.",
+   "text": "When the gallery is done, Get Back TO The Office and don't leave. They know where you sleep.",
    "dur": 7.89
   },
   {
    "file": "cap4_l3.mp3",
-   "text": "Three switches on the south wall of the Cove, in order. If he catches you, you respawn on the promenade. His favorite game: cat and fox.",
+   "text": "Watch the cameras. The Music Box in the Prize Counter runs down if you look away too long , keep it wound up, or the thing inside it comes out to play.",
    "dur": 12.83
   },
   {
    "file": "cap4_l4.mp3",
-   "text": "When the attraction roars, check Rockstar Row. The guitars are playing by themselves again.",
+   "text": "Listen at the doors. Real steps come in fours and stop. Fake ones loop like a bad tape. Learn the difference, or you'll open the wrong door.",
    "dur": 6.66
+  },
+  {
+   "file": "cap4_l5.mp3",
+   "text": "Survive until the motors cool down. Then we talk about the basement.",
+   "dur": 4.49
   }
  ],
  "cap5": [
   {
    "file": "cap5_l0.mp3",
-   "text": "The note I left in the Electrical Room says it: 3, 1, 4, 2. The master fuse order for the Generator Room. Read it with your own eyes.",
+   "text": " Listen. The only real exit left is below: The Basement. What's left of the Original pizzeria, under the north wing.",
    "dur": 10.42
   },
   {
    "file": "cap5_l1.mp3",
-   "text": "The generator door is east of the South Promenade. I unlocked it for you. Don't ask how.",
+   "text": "The fire doors need Three keycards: Rockstar Row, the Theater, and the Food Court. Get them. All of them.",
    "dur": 13.4
   },
   {
    "file": "cap5_l2.mp3",
-   "text": "One more thing: there's a Golden Suit in the South Technical Room, right under your office. If you feel it watching you... run. Don't fight. Run.",
+   "text": "Pirate's Cove hides the first one, and the fox has started to really run. His curtain... the tape is behind the ship. Take it and flip the switches.",
    "dur": 24.06
   },
   {
    "file": "cap5_l3.mp3",
-   "text": "When the grid comes back, the lobby's outer doors will unlock. Run south. Don't look back.",
+   "text": "It's been burning for Years down there. Racks, crates, spare parts, the old show stage... a graveyard with shelves.",
    "dur": 13.11
+  },
+  {
+   "file": "cap5_l4.mp3",
+   "text": "Something with a moon for a face lives in that smoke. It hears Everything. Five fires, Five extinguishers. Kill them all and the emergency route to the service tunnels opens.",
+   "dur": 13.61
+  },
+  {
+   "file": "cap5_l5.mp3",
+   "text": "Whatever you were before tonight... it ends Here.",
+   "dur": 3.89
   }
  ],
  "cap6": [
   {
    "file": "cap6_l0.mp3",
-   "text": "Still there? It's Rulo. The technical gallery just went dark.",
+   "text": " You're below the basement now. The Service Tunnels. They wired this place before the mall, and they wired it Wrong.",
    "dur": 7.31
   },
   {
    "file": "cap6_l1.mp3",
-   "text": "Six service doors, and only One way to know what's behind them: Sound.",
+   "text": "Three Relays feed the security gate at the end of the east tunnel. There's a maintenance stencil with the order , the shift code: Second, Third, First.",
    "dur": 5.77
   },
   {
    "file": "cap6_l2.mp3",
-   "text": "A Fan hums where nobody is. Pots And Pans clang where Chica is tearing the kitchen apart.",
+   "text": "Relay 2, then relay 3, then relay 1. Flip them in that order or the breaker trips and you start over.",
    "dur": 8.7
   },
   {
    "file": "cap6_l3.mp3",
-   "text": "If you hear heavy footsteps or a metallic laugh... Not that door. Don't open it. Ever.",
+   "text": "Something Broken patrols down there. It hunts by Sound , it can't see well in the pipes, but every step you take is a dinner bell. Crouch. Walk. Listen.",
    "dur": 8.62
   },
   {
    "file": "cap6_l4.mp3",
-   "text": "I'll walk you through round by round. Listen before you move. Trust your ears, not your eyes.",
+   "text": "The gate itself won't open without a master keycard. The ones upstairs are toys. The real one is in the Forgotten Archive , the sealed records room off the west tunnel. The relays will unseal its door.",
    "dur": 14.26
+  },
+  {
+   "file": "cap6_l5.mp3",
+   "text": "Old Freddy's footsteps still echo from the basement... or it's the pipes. It's always the pipes. Right?",
+   "dur": 6.84
   }
  ],
  "cap7": [
   {
    "file": "cap7_l0.mp3",
-   "text": "...Rulo. You found the elevator shaft. The Basement. What's left of the Original pizzeria.",
+   "text": "You found it. The Forgotten Archive , maintenance and security records of everything they buried. Read fast, listen faster.",
    "dur": 7.65
   },
   {
    "file": "cap7_l1.mp3",
-   "text": "The fire doors need Three keycards: Rockstar Row, the Theater, and the Food Court. Get them. All of them.",
+   "text": "The terminal is dead: start the two Archive Fuses on the north wall to feed it. Loud work. She will hear it.",
    "dur": 9.38
   },
   {
    "file": "cap7_l2.mp3",
-   "text": "It's been burning for Years down there. Racks, crates, spare parts, the old show stage... a graveyard with shelves.",
+   "text": "The recovery logs all mention one year , the year of the second incident. The tapes will tell you which one. That's the vault code.",
    "dur": 9.48
   },
   {
    "file": "cap7_l3.mp3",
-   "text": "Something with a moon for a face lives in that smoke. It hears Everything. Five fires, Five extinguishers. Kill them all.",
+   "text": "Inside the vault: the Master Keycard. The only card that opens the security gate. The only way this story ends.",
    "dur": 8.49
   },
   {
    "file": "cap7_l4.mp3",
-   "text": "When the Sun rises in the steam... Run TO The Lobby Exit. Don't look back.",
+   "text": "She's hunting the shelves now. The archive has hidespots and hollow racks , use them. Wait for the steps to pass. Then move.",
    "dur": 4.83
   },
   {
    "file": "cap7_l5.mp3",
-   "text": "Whatever you were before tonight. It ends here.",
-   "dur": 3.89
+   "text": "Take the card and get back to the gate. Don't stop for the tapes. Don't stop for anything.",
+   "dur": 6.9
+  }
+ ],
+ "cap8": [
+  {
+   "file": "cap8_l0.mp3",
+   "text": " Last call, rookie. Insert the card. Hit the override. The gate lifts Slow , about a minute and a half of screaming metal.",
+   "dur": 11.08
+  },
+  {
+   "file": "cap8_l1.mp3",
+   "text": "When the alarm starts, HE comes. The golden one. He doesn't patrol, he doesn't search , he just Walks toward you until one of you stops.",
+   "dur": 10.68
+  },
+  {
+   "file": "cap8_l2.mp3",
+   "text": "You can't outrun him forever. Break line of sight. Duck into the racks. Let the alarm sing for you.",
+   "dur": 8.2
+  },
+  {
+   "file": "cap8_l3.mp3",
+   "text": "The stairs up to the basement are open. The fire doors are open. The whole mall is a straight line now , tunnels, basement, north wing, all the way out.",
+   "dur": 10.27
+  },
+  {
+   "file": "cap8_l4.mp3",
+   "text": "Hold the gate side until it lifts. Then Run and don't look back. See you on the other side... if there is one.",
+   "dur": 8.75
   }
  ]
 }

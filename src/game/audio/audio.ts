@@ -5,6 +5,10 @@
  */
 import * as THREE from 'three';
 
+/** v14 — base de rutas para GitHub Pages (subcarpeta del repo) */
+export const ASSET_BASE = (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replace(/\/+$/, '');
+
+
 type Vec = { x: number; y: number; z: number };
 
 type SfxFileName =
@@ -127,9 +131,9 @@ export class AudioEngine {
         return null;
       }
     };
-    load('/audio/jumpscare.mp3').then((b) => { if (b) this.jumpscareBuf = b; });
-    load('/audio/theme_music.mp3').then((b) => { if (b) this.themeBuf = b; });
-    load('/audio/daycare_song.mp3').then((b) => { if (b) this.daycareBuf = b; });
+    load(`${ASSET_BASE}/audio/jumpscare.mp3`).then((b) => { if (b) this.jumpscareBuf = b; });
+    load(`${ASSET_BASE}/audio/theme_music.mp3`).then((b) => { if (b) this.themeBuf = b; });
+    load(`${ASSET_BASE}/audio/daycare_song.mp3`).then((b) => { if (b) this.daycareBuf = b; });
     const sfxFiles: SfxFileName[] = [
       'static_loop', 'fan_ambience', 'cam_blip', 'toreador', 'kitchen_clatter',
       // v11: sonidos nuevos del repo del usuario
@@ -139,7 +143,7 @@ export class AudioEngine {
       'freddy_laugh',
     ];
     for (const name of sfxFiles) {
-      load(`/audio/${name}.mp3`).then((b) => { if (b) this.sfxBufs.set(name, b); });
+      load(`${ASSET_BASE}/audio/${name}.mp3`).then((b) => { if (b) this.sfxBufs.set(name, b); });
     }
   }
 
@@ -1235,7 +1239,7 @@ export class AudioEngine {
     if (!this.ctx) return null;
     try {
       if (!this.callManifest) {
-        const res = await fetch('/audio/calls/manifest.json');
+        const res = await fetch(`${ASSET_BASE}/audio/calls/manifest.json`);
         if (!res.ok) return null;
         this.callManifest = await res.json() as Record<string, Array<{ file: string; dur: number }>>;
       }
@@ -1245,7 +1249,7 @@ export class AudioEngine {
       const durs: number[] = [];
       for (const l of lines) {
         if (!this.callBufs.has(l.file)) {
-          const res = await fetch(`/audio/calls/${l.file}`);
+          const res = await fetch(`${ASSET_BASE}/audio/calls/${l.file}`);
           if (!res.ok) return null;
           const buf = await this.ctx.decodeAudioData(await res.arrayBuffer());
           this.callBufs.set(l.file, buf);

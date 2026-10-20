@@ -59,9 +59,26 @@
    "title": "GOLDEN TAPE — Hypnotherapy Session",
    "location": "golden",
    "text": "??/??/???? — 'Repeat after me: I saw nothing in the Technical Hallway. I heard no laughter in the vents. The golden suit is empty. The golden suit is empty. The golden suit IS empty. — Patient: and yet... it is listening to me. Right now. Behind the wall. Always behind the wall.'"
+  },
+  {
+   "id": "tape_inc1",
+   "title": "ARCHIVE FILE — Incident 87-C",
+   "location": "archiveA",
+   "text": "RECOVERED 1996 — Internal memo, never filed. 'The ORIGINAL pizzeria basement was never decommissioned. It was SEALED. In the summer of the second incident — the year the Stage Guard bot malfunctioned and the Bite happened — eleven recordings went missing from this archive. The keycard that opens the service gate was locked in the records vault the same week. Access protocol: the vault terminal takes the YEAR. Nothing else. Write it down and burn this memo. 1987.'"
+  },
+  {
+   "id": "tape_inc2",
+   "title": "ARCHIVE FILE — The Basement Contract",
+   "location": "archiveB",
+   "text": "RECOVERED 1996 — Contract fragment, basement level. '...the animate identified as SOL/LUNA remains property of the original venue and shall NOT be removed from the burning sublevel. Its containment is the music. Its music is the dark. If the basement fire suppression is ever engaged, the SOL protocol converts the unit to daylight mode. No refunds. No reopenings. Signed in the year of the second incident: 1987.'"
   }
  ],
  "notes": [
+  {
+   "id": "note_parking",
+   "title": "Note Nailed to the Front Doors",
+   "text": "TO THE NEW NIGHT GUARD: management chains these doors every closing. I'm not walking out there again, so listen. The old man kept the spare key in his HUT — the little concrete box by the west fence, past the dumpsters. His desk lamp still works. If it goes dark out there... you didn't read this. — R."
+  },
   {
    "id": "note_order",
    "title": "Crumpled Note — Master Order",

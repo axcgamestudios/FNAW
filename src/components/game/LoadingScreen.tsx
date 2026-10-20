@@ -33,7 +33,7 @@ export default function LoadingScreen({ error }: { error: string | null }) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#020203] scanlines overflow-hidden">
       {/* imagen de fondo real del repo (FNAF: NEW WORLD en llamas) */}
-      <img src="/images/loading_bg.jpeg" alt="" className="menu-bg-img" draggable={false} />
+      <img src="images/loading_bg.jpeg" alt="" className="menu-bg-img" draggable={false} />
       <div className="load-bg-shade" />
       <div className="noise-bg" style={{ opacity: 0.14 }} />
       <div className="crt-vignette" />

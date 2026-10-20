@@ -479,6 +479,11 @@ export function buildProps(world: WorldBuilder) {
   buildServices(world);
   buildGenerator(world);
   buildSouthService(world);
+  // v14 — campaña continua: parking (M1), generadores M2, túneles (M6), archivo (M7)
+  buildParking(world);
+  buildMission2Generators(world);
+  buildTunnels(world);
+  buildArchive(world);
   // v13 — escondites estilo Security Breach
   buildLockerBanks(world);
 
@@ -3203,3 +3208,528 @@ function buildBasement(world: WorldBuilder) {
   /* ---- el FUEGO: sistema de zonas (fuente única de posiciones) ---- */
   setMegaFire(new FireSystem(world));
 }
+
+/* ================================================== */
+/* ============ v14 — CAMPAÑA CONTINUA (M1/M2/M6/M7) ============ */
+/* ================================================== */
+
+/** Cartel pintado con spray (pistas de los túneles) */
+function paintedSign(world: WorldBuilder, text: string, color: number, x: number, y: number, z: number, ry: number, w = 1.8, h = 0.9) {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 256;
+  const ctx = c.getContext('2d')!;
+  ctx.fillStyle = '#1a1a17';
+  ctx.fillRect(0, 0, 512, 256);
+  ctx.font = 'bold 58px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const hex = `#${color.toString(16).padStart(6, '0')}`;
+  ctx.fillStyle = hex;
+  ctx.setLineDash([14, 9]);
+  ctx.strokeStyle = hex;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(24, 24, 464, 208);
+  ctx.fillText(text, 256, 118);
+  ctx.font = 'bold 34px monospace';
+  ctx.fillText('(SHIFT CODE)', 256, 182);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const m = new THREE.Mesh(
+    new THREE.PlaneGeometry(w, h),
+    new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9, emissive: new THREE.Color(color), emissiveIntensity: 0.12, emissiveMap: tex })
+  );
+  m.position.set(x, y, z);
+  m.rotation.y = ry;
+  world.root.add(m);
+}
+
+/* ============ M1 — PARKING ABANDONADO + CASETA DEL GUARDIA ============ */
+
+function buildParking(world: WorldBuilder) {
+  /* Parking: x[-44,44] z[34.3,57.5] — cielo nocturno (sin techo) */
+
+  // la Luna: disco pálido lejano sobre el horizonte sur-oeste
+  const moon = new THREE.Mesh(
+    new THREE.CircleGeometry(4.5, 32),
+    new THREE.MeshBasicMaterial({ color: 0xd8dfe8, transparent: true, opacity: 0.85, fog: false })
+  );
+  moon.position.set(-26, 42, 78);
+  moon.lookAt(-5.5, 1.6, 52);
+  world.root.add(moon);
+
+  // farolas muertas (postes + cabeza; la lámpara la enciende el pool de accents)
+  const lampPosts: Array<[number, number]> = [
+    [-20, 38], [20, 38], [-30, 44], [30, 44], [0, 50], [-8, 55],
+  ];
+  for (const [lx, lz] of lampPosts) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 4.6, 8), darkMetalMaterial());
+    post.position.set(lx, 2.3, lz);
+    post.castShadow = true;
+    world.root.add(post);
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(lx, 2.3, lz), new THREE.Vector3(0.3, 4.6, 0.3)));
+    const head = new THREE.Mesh(
+      new THREE.BoxGeometry(0.55, 0.14, 0.3),
+      new THREE.MeshStandardMaterial({ color: 0x3a3a40, emissive: 0xcfd8e8, emissiveIntensity: 0 })
+    );
+    head.position.set(lx, 4.55, lz);
+    world.root.add(head);
+    world.registerAccent({
+      pos: new THREE.Vector3(lx, 4.3, lz), color: 0x9fb4d8, intensity: 0.55, distance: 9,
+    });
+    world.propAnims.push({
+      update: (_dt, t) => {
+        const m = head.material as THREE.MeshStandardMaterial;
+        m.emissiveIntensity = Math.random() < 0.012 ? 0 : (Math.sin(t * 7.3 + lx) > -0.75 ? 0.7 : 0.05);
+      },
+    });
+  }
+
+  // coches abandonados low-poly (los dos primeros son escondites)
+  const carColors = [0x2a2d33, 0x33302a, 0x24313a, 0x3a2a2a];
+  const cars: Array<[number, number, number, boolean]> = [
+    [-16, 45, 0.15, true], [8, 48, -0.28, true], [26, 40, 0.08, false], [-34, 52, 1.35, false],
+  ];
+  for (const [cx, cz, ry, wreck] of cars) {
+    const g = new THREE.Group();
+    const bodyMat = plasticMaterial(carColors[(cx * 7 | 0) % 4], 0.55, 0.25);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.62, 4.3), bodyMat);
+    body.position.y = 0.62;
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.55, 2.1), bodyMat);
+    cabin.position.set(0, 1.18, -0.2);
+    g.add(body, cabin);
+    for (const [wx, wz] of [[-0.85, 1.45], [0.85, 1.45], [-0.85, -1.45], [0.85, -1.45]] as Array<[number, number]>) {
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.24, 10), plasticMaterial(0x0a0a0a, 0.95));
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(wx, 0.34, wz);
+      g.add(wheel);
+    }
+    if (wreck) {
+      // capó abierto y ventana trasera rota — coche-escudo de la misión 1
+      const hood = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.08, 1.1), bodyMat);
+      hood.position.set(0, 1.15, 1.75);
+      hood.rotation.x = -0.9;
+      g.add(hood);
+    }
+    g.position.set(cx, 0, cz);
+    g.rotation.y = ry;
+    g.traverse((o) => { if (o instanceof THREE.Mesh) { o.castShadow = true; o.receiveShadow = true; } });
+    world.root.add(g);
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(cx, 0.9, cz), new THREE.Vector3(2.4, 1.9, 4.6)), `car_${cx}_${cz}`);
+  }
+
+  // contenedores junto a la valla oeste (cerca de la caseta)
+  for (const [dx, dz, ry] of [[-27, 54.2, 0.05], [-25.6, 54.4, -0.2], [14, 55.2, 0.1]] as Array<[number, number, number]>) {
+    const dump = new THREE.Group();
+    const db = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.25, 1.35), plasticMaterial(0x1f4230, 0.85));
+    db.position.y = 0.62;
+    const lid = new THREE.Mesh(new THREE.BoxGeometry(2.25, 0.1, 1.4), plasticMaterial(0x163325, 0.85));
+    lid.position.set(0, 1.3, -0.1);
+    lid.rotation.x = 0.22;
+    dump.add(db, lid);
+    dump.position.set(dx, 0, dz);
+    dump.rotation.y = ry;
+    dump.traverse((o) => { if (o instanceof THREE.Mesh) { o.castShadow = true; o.receiveShadow = true; } });
+    world.root.add(dump);
+    world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(dx, 0.7, dz), new THREE.Vector3(2.4, 1.5, 1.6)), `dump_${dx}`);
+  }
+
+  // jardineras muertas y conos por el asfalto
+  for (const [cx, cz] of [[-36, 41], [36, 41], [-36, 49], [36, 49]] as Array<[number, number]>) {
+    box(2.6, 0.55, 1.2, plasticMaterial(0x2a2f2a, 0.95), cx, 0.28, cz, 0, true, world);
+  }
+  const coneMat = plasticMaterial(0xa8501e, 0.8);
+  for (const [cx, cz] of [[-12, 42], [-10.6, 42.6], [15, 46], [16.2, 45.2], [-2, 55], [22, 52]] as Array<[number, number]>) {
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.5, 8), coneMat);
+    cone.position.set(cx, 0.25, cz);
+    cone.castShadow = true;
+    world.root.add(cone);
+  }
+
+  // líneas de aparcamiento desgastadas (franjas claras)
+  const lineMat = new THREE.MeshBasicMaterial({ color: 0x5a5a52, transparent: true, opacity: 0.35, depthWrite: false });
+  for (let i = 0; i < 12; i++) {
+    const line = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 4.6), lineMat);
+    line.rotation.x = -Math.PI / 2;
+    line.position.set(-33 + i * 5.4, 0.02, 40.5);
+    world.root.add(line);
+  }
+
+  // cartel de la fachada (apagado, roto)
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 256;
+  const ctx = c.getContext('2d')!;
+  ctx.fillStyle = '#14161c';
+  ctx.fillRect(0, 0, 1024, 256);
+  ctx.font = 'bold 92px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#4a2020';
+  ctx.fillText('BRUNO MEGAPLEX', 512, 110);
+  ctx.font = 'bold 46px monospace';
+  ctx.fillStyle = '#3a3a3a';
+  ctx.fillText('EST. 1983 — FAMILY FUN CENTER', 512, 190);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sign = new THREE.Mesh(
+    new THREE.PlaneGeometry(13, 3.2),
+    new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, emissive: 0x2a1010, emissiveIntensity: 0.25, emissiveMap: tex })
+  );
+  sign.position.set(-5.5, 5.6, 34.35);
+  world.root.add(sign);
+  // soportes
+  for (const sx of [-11.5, 0.5]) {
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.6, 6), darkMetalMaterial());
+    rod.position.set(sx, 6.6, 34.45);
+    world.root.add(rod);
+  }
+
+  /* ---- CASETA DEL GUARDIA x[-30.5,-24.5] z[46.5,51.5] ---- */
+  // mesa contra la pared norte
+  box(2.0, 0.08, 0.9, woodMaterial([1, 0.6]), -27.5, 0.78, 47.3, 0, true, world);
+  for (const dx of [-0.85, 0.85]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.76, 0.08), darkMetalMaterial());
+    leg.position.set(-27.5 + dx, 0.38, 47.3);
+    world.root.add(leg);
+  }
+  // lámpara de mesa encendida (la pista visible desde la puerta)
+  const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 0.04, 10), darkMetalMaterial());
+  lampBase.position.set(-26.6, 0.84, 47.15);
+  world.root.add(lampBase);
+  const lampShade = new THREE.Mesh(
+    new THREE.ConeGeometry(0.16, 0.14, 12, 1, true),
+    new THREE.MeshStandardMaterial({ color: 0x3a2a20, emissive: 0xffd9a8, emissiveIntensity: 0.9, side: THREE.DoubleSide })
+  );
+  lampShade.position.set(-26.6, 0.97, 47.15);
+  world.root.add(lampShade);
+  world.registerAccent({ pos: new THREE.Vector3(-26.6, 1.0, 47.3), color: 0xffd9a8, intensity: 0.5, distance: 4.5 });
+  // taquilla y tablón
+  box(0.7, 1.8, 0.5, metalMaterial([0.6, 1]), -30, 0.9, 50.6, 0, true, world);
+  addPoster(world, posterBruno(), -29.9, 1.6, 49.2, Math.PI / 2, 0.6, 0.8);
+  // silla volcada
+  box(0.45, 0.06, 0.45, woodMaterial([0.5, 0.5]), -28.4, 0.12, 49.8, 0.7, false, world);
+  // LA LLAVE (anchor — el mesh lo crea game.ts al empezar M1)
+  world.anchors.set('key_parking', { pos: new THREE.Vector3(-27.9, 0.92, 47.3) });
+  // nota de la puerta de la caseta (anchor para interactuable)
+  world.anchors.set('note_hut', { pos: new THREE.Vector3(-27.5, 1.4, 51.3) });
+  const hutNote = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.26, 0.34),
+    new THREE.MeshStandardMaterial({ color: 0xd9d2be, emissive: 0x444422, emissiveIntensity: 0.06 })
+  );
+  hutNote.position.set(-27.5, 1.4, 51.32);
+  hutNote.rotation.y = Math.PI;
+  world.root.add(hutNote);
+  // nota clavada en la puerta principal del MEGAPLEX (pista inicial)
+  const doorNote = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.3, 0.4),
+    new THREE.MeshStandardMaterial({ color: 0xd9d2be, emissive: 0x555522, emissiveIntensity: 0.08 })
+  );
+  doorNote.position.set(-3.6, 1.5, 34.25);
+  world.root.add(doorNote);
+  world.anchors.set('note_frontdoor', { pos: new THREE.Vector3(-3.6, 1.5, 34.3) });
+}
+
+function concreteMat(): THREE.Material {
+  return plasticMaterial(0x585850, 0.94);
+}
+
+/* ============ M2 — GENERADORES PORTÁTILES (loading + pump) ============ */
+
+function buildMission2Generators(world: WorldBuilder) {
+  const steel = metalMaterial([1, 1]);
+
+  // Generador portátil del MUELLE DE CARGA (junto a las cajas, x[2,16] z[-34,-24])
+  const gLoad = new THREE.Group();
+  const gb = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.05, 2.1), darkMetalMaterial());
+  gb.position.y = 0.62;
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(1.66, 0.12, 2.26), steel);
+  frame.position.y = 0.14;
+  const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.9, 8), steel);
+  exhaust.position.set(0.5, 1.35, -0.6);
+  const gLight = new THREE.Mesh(
+    new THREE.BoxGeometry(0.34, 0.16, 0.05),
+    new THREE.MeshStandardMaterial({ color: 0x113311, emissive: 0x33ff44, emissiveIntensity: 0.7 })
+  );
+  gLight.position.set(0, 1.0, 1.08);
+  gLoad.add(gb, frame, exhaust, gLight);
+  gLoad.position.set(7, 0, -26);
+  gLoad.traverse((o) => { if (o instanceof THREE.Mesh) o.castShadow = true; });
+  world.root.add(gLoad);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(7, 0.8, -26), new THREE.Vector3(1.7, 1.7, 2.3)), 'gen_load_c');
+  world.anchors.set('gen_load', { pos: new THREE.Vector3(7, 1.15, -26) });
+  world.propAnims.push({
+    update: (_dt, t) => {
+      const m = gLight.material as THREE.MeshStandardMaterial;
+      m.emissiveIntensity = 0.55 + Math.sin(t * 9) * 0.25;
+    },
+  });
+
+  // Generador de la SALA DE BOMBAS (esquina, x[31,44] z[27,34])
+  const gPump = new THREE.Group();
+  const pb = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.25, 1.3), darkMetalMaterial());
+  pb.position.y = 0.72;
+  const coil = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.07, 8, 16), steel);
+  coil.rotation.x = Math.PI / 2;
+  coil.position.y = 1.42;
+  const pLight = new THREE.Mesh(
+    new THREE.BoxGeometry(0.34, 0.16, 0.05),
+    new THREE.MeshStandardMaterial({ color: 0x113311, emissive: 0x33ff44, emissiveIntensity: 0.7 })
+  );
+  pLight.position.set(0, 1.0, 0.7);
+  gPump.add(pb, coil, pLight);
+  gPump.position.set(42, 0, 29);
+  gPump.rotation.y = -0.35;
+  gPump.traverse((o) => { if (o instanceof THREE.Mesh) o.castShadow = true; });
+  world.root.add(gPump);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(42, 0.8, 29), new THREE.Vector3(1.8, 1.8, 1.5)), 'gen_pump_c');
+  world.anchors.set('gen_pump', { pos: new THREE.Vector3(42, 1.3, 29) });
+  world.propAnims.push({
+    update: (_dt, t) => {
+      const m = pLight.material as THREE.MeshStandardMaterial;
+      m.emissiveIntensity = 0.55 + Math.sin(t * 11 + 2) * 0.25;
+    },
+  });
+}
+
+/* ============ M6 — TÚNELES DE SERVICIO ============ */
+
+function buildTunnels(world: WorldBuilder) {
+  const steel = metalMaterial([1.4, 1]);
+  const rustMat = plasticMaterial(0x4a3226, 0.92, 0.25);
+
+  /* Vestíbulo: x[-30,18] z[-70,-62.3] */
+  neonSign(world, 'SERVICE — LEVEL B1', 0x2a7a3a, -3, 2.6, -62.6, Math.PI, 3.4, 0.5);
+  // barriles y pallets
+  for (let i = 0; i < 5; i++) {
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.9, 12), rustMat);
+    barrel.position.set(-24 + i * 0.75, 0.45, -64 - (i % 2) * 0.75);
+    barrel.castShadow = true;
+    world.root.add(barrel);
+  }
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-22.5, 0.45, -64.4), new THREE.Vector3(3.4, 0.9, 1.7)), 'tun_barrels');
+  box(1.2, 0.14, 1.2, woodMaterial([0.8, 0.8]), 12, 0.07, -66, 0.3, true, world);
+
+  /* Galería principal: x[-30,18] z[-76,-70] — tuberías a ambos lados */
+  for (const [px, pz] of [[-29.2, -73], [17.2, -73]] as Array<[number, number]>) {
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 6.4, 10), steel);
+    pipe.rotation.x = Math.PI / 2;
+    pipe.position.set(px, 2.3, pz);
+    world.root.add(pipe);
+    const pipe2 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 6.4, 8), rustMat);
+    pipe2.rotation.x = Math.PI / 2;
+    pipe2.position.set(px, 1.85, pz + 0.25);
+    world.root.add(pipe2);
+  }
+  // cables colgando (sierpes)
+  for (let i = 0; i < 8; i++) {
+    const cable = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.02, 0.5 + Math.random() * 0.6, 5),
+      plasticMaterial(0x131315, 0.9)
+    );
+    cable.position.set(-26 + i * 6, 2.6 - 0.35, -73 + (i % 2 ? 0.3 : -0.3));
+    cable.rotation.z = (Math.random() - 0.5) * 0.5;
+    world.root.add(cable);
+  }
+  // pilares con el stencil del código de relés
+  box(0.6, 2.9, 0.6, concreteMat(), -16, 1.45, -73, 0, true, world);
+  paintedSign(world, 'RELAYS: 2 - 3 - 1', 0xd8a018, -16, 1.55, -72.65, 0, 2.2, 1.0);
+
+  // los 3 RELÉS contra el muro norte (anchors dcgen_rlN + luz de estado)
+  const relayPos: Array<[string, number]> = [['rl1', -26], ['rl2', -10], ['rl3', 6]];
+  for (const [id, rx] of relayPos) {
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.1, 0.3), darkMetalMaterial());
+    const dial = new THREE.Mesh(
+      new THREE.CircleGeometry(0.14, 12),
+      new THREE.MeshStandardMaterial({ color: 0x1a0505, emissive: 0xff2020, emissiveIntensity: 2.2 })
+    );
+    dial.position.set(0, 0.18, 0.17);
+    const lever = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.4, 0.08), steel);
+    lever.position.set(0, -0.2, 0.18);
+    g.add(body, dial, lever);
+    g.position.set(rx, 1.5, -70.35);
+    world.root.add(g);
+    world.anchors.set(`dcgen_${id}`, { pos: new THREE.Vector3(rx, 1.2, -70.4), mesh: dial });
+  }
+  // lámparas industriales moribundas
+  brokenLight(world, -8, -71.2, 2.7);
+  brokenLight(world, 12, -71.2, 2.7);
+  // charcos
+  const puddleMat = new THREE.MeshBasicMaterial({ color: 0x0a141c, transparent: true, opacity: 0.55, depthWrite: false });
+  for (const [px, pz, pr] of [[-20, -74.5, 1.6], [2, -71.5, 2.2], [14, -74, 1.2]] as Array<[number, number, number]>) {
+    const pd = new THREE.Mesh(new THREE.CircleGeometry(pr, 16), puddleMat);
+    pd.rotation.x = -Math.PI / 2;
+    pd.position.set(px, 0.03, pz);
+    world.root.add(pd);
+  }
+
+  /* Almacén olvidado (oeste): x[-30,-24] z[-86.5,-76] */
+  shelfUnit(world, -28, -80, Math.PI / 2, 2.4, 4);
+  shelfUnit(world, -28, -85, Math.PI / 2, 2.4, 3);
+  box(1.0, 0.7, 1.0, woodMaterial([0.7, 0.7]), -25.4, 0.35, -77.5, 0.4, true, world);
+  // ascensor de servicio averiado contra el muro sur
+  const elev = new THREE.Group();
+  const shaft = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.8, 0.4), metalMaterial([1, 1]));
+  const doors = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.2, 0.12), darkMetalMaterial());
+  doors.position.set(0, 1.1, 0.28);
+  const gap = new THREE.Mesh(new THREE.BoxGeometry(0.35, 2.2, 0.14), new THREE.MeshStandardMaterial({ color: 0x000000 }));
+  gap.position.set(0.35, 1.1, 0.34);
+  elev.add(shaft, doors, gap);
+  elev.position.set(-27, 1.4, -86.2);
+  world.root.add(elev);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-27, 1.4, -86.1), new THREE.Vector3(2.4, 2.9, 0.7)), 'tun_elevator');
+  neonSign(world, 'STORAGE', 0x6a4a14, -27, 2.5, -86.55, 0, 1.8, 0.42);
+
+  /* Túnel del portón (este): x[12,18] z[-86.5,-76] */
+  // señalización de seguridad
+  paintedSign(world, 'SECURITY GATE', 0xb03030, 15, 2.0, -80.5, 0, 2.6, 1.0);
+  // el PORTÓN (mesh metálico con rayas de peligro) — la hoja la anima game.ts (door)
+  const gateFrame = new THREE.Group();
+  const beamTop = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.3, 0.5), steel);
+  beamTop.position.set(0, 2.6, 0);
+  const beamBot = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.24, 0.5), steel);
+  beamBot.position.set(0, 0.12, 0);
+  gateFrame.add(beamTop, beamBot);
+  gateFrame.position.set(15, 0, -86.4);
+  world.root.add(gateFrame);
+  // luces de alarma del portón (rojas, se activan en M8)
+  for (const sx of [13.6, 16.4]) {
+    const alarm = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 8, 8),
+      new THREE.MeshStandardMaterial({ color: 0x300808, emissive: 0xff2010, emissiveIntensity: 0.25 })
+    );
+    alarm.position.set(sx, 2.35, -86.2);
+    world.root.add(alarm);
+    world.registerAccent({ pos: new THREE.Vector3(sx, 2.2, -86), color: 0xff2010, intensity: 0.0, distance: 7 });
+    world.anchors.set(`gate_alarm_${sx}`, { pos: new THREE.Vector3(sx, 2.35, -86.2), mesh: alarm });
+  }
+  // panel del portón: ranura para tarjeta + palanca de override
+  const panel = new THREE.Group();
+  const pBody = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 0.18), darkMetalMaterial());
+  const slot = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.07, 0.1), steel);
+  slot.position.set(0, 0.35, 0.12);
+  const lever = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.5, 0.1), plasticMaterial(0xa03020, 0.6));
+  lever.position.set(0, -0.25, 0.14);
+  panel.add(pBody, slot, lever);
+  panel.position.set(16.6, 1.25, -85.8);
+  panel.rotation.y = -0.5;
+  world.root.add(panel);
+  world.anchors.set('gate_card', { pos: new THREE.Vector3(16.5, 1.45, -85.6) });
+  // escondite rack del túnel este
+  shelfUnit(world, 14.2, -84.5, 0, 2.2, 3);
+  // maquinaria dañada que sigue girando (dique de memoria)
+  const rotor = new THREE.Group();
+  const axis = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.6, 8), steel);
+  axis.rotation.z = Math.PI / 2;
+  const fan = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.3, 0.22), rustMat);
+  const fan2 = fan.clone();
+  fan2.rotation.x = Math.PI / 2;
+  rotor.add(axis, fan, fan2);
+  rotor.position.set(12.9, 2.0, -77.6);
+  world.root.add(rotor);
+  world.propAnims.push({ update: (dt) => { rotor.rotation.z += dt * 1.1; } });
+}
+
+/* ============ M7 — EL ARCHIVO OLVIDADO ============ */
+
+function buildArchive(world: WorldBuilder) {
+  /* Archivo: x[-24,8] z[-86.5,-76] */
+  const steel = metalMaterial([0.9, 1]);
+
+  // filas de estanterías de archivo (pasillos con escondites)
+  shelfUnit(world, -16, -78.5, 0, 2.8, 5);
+  shelfUnit(world, -4, -78.5, 0, 2.8, 5);
+  shelfUnit(world, 4, -84.5, 0, 2.8, 4);
+  shelfUnit(world, -16, -84.5, Math.PI / 2, 2.6, 3);
+  // archivadores contra el muro oeste
+  for (let i = 0; i < 4; i++) {
+    box(0.62, 1.45, 0.72, steel, -23.4, 0.72, -78.5 + i * 1.5, 0, true, world);
+  }
+  // escritorio de registros con la CINTA A
+  box(2.2, 0.08, 0.95, woodMaterial([1, 0.6]), -20, 0.76, -79.6, 0, true, world);
+  for (const dx of [-0.95, 0.95]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.74, 0.08), darkMetalMaterial());
+    leg.position.set(-20 + dx, 0.37, -79.6);
+    world.root.add(leg);
+  }
+  world.anchors.set('tape_archiveA', { pos: new THREE.Vector3(-20.6, 0.92, -79.4) });
+  // CINTA B en una estantería profunda
+  world.anchors.set('tape_archiveB', { pos: new THREE.Vector3(4.6, 1.1, -84.3) });
+
+  // TERMINAL del archivo (pantalla verde parpadeante contra el muro norte)
+  const term = new THREE.Group();
+  const tBase = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.75, 0.7), darkMetalMaterial());
+  tBase.position.y = 0.38;
+  const tScreen = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.95, 0.6),
+    new THREE.MeshStandardMaterial({ color: 0x0a1410, emissive: 0x2aff70, emissiveIntensity: 0.55 })
+  );
+  tScreen.position.set(0, 1.12, 0.05);
+  tScreen.rotation.x = -0.12;
+  const tFrame = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.75, 0.12), steel);
+  tFrame.position.set(0, 1.12, 0);
+  term.add(tBase, tFrame, tScreen);
+  term.position.set(-4, 0, -77.3);
+  term.rotation.y = Math.PI;
+  world.root.add(term);
+  world.addCollider(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(-4, 0.8, -77.3), new THREE.Vector3(1.6, 1.6, 0.8)), 'archive_terminal');
+  world.anchors.set('terminal_archive', { pos: new THREE.Vector3(-4, 1.15, -77.6), mesh: tScreen });
+  FLICKER_SCREENS.push(tScreen);
+
+  // FUSIBLES del archivo (2 paneles: muro norte y muro oeste)
+  for (const [id, fx, fz, ry] of [
+    ['arch_fuse_1', -14, -76.6, 0],
+    ['arch_fuse_2', -23.3, -82, Math.PI / 2],
+  ] as Array<[string, number, number, number]>) {
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.3, 0.28), darkMetalMaterial());
+    const dial = new THREE.Mesh(
+      new THREE.CircleGeometry(0.13, 12),
+      new THREE.MeshStandardMaterial({ color: 0x1a0505, emissive: 0xff2020, emissiveIntensity: 2.2 })
+    );
+    dial.position.set(0, 0.22, 0.16);
+    g.add(body, dial);
+    g.position.set(fx, 1.5, fz);
+    g.rotation.y = ry;
+    world.root.add(g);
+    world.anchors.set(id, { pos: new THREE.Vector3(fx, 1.2, fz), mesh: dial });
+  }
+
+  // cajas de evidencia y papeles por el suelo
+  const paperMat = new THREE.MeshBasicMaterial({ color: 0x8a8474, transparent: true, opacity: 0.75, depthWrite: false });
+  for (let i = 0; i < 14; i++) {
+    const p = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.3), paperMat);
+    p.rotation.x = -Math.PI / 2;
+    p.rotation.z = Math.random() * Math.PI;
+    p.position.set(-22 + Math.random() * 28, 0.03, -85 + Math.random() * 8);
+    world.root.add(p);
+  }
+  for (const [bx, bz, ry] of [[-8.5, -83.5, 0.3], [-7.4, -82.4, -0.2], [1.5, -79, 0.5]] as Array<[number, number, number]>) {
+    box(0.9, 0.55, 0.9, woodMaterial([0.6, 0.6]), bx, 0.28, bz, ry, true, world);
+  }
+
+  // neón del archivo
+  neonSign(world, 'RECORDS', 0x8a6a1a, -7, 2.75, -76.4, 0, 2.2, 0.5);
+  brokenLight(world, -12, -80.5, 3.0);
+  brokenLight(world, 0, -82.5, 3.0);
+
+  /* VAULT: x[-14,-7] z[-86.4,-81] */
+  // pedestal con la MASTER KEYCARD
+  const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 1.0, 12), steel);
+  ped.position.set(-10.5, 0.5, -84.5);
+  ped.castShadow = true;
+  world.root.add(ped);
+  const beacon = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.3, 0.3, 0.06, 12),
+    new THREE.MeshStandardMaterial({ color: 0x1a1405, emissive: 0xffd060, emissiveIntensity: 0.8 })
+  );
+  beacon.position.set(-10.5, 1.03, -84.5);
+  world.root.add(beacon);
+  world.registerAccent({ pos: new THREE.Vector3(-10.5, 1.4, -84.5), color: 0xffd060, intensity: 0.5, distance: 5 });
+  world.anchors.set('key_master', { pos: new THREE.Vector3(-10.5, 1.2, -84.5) });
+  // cajas de evidencia selladas en la vault
+  for (let i = 0; i < 3; i++) {
+    box(0.7, 0.5, 0.7, plasticMaterial(0x3a3020, 0.8), -13.2, 0.25 + (i % 2) * 0.52, -85.8 - (i / 2 | 0) * 0.75, 0, true, world);
+  }
+  // estante con cintas de respaldo
+  shelfUnit(world, -8, -85.5, Math.PI / 2, 2.2, 2);
+}
+

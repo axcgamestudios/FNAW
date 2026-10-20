@@ -6,6 +6,9 @@ import type { GameSave, GameSettings } from '../core/types';
 const KEY = 'fnaw_save_v2';
 const OLD_KEY = 'bruno_nights_save_v1';
 
+/** v14: la campaña continua tiene 8 misiones */
+export const TOTAL_MISSIONS = 8;
+
 const DEFAULT_SETTINGS: GameSettings = {
   master: 0.9,
   music: 0.7,
@@ -33,7 +36,7 @@ export function loadSave(): GameSave {
       ? data.unlockedChapter
       : typeof data.unlockedNight === 'number' ? data.unlockedNight : 1;
     return {
-      unlockedChapter: unlocked >= 1 && unlocked <= 5 ? Math.floor(unlocked) : 1,
+      unlockedChapter: unlocked >= 1 && unlocked <= TOTAL_MISSIONS ? Math.floor(unlocked) : 1,
       tapes: Array.isArray(data.tapes) ? data.tapes.filter((t) => typeof t === 'string').slice(0, 50) : [],
       endings: Array.isArray(data.endings) ? data.endings.filter((t) => typeof t === 'string').slice(0, 10) : [],
       settings: { ...DEFAULT_SETTINGS, ...(typeof data.settings === 'object' && data.settings ? data.settings : {}) },
@@ -54,7 +57,7 @@ export function writeSave(save: GameSave) {
 
 export function unlockChapter(n: number): GameSave {
   const s = loadSave();
-  if (n > s.unlockedChapter) s.unlockedChapter = Math.min(7, n);
+  if (n > s.unlockedChapter) s.unlockedChapter = Math.min(TOTAL_MISSIONS, n);
   writeSave(s);
   return s;
 }

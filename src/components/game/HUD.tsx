@@ -26,7 +26,7 @@ export default function HUD() {
       {/* objetivos — lista de tareas del turno */}
       <div className="hud-corner top-5 left-6 fnaf-objectives">
         <p className="text-[10px] tracking-[0.34em] fnaf-dim mb-1.5">
-          CHAPTER {String(s.chapter).padStart(2, '0')}
+          MISSION {String(s.chapter).padStart(2, '0')} / 08
         </p>
         <p className="text-[13px] tracking-[0.18em] fnaf-gold mb-2">{s.chapterTitle.toUpperCase()}</p>
         {s.objectives.map((o) => (

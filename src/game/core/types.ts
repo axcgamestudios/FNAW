@@ -23,6 +23,8 @@ export interface ChapterDef {
   aggression: number;
   eventRate: number;
   startPower: number;
+  /** Punto de aparición de la misión [x, z, yaw] (por defecto el de la historia) */
+  spawn?: [number, number, number];
   introCinematic?: string;
   outroCinematic?: string;
   lines: string[];
@@ -35,10 +37,12 @@ export interface RoomDef {
   name: string;
   /** Rectángulo [x1, z1, x2, z2] */
   rect: [number, number, number, number];
-  floor: 'tile' | 'wood' | 'concrete' | 'carpet' | 'metal' | 'checker' | 'polished';
-  wall: 'wallpaper' | 'concrete' | 'tile' | 'metal';
+  floor: 'tile' | 'wood' | 'concrete' | 'carpet' | 'metal' | 'checker' | 'polished' | 'burned';
+  wall: 'wallpaper' | 'concrete' | 'tile' | 'metal' | 'cracked' | 'rusty';
   /** Altura de techo de la sala (por defecto 3.6) */
   height?: number;
+  /** Sala sin techo (zonas exteriores: parking, patios) */
+  noCeiling?: boolean;
   ambientLight?: { intensity: number; color?: number; flicker?: number };
   camPos?: [number, number, number];
   camLook?: [number, number, number];
@@ -174,6 +178,10 @@ export interface TrialDef {
   chapter: number;
   /** sala donde ocurre la prueba */
   room: string;
+  /** objetivo de chapters.json que completa (por defecto `c${chapter}_trial`) */
+  objective?: string;
+  /** variante especial de la prueba ('sounds' = puzzle auditivo, 'office' = noche en la oficina) */
+  type?: 'sounds' | 'office' | 'tasks';
   /** enemigo que caza durante la prueba */
   hunter: string;
   /** sala de respawn del jugador al fallar */
@@ -192,6 +200,8 @@ export interface TrialDef {
   sunnyTransform?: boolean;
   /** objetivos que deben completarse antes de armar la prueba */
   requiresObjectives?: string[];
+  /** prueba 'office': minutos que hay que sobrevivir */
+  surviveMinutes?: number;
   introMsg: string;
   tasks: TrialTaskDef[];
   scares: TrialScare[];

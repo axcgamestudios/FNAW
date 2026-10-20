@@ -49,6 +49,8 @@ export class Game {
   cine!: CinematicPlayer;
   trials!: TrialSystem;
   audio = new AudioEngine();
+  /** v14 — store del HUD expuesto (pruebas y depuración) */
+  hud: typeof useHud = useHud;
   chapter = 1;
   chapterDef!: ChapterDef;
   mode = 'boot';
@@ -92,6 +94,11 @@ export class Game {
   private powerOut = false;
   /** v9 — la salida se abre al superar SOL Y LUNA del cap 7 */
   private exitUnlocked = false;
+  /** v14 — M8: countdown del LOCKDOWN OVERRIDE del portón de seguridad */
+  private m8Armed = false;
+  private m8Timer = 0;
+  private m8Done = false;
+  private m8GoldenTick = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -469,36 +476,56 @@ export class Game {
     this.buildInteractables();
     this.trialInteractables = [];
 
-    // v12 — MOON solo existe al FINAL del juego (cap 7, EL SÓTANO)
+    // v12 — MOON solo existe al FINAL del juego (M5, EL SÓTANO); v14 re-key misión 5
     const luna = this.animatronics.find((a) => a.def.id === 'luna');
     if (luna) {
-      if (n === 7) {
-        // cap 7 — EL SÓTANO EN LLAMAS: LUNA cuelga boca abajo del techo
+      if (n === 5) {
+        // M5 — EL SÓTANO EN LLAMAS: LUNA cuelga boca abajo del techo
         luna.setDayNight('moon');
         luna.teleportTo(0, -48, 0.6);
         luna.hangFromCeiling(6.55);
       } else {
-        // resto de noches: duerme retirada en lo más profundo del sótano
+        // resto de misiones: duerme retirada en lo más profundo del sótano
         luna.setDayNight('moon');
         luna.retire();
         luna.teleportTo(0, -58, 0.4);
       }
     }
-    // el sótano solo arde en el cap 7 (final)
-    MEGA_FIRE?.setEnabled(n === 7);
-    if (n === 1) {
-      // cap 1 — EL PRIMER TURNO: el guardia nuevo entra por el VESTÍBULO
+    // el sótano solo arde en la misión 5
+    MEGA_FIRE?.setEnabled(n === 5);
+
+    // v14 — CAMPAÑA CONTINUA: cada misión tiene su punto de aparición
+    const sp = this.chapterDef.spawn;
+    if (sp) {
+      this.player.pos.set(sp[0], 0, sp[1]);
+      this.player.yaw = sp[2];
+      this.player.crouching = false;
+    } else if (n === 1) {
+      // M1 — exterior: el guardia nuevo entra desde el VESTÍBULO
+      this.player.pos.set(-5.5, 0, 31);
+      this.player.yaw = 0;
       this.player.crouching = false;
     } else {
-      // cap 2+: se aparece en la Oficina de Seguridad (hub del turno)
       this.player.pos.set(-37.5, 0, 26.5);
       this.player.yaw = 0;
     }
+    // rutas que la historia ya abrió (no se re-cerrotean entre misiones)
+    if (n >= 2) this.forceUnlockDoor('door_exit');   // la entrada ya fue cruzada
+    if (n >= 7) this.forceUnlockDoor('door_archive'); // el archivo ya fue desprecintado
+    if (n >= 4) this.forceUnlockDoor('door_techS');   // la estantería secreta ya fue descubierta
+    if (n >= 6) {
+      // M6+: las puertas cortafuego del sótano ya fueron abiertas con las tarjetas
+      for (const id of ['door_mega_w', 'door_mega_c', 'door_mega_e']) this.forceUnlockDoor(id);
+    }
+
     // v12 — EMPEZAR YA CON LA LINTERNA (equipada y encendida)
     this.missions.hasFlashlight = true;
     this.player.flashlightOn = true;
     if (this.flashlightModel) this.flashlightModel.visible = true;
     if (this.guardArms) this.guardArms.visible = true;
+    // v14 — la tableta es tuya desde la misión 3; la tarjeta maestra desde la 7
+    if (n >= 4) this.missions.hasTablet = true;
+    if (n >= 8) this.missions.hasKey = true;
 
     this.callQueue = [];
     this.callLineIdx = 0;
@@ -614,22 +641,37 @@ export class Game {
       },
       addNoise: (x: number, z: number, r: number) => this.addNoise(x, z, r),
       unlockDoor: (id: string) => this.forceUnlockDoor(id),
-      onTrialSuccess: () => {
-        // el Freddy Dorado despierta al superar la prueba de generadores (cap 5)
-        if (this.chapter === 5) {
-          const golden = this.animatronics.find((a) => a.def.id === 'golden');
-          if (golden && !golden.active) {
-            this.audio.stinger();
-            golden.scriptWake();
-            this.notify('THE GOLDEN SUIT HAS RISEN — RUN TO THE LOBBY');
-            this.player.setShake(0.9);
+      // v14 — ¿la tableta está mirando la cámara de la CAJA MUSICAL del Puppet?
+      tabletMusicBox: () => {
+        const st = useHud.getState();
+        if (!st.tabletOpen) return false;
+        const cam = this.cams.cams.find((c) => c.index === this.cams.current);
+        return !!(cam as (typeof cam) & { musicBox?: boolean } | undefined)?.musicBox;
+      },
+      onTrialSuccess: (t: { id: string }) => {
+        // v14 — M2: el PANEL MAESTRO revive el corazón del MEGAPLEX
+        if (t.id === 'generators') {
+          for (const room of ['atrium', 'lobby', 'westPromN', 'eastPromN', 'promW', 'promE']) {
+            this.world.setRoomLight(room, true);
           }
+          this.audio.powerUp();
+          this.notify('THE ATRIUM BREATHES AGAIN — half the MEGAPLEX is alive. Check that noise in the arcade.');
         }
-        // cap 7 — SOL Y LUNA superado: la salida se abre de par en par
-        if (this.chapter === 7) {
+        // v14 — M5: SOL Y LUNA superado → la RUTA DE EMERGENCIA (muro sur) se abre
+        if (t.id === 'sunmoon') {
           this.exitUnlocked = true;
-          this.notify("THE EXIT IS OPEN — RUN, DON'T LOOK BACK");
+          this.forceUnlockDoor('door_tunnel');
+          this.notify('THE EMERGENCY ROUTE HAS OPENED — the south wall leads to THE SERVICE TUNNELS');
           this.audio.stinger();
+        }
+        // v14 — M6: los RELÉS desprecintan el ARCHIVO y despiertan los túneles
+        if (t.id === 'tunnels') {
+          this.forceUnlockDoor('door_archive');
+          for (const room of ['tunnelA', 'tunnelMain', 'tunnelWest', 'tunnelEast']) {
+            this.world.setRoomLight(room, true);
+          }
+          this.audio.powerUp();
+          this.notify('THE TUNNELS WAKE UP — and the RECORDS DOOR hisses open to the west');
         }
       },
       sfx: {
@@ -838,8 +880,14 @@ export class Game {
 
   /* ============ INTERACCIONES ============ */
 
+  /** v14 — meshes de misión creados por game.ts (llaves, tarjetas): se limpian al reconstruir */
+  private missionPropMeshes: THREE.Object3D[] = [];
+
   private buildInteractables() {
     this.interactables = [];
+    // v14 — evitar duplicados de meshes al reconstruir (respawn/reintento)
+    for (const m of this.missionPropMeshes) this.world.root.remove(m);
+    this.missionPropMeshes = [];
     const world = this.world;
     const P = () => this.player;
     const ch = this.chapter;
@@ -849,8 +897,11 @@ export class Game {
       const isExit = door.def.id === 'door_exit';
       const isSecret = door.def.id === 'door_techS';
       const isGenerator = door.def.id === 'door_generator' || door.def.id === 'door_generator2';
-      // v12 — puertas cortafuego del SÓTANO (se abren con 3 tarjetas)
+      // v12 — puertas cortafuego del SÓTANO (se abren con 3 tarjetas, misión 5)
       const isMegaFire = door.def.id === 'door_mega_w' || door.def.id === 'door_mega_c' || door.def.id === 'door_mega_e';
+      // v14 — ruta de emergencia del sótano y portón de seguridad final
+      const isTunnel = door.def.id === 'door_tunnel';
+      const isGate = door.def.id === 'door_security_gate';
       this.interactables.push({
         id: `door_${door.def.id}`,
         label: isSecret ? 'Push the shelf' : door.locked ? 'Locked door' : door.open ? 'Close door' : 'Open door',
@@ -868,8 +919,8 @@ export class Game {
             return;
           }
           if (isGenerator && door.locked) {
-            // la sala de generadores se abre en el capítulo 5
-            if (ch >= 5) {
+            // v14 — la sala de generadores se abre en la misión 2 (estaciones de potencia)
+            if (ch >= 2) {
               door.locked = false;
               this.nav.setDoorBlocked(door.def.id, false);
               this.notify('GENERATOR ROOM OPEN');
@@ -881,8 +932,8 @@ export class Game {
             return;
           }
           if (isMegaFire && door.locked) {
-            // v12 — las puertas cortafuego del sótano se abren con las 3 tarjetas
-            if (ch === 7 && this.missions.keycards >= 3) {
+            // v12 — las puertas cortafuego del sótano se abren con las 3 tarjetas (M5)
+            if (ch === 5 && this.missions.keycards >= 3) {
               door.locked = false;
               this.nav.setDoorBlocked(door.def.id, false);
               door.open = true;
@@ -896,17 +947,48 @@ export class Game {
             this.audio.keypadBeep(false);
             return;
           }
-          if (door.locked) {
-            if (isExit && ch === 7 && this.exitUnlocked) {
-              this.missions.completeObjective('c7_escape');
-              this.finishGame('escape');
+          // v14 — la ruta de emergencia del sótano (se abrió tras apagar el infierno)
+          if (isTunnel && door.locked) {
+            if ((ch === 5 && this.exitUnlocked) || ch > 5) {
+              this.forceUnlockDoor('door_tunnel');
+              this.notify('THE EMERGENCY ROUTE — SERVICE TUNNELS BELOW');
               return;
             }
-            if (isExit && ch === 7) {
-              this.notify('THE EXIT IS SEALED — KILL THE INFERNO FIRST (5 extinguishers)');
+            this.notify(door.def.lockedMsg ?? 'SEALED');
+            this.audio.keypadBeep(false);
+            return;
+          }
+          // v14 — EL PORTÓN DE SEGURIDAD: solo el OVERRIDE lo levanta (misión 8)
+          if (isGate) {
+            if (this.m8Done) {
+              this.notify('THE GATE IS UP — CROSS IT! [the panel in front of it]');
             } else {
-              this.notify(door.def.lockedMsg ?? 'Locked');
+              this.notify(door.def.lockedMsg ?? 'SECURITY GATE — SEALED');
+              this.audio.keypadBeep(false);
             }
+            return;
+          }
+          if (door.locked) {
+            if (isExit) {
+              if (ch === 1) {
+                // v14 — M1: la entrada encadenada solo cede ante la llave del guardia
+                if (this.missions.hasKey) {
+                  door.locked = false;
+                  this.nav.setDoorBlocked('door_exit', false);
+                  door.open = true;
+                  door.targetAngle = door.baseAngle + door.swing * door.openAngle;
+                  this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
+                  this.notify('THE CHAINS FALL — THE MEGAPLEX YAWNS OPEN');
+                } else {
+                  this.notify("THE DOORS ARE CHAINED — find the spare key (guard's hut, west fence)");
+                  this.audio.keypadBeep(false);
+                }
+                return;
+              }
+              this.forceUnlockDoor('door_exit');
+              return;
+            }
+            this.notify(door.def.lockedMsg ?? 'Locked');
             this.audio.keypadBeep(false);
             return;
           }
@@ -981,48 +1063,116 @@ export class Game {
         label: 'Take the surveillance tablet',
         pos: { x: tabletA.pos.x, y: tabletA.pos.y, z: tabletA.pos.z },
         radius: 1.7,
-        enabled: () => !this.missions.hasTablet,
+        enabled: () => !this.missions.hasTablet && ch === 3,
         action: () => {
           this.missions.hasTablet = true;
           tabletA.mesh!.visible = false;
           this.audio.pickup();
-          this.missions.completeObjective('c2_tablet');
+          this.missions.completeObjective('m3_tablet');
           this.notify('Tablet equipped [C]');
         },
       });
     }
 
-    // breakers del Cuarto Eléctrico (cap1)
-    for (const [anchorId, objId] of [['breaker_1', 'c1_b1'], ['breaker_2', 'c1_b2']] as Array<[string, string]>) {
+    /* ============ v14 — M1: LA LLAVE DEL MEGAPLEX (exterior) ============ */
+    const keyA = world.anchors.get('key_parking');
+    if (keyA) {
+      const keyMesh = createPickupMesh('key');
+      keyMesh.position.copy(keyA.pos);
+      world.root.add(keyMesh);
+      this.missionPropMeshes.push(keyMesh);
+      const y0 = keyMesh.position.y;
+      world.propAnims.push({ update: (_dt, t) => { if (keyMesh.visible) keyMesh.position.y = y0 + Math.sin(t * 2.4) * 0.02; } });
+      this.interactables.push({
+        id: 'pickup_key_parking',
+        label: "Search the guard's desk",
+        pos: { x: keyA.pos.x, y: keyA.pos.y, z: keyA.pos.z },
+        radius: 1.7,
+        holdTime: 2.5,
+        holdLabel: "SEARCHING THE GUARD'S DESK",
+        enabled: () => this.mode === 'playing' && ch === 1 && keyMesh.visible,
+        action: () => {
+          keyMesh.visible = false;
+          this.missions.hasKey = true;
+          this.audio.pickup();
+          this.missions.completeObjective('m1_key');
+          this.notify('SPARE KEY — the front doors await. ...did something move between the cars?');
+          this.audio.childLaugh(new THREE.Vector3(-16, 1, 45));
+          this.player.setShake(0.4);
+        },
+      });
+    }
+    // notas del exterior (pista de la caseta + pista en la puerta principal)
+    for (const [anchorId, radius] of [['note_frontdoor', 1.8], ['note_hut', 1.8]] as Array<[string, number]>) {
       const a = world.anchors.get(anchorId);
       if (!a) continue;
+      const note = (storyData.notes as StoryNote[]).find((x) => x.id === 'note_parking');
       this.interactables.push({
-        id: anchorId,
-        label: 'Reset the breaker',
+        id: `read_${anchorId}`,
+        label: 'Read the note',
         pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
-        radius: 1.8,
-        holdTime: 5,
-        holdLabel: 'RESETTING BREAKER',
-        enabled: () => this.mode === 'playing' && ch === 1 && !this.missions.objectives.find((o) => o.def.id === objId)?.done,
+        radius,
+        enabled: () => this.mode === 'playing' && ch === 1,
         action: () => {
-          this.power = Math.min(100, this.power + 20);
-          this.audio.powerUp();
-          this.missions.completeObjective(objId);
+          if (note) useHud.getState().setNote({ id: note.id, title: note.title, text: note.text });
         },
       });
     }
 
-    // tarjetas de acceso (cap6)
+    /* ============ v14 — M2: ESTACIONES DE POTENCIA (cada una despierta su zona) ============ */
+    const ZONE_PACKS: Record<string, string[]> = {
+      m2_g1: ['techHall', 'electrical', 'kitchen', 'workshop', 'storageN', 'loading', 'freezers'],
+      m2_g2: ['arcade', 'bowling', 'prize', 'theater', 'rockstar'],
+      m2_g3: ['promW', 'promE', 'westPromN', 'eastPromN', 'generator', 'storageS', 'pumpRoom', 'restrooms', 'daycare', 'pirateCove', 'foodcourt'],
+    };
+    const ZONE_MSG: Record<string, string> = {
+      m2_g1: 'NORTH WING ONLINE — the service halls hum again',
+      m2_g2: 'ENTERTAINMENT WING ONLINE — neon ghosts in the arcade',
+      m2_g3: 'SOUTH WING ONLINE — the promenades wake up',
+    };
+    for (const [anchorId, objId, holdLabel] of [
+      ['breaker_1', 'm2_g1', 'RESETTING THE NORTH BREAKER'],
+      ['gen_load', 'm2_g2', 'STARTING THE PORTABLE GENERATOR'],
+      ['gen_pump', 'm2_g3', 'PRIMING THE PUMP GENERATOR'],
+    ] as Array<[string, string, string]>) {
+      const a = world.anchors.get(anchorId);
+      if (!a) continue;
+      this.interactables.push({
+        id: anchorId,
+        label: 'Start the power station',
+        pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
+        radius: 2.1,
+        holdTime: 6,
+        holdLabel,
+        enabled: () =>
+          this.mode === 'playing' &&
+          ch === 2 &&
+          !this.missions.objectives.find((o) => o.def.id === objId)?.done,
+        action: () => {
+          for (const room of ZONE_PACKS[objId] ?? []) this.world.setRoomLight(room, true);
+          this.power = Math.min(100, this.power + 18);
+          this.audio.powerUp();
+          this.missions.completeObjective(objId);
+          this.notify(ZONE_MSG[objId] ?? 'ZONE ONLINE');
+          // el ruido eléctrico RESUENA: lo que duerme en la oscuridad lo oye
+          this.addNoise(a.pos.x, a.pos.z, 22);
+          this.audio.stinger();
+        },
+      });
+    }
+
+    /* ============ v14 — M5: tarjetas de acceso ============ */
     for (const [anchorId, objId, label] of [
-      ['key_rockstar', 'c7_key1', 'Rockstar Row'],
-      ['key_theater', 'c7_key2', 'Bruno Theater'],
-      ['key_foodcourt', 'c7_key3', 'Food Court'],
+      ['key_rockstar', 'm5_key1', 'Rockstar Row'],
+      ['key_theater', 'm5_key2', 'Bruno Theater'],
+      ['key_foodcourt', 'm5_key3', 'Food Court'],
     ] as Array<[string, string, string]>) {
       const a = world.anchors.get(anchorId);
       if (!a) continue;
       const mesh = createPickupMesh('keycard');
       mesh.position.copy(a.pos);
       world.root.add(mesh);
+      this.missionPropMeshes.push(mesh);
       a.mesh = mesh;
       const y0 = mesh.position.y;
       world.propAnims.push({ update: (_dt, t) => { if (mesh.visible) mesh.position.y = y0 + Math.sin(t * 2 + a!.pos.x) * 0.02; } });
@@ -1031,13 +1181,138 @@ export class Game {
         label: `Take keycard — ${label}`,
         pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
         radius: 1.6,
-        enabled: () => this.mode === 'playing' && ch === 7 && mesh.visible,
+        enabled: () => this.mode === 'playing' && ch === 5 && mesh.visible,
         action: () => {
           mesh.visible = false;
           this.missions.keycards++;
           this.audio.pickup();
           this.missions.completeObjective(objId);
           this.notify(`KEYCARD ${this.missions.keycards}/3 — ${label}`);
+        },
+      });
+    }
+
+    /* ============ v14 — M7: EL ARCHIVO (fusibles + terminal + tarjeta maestra) ============ */
+    for (const [anchorId, label] of [
+      ['arch_fuse_1', 'Feed the archive fuse — north panel'],
+      ['arch_fuse_2', 'Feed the archive fuse — west panel'],
+    ] as Array<[string, string]>) {
+      const a = world.anchors.get(anchorId);
+      if (!a) continue;
+      this.interactables.push({
+        id: anchorId,
+        label,
+        pos: { x: a.pos.x, y: a.pos.y, z: a.pos.z },
+        radius: 2.0,
+        holdTime: 4,
+        holdLabel: 'WIRING THE ARCHIVE FUSE',
+        enabled: () =>
+          this.mode === 'playing' &&
+          ch === 7 &&
+          !this.missions.objectives.find((o) => o.def.id === 'm7_power')?.done,
+        action: () => {
+          // luz de estado del panel a verde
+          const dial = a.mesh as THREE.Mesh | undefined;
+          if (dial) {
+            const m = dial.material as THREE.MeshStandardMaterial;
+            m.emissive.setHex(0x2aff5a);
+            m.color.setHex(0x0a3a18);
+          }
+          this.audio.powerUp();
+          this.world.setRoomLight('archive', true);
+          this.world.setRoomLight('archiveVault', true);
+          this.missions.progressObjective('m7_power');
+          this.addNoise(a.pos.x, a.pos.z, 16);
+        },
+      });
+    }
+    const termA = world.anchors.get('terminal_archive');
+    if (termA) {
+      this.interactables.push({
+        id: 'archive_terminal',
+        label: 'Use the vault terminal [keypad]',
+        pos: { x: termA.pos.x, y: termA.pos.y, z: termA.pos.z },
+        radius: 1.9,
+        enabled: () =>
+          this.mode === 'playing' &&
+          ch === 7 &&
+          !this.missions.objectives.find((o) => o.def.id === 'm7_terminal')?.done,
+        action: () => {
+          const st = useHud.getState();
+          if (st.note) st.setNote(null);
+          useHud.getState().setKeypad('door_vault');
+          this.notify('THE TERMINAL WANTS A 4-DIGIT YEAR — the tapes know which one');
+        },
+      });
+    }
+    const masterA = world.anchors.get('key_master');
+    if (masterA) {
+      const masterMesh = createPickupMesh('keycard');
+      masterMesh.position.copy(masterA.pos);
+      masterMesh.scale.setScalar(1.25);
+      world.root.add(masterMesh);
+      this.missionPropMeshes.push(masterMesh);
+      const yy = masterMesh.position.y;
+      world.propAnims.push({ update: (_dt, t) => { if (masterMesh.visible) masterMesh.position.y = yy + Math.sin(t * 2.1) * 0.03; } });
+      this.interactables.push({
+        id: 'pickup_key_master',
+        label: 'Take the MASTER KEYCARD',
+        pos: { x: masterA.pos.x, y: masterA.pos.y, z: masterA.pos.z },
+        radius: 1.8,
+        enabled: () => this.mode === 'playing' && ch === 7 && masterMesh.visible,
+        action: () => {
+          masterMesh.visible = false;
+          this.missions.hasKey = true;
+          this.audio.pickup();
+          this.missions.completeObjective('m7_card');
+          this.notify('MASTER KEYCARD — the SECURITY GATE at the east tunnel. End this.');
+        },
+      });
+    }
+
+    /* ============ v14 — M8: EL PORTÓN DE SEGURIDAD ============ */
+    const gateA = world.anchors.get('gate_card');
+    if (gateA) {
+      this.interactables.push({
+        id: 'gate_override',
+        label: 'OVERRIDE THE GATE — insert MASTER KEYCARD',
+        pos: { x: gateA.pos.x, y: gateA.pos.y, z: gateA.pos.z },
+        radius: 2.0,
+        enabled: () => this.mode === 'playing' && ch === 8 && !this.m8Armed && !this.m8Done,
+        action: () => {
+          if (!this.missions.hasKey) {
+            this.notify('THE SLOT REJECTS YOU — MASTER KEYCARD REQUIRED');
+            this.audio.keypadBeep(false);
+            return;
+          }
+          this.missions.completeObjective('m8_open');
+          this.m8Armed = true;
+          this.m8Timer = 90;
+          this.m8GoldenTick = 3;
+          this.audio.stinger();
+          this.audio.freddyLaugh(this.player.pos.clone());
+          this.player.setShake(1.0);
+          this.notify('LOCKDOWN OVERRIDE ENGAGED — 90 SECONDS OF SCREAMING METAL. HE IS COMING.');
+          // EL DORADO despierta al otro extremo de los túneles y camina hacia ti
+          const golden = this.animatronics.find((a) => a.def.id === 'golden');
+          if (golden) {
+            golden.scriptWake();
+            golden.teleportTo(-27, -80, 0);
+            golden.forceChase(this.player.pos);
+          }
+        },
+      });
+      // cruzar el portón levantado = final de la campaña
+      this.interactables.push({
+        id: 'gate_cross',
+        label: 'CROSS THE GATE — LEAVE THE COMPLEX',
+        pos: { x: 15, y: 1.1, z: -86.2 },
+        radius: 2.6,
+        requireLook: false,
+        enabled: () => this.mode === 'playing' && ch === 8 && this.m8Done,
+        action: () => {
+          this.missions.completeObjective('m8_exit');
+          this.finishGame('escape');
         },
       });
     }
@@ -1137,11 +1412,11 @@ export class Game {
     switch (kind) {
       case 'fuse':
         this.missions.fusesHeld++;
-        this.missions.progressObjective('c2_fuses');
+        this.missions.progressObjective('m3_fuses');
         this.notify(`Fuse acquired (${this.missions.fusesHeld})`);
         break;
       case 'token':
-        this.missions.progressObjective('c2_tokens');
+        this.missions.progressObjective('m3_tokens');
         this.notify('Golden token acquired');
         break;
       case 'battery':
@@ -1168,8 +1443,12 @@ export class Game {
           const save = addTape(tape.id);
           useHud.getState().setProgress(save.unlockedChapter, save.tapes);
         }
-        if (this.chapter === 4) {
-          this.missions.progressObjective('c4_tape');
+        // v14 — cintas-objetivo: el diario del barco (M5) y las cintas del archivo (M7)
+        if (this.chapter === 5) {
+          this.missions.progressObjective('m5_cove_tape');
+        }
+        if (this.chapter === 7) {
+          this.missions.progressObjective('m7_logs');
         }
         break;
       }
@@ -1245,6 +1524,11 @@ export class Game {
       this.audio.doorCreak(new THREE.Vector3(door.def.x, 1, door.def.z));
       st.setKeypad(null);
       this.notify('DOOR OPEN');
+      // v14 — el terminal del archivo abre la VAULT (misión 7)
+      if (doorId === 'door_vault') {
+        this.missions.completeObjective('m7_terminal');
+        this.notify('THE VAULT YIELDS — the year of the second incident. Go in. Take it.');
+      }
     } else {
       this.audio.keypadBeep(false);
       this.notify('Wrong code');
@@ -1380,27 +1664,83 @@ export class Game {
     }
   }
 
+  /** v14 — RESPAWN SUAVE: el progreso de la misión (objetivos hechos y contadores)
+   *  NO se pierde al morir. Solo se recoloca al jugador y se recolocan los enemigos. */
   retryChapter() {
     this.audio.setStatic(0);
     useHud.getState().setDead(null);
     useHud.getState().setJumpscare(null);
     if (this.cine.active) this.cine.stop(false);
+    // snapshot del progreso de la misión
+    const snap = this.missions
+      ? this.missions.objectives.map((o) => ({ id: o.def.id, done: o.done, count: o.count }))
+      : [];
+    const hadKey = this.missions?.hasKey ?? false;
+    const hadTablet = this.missions?.hasTablet ?? false;
+    const keycards = this.missions?.keycards ?? 0;
+    const m8WasArmed = this.m8Armed;
+    const m8WasDone = this.m8Done;
     this.startChapter(this.chapter);
+    // restaurar progreso (silencioso)
+    const COLLECT_KIND: Record<string, string> = {
+      m3_tokens: 'token', m3_fuses: 'fuse', m5_cove_tape: 'tape', m7_logs: 'tape',
+    };
+    for (const s of snap) {
+      const rt = this.missions.objectives.find((o) => o.def.id === s.id);
+      if (!rt) continue;
+      rt.count = s.count;
+      rt.done = s.done;
+      // retirar del mundo los coleccionables ya recogidos
+      const kind = COLLECT_KIND[s.id];
+      if (kind && (s.done || s.count > 0)) {
+        let toRemove = s.done ? (rt.def.count ?? s.count) : s.count;
+        for (const item of [...this.missions.items]) {
+          if (toRemove <= 0) break;
+          if (item.kind === kind && item.mesh.visible) {
+            this.missions.removeItem(item.id);
+            toRemove--;
+          }
+        }
+      }
+    }
+    this.missions.hasKey = hadKey || this.missions.hasKey;
+    this.missions.hasTablet = hadTablet || this.missions.hasTablet;
+    this.missions.keycards = keycards;
+    this.m8Armed = m8WasArmed;
+    this.m8Done = m8WasDone;
+    if (this.m8Armed && !this.m8Done) {
+      // el override sigue su countdown: Golden sigue en la partida
+      const golden = this.animatronics.find((a) => a.def.id === 'golden');
+      if (golden && !golden.active) golden.scriptWake();
+    }
+    this.missions.syncObjectives();
+    this.notify('RESPAWNED — your mission progress is intact');
   }
 
-  /** fin de capítulo: cinemática de salida + pantalla de completado */
+  /** fin de misión → la SIGUIENTE arranca en el MISMO mundo (campaña continua) */
   private completeChapter() {
     if (this.chapterEndPending) return;
+    // v14 — el FINAL de la campaña (M8) va por finishGame: nunca pisar el ending
+    if (this.mode !== 'playing') return;
     this.chapterEndPending = true;
     this.audio.setChase(false);
     this.audio.setBreathing(false);
     const finish = () => {
       const save = unlockChapter(this.chapter + 1);
       useHud.getState().setProgress(save.unlockedChapter, save.tapes);
-      this.mode = 'complete';
-      useHud.getState().setMode('complete');
-      useHud.getState().syncHud({ chapterComplete: true });
-      this.audio.victory();
+      const chapters = (chaptersData as { chapters: ChapterDef[] }).chapters;
+      const next = chapters.find((x) => x.chapter === this.chapter + 1);
+      if (next) {
+        // v14 — SIN PANTALLAS: la siguiente misión encadena en el propio mundo.
+        // La cinemática de entrada (si existe) hace de transición natural.
+        this.notify(`NEW MISSION — ${next.title.toUpperCase()}`);
+        this.startChapter(this.chapter + 1);
+      } else {
+        this.mode = 'complete';
+        useHud.getState().setMode('complete');
+        useHud.getState().syncHud({ chapterComplete: true });
+        this.audio.victory();
+      }
     };
     if (this.chapterDef.outroCinematic) {
       this.playCinematic(this.chapterDef.outroCinematic, finish);
@@ -1602,85 +1942,134 @@ export class Game {
     // objetivos de desplazamiento
     const othersDoneFor = (excludeId: string) =>
       this.missions.objectives
-        .filter((o) => o.def.id !== excludeId && !o.def.optional && o.def.type !== 'survive')
+        .filter((o) => o.def.id !== excludeId && !o.def.optional && o.def.type !== 'survive' && o.def.type !== 'system')
         .every((o) => o.done);
     const gotoChecks: Array<[string, string, boolean]> = [
-      ['c3_cove', 'pirateCove', true],
-      ['c6_enter', 'techHall', false],
-      // v12 — misiones más largas: puntos de patrulla por capítulo
-      ['c1_storage', 'daycare', false],
-      ['c1_arcade', 'arcade', false],
-      ['c1_kitchen', 'kitchen', false],
-      ['c2_prize', 'prize', false],
-      ['c3_kitchen', 'kitchen', false],
-      ['c3_arcade', 'arcade', false],
-      ['c4_rockstar', 'rockstar', false],
-      ['c4_theater', 'theater', false],
-      ['c5_electrical', 'electrical', false],
-      ['c5_techS', 'techS', false],
-      ['c5_freezers', 'freezers', false],
-      ['c6_storageN', 'storageN', false],
-      ['c7_descend', 'megadaycare', false],
+      // v14 — campaña continua: puntos de progreso por misión
+      ['m1_inside', 'lobby', false],
+      ['m2_check', 'arcade', true],
+      ['m3_prize', 'prize', true],
+      ['m4_techS', 'techS', false],
+      ['m4_gallery', 'techHall', false],
+      ['m5_descend', 'megadaycare', false],
+      ['m5_tunnels', 'tunnelA', false],
+      ['m6_explore', 'tunnelMain', false],
+      ['m6_gate', 'tunnelEast', false],
+      ['m6_archive', 'archive', false],
+      ['m8_gate', 'tunnelEast', false],
     ];
     for (const [objId, roomId, requireOthers] of gotoChecks) {
       const o = this.missions.objectives.find((x) => x.def.id === objId);
       if (!o || o.done || room !== roomId) continue;
       if (!requireOthers || othersDoneFor(o.def.id)) {
         this.missions.completeObjective(objId);
-        // susto guionizado al llegar a la cala
-        if (objId === 'c3_cove') {
-          const foxy = this.animatronics.find((a) => a.def.id === 'foxy');
-          if (foxy && !foxy.active) {
-            this.audio.stinger();
-            this.player.setShake(0.6);
-            this.notify("SOMETHING MOVES BEHIND THE COVE'S CURTAIN...");
-          }
-        }
-        if (objId === 'c6_enter') {
+        // sustos y susurros guionizados al llegar
+        if (objId === 'm1_inside') {
           this.audio.stinger();
-          this.player.setShake(0.4);
-          this.notify('THE TECHNICAL GALLERY — PITCH BLACK. LISTEN TO THE DOORS...');
+          this.player.setShake(0.6);
+          this.notify('THE MEGAPLEX SWALLOWS YOU — SEAL THE DOORS BEHIND YOU [E]');
         }
-        // v12 — sustos guionizados al llegar a los nuevos puntos de patrulla
-        if (objId === 'c1_storage') {
-          this.audio.stinger();
-          this.player.setShake(0.4);
-          this.notify('THE WEST STORAGE — THE BOXES HAVE BEEN MOVING ON THEIR OWN...');
-        }
-        if (objId === 'c1_arcade') {
+        if (objId === 'm2_check') {
           this.audio.childLaugh(this.player.pos.clone());
           this.player.setShake(0.5);
           this.notify('A LAUGH RUNS THROUGH THE ARCADE — SOMETHING DROPPED A TOKEN');
         }
-        if (objId === 'c3_kitchen') {
-          this.audio.kitchenClatter(new THREE.Vector3(-20, 1, -26));
-          this.player.setShake(0.5);
-          this.notify('THE POTS ARE CLANGING IN THE DARK — SHE IS CLOSE');
+        if (objId === 'm3_prize') {
+          this.audio.stinger();
+          this.notify('THE PRIZE COUNTER — the gift is a music box. It plays by itself now.');
         }
-        if (objId === 'c5_techS') {
+        if (objId === 'm4_techS') {
           this.audio.stinger();
           this.player.setShake(0.7);
           this.notify('THE GOLDEN SUIT STANDS IN THE CORNER — EMPTY... OR NOT');
         }
-        if (objId === 'c7_descend') {
+        if (objId === 'm4_gallery') {
+          this.audio.stinger();
+          this.player.setShake(0.4);
+          this.notify('THE TECHNICAL GALLERY — PITCH BLACK. LISTEN TO THE DOORS...');
+        }
+        if (objId === 'm5_descend') {
           this.audio.stinger();
           this.player.setShake(0.8);
           this.notify('THE HEAT BITES. THE SMOKE BREATHES. THE BASEMENT IS ALIVE');
         }
+        if (objId === 'm5_tunnels') {
+          this.audio.stinger();
+          this.notify('THE SMOKE THINS. THE TUNNELS ARE OLDER THAN THE MALL ABOVE.');
+        }
+        if (objId === 'm6_explore') {
+          this.audio.ventBang(this.player.pos.clone());
+          this.player.setShake(0.4);
+          this.notify('WATER. RUST. AND SERVOS, SOMEWHERE IN THE PIPES.');
+        }
+        if (objId === 'm6_gate') {
+          this.audio.stinger();
+          this.player.setShake(0.5);
+          this.notify('THE SECURITY GATE — SEALED SHUT. IT WANTS A MASTER KEYCARD.');
+        }
+        if (objId === 'm6_archive') {
+          this.audio.stinger();
+          this.notify('THE FORGOTTEN ARCHIVE — DUST, FILES AND INCIDENTS THAT NEVER WERE.');
+        }
+        if (objId === 'm8_gate') {
+          this.audio.stinger();
+          this.player.setShake(0.6);
+          this.notify('THE GATE. THE CARD SLOT. THE END OF THE SHIFT.');
+        }
       }
     }
 
-    // cap 1 — EL PRIMER TURNO: volver VIVO a la oficina cuando la ronda está completa
+    // v14 — M1: sellar la entrada tras entrar (cerrar la puerta con [E] dentro del lobby)
     if (this.chapter === 1) {
-      const oExit = this.missions.objectives.find((x) => x.def.id === 'c1_office');
-      if (oExit && !oExit.done && room === 'office') {
-        const othersDone = this.missions.objectives
-          .filter((x) => x.def.id !== 'c1_office' && !x.def.optional)
-          .every((x) => x.done);
-        if (othersDone) {
-          this.missions.completeObjective('c1_office');
-          this.notify('ROUND COMPLETE — 6:00 AM. RULO: "NOT BAD, ROOKIE..."');
+      const oSeal = this.missions.objectives.find((x) => x.def.id === 'm1_seal');
+      const exitDoor = this.world.doors.get('door_exit');
+      if (oSeal && !oSeal.done && room === 'lobby' && exitDoor && !exitDoor.open && !exitDoor.locked) {
+        this.missions.completeObjective('m1_seal');
+        this.notify('SEALED. Whatever walks outside... stays outside. For now.');
+        this.audio.doorSlam(new THREE.Vector3(-5.5, 1, 34));
+      }
+    }
+
+    // v14 — M2: volver VIVO a la oficina cuando las estaciones están en marcha
+    if (this.chapter === 2) {
+      const oExit = this.missions.objectives.find((x) => x.def.id === 'm2_office');
+      if (oExit && !oExit.done && room === 'office' && othersDoneFor('m2_office')) {
+        this.missions.completeObjective('m2_office');
+        this.notify('ROUND COMPLETE — RULO: "NOT BAD, ROOKIE. NOW THE REAL WORK BEGINS..."');
+      }
+    }
+
+    // v14 — M8: LOCKDOWN OVERRIDE — el portón sube mientras EL DORADO caza
+    if (this.chapter === 8 && this.m8Armed && !this.m8Done) {
+      this.m8Timer -= dt;
+      // balizas rojas del portón en plena fiesta
+      const blink = Math.sin(this.time * 9) > 0;
+      for (const sx of [13.6, 16.4]) {
+        const a = this.world.anchors.get(`gate_alarm_${sx}`);
+        if (a?.mesh) {
+          const m = (a.mesh as THREE.Mesh).material as THREE.MeshStandardMaterial;
+          m.emissiveIntensity = blink ? 3.2 : 0.15;
         }
+      }
+      if (this.m8Timer <= 0) {
+        this.m8Done = true;
+        this.missions.completeObjective('m8_hold');
+        this.forceUnlockDoor('door_security_gate');
+        this.notify('THE GATE IS UP — CROSS IT!!');
+        this.audio.stinger();
+      } else {
+        // EL DORADO no descansa: si te pierde, re-viene cada ~6 s
+        this.m8GoldenTick -= dt;
+        const golden = this.animatronics.find((a) => a.def.id === 'golden');
+        if (golden && golden.active && this.m8GoldenTick <= 0) {
+          this.m8GoldenTick = 6;
+          if (golden.state !== 'chase' && golden.state !== 'attack') {
+            golden.forceChase(this.player.pos);
+          }
+        }
+        // avisos de countdown legibles
+        if (Math.abs(this.m8Timer - 30) < 0.05) this.notify('30 SECONDS OF SCREAMING METAL LEFT');
+        if (Math.abs(this.m8Timer - 10) < 0.05) this.notify('ALMOST UP — HOLD ON!');
       }
     }
 

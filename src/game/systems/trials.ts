@@ -46,6 +46,8 @@ export interface TrialHost {
   onTrialSuccess(trial: TrialDef): void;
   /** desbloquear y abrir una puerta/reja (maneja nav + colliders) */
   unlockDoor(id: string): void;
+  /** v14 — ¿la tableta está abierta y mirando la cámara de la CAJA MUSICAL? */
+  tabletMusicBox(): boolean;
   sfx: {
     stinger(): void;
     roar(pos: THREE.Vector3, voice: string): void;
@@ -94,16 +96,24 @@ export class TrialSystem {
     return ALL_TRIALS.find((t) => t.chapter === n) ?? null;
   }
 
+  /** v14 — una misma misión puede tener VARIAS pruebas: se activa la de la sala actual */
+  trialForRoom(n: number, roomId: string): TrialDef | null {
+    return ALL_TRIALS.find((t) => {
+      if (t.chapter !== n || t.room !== roomId) return false;
+      return !this.host.objectiveDone(t.objective ?? `c${t.chapter}_trial`);
+    }) ?? null;
+  }
+
   get hunter(): Animatronic | null {
     if (!this.active) return null;
     return this.host.animatronics.find((a) => a.def.id === this.active!.hunter) ?? null;
   }
 
-  /** ¿el objetivo de prueba del capítulo ya está completado? (activa o no) */
+  /** ¿el objetivo de la prueba (activa o de la sala) ya está completado? */
   objectiveComplete(): boolean {
-    const t = this.active ?? this.trialForChapter(this.chapter);
+    const t = this.active;
     if (!t) return false;
-    return this.host.objectiveDone(`c${t.chapter}_trial`);
+    return this.host.objectiveDone(t.objective ?? `c${t.chapter}_trial`);
   }
 
   syncHud() {
@@ -125,14 +135,19 @@ export class TrialSystem {
 
   update(dt: number, roomId: string) {
     if (!this.active) {
-      // ¿entrar en la sala de la prueba del capítulo?
-      const t = this.trialForChapter(this.chapter);
-      if (t && roomId === t.room && !this.objectiveComplete()) {
-        // gate de objetivos previos (p. ej. sigilo + linterna antes de Sol y Luna)
+      // v14 — MULTI-PRUEBA: se arma la prueba de la sala actual de la misión
+      const t = this.trialForRoom(this.chapter, roomId);
+      if (t) {
+        // gate de objetivos previos (p. ej. tokens antes de la bolera)
         const reqs = (t as TrialDef & { requiresObjectives?: string[] }).requiresObjectives;
         const gated = reqs?.some((r) => !this.host.objectiveDone(r)) ?? false;
         if (!gated) this.begin(t);
       }
+      return;
+    }
+    // v14 — prueba de LA OFICINA (FNAF4): asaltos por las puertas + caja musical
+    if ((this.active as TrialDef & { type?: string }).type === 'office') {
+      this.updateOffice(dt);
       return;
     }
     // apagón temporizado de la prueba
@@ -196,8 +211,173 @@ export class TrialSystem {
     if ((t as TrialDef & { type?: string }).type === 'sounds') {
       this.beginSounds(t);
     }
+    // v14 — noche de la OFICINA: arranque del asedio FNAF4
+    if ((t as TrialDef & { type?: string }).type === 'office') {
+      this.beginOffice(t);
+      this.fireScares('start');
+      this.syncHud();
+      return;
+    }
     this.fireScares('start');
     this.syncHud();
+  }
+
+  /* ============ v14 — LA NOCHE DE LA OFICINA (FNAF4 adaptado) ============ */
+
+  private officeSurviveLeft = 0;
+  private musicBox = 100;
+  private puppetOut = false;
+  private officeAssaultT = 10;   // cuenta atrás para el próximo asalto
+  private assault: { door: string; fake: boolean; t: number; step: number; arrived: boolean } | null = null;
+  private officeLullabyT = 0;
+
+  private beginOffice(t: TrialDef) {
+    const mins = (t as TrialDef & { surviveMinutes?: number }).surviveMinutes ?? 1.6;
+    this.officeSurviveLeft = mins * 60;
+    this.musicBox = 100;
+    this.puppetOut = false;
+    this.officeAssaultT = 11;
+    this.assault = null;
+    // las puertas de la oficina empiezan CERRADAS (que el jugador decida cuándo mirar)
+    for (const id of ['door_office', 'door_techS']) {
+      const d = this.host.world.doors.get(id);
+      if (d) {
+        d.open = false;
+        d.targetAngle = d.baseAngle;
+      }
+    }
+    // el cazador duerme lejos de la oficina
+    const hunter = this.hunter;
+    if (hunter) {
+      hunter.retire();
+      const resetRoom = this.host.world.rooms.get(t.hunterResetRoom);
+      if (resetRoom) hunter.teleportTo(resetRoom.center.x, resetRoom.center.z);
+    }
+    this.host.setTrialHud({
+      name: t.name, attempts: 0, tasksDone: 0,
+      tasksTotal: Math.ceil(this.officeSurviveLeft), nextTask: 'WIND THE MUSIC BOX — WATCH BOTH DOORS',
+    });
+  }
+
+  private officeDoorPos(id: string): THREE.Vector3 {
+    const d = this.host.world.doors.get(id);
+    return d ? new THREE.Vector3(d.def.x, 1.1, d.def.z) : this.host.player.pos.clone();
+  }
+
+  private updateOffice(dt: number) {
+    const t = this.active;
+    if (!t) return;
+    this.officeSurviveLeft -= dt;
+
+    /* ---- CAJA MUSICAL del Puppet: se descarga sola; mirar la CAM de la caja la rebobina ---- */
+    const watching = this.host.tabletMusicBox();
+    this.musicBox = Math.max(0, Math.min(100, this.musicBox + (watching ? 9 : -1.55) * dt));
+    this.officeLullabyT -= dt;
+    if (this.musicBox < 32 && this.officeLullabyT <= 0) {
+      this.host.sfx.lullaby(this.officeDoorPos('door_office'));
+      this.officeLullabyT = 5.5;
+      if (this.musicBox < 14 && Math.random() < 0.5) {
+        this.host.notify('THE MUSIC BOX IS DYING — WIND IT FROM THE CAMS (CAM 17)!');
+      }
+    }
+    if (this.musicBox <= 0 && !this.puppetOut) {
+      this.puppetOut = true;
+      const hunter = this.hunter;
+      if (hunter) {
+        const d = this.officeDoorPos('door_office');
+        hunter.teleportTo(d.x, d.z, Math.atan2(this.host.player.pos.x - d.x, this.host.player.pos.z - d.z));
+        hunter.wake();
+        hunter.forceChase(this.host.player.pos);
+      }
+      this.host.sfx.stinger();
+      this.host.sfx.moonScream(this.host.player.pos);
+      this.host.notify("PUPPET'S BOX OPENED — IT'S COMING. WIND THE BOX TO SEND IT BACK!");
+      this.host.player.setShake(1.0);
+    }
+    if (this.puppetOut && this.musicBox > 62) {
+      this.puppetOut = false;
+      const hunter = this.hunter;
+      if (hunter) {
+        hunter.calmDown();
+        hunter.retire();
+        const resetRoom = this.host.world.rooms.get(t.hunterResetRoom);
+        if (resetRoom) hunter.teleportTo(resetRoom.center.x, resetRoom.center.z);
+      }
+      this.host.notify('THE BOX SINGS AGAIN — PUPPET WITHDRAWS INTO THE DARK');
+    }
+
+    /* ---- ASALTOS POR LAS PUERTAS: reales (4 pasos que se acercan) vs falsos (golpes sueltos) ---- */
+    if (!this.assault) {
+      this.officeAssaultT -= dt;
+      if (this.officeAssaultT <= 0) {
+        const doorId = Math.random() < 0.5 ? 'door_office' : 'door_techS';
+        const fake = Math.random() < 0.35 && !this.puppetOut;
+        this.assault = { door: doorId, fake, t: 0, step: 0, arrived: false };
+        this.officeAssaultT = 13 + Math.random() * 8;
+        const dp = this.officeDoorPos(doorId);
+        this.host.sfx.ventBang(dp);
+        if (fake) {
+          this.host.notify('A SINGLE KNOCK... NOTHING FOLLOWS. (Real steps come in fours — and they STOP)');
+        } else {
+          this.host.notify('HEAVY STEPS APPROACH A DOOR — CHECK BOTH SIDES, SEAL THE RIGHT ONE!');
+        }
+      }
+    } else {
+      const a = this.assault;
+      a.t += dt;
+      if (!a.fake) {
+        // pasos pesados que SE ACERCAN a la puerta (4, espaciados)
+        const stepGap = 1.15;
+        if (a.step < 4 && a.t > a.step * stepGap) {
+          const dp = this.officeDoorPos(a.door);
+          const srcRoom = a.door === 'door_office' ? this.host.world.rooms.get('promW') : this.host.world.rooms.get('techS');
+          const sx = srcRoom ? srcRoom.center.x : dp.x;
+          const sz = srcRoom ? srcRoom.center.z : dp.z;
+          const k = (a.step + 1) / 4;
+          this.host.sfx.footstep(
+            new THREE.Vector3(sx + (dp.x - sx) * k, 0, sz + (dp.z - sz) * k),
+            'metal', false, true
+          );
+          a.step++;
+        }
+        // llegada a la puerta (~5 s): ¿está cerrada?
+        if (!a.arrived && a.t > 5.2) {
+          a.arrived = true;
+          const door = this.host.world.doors.get(a.door);
+          const dp = this.officeDoorPos(a.door);
+          const closed = door && !door.open;
+          if (closed) {
+            this.host.sfx.ventBang(dp);
+            this.host.player.setShake(0.5);
+            this.host.notify('IT SLAMS AGAINST THE DOOR — THE LOCK HOLDS. IT WALKS AWAY...');
+          } else {
+            // puerta abierta: entra y caza
+            const hunter = this.hunter;
+            if (hunter) {
+              hunter.wake();
+              hunter.teleportTo(dp.x, dp.z, Math.atan2(this.host.player.pos.x - dp.x, this.host.player.pos.z - dp.z));
+              hunter.forceChase(this.host.player.pos);
+            }
+            this.host.sfx.stinger();
+            this.host.notify('THE DOOR WAS OPEN — IT IS INSIDE!!');
+            this.host.player.setShake(1.0);
+          }
+        }
+        if (a.t > 8.5) this.assault = null;
+      } else if (a.t > 2.4) {
+        this.assault = null;
+      }
+    }
+
+    /* ---- ¿ha sobrevivido la noche? ---- */
+    this.host.setTrialHud({
+      name: t.name, attempts: this.attempts,
+      tasksDone: 0, tasksTotal: Math.max(1, Math.ceil(this.officeSurviveLeft)),
+      nextTask: this.puppetOut ? 'WIND THE MUSIC BOX!! (CAM 17)' : `SURVIVE — ${Math.ceil(this.officeSurviveLeft)}s — BOX ${Math.round(this.musicBox)}%`,
+    });
+    if (this.officeSurviveLeft <= 0 && !this.puppetOut) {
+      this.succeed();
+    }
   }
 
   /* ============ v9 — EL PASILLO DE LOS SONIDOS ============ */
@@ -410,7 +590,7 @@ export class TrialSystem {
       this.host.sfx.setFireAmbience(false);
       this.host.sfx.setDaycareSong(false);
     }
-    this.host.completeObjective(`c${t.chapter}_trial`);
+    this.host.completeObjective(t.objective ?? `c${t.chapter}_trial`);
     this.host.notify(t.successMsg);
     this.host.onTrialSuccess(t);
     this.active = null;
@@ -430,6 +610,19 @@ export class TrialSystem {
     this.attempts++;
     const t = this.active;
     this.tasksDone = []; // la prueba se reinicia de cero (puro estilo prueba)
+    // v14 — noche de la oficina: la caja vuelve a estar cuerda y el asedio se reinicia
+    if ((t as TrialDef & { type?: string }).type === 'office') {
+      this.musicBox = 100;
+      this.puppetOut = false;
+      this.assault = null;
+      this.officeAssaultT = 12;
+      const mins = (t as TrialDef & { surviveMinutes?: number }).surviveMinutes ?? 1.6;
+      this.officeSurviveLeft = mins * 60;
+      for (const id of ['door_office', 'door_techS']) {
+        const d = this.host.world.doors.get(id);
+        if (d) { d.open = false; d.targetAngle = d.baseAngle; }
+      }
+    }
     // v9 — puzzle auditivo: la ronda actual se vuelve a montar
     if ((t as TrialDef & { type?: string }).type === 'sounds') {
       this.host.clearTrialInteractables();

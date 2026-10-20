@@ -2,75 +2,125 @@
  "chapters": [
   {
    "chapter": 1,
-   "id": "cap1",
-   "title": "The First Shift",
-   "enemies": [
-    "freddy"
-   ],
-   "aggression": 0.5,
-   "eventRate": 0.6,
+   "id": "m1_key",
+   "title": "The Key of the MegaPlex",
+   "enemies": [],
+   "aggression": 0.25,
+   "eventRate": 0.4,
    "startPower": 100,
+   "spawn": [-5.5, 52.5, 0],
    "introCinematic": "cine_arrival",
-   "outroCinematic": "cine_first_dawn",
+   "outroCinematic": null,
    "lines": [
-    "Bruno MEGAPLEX — 11:47 PM.",
-    "First shift as the night guard. First mistake: showing up.",
-    "You signed the contract. The rules were written by something else.",
+    "Bruno MEGAPLEX — 11:32 PM.",
+    "The parking lot is dead. So is every lamp that isn't twitching.",
+    "The front doors are chained. Nobody comes in. Nobody left, either.",
     "Your flashlight is already on your belt. Small mercies."
    ],
    "radio": {
-    "atMinute": 0.25,
+    "atMinute": 0.15,
     "lines": [
-     "*click* — Hello? Hello-hello?... The new guard? This is RULO, from the last shift.",
-     "Listen close, rookie: the animatronics WANDER at night. Something in their servos... don't ask.",
-     "Your FLASHLIGHT is with you — press F. It never runs out. Batteries are the least of your problems tonight.",
-     "First job: the grid is tripping. Reset BOTH breakers in the ELECTRICAL ROOM, east side of the north halls.",
-     "Then do my patrol: the WEST STORAGE annex west of the atrium, and the ARCADE. Something has been moving boxes around.",
-     "Freddy is slow tonight. He won't be tomorrow. Crouch with Ctrl, stay quiet, and don't shine your light at him for too long.",
-     "Finish the round, walk back to the office, and we'll talk tomorrow. A hundred and twenty dollars a week. Some paycheck, huh?"
+     "*click* — Hello? If you're hearing this, you're the new night guard. This is RULO, from the last shift.",
+     "I'm not coming back inside. Neither should you. But you signed the contract, so listen.",
+     "The front doors are CHAINED from the inside. The old night guard kept the spare key in his HUT — the small concrete box by the west fence.",
+     "Find the key, get in, and CLOSE the doors behind you. Whatever walks that parking lot at night... it isn't me.",
+     "Press F for your flashlight. It never dies. The batteries are the least of your problems tonight."
     ]
    },
    "objectives": [
     {
-     "id": "c1_b1",
-     "title": "Reset breaker I — Electrical Room",
+     "id": "m1_key",
+     "title": "Find the spare key — the guard's hut",
+     "hint": "West side of the parking lot, by the fence",
+     "type": "interact",
+     "target": "key_parking"
+    },
+    {
+     "id": "m1_inside",
+     "title": "Unlock the front doors and enter the MegaPlex",
+     "hint": "The chained entrance — use the key [E]",
+     "type": "goto",
+     "room": "lobby"
+    },
+    {
+     "id": "m1_seal",
+     "title": "Seal the entrance behind you",
+     "hint": "Close the front doors [E] — don't leave them open",
+     "type": "system",
+     "target": "entrance_sealed"
+    }
+   ]
+  },
+  {
+   "chapter": 2,
+   "id": "m2_power",
+   "title": "Bring the Power Back",
+   "enemies": [
+    "freddy"
+   ],
+   "aggression": 0.5,
+   "eventRate": 0.7,
+   "startPower": 100,
+   "spawn": [-5.5, 31, 0],
+   "introCinematic": null,
+   "outroCinematic": null,
+   "lines": [
+    "The doors are sealed. The MEGAPLEX is pitch black around you.",
+    "The grid is dead, zone by zone. Nothing works. Nothing should.",
+    "Four power stations. Four small miracles. That's your first shift."
+   ],
+   "radio": {
+    "atMinute": 0.2,
+    "lines": [
+     "You made it in. Good. Now listen close, rookie: the whole grid is tripping.",
+     "Four stations keep this place alive: the BREAKER in the ELECTRICAL ROOM, a portable GENERATOR in the LOADING DOCK, the PUMP in the south-east wing, and the MASTER PANEL in the GENERATOR ROOM behind the south promenade.",
+     "Each one you start will light its zone back up... and WAKE something that sleeps in the dark. The noise carries. It always carries.",
+     "There's a note with the master fuse order nailed in the Electrical Room. Read it with your own eyes: 3, 1, 4, 2.",
+     "Freddy is slow tonight. He won't be tomorrow. Crouch with Ctrl, stay quiet, and don't shine your light at him for too long."
+    ]
+   },
+   "objectives": [
+    {
+     "id": "m2_g1",
+     "title": "Reset the north breaker — Electrical Room",
      "hint": "East of the north halls [hold E]",
      "type": "interact",
      "room": "electrical",
      "target": "breaker_1"
     },
     {
-     "id": "c1_b2",
-     "title": "Reset breaker II — Electrical Room",
-     "hint": "Next to breaker I [hold E]",
+     "id": "m2_g2",
+     "title": "Start the portable generator — Loading Dock",
+     "hint": "North-east service wing, between the crates [hold E]",
      "type": "interact",
-     "room": "electrical",
-     "target": "breaker_2"
+     "room": "loading",
+     "target": "gen_load"
     },
     {
-     "id": "c1_storage",
-     "title": "Patrol the WEST STORAGE annex",
-     "hint": "West of the atrium, past the security gates",
-     "type": "goto",
-     "room": "daycare"
+     "id": "m2_g3",
+     "title": "Restart the pump generator — Pump Room",
+     "hint": "South-east wing, past the storage [hold E]",
+     "type": "interact",
+     "room": "pumpRoom",
+     "target": "gen_pump"
     },
     {
-     "id": "c1_arcade",
+     "id": "m2_g4",
+     "title": "MASTER PANEL: order 3 · 1 · 4 · 2",
+     "hint": "Generator Room — the note in the Electrical Room knows",
+     "type": "trial",
+     "target": "generators"
+    },
+    {
+     "id": "m2_check",
      "title": "Check the noise in the FAZER BLAST arcade",
-     "hint": "North-west arcade hall",
+     "hint": "North-west arcade hall — something dropped a token",
      "type": "goto",
      "room": "arcade"
     },
     {
-     "id": "c1_kitchen",
-     "title": "Sweep the INDUSTRIAL KITCHEN",
-     "hint": "South-west service corridor — watch the dark",
-     "type": "goto",
-     "room": "kitchen"
-    },
-    {
-     "id": "c1_office",
-     "title": "Return alive to the Security Office",
+     "id": "m2_office",
+     "title": "Report back to the Security Office",
      "hint": "South-west office — end of the round",
      "type": "system",
      "target": "office_returned"
@@ -78,38 +128,39 @@
    ]
   },
   {
-   "chapter": 2,
-   "id": "cap2",
-   "title": "Bonnie Bowl",
+   "chapter": 3,
+   "id": "m3_tokens",
+   "title": "Golden Tokens & Buried Secrets",
    "enemies": [
     "freddy",
-    "bonnie"
+    "bonnie",
+    "chica"
    ],
-   "aggression": 0.8,
-   "eventRate": 1,
+   "aggression": 0.9,
+   "eventRate": 1.1,
    "startPower": 85,
-   "introCinematic": "cine_cap2",
-   "outroCinematic": "cine_camstare",
+   "spawn": [-37.5, 26.5, 0],
+   "introCinematic": null,
+   "outroCinematic": null,
    "lines": [
-    "The patrol is behind you. The whole MEGAPLEX is still dark.",
-    "The bowling alley has its pinsetters fried.",
-    "And the rabbit from the arcade has learned to use the vents."
+    "The lights hum again. Half of them, anyway.",
+    "The MEGAPLEX is waking up — and not just its machines.",
+    "Rulo wants tokens, machines and stands alive. The night wants you."
    ],
    "radio": {
-    "atMinute": 0.3,
+    "atMinute": 0.25,
     "lines": [
-     "Still alive? Good. Listen: in the SECURITY OFFICE I left a tablet with the cameras. With it, you'll see them coming. Take it.",
-     "Before anything else: grab TWO spare fuses — one in PARTS & SERVICE, one in NORTH STORAGE. The alley drinks power like a beast.",
-     "Then collect 3 golden tokens from the arcade. You'll need them for the machines.",
-     "The bowling alley has three fried pinsetters. Three. The boss wants the alley alive for tomorrow's event.",
-     "And yes: it's a TRIAL. The lights will die, and she will come for you. If she catches you, you wake up on the promenade. Try again.",
-     "Bonnie — the rabbit — comes out of the Arcade Hall. The flashlight freezes her if you hit her straight in the face.",
-     "When the lanes sing again, swing by the PRIZE COUNTER. Something left a gift there."
+     "Still alive? Good. In the SECURITY OFFICE I left a tablet with the cameras. Take it — you'll see them coming.",
+     "Grab TWO spare fuses: one in PARTS & SERVICE, one in NORTH STORAGE. The machines drink power like a beast.",
+     "Then collect 3 GOLDEN TOKENS. One by the arcade booths, one behind the bowling lanes, one deep in the WEST STORAGE annex. They're not all lying in plain sight.",
+     "The bowling alley has three fried pinsetters. And the Food Court... she's been hunting those tables since midnight. Restart everything.",
+     "Bonnie comes out of the vents, Chica out of the kitchen. Your flashlight freezes Bonnie; Chica hears EVERYTHING. Crouch. Walk. Survive.",
+     "When the machines sing again, check the PRIZE COUNTER. Something left a gift there."
     ]
    },
    "objectives": [
     {
-     "id": "c2_tablet",
+     "id": "m3_tablet",
      "title": "Pick up the surveillance tablet",
      "hint": "Security Office — your desk [C]",
      "type": "interact",
@@ -117,28 +168,35 @@
      "target": "desk_tablet"
     },
     {
-     "id": "c2_fuses",
+     "id": "m3_fuses",
      "title": "Find 2 spare fuses",
      "hint": "Parts & Service + North Storage",
      "type": "collect",
      "count": 2
     },
     {
-     "id": "c2_tokens",
+     "id": "m3_tokens",
      "title": "Collect 3 golden tokens",
-     "hint": "Scattered around the Arcade Hall",
+     "hint": "Arcade booths · bowling lanes · west storage",
      "type": "collect",
      "count": 3
     },
     {
-     "id": "c2_trial",
-     "title": "CLEAR THE TRIAL: Bowling Alley",
+     "id": "m3_bowling",
+     "title": "CLEAR THE TRIAL: Bonnie Bowl",
      "hint": "Enter the alley and restart the 3 pinsetters",
      "type": "trial",
      "target": "bowling"
     },
     {
-     "id": "c2_prize",
+     "id": "m3_foodcourt",
+     "title": "CLEAR THE TRIAL: Food Court",
+     "hint": "Restart the 3 food stands — she hears everything",
+     "type": "trial",
+     "target": "foodcourt"
+    },
+    {
+     "id": "m3_prize",
      "title": "Check the PRIZE COUNTER",
      "hint": "North-east, next to the arcade",
      "type": "goto",
@@ -147,268 +205,117 @@
    ]
   },
   {
-   "chapter": 3,
-   "id": "cap3",
-   "title": "The Food Court",
-   "enemies": [
-    "freddy",
-    "bonnie",
-    "chica"
-   ],
-   "aggression": 0.95,
-   "eventRate": 1.2,
-   "startPower": 75,
-   "introCinematic": "cine_cap3",
-   "outroCinematic": "cine_golden",
-   "lines": [
-    "The bowling alley sings. The night goes on.",
-    "The Food Court must open tomorrow with all three stands running.",
-    "The chicken is already circling the tables. And she can smell the oven."
-   ],
-   "radio": {
-    "atMinute": 0.3,
-    "lines": [
-     "Chica — the chicken — has been hunting in the Food Court since tonight. Burnt pizza and feathers come before her.",
-     "Start in the INDUSTRIAL KITCHEN. If the pots are clanging, she's close. Very close.",
-     "Three fried stands: PIZZA, FRIES and ICE CREAM. Restart all three. The service notes say they reboot on their own... mostly.",
-     "Chica does not dodge the flashlight. She hears EVERYTHING. Crouch with Ctrl and never run in there.",
-     "When you're done, swing by Pirate's Cove. Someone left a sign there... and something moves behind the curtain."
-    ]
-   },
-   "objectives": [
-    {
-     "id": "c3_kitchen",
-     "title": "Inspect the INDUSTRIAL KITCHEN",
-     "hint": "North-west service wing — listen for the pots",
-     "type": "goto",
-     "room": "kitchen"
-    },
-    {
-     "id": "c3_arcade",
-     "title": "Patrol the FAZER BLAST arcade",
-     "hint": "North-west arcade hall — lockers available",
-     "type": "goto",
-     "room": "arcade"
-    },
-    {
-     "id": "c3_trial",
-     "title": "CLEAR THE TRIAL: Food Court",
-     "hint": "Restart the 3 food stands",
-     "type": "trial",
-     "target": "foodcourt"
-    },
-    {
-     "id": "c3_cove",
-     "title": "Investigate Pirate's Cove",
-     "hint": "West end of the West Promenade",
-     "type": "goto",
-     "room": "pirateCove"
-    }
-   ]
-  },
-  {
    "chapter": 4,
-   "id": "cap5",
-   "title": "Pirate's Cove",
+   "id": "m4_office",
+   "title": "The Office — Don't Make a Sound",
    "enemies": [
     "freddy",
-    "bonnie",
-    "chica",
-    "foxy"
+    "bonnie"
    ],
    "aggression": 1.1,
-   "eventRate": 1.4,
+   "eventRate": 1.3,
    "startPower": 70,
-   "introCinematic": "cine_cap4",
-   "outroCinematic": "cine_cap5",
-   "lines": [
-    "The Cove attraction has been shut down for years.",
-    "The fox behind the curtain has started to really run.",
-    "Find the ship's tape. Flip the 3 switches. And never stop moving."
-   ],
-   "radio": {
-    "atMinute": 0.25,
-    "lines": [
-     "Foxy. The fox. He's the fastest, and the only one the mask can't fool. If he chases you: sprint and weave.",
-     "The flashlight REPELS him — straight in the face, no mercy, until he backs off.",
-     "There's an old TAPE hidden by the pirate ship. Recover it — I need to know what's on it.",
-     "Three switches on the south wall of the Cove, in order. If he catches you, you respawn on the promenade. His favorite game: cat and fox.",
-     "When the attraction roars, check ROCKSTAR ROW. The guitars are playing by themselves again."
-    ]
-   },
-   "objectives": [
-    {
-     "id": "c4_tape",
-     "title": "Recover the ship's tape",
-     "hint": "Near the pirate ship in the Cove",
-     "type": "collect",
-     "count": 1
-    },
-    {
-     "id": "c4_trial",
-     "title": "CLEAR THE TRIAL: Pirate's Cove",
-     "hint": "3 attraction switches, in order",
-     "type": "trial",
-     "target": "cove"
-    },
-    {
-     "id": "c4_rockstar",
-     "title": "Check ROCKSTAR ROW",
-     "hint": "West gallery — the display rooms",
-     "type": "goto",
-     "room": "rockstar"
-    },
-    {
-     "id": "c4_theater",
-     "title": "Inspect the THEATER backstage",
-     "hint": "North-west of the atrium",
-     "type": "goto",
-     "room": "theater"
-    }
-   ]
-  },
-  {
-   "chapter": 5,
-   "id": "cap6",
-   "title": "The Generators",
-   "enemies": [
-    "freddy",
-    "bonnie",
-    "chica",
-    "foxy"
-   ],
-   "aggression": 1.3,
-   "eventRate": 1.6,
-   "startPower": 60,
+   "spawn": [-37.5, 26.5, 0],
    "introCinematic": null,
    "outroCinematic": null,
    "lines": [
-    "The master fuse is blown. The whole grid depends on it.",
-    "The complex's power will be decided in the Generator Room.",
-    "Order 3 · 1 · 4 · 2. And everyone wide awake."
+    "The machines sing. The night answers.",
+    "The Technical Gallery just went dark — six doors, six sounds, one mistake.",
+    "And then, the office. Two doors. One music box. No sleep at all."
    ],
    "radio": {
     "atMinute": 0.2,
     "lines": [
-     "The note I left in the ELECTRICAL ROOM says it: 3, 1, 4, 2. The master fuse order for the Generator Room. Read it with your own eyes.",
-     "The generator door is east of the South Promenade. I unlocked it for you. Don't ask how.",
-     "One more thing: there's a GOLDEN SUIT in the South Technical Room, right under your office. If you feel it watching you... run. Don't fight. RUN.",
-     "When the grid comes back, the lobby's outer doors will unlock. Run south. Don't look back."
+     "*click* — Bad news, rookie. The Technical Gallery just died. Six service doors, and only ONE way to know what's behind them: SOUND.",
+     "A FAN hums where nobody is. POTS AND PANS clang where she is tearing the kitchen apart. Heavy steps or a metallic laugh... NOT that door. Don't open it. Ever.",
+     "When the gallery is done, GET BACK TO THE OFFICE and don't leave. They know where you sleep.",
+     "Watch the cameras. The MUSIC BOX in the PRIZE COUNTER runs down if you look away too long — keep it wound up, or the thing inside it comes out to play.",
+     "Listen at the doors. Real steps come in fours and stop. Fake ones loop like a bad tape. Learn the difference, or you'll open the wrong door.",
+     "Survive until the motors cool down. Then we talk about the basement."
     ]
    },
    "objectives": [
     {
-     "id": "c5_electrical",
-     "title": "Read the fuse order — ELECTRICAL ROOM",
-     "hint": "The note nailed to the panel",
-     "type": "goto",
-     "room": "electrical"
-    },
-    {
-     "id": "c5_trial",
-     "title": "CLEAR THE TRIAL: Generators (3·1·4·2)",
-     "hint": "Generator Room, master panel",
-     "type": "trial",
-     "target": "generators"
-    },
-    {
-     "id": "c5_techS",
+     "id": "m4_techS",
      "title": "Investigate the SOUTH TECHNICAL ROOM",
      "hint": "Below the office — the golden suit",
      "type": "goto",
      "room": "techS"
     },
     {
-     "id": "c5_freezers",
-     "title": "Check the FREEZER ROOM",
-     "hint": "North-east services wing — it is cold in there",
+     "id": "m4_gallery",
+     "title": "Reach the Technical Gallery (pitch black)",
+     "hint": "North service corridor — listen to the doors",
      "type": "goto",
-     "room": "freezers"
+     "room": "techHall"
+    },
+    {
+     "id": "m4_sounds",
+     "title": "CLEAR THE ROUNDS OF SOUNDS (3)",
+     "hint": "Trust your ears, not your eyes",
+     "type": "trial",
+     "target": "sounds"
+    },
+    {
+     "id": "m4_night",
+     "title": "SURVIVE THE NIGHT: the office doors",
+     "hint": "Back to the office — music box wound, doors checked",
+     "type": "trial",
+     "target": "officeNight"
     }
    ]
   },
   {
-   "chapter": 6,
-   "id": "c6_sounds",
-   "title": "The Hallway of Sounds",
+   "chapter": 5,
+   "id": "m5_basement",
+   "title": "The Basement — The Last Way Out",
    "enemies": [
     "freddy",
-    "bonnie"
+    "bonnie",
+    "chica",
+    "foxy",
+    "luna"
    ],
-   "aggression": 1.35,
-   "eventRate": 1.25,
-   "startPower": 65,
-   "lines": [
-    "*click* …Rulo again. The grid is failing zone by zone.",
-    "The whole TECHNICAL GALLERY is pitch black. Only the red emergency lights are left.",
-    "You can't see what's behind each service door... but you CAN hear it.",
-    "Listen to the sound at each door. I'll tell you which one to enter. If you get it wrong...",
-    "...well. You already know the ones inside. Good luck."
-   ],
-   "radio": {
-    "atMinute": 0.18,
-    "lines": [
-     "*click* Still there? It's Rulo. The technical gallery just went dark.",
-     "Six service doors, and only ONE way to know what's behind them: SOUND.",
-     "A FAN hums where nobody is. POTS AND PANS clang where Chica is tearing the kitchen apart.",
-     "If you hear heavy footsteps or a metallic laugh... NOT that door. Don't open it. Ever.",
-     "I'll walk you through round by round. Listen before you move. Trust your ears, not your eyes."
-    ]
-   },
-   "objectives": [
-    {
-     "id": "c6_enter",
-     "type": "goto",
-     "label": "Reach the Technical Gallery (pitch black)",
-     "room": "techHall"
-    },
-    {
-     "id": "c6_storageN",
-     "label": "Search NORTH STORAGE for the fuse crate",
-     "type": "goto",
-     "room": "storageN"
-    },
-    {
-     "id": "c6_trial",
-     "type": "trial",
-     "label": "Clear the rounds of sounds (3)"
-    }
-   ],
-   "introCinematic": null,
-   "outroCinematic": null
-  },
-  {
-   "chapter": 7,
-   "id": "c7_basement",
-   "title": "The Burning Basement",
-   "enemies": [
-    "luna",
-    "freddy"
-   ],
-   "aggression": 1.75,
-   "eventRate": 1.15,
+   "aggression": 1.45,
+   "eventRate": 1.2,
    "startPower": 70,
+   "spawn": [-37.5, 26.5, 0],
    "introCinematic": "cine_inferno",
-   "outroCinematic": "cine_sunrise",
+   "outroCinematic": null,
    "lines": [
-    "The night has already piled five trials on your back.",
-    "And now the MEGAPLEX smells of burnt plastic.",
-    "Below your feet, the ORIGINAL pizzeria is still burning. And MOON is singing in the flames."
+    "The motors cooled. The screams didn't.",
+    "Below the MegaPlex, the ORIGINAL pizzeria has been burning for years.",
+    "Three keycards open the fire doors. Five fires guard the emergency route.",
+    "And something with a moon for a face is singing in the flames."
    ],
    "radio": {
     "atMinute": 0.2,
     "lines": [
-     "*click* …Rulo. You found the elevator shaft. THE BASEMENT. What's left of the ORIGINAL pizzeria.",
+     "*click* — Listen. The only real exit left is below: THE BASEMENT. What's left of the ORIGINAL pizzeria, under the north wing.",
      "The fire doors need THREE keycards: ROCKSTAR ROW, the THEATER, and the FOOD COURT. Get them. All of them.",
+     "Pirate's Cove hides the first one, and the fox has started to really run. His curtain... the tape is behind the ship. Take it and flip the switches.",
      "It's been burning for YEARS down there. Racks, crates, spare parts, the old show stage... a graveyard with shelves.",
-     "Something with a moon for a face lives in that smoke. It hears EVERYTHING. FIVE fires, FIVE extinguishers. Kill them all.",
-     "When the SUN rises in the steam... RUN TO THE LOBBY EXIT. Don't look back.",
+     "Something with a moon for a face lives in that smoke. It hears EVERYTHING. FIVE fires, FIVE extinguishers. Kill them all and the emergency route to the service tunnels opens.",
      "Whatever you were before tonight... it ends HERE."
     ]
    },
    "objectives": [
     {
-     "id": "c7_key1",
+     "id": "m5_cove_tape",
+     "title": "Recover the ship's tape — Pirate's Cove",
+     "hint": "Behind the pirate ship's curtain — the fox guards it",
+     "type": "collect",
+     "count": 1
+    },
+    {
+     "id": "m5_cove",
+     "title": "CLEAR THE TRIAL: Pirate's Cove",
+     "hint": "3 attraction switches — keep moving, he is fast",
+     "type": "trial",
+     "target": "cove"
+    },
+    {
+     "id": "m5_key1",
      "title": "Keycard — ROCKSTAR ROW",
      "hint": "West gallery display",
      "type": "interact",
@@ -416,7 +323,7 @@
      "target": "key_rockstar"
     },
     {
-     "id": "c7_key2",
+     "id": "m5_key2",
      "title": "Keycard — BRUNO THEATER",
      "hint": "Theater corridor",
      "type": "interact",
@@ -424,7 +331,7 @@
      "target": "key_theater"
     },
     {
-     "id": "c7_key3",
+     "id": "m5_key3",
      "title": "Keycard — FOOD COURT",
      "hint": "Among the tables",
      "type": "interact",
@@ -432,24 +339,209 @@
      "target": "key_foodcourt"
     },
     {
-     "id": "c7_descend",
+     "id": "m5_descend",
      "title": "Descend into THE BURNING BASEMENT",
      "hint": "Fire doors: Parts & Service, Kitchen, North Storage",
      "type": "goto",
      "room": "megadaycare"
     },
     {
-     "id": "c7_trial",
+     "id": "m5_inferno",
      "title": "KILL THE INFERNO: 5 extinguishers",
      "hint": "The Basement — 5 fires, not one less",
      "type": "trial",
      "target": "sunmoon"
     },
     {
-     "id": "c7_escape",
+     "id": "m5_tunnels",
+     "title": "Take the emergency route — SERVICE TUNNELS",
+     "hint": "The south wall of the basement has opened",
      "type": "goto",
-     "label": "RUN to the lobby EXIT",
-     "room": "lobby"
+     "room": "tunnelA"
+    }
+   ]
+  },
+  {
+   "chapter": 6,
+   "id": "m6_tunnels",
+   "title": "The Service Tunnels",
+   "enemies": [
+    "freddy"
+   ],
+   "aggression": 1.3,
+   "eventRate": 0.9,
+   "startPower": 65,
+   "spawn": [-3, -65.5, 0],
+   "introCinematic": "cine_tunnels",
+   "outroCinematic": null,
+   "lines": [
+    "The smoke thins behind you. The dark ahead is older than the mall above.",
+    "Concrete arteries, dead machinery, and water that never stops apologizing.",
+    "One of them is already walking these tunnels. You can hear the servos."
+   ],
+   "radio": {
+    "atMinute": 0.25,
+    "lines": [
+     "*crackle* — You're below the basement now. The SERVICE TUNNELS. They wired this place before the mall, and they wired it WRONG.",
+     "Three RELAYS feed the security gate at the end of the east tunnel. There's a maintenance stencil with the order — the shift code: SECOND, THIRD, FIRST.",
+     "Relay 2, then relay 3, then relay 1. Flip them in that order or the breaker trips and you start over.",
+     "Something BROKEN patrols down there. It hunts by SOUND — it can't see well in the pipes, but every step you take is a dinner bell. Crouch. Walk. Listen.",
+     "The gate itself won't open without a master keycard. The ones upstairs are toys. The real one is in the FORGOTTEN ARCHIVE — the sealed records room off the west tunnel. The relays will unseal its door.",
+     "Old Freddy's footsteps still echo from the basement... or it's the pipes. It's always the pipes. Right?"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "m6_explore",
+     "title": "Explore the service tunnels",
+     "hint": "Follow the corridor south of the vestibule",
+     "type": "goto",
+     "room": "tunnelMain"
+    },
+    {
+     "id": "m6_relays",
+     "title": "Reset the 3 relays: 2 · 3 · 1",
+     "hint": "The shift code is stenciled on the pillar [hold E]",
+     "type": "trial",
+     "target": "tunnels"
+    },
+    {
+     "id": "m6_gate",
+     "title": "Inspect the SECURITY GATE",
+     "hint": "East tunnel — the way to the surface",
+     "type": "goto",
+     "room": "tunnelEast"
+    },
+    {
+     "id": "m6_archive",
+     "title": "Enter the FORGOTTEN ARCHIVE",
+     "hint": "West of the main tunnel — the relays unsealed it",
+     "type": "goto",
+     "room": "archive"
+    }
+   ]
+  },
+  {
+   "chapter": 7,
+   "id": "m7_archive",
+   "title": "The Forgotten Archive",
+   "enemies": [
+    "chica"
+   ],
+   "aggression": 1.35,
+   "eventRate": 1.0,
+   "startPower": 60,
+   "spawn": [-8, -80.5, 3.14159],
+   "introCinematic": null,
+   "outroCinematic": null,
+   "lines": [
+    "The archive breathes dust and old incidents.",
+    "Every shelf is a night nobody reported. Every tape is a voice nobody believed.",
+    "The terminal wants a year. The walls already know which one."
+   ],
+   "radio": {
+    "atMinute": 0.25,
+    "lines": [
+     "You found it. The FORGOTTEN ARCHIVE — maintenance and security records of everything they buried. Read fast, listen faster.",
+     "The terminal is dead: start the two ARCHIVE FUSES on the north wall to feed it. Loud work. She will hear it.",
+     "The recovery logs all mention one year — the year of the second incident. The tapes will tell you which one. That's the vault code.",
+     "Inside the vault: the MASTER KEYCARD. The only card that opens the security gate. The only way this story ends.",
+     "She's hunting the shelves now. The archive has hidespots and hollow racks — use them. Wait for the steps to pass. THEN move.",
+     "Take the card and get back to the gate. Don't stop for the tapes. Don't stop for anything."
+    ]
+   },
+   "objectives": [
+    {
+     "id": "m7_logs",
+     "title": "Recover 2 incident tapes",
+     "hint": "Shelves and desks of the archive — the year of the second incident",
+     "type": "collect",
+     "count": 2
+    },
+    {
+     "id": "m7_power",
+     "title": "Start the archive fuses (2)",
+     "hint": "North wall panels [hold E] — loud work",
+     "type": "interact",
+     "count": 2,
+     "room": "archive",
+     "target": "archive_fuses"
+    },
+    {
+     "id": "m7_terminal",
+     "title": "Unlock the vault terminal",
+     "hint": "The year of the second incident [keypad]",
+     "type": "keypad",
+     "room": "archive",
+     "target": "door_vault"
+    },
+    {
+     "id": "m7_card",
+     "title": "Take the MASTER KEYCARD",
+     "hint": "Inside the vault — the last door",
+     "type": "interact",
+     "room": "archiveVault",
+     "target": "key_master"
+    }
+   ]
+  },
+  {
+   "chapter": 8,
+   "id": "m8_chase",
+   "title": "The Last Chase",
+   "enemies": [
+    "golden"
+   ],
+   "aggression": 1.7,
+   "eventRate": 0.8,
+   "startPower": 70,
+   "spawn": [-8, -80.5, 3.14159],
+   "introCinematic": "cine_chase",
+   "outroCinematic": "cine_sunrise",
+   "lines": [
+    "The card is yours. The gate is one override away.",
+    "The alarms will scream. The dark will answer.",
+    "This is the last night of Bruno MEGAPLEX. Yours too, if you're slow."
+   ],
+   "radio": {
+    "atMinute": 0.1,
+    "lines": [
+     "*click* — Last call, rookie. Insert the card. Hit the override. The gate lifts SLOW — about a minute and a half of screaming metal.",
+     "When the alarm starts, HE comes. The golden one. He doesn't patrol, he doesn't search — he just WALKS toward you until one of you stops.",
+     "You can't outrun him forever. Break line of sight. Duck into the racks. Let the alarm sing for you.",
+     "The stairs up to the basement are open. The fire doors are open. The whole mall is a straight line now — tunnels, basement, north wing, all the way out.",
+     "Hold the gate side until it lifts. Then RUN and don't look back. See you on the other side... if there is one."
+    ]
+   },
+   "objectives": [
+    {
+     "id": "m8_gate",
+     "title": "Reach the security gate — east tunnel",
+     "hint": "Back through the main tunnel",
+     "type": "goto",
+     "room": "tunnelEast"
+    },
+    {
+     "id": "m8_open",
+     "title": "Override the gate with the MASTER KEYCARD",
+     "hint": "The card slot by the gate [E]",
+     "type": "interact",
+     "room": "tunnelEast",
+     "target": "gate_override"
+    },
+    {
+     "id": "m8_hold",
+     "title": "SURVIVE the lockdown override",
+     "hint": "The gate lifts in ~90 seconds. Stay breathing.",
+     "type": "survive",
+     "minutes": 1.5
+    },
+    {
+     "id": "m8_exit",
+     "title": "LEAVE THE COMPLEX — cross the gate",
+     "hint": "When the gate lifts: cross it. Don't look back.",
+     "type": "system",
+     "target": "gate_crossed"
     }
    ]
   }

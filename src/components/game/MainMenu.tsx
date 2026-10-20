@@ -3,7 +3,7 @@
 /**
  * Menú principal FNAW: imagen real del repo (salón con el Show Stage y los
  * animatrónicos) bajo estática CRT, opciones fantasma con marcador » y
- * paneles a la derecha. FNAF: NEW WORLD: 7 capítulos, 11 cintas.
+ * paneles a la derecha. v14: UNA SOLA CAMPAÑA CONTINUA de 8 misiones.
  */
 import { useState } from 'react';
 import chaptersData from '@/data/chapters.json';
@@ -12,10 +12,10 @@ import { getGame } from '@/game/core/instance';
 import { saveSettings, resetSave } from '@/game/systems/save';
 import SettingsPanel from './SettingsPanel';
 
-type Panel = 'none' | 'chapters' | 'settings' | 'controls' | 'credits';
+type Panel = 'none' | 'campaign' | 'settings' | 'controls' | 'credits';
 
-const TOTAL_CHAPTERS = 7;
-const TOTAL_TAPES = 11;
+const TOTAL_MISSIONS = 8;
+const TOTAL_TAPES = 13;
 
 export default function MainMenu() {
   const [panel, setPanel] = useState<Panel>('none');
@@ -30,15 +30,24 @@ export default function MainMenu() {
     if (!ch) return;
     setIntro(ch.lines);
     useHud.getState().syncHud({ chapter: n, chapterTitle: ch.title });
-    useHud.getState().setMode(newspaper ? 'newspaper' : 'intro');
+    if (newspaper) {
+      // NUEVA CAMPAÑA: periódico de apertura + intro de la misión 1
+      useHud.getState().setMode('newspaper');
+    } else if (n === 1) {
+      useHud.getState().setMode('intro');
+    } else {
+      // v14 — CONTINUAR: directo al mundo, SIN pantallas de carga ni selección
+      const game = getGame();
+      if (game) game.startChapter(n);
+    }
   };
 
-  const progressChapter = Math.min(unlockedChapter, TOTAL_CHAPTERS);
+  const progressChapter = Math.min(unlockedChapter, TOTAL_MISSIONS);
 
   return (
     <div className="absolute inset-0 scanlines overflow-hidden">
       {/* imagen de fondo real del repo (FNAF: NEW WORLD — salón + Show Stage) */}
-      <img src="/images/menu_bg.png" alt="" className="menu-bg-img" draggable={false} />
+      <img src="images/menu_bg.png" alt="" className="menu-bg-img" draggable={false} />
       <div className="menu-bg-shade" />
 
       {/* estática tenue */}
@@ -54,14 +63,14 @@ export default function MainMenu() {
           BRUNO COMPLEX · CLOSING SHIFT
         </p>
         <p className="mt-1 text-[9px] tracking-[0.34em] fnaf-dim">
-          CHAPTERS {progressChapter}/{TOTAL_CHAPTERS} · TAPES {tapes.length}/{TOTAL_TAPES}
+          MISSIONS {progressChapter}/{TOTAL_MISSIONS} · TAPES {tapes.length}/{TOTAL_TAPES}
         </p>
       </div>
 
       {/* opciones: columna izquierda, centrada verticalmente */}
       <div className="absolute left-10 top-1/2 -translate-y-1/2 z-10 w-[300px]">
         <button className="menu-btn fnaf-item" onClick={() => launchChapter(1, true)}>
-          <span className="menu-mark">»</span>NEW GAME
+          <span className="menu-mark">»</span>NEW CAMPAIGN
         </button>
         <button
           className="menu-btn fnaf-item"
@@ -69,10 +78,10 @@ export default function MainMenu() {
           disabled={unlockedChapter <= 1}
         >
           <span className="menu-mark">»</span>CONTINUE
-          {unlockedChapter > 1 && <span className="menu-hint">CAP {String(progressChapter).padStart(2, '0')}</span>}
+          {unlockedChapter > 1 && <span className="menu-hint">M {String(progressChapter).padStart(2, '0')}</span>}
         </button>
-        <button className="menu-btn fnaf-item" onClick={() => setPanel(panel === 'chapters' ? 'none' : 'chapters')}>
-          <span className="menu-mark">»</span>CHAPTERS
+        <button className="menu-btn fnaf-item" onClick={() => setPanel(panel === 'campaign' ? 'none' : 'campaign')}>
+          <span className="menu-mark">»</span>CAMPAIGN
         </button>
         <button className="menu-btn fnaf-item" onClick={() => setPanel(panel === 'settings' ? 'none' : 'settings')}>
           <span className="menu-mark">»</span>SETTINGS
@@ -97,23 +106,20 @@ export default function MainMenu() {
       </div>
 
       {/* paneles flotantes a la derecha */}
-      {panel === 'chapters' && (
-        <div className="menu-panel absolute right-10 top-1/2 -translate-y-1/2 z-10 w-[320px] max-h-[70vh] overflow-y-auto game-scroll">
-          <p className="menu-panel-title">CHAPTER SELECT</p>
-          {chapters.map((c) => {
-            const locked = c.chapter > unlockedChapter;
-            return (
-              <button
-                key={c.chapter}
-                className="menu-btn fnaf-item"
-                disabled={locked}
-                onClick={() => launchChapter(c.chapter)}
-              >
-                <span className="fnaf-red mr-3">{String(c.chapter).padStart(2, '0')}</span>
-                {locked ? '?? — LOCKED' : c.title.toUpperCase()}
-              </button>
-            );
-          })}
+      {panel === 'campaign' && (
+        <div className="menu-panel absolute right-10 top-1/2 -translate-y-1/2 z-10 w-[340px] max-h-[70vh] overflow-y-auto game-scroll">
+          <p className="menu-panel-title">CAMPAIGN — 8 MISSIONS, ONE NIGHT</p>
+          <div className="text-[11px] leading-6 fnaf-dim">
+            <p><span className="fnaf-gold">01</span> · The Key of the MegaPlex — the parking lot and the chained doors</p>
+            <p><span className="fnaf-gold">02</span> · Bring the Power Back — four stations, four awakenings</p>
+            <p><span className="fnaf-gold">03</span> · Golden Tokens & Buried Secrets</p>
+            <p><span className="fnaf-gold">04</span> · The Office — Don't Make a Sound</p>
+            <p><span className="fnaf-gold">05</span> · The Basement — The Last Way Out</p>
+            <p><span className="fnaf-gold">06</span> · The Service Tunnels</p>
+            <p><span className="fnaf-gold">07</span> · The Forgotten Archive</p>
+            <p><span className="fnaf-gold">08</span> · The Last Chase</p>
+            <p className="mt-3 text-[#5a564c]">One continuous story. Missions chain automatically — no loading screens, no level select.</p>
+          </div>
         </div>
       )}
 
@@ -163,7 +169,7 @@ export default function MainMenu() {
         </div>
       )}
 
-      <p className="absolute bottom-4 right-6 text-[9px] tracking-[0.3em] fnaf-dim">v10 — FNAF: NEW WORLD</p>
+      <p className="absolute bottom-4 right-6 text-[9px] tracking-[0.3em] fnaf-dim">v14 — FNAF: NEW WORLD · CONTINUOUS CAMPAIGN</p>
       <p className="absolute bottom-4 left-10 text-[9px] tracking-[0.3em] fnaf-dim">CLICK TO ENABLE SOUND</p>
     </div>
   );

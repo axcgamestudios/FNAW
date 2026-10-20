@@ -3,7 +3,8 @@
   {
    "id": "sunmoon",
    "name": "THE BURNING BASEMENT — SUN AND MOON",
-   "chapter": 7,
+   "chapter": 5,
+   "objective": "m5_inferno",
    "room": "megadaycare",
    "hunter": "luna",
    "respawnRoom": "megadaycare",
@@ -20,6 +21,7 @@
    "aggression": 2.15,
    "darkFromStart": true,
    "sunnyTransform": true,
+   "requiresObjectives": ["m5_descend"],
    "introMsg": "THE BASEMENT OF THE ORIGINAL PIZZERIA — AN INFERNO OF RACKS AND CRATES. MOON DROPS FROM THE CEILING. Find the 5 EXTINGUISHERS and kill the fires. Stay crouched: it HEARS everything. And the flames bite TOO.",
    "tasks": [
     {
@@ -139,12 +141,88 @@
      "msg": "THE MOON-FACE SCREAMS ONE LAST TIME"
     }
    ],
-   "successMsg": "THE LAST FIRE DIES. The basement finally breathes... MOON retreats and SUN wakes up in the steam. The fire doors burst open. RUN TO THE EXIT."
+   "successMsg": "THE LAST FIRE DIES. The basement finally breathes... MOON retreats and SUN wakes up in the steam. THE EMERGENCY ROUTE HAS OPENED — south wall. GO."
+  },
+  {
+   "id": "tunnels",
+   "name": "THE SERVICE RELAYS",
+   "chapter": 6,
+   "objective": "m6_relays",
+   "room": "tunnelMain",
+   "hunter": "freddy",
+   "respawnRoom": "tunnelA",
+   "respawnPos": [
+    -3,
+    -65.5
+   ],
+   "respawnYaw": 0,
+   "hunterResetRoom": "tunnelWest",
+   "aggression": 1.5,
+   "darkFromStart": true,
+   "requiresObjectives": ["m6_explore"],
+   "introMsg": "THE MAIN GALLERY IS BLIND DARK. The stenciled pillar knows the order: RELAY 2, THEN 3, THEN 1. Something BROKEN walks the pipes — every relay you flip SCREAMS into the dark.",
+   "tasks": [
+    {
+     "id": "rl2",
+     "label": "Relay II — center-west panel",
+     "at": [
+      -10.0,
+      -71.3
+     ],
+     "hold": 4
+    },
+    {
+     "id": "rl3",
+     "label": "Relay III — east panel",
+     "at": [
+      6.0,
+      -71.3
+     ],
+     "hold": 4
+    },
+    {
+     "id": "rl1",
+     "label": "Relay I — far-west panel",
+     "at": [
+      -26.0,
+      -71.3
+     ],
+     "hold": 4
+    }
+   ],
+   "scares": [
+    {
+     "at": "start",
+     "type": "stingerClose",
+     "msg": "SERVOS ECHO FROM SOMEWHERE IN THE PIPES"
+    },
+    {
+     "at": "task1",
+     "type": "fakeSteps",
+     "msg": "HEAVY STEPS IN THE WATER — NOT YOURS — SLOW — PATIENT"
+    },
+    {
+     "at": "task2",
+     "type": "hunterAppear",
+     "pos": [
+      -24,
+      -73
+     ],
+     "msg": "FREDDY'S BROKEN FRAME BLOCKS THE WEST END OF THE GALLERY"
+    },
+    {
+     "at": "task3",
+     "type": "hunterChase",
+     "msg": "THE LAST RELAY SCREAMS — AND SO DOES HE. RUN THE CIRCUIT!"
+    }
+   ],
+   "successMsg": "THE RELAYS SING. The tunnel lights stutter awake and the RECORDS DOOR hisses open — the FORGOTTEN ARCHIVE waits to the west."
   },
   {
    "id": "bowling",
    "name": "BOWLING ALLEY TRIAL",
-   "chapter": 2,
+   "chapter": 3,
+   "objective": "m3_bowling",
    "room": "bowling",
    "hunter": "bonnie",
    "respawnRoom": "eastPromN",
@@ -155,6 +233,7 @@
    "respawnYaw": 0,
    "hunterResetRoom": "arcade",
    "aggression": 1.35,
+   "requiresObjectives": ["m3_tokens"],
    "introMsg": "TRIAL STARTED — Restart the 3 pinsetters. Bonnie already knows you're here.",
    "tasks": [
     {
@@ -218,6 +297,7 @@
    "id": "foodcourt",
    "name": "FOOD COURT TRIAL",
    "chapter": 3,
+   "objective": "m3_foodcourt",
    "room": "foodcourt",
    "hunter": "chica",
    "respawnRoom": "eastPromN",
@@ -228,6 +308,7 @@
    "respawnYaw": 3.14159,
    "hunterResetRoom": "kitchen",
    "aggression": 1.45,
+   "requiresObjectives": ["m3_bowling"],
    "introMsg": "TRIAL STARTED — Restart the 3 food stands before the event. She can smell the pizza... and you.",
    "tasks": [
     {
@@ -290,7 +371,8 @@
   {
    "id": "cove",
    "name": "PIRATE'S COVE TRIAL",
-   "chapter": 4,
+   "chapter": 5,
+   "objective": "m5_cove",
    "room": "pirateCove",
    "hunter": "foxy",
    "respawnRoom": "westPromN",
@@ -301,6 +383,7 @@
    "respawnYaw": 3.14159,
    "hunterResetRoom": "daycare",
    "aggression": 1.55,
+   "requiresObjectives": ["m5_cove_tape"],
    "introMsg": "TRIAL STARTED — Restore power to the attraction (3 switches, in order). Foxy is VERY fast. Keep moving.",
    "tasks": [
     {
@@ -358,12 +441,13 @@
      "msg": "FOXY IS RUNNING! THE FLASHLIGHT STOPS HIM FOR AN INSTANT — KEEP HIM IN YOUR SIGHTS!"
     }
    ],
-   "successMsg": "TRIAL CLEARED — The attraction roars with power. Foxy returns behind his curtain, whistling."
+   "successMsg": "TRIAL CLEARED — The attraction roars with power. Foxy returns behind his curtain, whistling. One keycard closer..."
   },
   {
    "id": "generators",
-   "name": "GENERATORS TRIAL",
-   "chapter": 5,
+   "name": "GENERATORS TRIAL — MASTER PANEL",
+   "chapter": 2,
+   "objective": "m2_g4",
    "room": "generator",
    "hunter": "freddy",
    "respawnRoom": "promE",
@@ -373,8 +457,9 @@
    ],
    "respawnYaw": 3.14159,
    "hunterResetRoom": "lobby",
-   "aggression": 1.7,
-   "introMsg": "TRIAL STARTED — Master fuse: order 3 · 1 · 4 · 2. ALL animatronics are awake. And something GOLDEN has risen in the Technical Room.",
+   "aggression": 1.3,
+   "requiresObjectives": ["m2_g1", "m2_g2", "m2_g3"],
+   "introMsg": "THE MASTER PANEL — order 3 · 1 · 4 · 2, exactly like the note says. Freddy already heard the three generators you started tonight.",
    "tasks": [
     {
      "id": "gsw3",
@@ -437,15 +522,16 @@
       29,
       30
      ],
-     "msg": "THE GOLDEN ONE BLOCKS THE SOUTH DOOR"
+     "msg": "SOMETHING ELSE STIRS BY THE SOUTH DOOR — THE NIGHT SHIFT IS NOT YOURS ALONE"
     }
    ],
-   "successMsg": "TRIAL CLEARED — POWER RESTORED. The Bruno Complex breathes again. Now... run."
+   "successMsg": "POWER RESTORED — the MEGAPLEX breathes again: atrium, promenades, galleries. Now... check that noise in the arcade."
   },
   {
    "id": "sounds",
    "name": "THE HALLWAY OF SOUNDS",
-   "chapter": 6,
+   "chapter": 4,
+   "objective": "m4_sounds",
    "room": "techHall",
    "type": "sounds",
    "hunter": "freddy",
@@ -462,8 +548,9 @@
    "respawnYaw": 0,
    "aggression": 1.0,
    "darkFromStart": true,
+   "requiresObjectives": ["m4_gallery"],
    "introMsg": "THE TECHNICAL GALLERY IS BLIND DARK. LISTEN TO THE DOORS — RULO WILL TELL YOU WHICH ONE TO ENTER.",
-   "successMsg": "ALL THREE DOORS CORRECT — THE BASEMENT WAITS BELOW...",
+   "successMsg": "ALL THREE DOORS CORRECT — the gallery exhales. Now... GET BACK TO THE OFFICE. The night isn't done with you.",
    "rounds": [
     {
      "hint": "ROUND 1 — Enter where the FAN HUMS (the empty room).",
@@ -530,10 +617,34 @@
     }
    ],
    "tasks": [],
+   "scares": []
+  },
+  {
+   "id": "officeNight",
+   "name": "THE OFFICE — DON'T MAKE A SOUND",
+   "chapter": 4,
+   "objective": "m4_night",
+   "room": "office",
+   "type": "office",
+   "hunter": "bonnie",
+   "respawnRoom": "office",
+   "respawnPos": [
+    -37.5,
+    26.5
+   ],
+   "respawnYaw": 3.14159,
+   "hunterResetRoom": "promW",
+   "hunterResetPos": [
+    -41,
+    16
+   ],
+   "aggression": 1.6,
+   "surviveMinutes": 1.6,
+   "requiresObjectives": ["m4_sounds"],
+   "introMsg": "THEY KNOW WHERE YOU SLEEP. Two doors. One music box. REAL steps come in fours and STOP. Fake ones loop. Keep the PRIZE COUNTER box wound (CAM 17) — and SURVIVE until the motors cool.",
+   "tasks": [],
    "scares": [],
-   "requiresObjectives": [
-    "c6_enter"
-   ]
+   "successMsg": "THE MOTORS COOL DOWN. The steps back away into the dark... the office is yours again. The night shifts beneath your feet — it's time to go DOWN."
   }
  ]
 }

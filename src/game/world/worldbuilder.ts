@@ -208,15 +208,18 @@ export class WorldBuilder {
       floor.name = `floor_${r.id}`;
       this.root.add(floor);
 
-      // techo por sala (a su altura)
-      const ceil = new THREE.Mesh(
-        new THREE.PlaneGeometry(w, d),
-        ceilingMaterial([Math.max(1, w / 2.2), Math.max(1, d / 2.2)])
-      );
-      ceil.rotation.x = Math.PI / 2;
-      ceil.position.set((x1 + x2) / 2, h, (z1 + z2) / 2);
-      ceil.receiveShadow = true;
-      this.root.add(ceil);
+      const outdoor = (r as RoomDef & { noCeiling?: boolean }).noCeiling === true;
+      if (!outdoor) {
+        // techo por sala (a su altura)
+        const ceil = new THREE.Mesh(
+          new THREE.PlaneGeometry(w, d),
+          ceilingMaterial([Math.max(1, w / 2.2), Math.max(1, d / 2.2)])
+        );
+        ceil.rotation.x = Math.PI / 2;
+        ceil.position.set((x1 + x2) / 2, h, (z1 + z2) / 2);
+        ceil.receiveShadow = true;
+        this.root.add(ceil);
+      }
 
       this.rooms.set(r.id, {
         def: r,
@@ -909,10 +912,14 @@ export class WorldBuilder {
     for (const rt of this.rooms.values()) {
       const amb = rt.def.ambientLight;
       const h = rt.def.height ?? 3.6;
-      const dimFactor = rt.def.id === 'office' ? 0.85 : 0.17;
+      // v14 FIX URGENTE: la oficina ya NO quema — era 0.85 (7-14× el resto)
+      const dimFactor = rt.def.id === 'office' ? 0.24 : 0.17;
       rt.lightBase = (amb?.intensity ?? 0.45) * LM * dimFactor;
       rt.lightOn = LIGHTS_ON_DEFAULT.has(rt.def.id);
       this.roomList.push(rt);
+      // v14 — sin luminaria de techo en las salas exteriores (no hay techo)
+      const outdoor = (rt.def as RoomDef & { noCeiling?: boolean }).noCeiling === true;
+      if (outdoor) continue;
       const fixture = new THREE.Mesh(
         new THREE.BoxGeometry(1.1, 0.08, 0.4),
         new THREE.MeshStandardMaterial({ color: 0x9a9482, emissive: new THREE.Color(rt.lightColor), emissiveIntensity: 0.02 })
@@ -922,18 +929,18 @@ export class WorldBuilder {
       rt.fixture = fixture;
     }
 
-    // ---- v11: LA OFICINA ES EL ÚNICO REFUGIO ILUMINADO ----
-    // 3 luces cálidas permanentes y distribuidas (la del pool + estas) para
-    // que toda la sala quede clara: escritorio, estantería y rincón de cámaras.
+    // ---- v14: la oficina sigue siendo un refugio CÁLIDO pero NO cegador ----
+    // 3 luces tenues y distribuidas (escritorio, estanterías, puerta): antes
+    // 24/20/18 + pool ×2.2 = quemaba la imagen. Ahora legible y inquietante.
     {
       const office = this.rooms.get('office');
       if (office) {
         const cx = office.center.x;
         const cz = office.center.z;
         const spots: Array<[number, number, number]> = [
-          [cx + 2.6, cz - 2.8, 24],   // lado del escritorio
-          [cx - 3.4, cz + 2.6, 20],   // zona de estanterías
-          [cx + 3.6, cz + 2.6, 18],   // rincón de la puerta
+          [cx + 2.6, cz - 2.8, 7.5],   // lado del escritorio
+          [cx - 3.4, cz + 2.6, 5.5],   // zona de estanterías
+          [cx + 3.6, cz + 2.6, 5],     // rincón de la puerta
         ];
         for (const [x, z, it] of spots) {
           const l = new THREE.PointLight(0xffe9c0, it, 17, 1.35);
@@ -1047,10 +1054,10 @@ export class WorldBuilder {
         l.color.setHex(r.lightColor);
         l.intensity = intensity;
         l.distance = r.def.id === 'atrium' ? 22 : 15;
-        // v11: la OFICINA es el único refugio iluminado del juego — su luz
-        // es más intensa y con caída más suave para llenar toda la sala
+        // v14: la OFICINA es el único refugio iluminado del juego — un punto
+        // más de luz que el resto, sin quemar la imagen (antes ×2.2)
         if (r.def.id === 'office') {
-          l.intensity = intensity * 2.2;
+          l.intensity = intensity * 1.15;
           l.decay = 1.15;
           l.distance = 20;
         } else {

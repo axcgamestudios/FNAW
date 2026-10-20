@@ -92,3 +92,21 @@ fiesta, hormigón, madera, metal).
   sobre la pose de reposo.
 - **Rendimiento**: culling de luces, instancing, degradación automática de calidad.
 - **Guardado**: localStorage con recuperación ante datos corruptos.
+
+## GitHub Pages (despliegue automático)
+
+Este repo ya incluye el workflow `.github/workflows/deploy-pages.yml`:
+
+1. Crea un repositorio en GitHub y sube este proyecto (`git push` a `main`).
+2. En el repo: **Settings → Pages → Source: GitHub Actions**.
+3. El workflow construye el export estático y lo publica solo en cada push.
+   - Si el repo se llama `usuario.github.io` → se sirve en la raíz.
+   - Cualquier otro nombre → se sirve en `https://usuario.github.io/<repo>/`
+     (el `basePath` se calcula automáticamente en el workflow).
+
+Build local de Pages:
+
+```bash
+BUILD_MODE=pages npm run build:pages   # salida estática en ./out
+npx serve out                          # probarlo
+```

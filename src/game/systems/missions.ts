@@ -26,17 +26,19 @@ interface SpawnedItem {
 }
 
 const TAPE_CHAPTER: Record<number, string[]> = {
-  1: ['tape_w1', 'tape_w7'],
-  2: ['tape_w2', 'tape_w3'],
-  3: ['tape_w4', 'tape_w9'],
-  4: ['tape_w6', 'tape_w5'],
-  5: ['tape_w8'],
+  1: [],
+  2: ['tape_w1', 'tape_w7'],
+  3: ['tape_w2', 'tape_w3'],
+  4: ['tape_w4', 'tape_w9'],
+  5: ['tape_w3', 'tape_w6', 'tape_w8'],
   6: ['tape_golden'],
+  7: ['tape_inc1', 'tape_inc2'],
+  8: [],
 };
 
-/** fichas doradas del recreativo (cap 2) */
+/** v14 — fichas doradas repartidas por zonas distintas (arcade/bowling/west storage) */
 const TOKEN_SPOTS: Array<[number, number]> = [
-  [-12.6, -13.5], [-6.2, -14.2], [-4.5, -10.8],
+  [-12.6, -13.5], [-0.2, -15.6], [-24.5, 7.5],
 ];
 
 export class MissionSystem {
@@ -80,18 +82,18 @@ export class MissionSystem {
       if (tape) this.spawnPickup(tape.id, 'tape', `tape_${tape.location}`);
     });
     // notas de lore
-    if (n >= 1) this.spawnPickup('note_order_pick', 'note', 'note_order');
-    if (n >= 6) this.spawnPickup('note_master_pick', 'note', 'note_master');
-    // fichas doradas (cap2, para la bolera)
-    if (n === 2) {
+    if (n >= 2) this.spawnPickup('note_order_pick', 'note', 'note_order');
+    if (n >= 4) this.spawnPickup('note_master_pick', 'note', 'note_master');
+    // fichas doradas + fusibles (misión 3: tokens y fuses para las atracciones)
+    if (n === 3) {
       TOKEN_SPOTS.forEach(([x, z], i) => {
         this.spawnPickupAt(`token_${i}`, 'token', new THREE.Vector3(x, 0.08, z));
       });
-      // v12 — misión más larga: 2 fusibles de repuesto para la bolera
+      // 2 fusibles de repuesto para las atracciones
       this.spawnPickup('fuse_w', 'fuse', 'fuse_workshop');
       this.spawnPickup('fuse_n', 'fuse', 'fuse_storageN');
     }
-    // baterías (todos los capítulos, 6 aleatorias)
+    // baterías (todas las misiones, 6 aleatorias)
     const spots = this.world.map.batterySpots.slice();
     for (let i = 0; i < 6; i++) {
       const idx = Math.floor(Math.random() * spots.length);
