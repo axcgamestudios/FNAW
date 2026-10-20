@@ -1,108 +1,108 @@
 {
- "tapes": [
-  {
-   "id": "tape_w1",
-   "title": "Maintenance Tape #1",
-   "location": "workshop",
-   "text": "09/01/1993 — Technician's log. The MEGAPLEX isn't new anymore, and the Bruno Band animatronics activate on their own after closing. Management calls it 'nighttime free-roam mode'. Free-roamers don't spend twenty minutes staring into the Atrium camera. I've disconnected the bear's night mode. He keeps moving anyway."
-  },
-  {
-   "id": "tape_w2",
-   "title": "Maintenance Tape #2",
-   "location": "tech",
-   "text": "03/15/1993 — The rabbit won't respond to shutdown commands. She shows up in the service vents. I found oil prints on the Technical Hallway grilles, sixty meters from where I left her. The bear smells like... old corpse and disinfectant. Management says it's the suit material. Sure. Of course it is."
-  },
-  {
-   "id": "tape_w3",
-   "title": "Maintenance Tape #3",
-   "location": "cove",
-   "text": "07/02/1993 — The fox at Pirate's Cove got torn up by some kids at the reopening. Half his face is gone and his arm twitches. I ordered parts. They won't come. Management wants him 'on display, broken or not'. Says the kids love it. Kids don't love it. They run from him. So do I."
-  },
-  {
-   "id": "tape_w4",
-   "title": "Maintenance Tape #4",
-   "location": "daycare",
-   "text": "11/11/1993 — The archives' music box stops by itself mid-melody. When it stops, the chicken gets up from behind the crates and walks. I found her by the door, standing, facing the wall. I put her back. The mechanism was intact. The spring was still wound. The melody calms her. For as long as it lasts."
-  },
-  {
-   "id": "tape_w5",
-   "title": "Maintenance Tape #5",
-   "location": "kitchen",
-   "text": "02/27/1994 — The chicken opens the Industrial Kitchen fridge. There's no food in there. Only tools of mine I'd lost. They're sorted. Sorted better than I ever leave them. I'm not telling management. I quit one of these days. I quit. I swear I quit."
-  },
-  {
-   "id": "tape_w6",
-   "title": "Police Report — Fragment",
-   "location": "restrooms",
-   "text": "06/18/1994 — Four minors reported missing during Bruno Complex's Summer Festival. Witnesses describe an adult in the golden 'Spring Bruno' suit leading the children toward the Technical Hallway. No cameras in the service area. The suit was never found. Case closed for lack of witnesses. Every witness resigned."
-  },
-  {
-   "id": "tape_w7",
-   "title": "Security Tape #7",
-   "location": "rockstar",
-   "text": "04/04/1995 — The previous night guard left this log in the Gallery display case. 'If you're reading this: the TRIALS aren't yours. The complex is testing you. Bowling, the Food Court, the Cove, the Generators. Four doors, four awakenings. Every trial you clear makes them smarter. They learn. You just get tired.'"
-  },
-  {
-   "id": "tape_w8",
-   "title": "Maintenance Tape #8",
-   "location": "generator",
-   "text": "09/22/1995 — The master fuse blows every night at the same hour. I reset it, and by dawn it's fried again. Something is feeding off the generator grid at night. Something that needs a LOT of current. I don't want to know what for. Shift's over. I'm leaving it to the next one."
-  },
-  {
-   "id": "tape_w9",
-   "title": "Staff Tape #9",
-   "location": "foodcourt",
-   "text": "12/30/1995 — Last staff meeting, Food Court, after closing. Management is cutting the security shift down to ONE guard. One. For six thousand square meters. 'The animatronics are more trustworthy than people,' the manager said. Nobody laughed. Everyone signed the new agreement. Everyone but me."
-  },
-  {
-   "id": "tape_golden",
-   "title": "GOLDEN TAPE — Hypnotherapy Session",
-   "location": "golden",
-   "text": "??/??/???? — 'Repeat after me: I saw nothing in the Technical Hallway. I heard no laughter in the vents. The golden suit is empty. The golden suit is empty. The golden suit IS empty. — Patient: and yet... it is listening to me. Right now. Behind the wall. Always behind the wall.'"
-  },
-  {
-   "id": "tape_inc1",
-   "title": "ARCHIVE FILE — Incident 87-C",
-   "location": "archiveA",
-   "text": "RECOVERED 1996 — Internal memo, never filed. 'The ORIGINAL pizzeria basement was never decommissioned. It was SEALED. In the summer of the second incident — the year the Stage Guard bot malfunctioned and the Bite happened — eleven recordings went missing from this archive. The keycard that opens the service gate was locked in the records vault the same week. Access protocol: the vault terminal takes the YEAR. Nothing else. Write it down and burn this memo. 1987.'"
-  },
-  {
-   "id": "tape_inc2",
-   "title": "ARCHIVE FILE — The Basement Contract",
-   "location": "archiveB",
-   "text": "RECOVERED 1996 — Contract fragment, basement level. '...the animate identified as SOL/LUNA remains property of the original venue and shall NOT be removed from the burning sublevel. Its containment is the music. Its music is the dark. If the basement fire suppression is ever engaged, the SOL protocol converts the unit to daylight mode. No refunds. No reopenings. Signed in the year of the second incident: 1987.'"
-  }
- ],
- "notes": [
-  {
-   "id": "note_parking",
-   "title": "Note Nailed to the Front Doors",
-   "text": "TO THE NEW NIGHT GUARD: management chains these doors every closing. I'm not walking out there again, so listen. The old man kept the spare key in his HUT — the little concrete box by the west fence, past the dumpsters. His desk lamp still works. If it goes dark out there... you didn't read this. — R."
-  },
-  {
-   "id": "note_order",
-   "title": "Crumpled Note — Master Order",
-   "text": "The master fuse only accepts its sequence: 3 · 1 · 4 · 2. Get it wrong and the breaker trips and you lose power. Don't ask again. — R."
-  },
-  {
-   "id": "note_master",
-   "title": "Rulo's Note — Last Page",
-   "text": "Kid: if you made it this far, you already know there aren't five nights. There's one endless night, and you decide when it ends. The service keycards are where the band used to play, where they screen the movies, and where people eat dinner. Run. Don't look back. I didn't — and that's why this note exists."
-  }
- ],
- "endingNormal": [
-  "The lathes spin for the last time.",
-  "The night air hits your face holding the key to the whole world.",
-  "Behind you, the Bruno Complex goes dark and silent, as if it had never been awake at all.",
-  "In your pocket, the tablet beeps. A single message from the missing technician:",
-  "\"Well done, kid. I left through the loading dock. You... you walked out through the big door.\""
- ],
- "endingSecret": [
-  "The lathes spin for the last time.",
-  "But as you cross the threshold, the lobby changes: ALL the lights come on.",
-  "The Freddy statue in the lobby has turned its head toward you.",
-  "The golden suit stands by the fountain. Empty inside. It still is.",
-  "\"The ten tapes,\" something says in your own voice. \"Now you know what we left down here.\"",
-  "The complex lets you out. This time. The complex always lets out the ones who know."
- ]
+  "tapes": [
+    {
+      "id": "tape_w1",
+      "title": "Maintenance Tape #1",
+      "location": "workshop",
+      "text": "09/01/1993 — Technician's log. The MEGAPLEX isn't new anymore, and the Bruno Band animatronics activate on their own after closing. Management calls it 'nighttime free-roam mode'. Free-roamers don't spend twenty minutes staring into the Atrium camera. I've disconnected the bear's night mode. He keeps moving anyway."
+    },
+    {
+      "id": "tape_w2",
+      "title": "Maintenance Tape #2",
+      "location": "tech",
+      "text": "03/15/1993 — The rabbit won't respond to shutdown commands. She shows up in the service vents. I found oil prints on the Technical Hallway grilles, sixty meters from where I left her. The bear smells like... old corpse and disinfectant. Management says it's the suit material. Sure. Of course it is."
+    },
+    {
+      "id": "tape_w3",
+      "title": "Maintenance Tape #3",
+      "location": "cove",
+      "text": "07/02/1993 — The fox at Pirate's Cove got torn up by some kids at the reopening. Half his face is gone and his arm twitches. I ordered parts. They won't come. Management wants him 'on display, broken or not'. Says the kids love it. Kids don't love it. They run from him. So do I."
+    },
+    {
+      "id": "tape_w4",
+      "title": "Maintenance Tape #4",
+      "location": "wstorage",
+      "text": "11/11/1993 — The archives' music box stops by itself mid-melody. When it stops, the chicken gets up from behind the crates and walks. I found her by the door, standing, facing the wall. I put her back. The mechanism was intact. The spring was still wound. The melody calms her. For as long as it lasts."
+    },
+    {
+      "id": "tape_w5",
+      "title": "Maintenance Tape #5",
+      "location": "kitchen",
+      "text": "02/27/1994 — The chicken opens the Industrial Kitchen fridge. There's no food in there. Only tools of mine I'd lost. They're sorted. Sorted better than I ever leave them. I'm not telling management. I quit one of these days. I quit. I swear I quit."
+    },
+    {
+      "id": "tape_w6",
+      "title": "Police Report — Fragment",
+      "location": "restrooms",
+      "text": "06/18/1994 — Four minors reported missing during Bruno Complex's Summer Festival. Witnesses describe an adult in the golden 'Spring Bruno' suit leading the children toward the Technical Hallway. No cameras in the service area. The suit was never found. Case closed for lack of witnesses. Every witness resigned."
+    },
+    {
+      "id": "tape_w7",
+      "title": "Security Tape #7",
+      "location": "rockstar",
+      "text": "04/04/1995 — The previous night guard left this log in the Gallery display case. 'If you're reading this: the TRIALS aren't yours. The complex is testing you. Bowling, the Food Court, the Cove, the Generators. Four doors, four awakenings. Every trial you clear makes them smarter. They learn. You just get tired.'"
+    },
+    {
+      "id": "tape_w8",
+      "title": "Maintenance Tape #8",
+      "location": "generator",
+      "text": "09/22/1995 — The master fuse blows every night at the same hour. I reset it, and by dawn it's fried again. Something is feeding off the generator grid at night. Something that needs a LOT of current. I don't want to know what for. Shift's over. I'm leaving it to the next one."
+    },
+    {
+      "id": "tape_w9",
+      "title": "Staff Tape #9",
+      "location": "foodcourt",
+      "text": "12/30/1995 — Last staff meeting, Food Court, after closing. Management is cutting the security shift down to ONE guard. One. For six thousand square meters. 'The animatronics are more trustworthy than people,' the manager said. Nobody laughed. Everyone signed the new agreement. Everyone but me."
+    },
+    {
+      "id": "tape_golden",
+      "title": "GOLDEN TAPE — Hypnotherapy Session",
+      "location": "golden",
+      "text": "??/??/???? — 'Repeat after me: I saw nothing in the Technical Hallway. I heard no laughter in the vents. The golden suit is empty. The golden suit is empty. The golden suit IS empty. — Patient: and yet... it is listening to me. Right now. Behind the wall. Always behind the wall.'"
+    },
+    {
+      "id": "tape_inc1",
+      "title": "ARCHIVE FILE — Incident 87-C",
+      "location": "archiveA",
+      "text": "RECOVERED 1996 — Internal memo, never filed. 'The ORIGINAL pizzeria basement was never decommissioned. It was SEALED. In the summer of the second incident — the year the Stage Guard bot malfunctioned and the Bite happened — eleven recordings went missing from this archive. The keycard that opens the service gate was locked in the records vault the same week. Access protocol: the vault terminal takes the YEAR. Nothing else. Write it down and burn this memo. 1987.'"
+    },
+    {
+      "id": "tape_inc2",
+      "title": "ARCHIVE FILE — The Basement Contract",
+      "location": "archiveB",
+      "text": "RECOVERED 1996 — Contract fragment, basement level. '...the animate identified as SOL/LUNA remains property of the original venue and shall NOT be removed from the burning sublevel. Its containment is the music. Its music is the dark. If the basement fire suppression is ever engaged, the SOL protocol converts the unit to daylight mode. No refunds. No reopenings. Signed in the year of the second incident: 1987.'"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note_parking",
+      "title": "Note Nailed to the Front Doors",
+      "text": "TO THE NEW NIGHT GUARD: management chains these doors every closing. I'm not walking out there again, so listen. The old man kept the spare key in his HUT — the little concrete box by the west fence, past the dumpsters. His desk lamp still works. If it goes dark out there... you didn't read this. — R."
+    },
+    {
+      "id": "note_order",
+      "title": "Crumpled Note — Master Order",
+      "text": "The master fuse only accepts its sequence: 3 · 1 · 4 · 2. Get it wrong and the breaker trips and you lose power. Don't ask again. — R."
+    },
+    {
+      "id": "note_master",
+      "title": "Rulo's Note — Last Page",
+      "text": "Kid: if you made it this far, you already know there aren't five nights. There's one endless night, and you decide when it ends. The service keycards are where the band used to play, where they screen the movies, and where people eat dinner. Run. Don't look back. I didn't — and that's why this note exists."
+    }
+  ],
+  "endingNormal": [
+    "The lathes spin for the last time.",
+    "The night air hits your face holding the key to the whole world.",
+    "Behind you, the Bruno Complex goes dark and silent, as if it had never been awake at all.",
+    "In your pocket, the tablet beeps. A single message from the missing technician:",
+    "\"Well done, kid. I left through the loading dock. You... you walked out through the big door.\""
+  ],
+  "endingSecret": [
+    "The lathes spin for the last time.",
+    "But as you cross the threshold, the lobby changes: ALL the lights come on.",
+    "The Freddy statue in the lobby has turned its head toward you.",
+    "The golden suit stands by the fountain. Empty inside. It still is.",
+    "\"The ten tapes,\" something says in your own voice. \"Now you know what we left down here.\"",
+    "The complex lets you out. This time. The complex always lets out the ones who know."
+  ]
 }

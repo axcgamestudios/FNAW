@@ -1639,7 +1639,7 @@ function buildWestStorage(world: WorldBuilder) {
   addDrawing(world, 4, -16.15, 1.6, 10.2, -Math.PI / 2);
 
   // cinta de mantenimiento (tape_w4) sobre una estantería
-  world.anchors.set('tape_daycare', { pos: new THREE.Vector3(-28.4, 1.15, 4.6) });
+  world.anchors.set('tape_wstorage', { pos: new THREE.Vector3(-28.4, 1.15, 4.6) });
 }
 
 /* ============ PLAZA DE COMIDA ============ */
@@ -1760,7 +1760,7 @@ function buildProms(world: WorldBuilder) {
   neonSign(world, 'ATRIO →', 0x44ff88, -16.3, 2.9, -6, Math.PI / 2, 1.5, 0.4);
   neonSign(world, '← ATRIO', 0x44ff88, 16.3, 2.9, -6, -Math.PI / 2, 1.5, 0.4);
   neonSign(world, "PIRATE'S COVE", 0x9a7ad8, -36.5, 2.9, -3.5, Math.PI, 2.8, 0.45);
-  neonSign(world, 'DAYCARE', 0xffd070, -22, 2.9, -3.5, Math.PI, 1.8, 0.45);
+  neonSign(world, 'ALMACÉN', 0xffd070, -22, 2.9, -3.5, Math.PI, 1.8, 0.45);
   neonSign(world, 'COMIDA', 0xff8844, 23, 2.9, -3.5, Math.PI, 1.5, 0.45);
   neonSign(world, 'RESTROOMS', 0x88aaff, 37, 2.9, -3.5, Math.PI, 1.2, 0.4);
   neonSign(world, 'LOBBY', 0x44ff88, 0, 3.1, 13.4, 0, 2.0, 0.45);

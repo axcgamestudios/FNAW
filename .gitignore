@@ -66,3 +66,11 @@ scripts/*.jpg
 scripts/vlm*.json
 scripts/*.wav
 *.db
+
+# v15 — scaffolding del entorno de desarrollo (no va al repo público)
+/zscripts/
+/.zscripts/
+/tests/
+/examples/
+/mini-services/
+/Caddyfile
