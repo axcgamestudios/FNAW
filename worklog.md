@@ -398,3 +398,24 @@ Stage Summary:
 - La oficina YA NO CEGA (−90% intensidad, cálida y legible, verificado por VLM).
 - Todo listo para GitHub Pages: el usuario solo necesita git remote add + push; el workflow despliega solo (Settings→Pages→GitHub Actions).
 - NOTA: el entorno NO tiene credenciales de GitHub (sin gh/token/remote) — el push final lo hace el usuario con su cuenta (instrucciones en README).
+
+---
+Task ID: 15
+Agent: Super Z (agente principal)
+Task: Verificación final v14 + limpieza "borra daycare" + subida a GitHub (axcgamestudios/FNAW) con deploy a GitHub Pages.
+
+Work Log:
+- Verificado estado v14: árbol limpio, campaign continua M1-M8, extintores (MEGA_EXTINTORES ×5), estanterías del sótano (rackRow), cámara "CAM 10 — West Storage" y "CAM 13 — The Basement": el daycare YA estaba re-tematizado en sesiones previas (daycare→WEST STORAGE—ARCHIVES, megadaycare→THE BASEMENT BURNING de M5).
+- Únicos residuos visibles eliminados: neón de pasillo 'DAYCARE'→'ALMACÉN' (props.ts:1763); anchor 'tape_daycare'→'tape_wstorage' (props.ts:1642) + story.json tape_w4 location 'daycare'→'wstorage' (missions.ts deriva el anchor como `tape_${location}`, ambos extremos actualizados).
+- Verificado fix de latencia de audio: jumpscare.mp3 pre-decodificado en preloadFileAudio() (audio.ts:134) y reproducido por BufferSource con 0 ms de decode (audio.ts:1115-1118); superScream es síntesis instantánea.
+- Limpieza del repo para público: .env (solo DATABASE_URL=file local, sin secretos), .zscripts/, tests/, examples/, mini-services/, Caddyfile fuera del tracking + /gitignore endurecido (v15).
+- RE-TEST COMPLETO: probe v14_fullflow.js sobre dev server → M1→M8 "0 fallos" (parking/túneles/archivo/vault/hut OK, luz oficina 3.02, ending normal, unlocked 8, 105 interactables, nav 17/19 intacta).
+- Build estático verificado: BUILD_MODE=pages NEXT_PUBLIC_BASE_PATH=/FNAW npm run build:pages → out/ 68MB, basePath aplicado en HTML, .nojekyll creado.
+- Repo remoto axcgamestudios/FNAW NO estaba vacío (assets originales del usuario: 7 GLB + audios + imágenes, 46MB): merge --allow-unrelated-histories preservándolos en la raíz + juego completo encima (commit 21837a8). Push exitoso d4c6d13..21837a8.
+- GitHub Pages ACTIVADO vía API (build_type=workflow). Workflow "Deploy to GitHub Pages" completado con ÉXITO (run 39365243946, ~2.5 min).
+- Verificación EN VIVO: https://axcgamestudios.github.io/FNAW/ → 200, audio/modelos 200, headless browser: canvas renderiza, menú "NEW CAMPAIGN" operativo.
+
+Stage Summary:
+- JUEGO PUBLICADO: https://axcgamestudios.github.io/FNAW/ — campaña completa M1-M8 jugable online, assets originales del usuario preservados en la raíz del repo.
+- Deploy automático: cada push a main reconstruye y republica Pages (workflow deploy-pages.yml).
+- PENDIENTE USUARIO: rotar/regenerar el token de GitHub (se compartió en texto plano) y opcionalmente configurar dominio propio en Settings→Pages.
